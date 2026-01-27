@@ -24,6 +24,7 @@
         .badge { background: #e67e22; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; }
         #q-image { width: 100%; max-height: 180px; object-fit: contain; margin-bottom: 10px; display: none; border-radius: 8px; }
         #live-scores-container { margin-top: 15px; border-top: 2px solid #eee; padding-top: 10px; }
+        .setting-label { font-size: 0.75rem; font-weight: bold; display: block; text-align: left; color: #555; margin-bottom: 2px; }
     </style>
 </head>
 <body>
@@ -41,6 +42,7 @@
             <button onclick="showLocalList('wrong')" class="outline" style="font-size:0.75rem;">❌ Yanlışlar</button>
             <button onclick="showLocalList('blank')" class="outline" style="font-size:0.75rem; grid-column: span 2;">⚪ Boşlarım</button>
         </div>
+        <button onclick="showScreen('screen-add')" class="outline" style="margin-top:5px; font-size:0.8rem;">➕ Soru Ekle</button>
     </div>
 
     <div id="screen-list" class="screen">
@@ -49,13 +51,35 @@
         <button onclick="showScreen('screen-login')" class="outline">GERİ</button>
     </div>
 
+    <div id="screen-add" class="screen">
+        <h3>Soru Ekle</h3>
+        <select id="new-ders"><option value="TARİH">Tarih</option><option value="COĞRAFYA">Coğrafya</option><option value="VATANDAŞLIK">Vatandaşlık</option></select>
+        <select id="new-zorluk"><option value="KOLAY">Kolay</option><option value="ORTA">Orta</option><option value="ZOR">Zor</option></select>
+        <input id="new-soru" placeholder="Soru Metni">
+        <input id="new-resim" placeholder="Resim Adı">
+        <input id="new-a" placeholder="A"><input id="new-b" placeholder="B"><input id="new-c" placeholder="C"><input id="new-d" placeholder="D">
+        <select id="new-dogru"><option value="0">Cevap A</option><option value="1">Cevap B</option><option value="2">Cevap C</option><option value="3">Cevap D</option></select>
+        <button onclick="saveQuestion()" class="green">KAYDET</button>
+        <button onclick="showScreen('screen-login')" class="outline">GERİ</button>
+    </div>
+
     <div id="screen-lobby" class="screen">
         <p>Oda Kodu:</p>
-        <h1 id="display-room-code" style="color:#e67e22;">----</h1>
-        <div id="lobby-list"></div>
-        <div id="host-controls" style="display:none; margin-top:15px;">
-            <button onclick="startGame()" class="orange">OYUNU BAŞLAT</button>
+        <h1 id="display-room-code" style="color:#e67e22; margin:0;">----</h1>
+        <div id="lobby-list" style="margin-top:10px;"></div>
+        
+        <div id="host-controls" style="display:none; margin-top:20px; background: #f9f9f9; padding: 15px; border-radius: 10px;">
+            <div style="display:flex; gap:5px;">
+                <div style="flex:1;"><span class="setting-label">Soru</span><input type="number" id="set-count" value="10"></div>
+                <div style="flex:1;"><span class="setting-label">Süre</span><input type="number" id="set-duration" value="15"></div>
+            </div>
+            <span class="setting-label">Ders Seçimi</span>
+            <select id="set-subject"><option value="HEPSI">Tüm Dersler</option><option value="TARİH">Tarih</option><option value="COĞRAFYA">Coğrafya</option><option value="VATANDAŞLIK">Vatandaşlık</option></select>
+            <span class="setting-label">Zorluk Seviyesi</span>
+            <select id="set-difficulty"><option value="HEPSI">Tüm Seviyeler</option><option value="KOLAY">Kolay</option><option value="ORTA">Orta</option><option value="ZOR">Zor</option></select>
+            <button onclick="startGame()" class="orange" style="margin-top:10px;">OYUNU BAŞLAT</button>
         </div>
+        <p id="wait-msg" style="display:none; color:#777;">Kurucu ayarları yapıyor...</p>
     </div>
 
     <div id="screen-game" class="screen">
@@ -79,7 +103,7 @@
     <div id="screen-result" class="screen">
         <h2>🏆 SONUÇLAR</h2>
         <div id="result-board"></div><br>
-        <button onclick="location.reload()" class="outline">TEKRAR OYNA</button>
+        <button onclick="location.reload()" class="outline">ANA MENÜ</button>
     </div>
 </div>
 
@@ -105,9 +129,19 @@
         showScreen('screen-list');
     }
 
-    function createRoom() { const n = getUsername(); if(n) { socket.emit('createRoom', n); } }
-    function joinRoom() { const n = getUsername(); const c = document.getElementById('room-code-input').value; if(n && c) { myCode = c; socket.emit('joinRoom', {username:n, roomCode:c}); } }
-    function startGame() { socket.emit('startGame', { roomCode: myCode, settings: { count: 10, duration: 15, subject: 'HEPSI', difficulty: 'HEPSI' } }); }
+    function createRoom() { const n = getUsername(); if(n) { localStorage.setItem('saved_username', n); socket.emit('createRoom', n); } }
+    function joinRoom() { const n = getUsername(); const c = document.getElementById('room-code-input').value; if(n && c) { localStorage.setItem('saved_username', n); myCode = c; socket.emit('joinRoom', {username:n, roomCode:c}); } }
+    
+    function startGame() { 
+        const settings = {
+            count: document.getElementById('set-count').value,
+            duration: document.getElementById('set-duration').value,
+            subject: document.getElementById('set-subject').value,
+            difficulty: document.getElementById('set-difficulty').value
+        };
+        socket.emit('startGame', { roomCode: myCode, settings: settings }); 
+    }
+
     function submitBlank() { socket.emit('submitAnswer', {roomCode: myCode, answerIndex: -1}); disableAllButtons(); }
     function disableAllButtons() { myButtons.forEach(x => x.disabled = true); document.getElementById('btn-blank').disabled = true; }
 
@@ -124,7 +158,7 @@
         showScreen('screen-game');
         document.getElementById('result-msg').innerText = "";
         currentQuestionData = { soru: d.soru, siklar: d.siklar, dogru: null, ders: d.ders };
-        document.getElementById('q-lesson').innerText = d.ders;
+        document.getElementById('q-lesson').innerText = d.ders + (d.zorluk ? ` (${d.zorluk})` : "");
         document.getElementById('q-count').innerText = d.index + "/" + d.total;
         document.getElementById('q-text').innerText = d.soru;
         const img = document.getElementById('q-image');
@@ -147,6 +181,7 @@
     });
 
     socket.on('gameOver', p => { showScreen('screen-result'); p.sort((a,b) => b.score - a.score); document.getElementById('result-board').innerHTML = p.map((x,i) => `<div class="player-card"><span>${i+1}. ${x.username}</span><span>${x.score} P</span></div>`).join(''); });
+    socket.on('errorMsg', m => alert(m));
 </script>
 </body>
 </html>
