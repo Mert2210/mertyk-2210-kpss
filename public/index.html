@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mert 2210</title>
+    <title>Mert 2210 - KPSS</title>
     <style>
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -15,7 +15,7 @@
             background: rgba(255,255,255,0.95); color: #333;
             width: 90%; max-width: 450px; padding: 25px;
             border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            position: relative;
+            position: relative; max-height: 90vh; overflow-y: auto;
         }
         h2 { margin-top: 0; color: #1e3c72; letter-spacing: 1px; }
         input, select, button { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; font-size: 1rem; text-align: center; }
@@ -23,23 +23,37 @@
         button:hover { background: #34568f; }
         button.green { background: #27ae60; }
         button.orange { background: #e67e22; }
+        button.red { background: #c0392b; }
         button.outline { background: transparent; border: 2px solid #1e3c72; color: #1e3c72; }
         .screen { display: none; } .active { display: block; animation: fadeIn 0.5s; }
         @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+        
+        /* Liste Stilleri */
+        .list-item { background: #fff; border-bottom: 1px solid #eee; padding: 10px; text-align: left; font-size: 0.9rem; }
+        .list-item strong { color: #e67e22; display: block; margin-bottom: 5px; font-size: 0.8rem; }
+        .list-badge { display: inline-block; padding: 2px 6px; border-radius: 4px; color: white; font-size: 0.7rem; margin-right: 5px;}
+        
+        /* Oyun İçi Stiller */
         .player-card { background: #f0f2f5; padding: 10px; margin: 5px 0; border-radius: 5px; display: flex; justify-content: space-between; font-weight: bold; }
         .opt-btn { background: #eef2f3; color: #333; text-align: left; margin-bottom: 8px; border: 2px solid #ddd; }
         .correct { background: #2ecc71 !important; color: white; border-color: #27ae60; }
         .wrong { background: #e74c3c !important; color: white; border-color: #c0392b; }
         #timer-bar { height: 6px; background: #e67e22; width: 100%; margin-top: 15px; border-radius: 3px; }
         .badge { background: #e67e22; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; }
+        
+        /* Yıldız Butonu */
+        #star-btn { font-size: 1.5rem; background: none; border: none; color: #ccc; cursor: pointer; padding: 0; width: auto; }
+        #star-btn.starred { color: #f1c40f; text-shadow: 0 0 5px #f39c12; }
     </style>
 </head>
 <body>
 <div class="container">
+    
     <div id="screen-login" class="screen active">
         <h2>MERT 2210</h2>
         <p>KPSS Bilgi Yarışması</p>
         <input type="text" id="username" placeholder="Adınız" maxlength="12">
+        
         <div style="border-top: 1px solid #eee; padding-top: 15px; margin-top: 15px;">
             <button onclick="createRoom()">🏠 ODA KUR</button>
             <div style="display:flex; gap:5px;">
@@ -47,8 +61,23 @@
                 <button onclick="joinRoom()" class="green" style="margin:0; width:60%;">KATIL</button>
             </div>
         </div>
-        <button onclick="showScreen('screen-add')" class="outline" style="margin-top:15px;">➕ SORU EKLE</button>
+
+        <div style="display:flex; gap:10px; margin-top:10px;">
+            <button onclick="showLocalList('fav')" class="outline" style="font-size:0.9rem;">⭐ Favorilerim</button>
+            <button onclick="showLocalList('wrong')" class="outline" style="font-size:0.9rem;">❌ Yanlışlarım</button>
+        </div>
+        
+        <button onclick="showScreen('screen-add')" class="outline" style="margin-top:10px; font-size:0.8rem;">➕ Soru Ekle</button>
     </div>
+
+    <div id="screen-list" class="screen">
+        <h3 id="list-title">Listem</h3>
+        <div id="list-content" style="max-height: 300px; overflow-y: auto; background: #f9f9f9; border-radius: 8px; margin-bottom: 10px;">
+            </div>
+        <button onclick="clearList()" class="red" style="font-size:0.8rem;">Listeyi Temizle</button>
+        <button onclick="showScreen('screen-login')" class="outline">GERİ DÖN</button>
+    </div>
+
     <div id="screen-add" class="screen">
         <h3>Yeni Soru Ekle</h3>
         <select id="new-ders"><option value="TARİH">Tarih</option><option value="COĞRAFYA">Coğrafya</option><option value="VATANDAŞLIK">Vatandaşlık</option></select>
@@ -58,6 +87,7 @@
         <button onclick="saveQuestion()" class="green">KAYDET</button>
         <button onclick="showScreen('screen-login')" class="outline">GERİ DÖN</button>
     </div>
+
     <div id="screen-lobby" class="screen">
         <p>Oda Kodun:</p>
         <h1 id="display-room-code" style="color:#e67e22; letter-spacing:5px; margin:0;">----</h1>
@@ -73,9 +103,11 @@
         </div>
         <p id="wait-msg" style="display:none; color:#777;">Kurucu bekleniyor...</p>
     </div>
+
     <div id="screen-game" class="screen">
-        <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:10px; align-items:center;">
             <span id="q-lesson" class="badge">DERS</span>
+            <button id="star-btn" onclick="toggleStar()">★</button>
             <span id="q-count" style="font-weight:bold; color:#777;">1/10</span>
         </div>
         <h3 id="q-text" style="min-height:60px; margin:10px 0;">Soru...</h3>
@@ -83,36 +115,160 @@
         <div id="timer-bar"></div>
         <div style="margin-top:15px; font-size:0.9rem;">Puanlar: <span id="live-scores"></span></div>
     </div>
+
     <div id="screen-result" class="screen">
         <h2>🏆 SONUÇLAR</h2>
         <div id="result-board"></div><br>
         <button onclick="location.reload()" class="outline">ANA MENÜYE DÖN</button>
     </div>
+
 </div>
+
 <script src="/socket.io/socket.io.js"></script>
 <script>
     const socket = io();
-    let myCode = ""; let myButtons = [];
+    let myCode = ""; 
+    let myButtons = [];
+    let currentQuestionData = null; // Şu anki soruyu hafızada tutmak için
+    let currentListType = ""; // 'fav' veya 'wrong'
+
     function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
     function getUsername() { const n = document.getElementById('username').value; if(!n) { alert("İsim yazın!"); return null; } return n; }
+    
+    // --- LOCAL STORAGE YÖNETİMİ ---
+    function getLocalData(key) { return JSON.parse(localStorage.getItem(key)) || []; }
+    function saveLocalData(key, data) { localStorage.setItem(key, JSON.stringify(data)); }
+
+    function toggleStar() {
+        if (!currentQuestionData) return;
+        const btn = document.getElementById('star-btn');
+        let favs = getLocalData('kpss_favs');
+        
+        // Zaten var mı kontrol et
+        const exists = favs.find(q => q.soru === currentQuestionData.soru);
+        
+        if (exists) {
+            // Varsa çıkar
+            favs = favs.filter(q => q.soru !== currentQuestionData.soru);
+            btn.classList.remove('starred');
+        } else {
+            // Yoksa ekle (Doğru cevabı da ekleyerek)
+            favs.push(currentQuestionData);
+            btn.classList.add('starred');
+        }
+        saveLocalData('kpss_favs', favs);
+    }
+
+    function saveWrongAnswer(qData) {
+        let wrongs = getLocalData('kpss_wrongs');
+        // Aynı soruyu tekrar tekrar eklememek için kontrol
+        const exists = wrongs.find(q => q.soru === qData.soru);
+        if(!exists) {
+            wrongs.push(qData);
+            saveLocalData('kpss_wrongs', wrongs);
+        }
+    }
+
+    function showLocalList(type) {
+        currentListType = type;
+        const key = type === 'fav' ? 'kpss_favs' : 'kpss_wrongs';
+        const title = type === 'fav' ? '⭐ Favori Sorularım' : '❌ Yanlış Yaptıklarım';
+        const list = getLocalData(key);
+        
+        document.getElementById('list-title').innerText = title;
+        const div = document.getElementById('list-content');
+        
+        if(list.length === 0) {
+            div.innerHTML = "<p style='padding:20px; color:#999;'>Henüz kayıtlı soru yok.</p>";
+        } else {
+            div.innerHTML = list.map(q => `
+                <div class="list-item">
+                    <span class="list-badge" style="background:${getDersColor(q.ders)}">${q.ders}</span>
+                    ${q.soru}
+                    <strong>Cevap: ${q.siklar[q.dogru]}</strong>
+                </div>
+            `).join('');
+        }
+        showScreen('screen-list');
+    }
+
+    function clearList() {
+        if(!confirm("Bu listeyi tamamen silmek istiyor musun?")) return;
+        const key = currentListType === 'fav' ? 'kpss_favs' : 'kpss_wrongs';
+        localStorage.removeItem(key);
+        showLocalList(currentListType); // Ekranı yenile
+    }
+
+    function getDersColor(ders) {
+        if(ders === 'TARİH') return '#e74c3c';
+        if(ders === 'COĞRAFYA') return '#27ae60';
+        if(ders === 'VATANDAŞLIK') return '#2980b9';
+        return '#777';
+    }
+
+    // --- SOCKET İŞLEMLERİ ---
     function createRoom() { const n = getUsername(); if(n) socket.emit('createRoom', n); }
     function joinRoom() { const n = getUsername(); const c = document.getElementById('room-code-input').value; if(n && c) { myCode = c; socket.emit('joinRoom', {username:n, roomCode:c}); } else alert("İsim ve Kod gerekli!"); }
+    
     function saveQuestion() {
         const q = { ders: document.getElementById('new-ders').value, soru: document.getElementById('new-soru').value, siklar: [document.getElementById('new-a').value, document.getElementById('new-b').value, document.getElementById('new-c').value, document.getElementById('new-d').value], dogru: document.getElementById('new-dogru').value };
         if(!q.soru || !q.siklar[0]) return alert("Eksik bilgi!");
         socket.emit('addNewQuestion', q); document.getElementById('new-soru').value = "";
     }
+    
     function startGame() { socket.emit('startGame', { roomCode: myCode, settings: { count: document.getElementById('set-count').value, duration: document.getElementById('set-duration').value, subject: document.getElementById('set-subject').value } }); }
+
     socket.on('roomCreated', c => { myCode = c; document.getElementById('display-room-code').innerText = c; showScreen('screen-lobby'); document.getElementById('host-controls').style.display = 'block'; document.getElementById('wait-msg').style.display = 'none'; });
     socket.on('roomJoined', c => { myCode = c; document.getElementById('display-room-code').innerText = c; showScreen('screen-lobby'); document.getElementById('host-controls').style.display = 'none'; document.getElementById('wait-msg').style.display = 'block'; });
     socket.on('updatePlayerList', p => { document.getElementById('lobby-list').innerHTML = p.map(x => `<div class="player-card"><span>${x.username} ${x.isHost?'👑':''}</span><span>${x.score}</span></div>`).join(''); document.getElementById('live-scores').innerHTML = p.map(x => `${x.username}:${x.score}`).join(' | '); });
+
+    // YENİ SORU GELDİĞİNDE
     socket.on('newQuestion', d => {
-        showScreen('screen-game'); document.getElementById('q-lesson').innerText = d.ders; document.getElementById('q-count').innerText = d.index + " / " + d.total; document.getElementById('q-text').innerText = d.soru;
+        showScreen('screen-game'); 
+        currentQuestionData = { soru: d.soru, siklar: d.siklar, dogru: null, ders: d.ders }; // Şıkların doğru cevabını şu an bilmiyoruz, sonucu bekleyeceğiz ama metni aldık.
+        
+        // Yıldız kontrolü (Daha önce favorilenmiş mi?)
+        const favs = getLocalData('kpss_favs');
+        const isFav = favs.find(q => q.soru === d.soru);
+        const starBtn = document.getElementById('star-btn');
+        if(isFav) starBtn.classList.add('starred'); else starBtn.classList.remove('starred');
+
+        document.getElementById('q-lesson').innerText = d.ders;
+        document.getElementById('q-count').innerText = d.index + " / " + d.total; 
+        document.getElementById('q-text').innerText = d.soru;
+        
         const div = document.getElementById('opts-area'); div.innerHTML = ""; myButtons = [];
-        d.siklar.forEach((s, i) => { const b = document.createElement('button'); b.className = 'opt-btn'; b.innerText = s; b.onclick = () => { socket.emit('submitAnswer', {roomCode: myCode, answerIndex: i}); myButtons.forEach(x => x.disabled = true); }; div.appendChild(b); myButtons.push(b); });
-        const bar = document.getElementById('timer-bar'); bar.style.transition = 'none'; bar.style.width = '100%'; setTimeout(() => { bar.style.transition = `width ${d.duration}s linear`; bar.style.width = '0%'; }, 50);
+        d.siklar.forEach((s, i) => { 
+            const b = document.createElement('button'); 
+            b.className = 'opt-btn'; 
+            b.innerText = s; 
+            b.onclick = () => { 
+                socket.emit('submitAnswer', {roomCode: myCode, answerIndex: i}); 
+                myButtons.forEach(x => x.disabled = true); 
+            }; 
+            div.appendChild(b); myButtons.push(b); 
+        });
+
+        const bar = document.getElementById('timer-bar'); bar.style.transition = 'none'; bar.style.width = '100%'; 
+        setTimeout(() => { bar.style.transition = `width ${d.duration}s linear`; bar.style.width = '0%'; }, 50);
     });
-    socket.on('answerResult', d => { const btn = myButtons[d.selectedIndex]; if(d.correct) btn.classList.add('correct'); else { btn.classList.add('wrong'); myButtons[d.correctIndex].classList.add('correct'); } });
+
+    // CEVAP SONUCU GELDİĞİNDE
+    socket.on('answerResult', d => { 
+        // Sorunun doğru cevabını artık biliyoruz, hafızadaki veriyi güncelleyelim ki kaydederken lazım olur
+        if(currentQuestionData) currentQuestionData.dogru = d.correctIndex;
+
+        const btn = myButtons[d.selectedIndex]; 
+        if(d.correct) {
+            btn.classList.add('correct'); 
+        } else { 
+            btn.classList.add('wrong'); 
+            myButtons[d.correctIndex].classList.add('correct'); 
+            // YANLIŞ CEVAPSA KAYDET!
+            saveWrongAnswer(currentQuestionData);
+        } 
+    });
+
     socket.on('gameOver', p => { showScreen('screen-result'); p.sort((a,b) => b.score - a.score); document.getElementById('result-board').innerHTML = p.map((x,i) => `<div class="player-card"><span>${i+1}. ${x.username}</span><span>${x.score} P</span></div>`).join(''); });
     socket.on('questionAddedSuccess', m => alert(m)); socket.on('errorMsg', m => alert(m));
 </script>
