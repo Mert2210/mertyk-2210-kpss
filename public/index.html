@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mert 2210 - Akademi</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: #fff; text-align: center; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
         .container { background: rgba(255,255,255,0.95); color: #333; width: 95%; max-width: 450px; padding: 20px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: relative; max-height: 95vh; overflow-y: auto; }
@@ -16,7 +17,6 @@
         button.outline { background: transparent; border: 2px solid #1e3c72; color: #1e3c72; }
         .screen { display: none; } .active { display: block; }
         
-        /* Liste Tasarımı */
         .list-item { background: #fff; border-bottom: 2px solid #f0f2f5; padding: 12px; text-align: left; font-size: 0.85rem; }
         .list-item .q-text { font-weight: bold; color: #333; display: block; margin-bottom: 5px; }
         .list-item .ans-text { color: #27ae60; font-weight: bold; font-size: 0.8rem; background: #e8f5e9; padding: 4px; border-radius: 4px; display: inline-block; }
@@ -31,9 +31,16 @@
         #star-btn { font-size: 1.5rem; background: none; border: none; color: #ccc; width: auto; cursor: pointer; padding: 0; line-height: 1; }
         #star-btn.starred { color: #f1c40f; text-shadow: 0 0 5px rgba(241,196,15,0.5); }
         #live-scores-container { margin-top: 15px; border-top: 2px solid #eee; padding-top: 10px; }
+        
+        /* Ses Butonu Stili */
+        #btn-sound-toggle { font-size: 0.8rem; padding: 5px; margin-top: 10px; }
     </style>
 </head>
 <body>
+
+<audio id="snd-correct" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3" preload="auto"></audio>
+<audio id="snd-wrong" src="https://assets.mixkit.co/active_storage/sfx/2021/2021-preview.mp3" preload="auto"></audio>
+
 <div class="container">
     <div id="screen-login" class="screen active">
         <h2>MERT 2210</h2>
@@ -48,12 +55,13 @@
             <button onclick="showLocalList('wrong')" class="outline" style="font-size:0.75rem;">❌ Yanlışlar</button>
             <button onclick="showLocalList('blank')" class="outline" style="font-size:0.75rem; grid-column: span 2;">⚪ Boşlarım</button>
         </div>
+        <button id="btn-sound-toggle" onclick="toggleSound()" class="outline">🔊 SES: AÇIK</button>
     </div>
 
     <div id="screen-list" class="screen">
         <h3 id="list-title">Liste</h3>
-        <div id="list-content" style="max-height: 350px; overflow-y: auto; background: #fff; border-radius: 8px;"></div>
-        <button onclick="clearList()" class="red" style="margin-top:10px;">Listeyi Temizle</button>
+        <div id="list-content" style="max-height: 350px; overflow-y: auto;"></div>
+        <button onclick="clearList()" class="red" style="margin-top:10px;">Temizle</button>
         <button onclick="showScreen('screen-login')" class="outline">ANA MENÜ</button>
     </div>
 
@@ -61,10 +69,10 @@
         <p>Oda Kodu:</p>
         <h1 id="display-room-code" style="color:#e67e22; margin:0;">----</h1>
         <div id="lobby-list" style="margin-top:10px;"></div>
-        <div id="host-controls" style="display:none; margin-top:20px;">
+        <div id="host-controls" style="display:none; margin-top:20px; background: #f9f9f9; padding: 15px; border-radius: 10px;">
             <div style="display:flex; gap:5px;">
-                <input type="number" id="set-count" value="10">
-                <input type="number" id="set-duration" value="15">
+                <div style="flex:1;"><span style="font-size:0.7rem; color:#666;">Soru</span><input type="number" id="set-count" value="10"></div>
+                <div style="flex:1;"><span style="font-size:0.7rem; color:#666;">Süre</span><input type="number" id="set-duration" value="15"></div>
             </div>
             <select id="set-subject"><option value="HEPSI">Tüm Dersler</option><option value="TARİH">Tarih</option><option value="COĞRAFYA">Coğrafya</option><option value="VATANDAŞLIK">Vatandaşlık</option></select>
             <select id="set-difficulty"><option value="HEPSI">Tüm Seviyeler</option><option value="KOLAY">Kolay</option><option value="ORTA">Orta</option><option value="ZOR">Zor</option></select>
@@ -85,17 +93,13 @@
         <button id="btn-blank" onclick="submitBlank()" style="background:#95a5a6; margin-top:10px;">⚪ BOŞ BIRAK</button>
         <div id="timer-bar"></div>
         <div id="result-msg" style="height: 20px; margin-top: 10px; font-weight: bold; color: #e67e22;"></div>
-        
-        <div id="live-scores-container">
-            <p style="font-size: 0.7rem; color: #888; margin: 0;">ANLIK PUAN DURUMU</p>
-            <div id="live-scores-list"></div>
-        </div>
+        <div id="live-scores-container"><div id="live-scores-list"></div></div>
     </div>
 
     <div id="screen-result" class="screen">
-        <h2>🏆 SONUÇLAR</h2>
+        <h2>🏆 SIRALAMA</h2>
         <div id="result-board"></div><br>
-        <button onclick="location.reload()" class="outline">ANA MENÜ</button>
+        <button onclick="location.reload()" class="outline">TEKRAR OYNA</button>
     </div>
 </div>
 
@@ -103,149 +107,89 @@
 <script>
     const socket = io();
     let myCode = ""; let myButtons = []; let currentQuestionData = null; let currentListType = "";
+    let isSoundEnabled = localStorage.getItem('kpss_sound') !== 'false';
 
     function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
     function getUsername() { return document.getElementById('username').value || null; }
-    window.onload = function() { const savedName = localStorage.getItem('saved_username'); if(savedName) document.getElementById('username').value = savedName; }
-    
+    window.onload = function() { 
+        const savedName = localStorage.getItem('saved_username'); 
+        if(savedName) document.getElementById('username').value = savedName; 
+        updateSoundUI();
+    }
+
+    function toggleSound() { isSoundEnabled = !isSoundEnabled; localStorage.setItem('kpss_sound', isSoundEnabled); updateSoundUI(); }
+    function updateSoundUI() { document.getElementById('btn-sound-toggle').innerText = isSoundEnabled ? "🔊 SES: AÇIK" : "🔇 SES: KAPALI"; }
+    function playSnd(id) { if(isSoundEnabled) document.getElementById(id).play().catch(()=>{}); }
+
     function getLocalData(key) { return JSON.parse(localStorage.getItem(key)) || []; }
     function saveLocalData(key, data) { localStorage.setItem(key, JSON.stringify(data)); }
     
-    // Geçmişe Kaydetme (Yanlışlar, Boşlar ve Favori Güncelleme)
     function saveToHistory(qData, listKey) {
         let list = getLocalData(listKey);
         const idx = list.findIndex(q => q.soru === qData.soru);
-        if(idx === -1) { 
-            list.push({...qData}); 
-            saveLocalData(listKey, list); 
-        } else if (qData.dogru !== null) {
-            // Eğer soru zaten varsa ama cevabı eksikse (favorilerde olabilir), güncelle
-            list[idx] = {...qData};
-            saveLocalData(listKey, list);
-        }
+        if(idx === -1) { list.push({...qData}); saveLocalData(listKey, list); }
+        else if (qData.dogru !== null) { list[idx] = {...qData}; saveLocalData(listKey, list); }
     }
 
-    // Yıldızlama Mantığı
-    function toggleStar() { 
-        if (!currentQuestionData) return; 
-        const btn = document.getElementById('star-btn'); 
-        let favs = getLocalData('kpss_favs'); 
-        const idx = favs.findIndex(q => q.soru === currentQuestionData.soru); 
-        
-        if (idx > -1) { 
-            favs.splice(idx, 1); btn.classList.remove('starred'); 
-        } else { 
-            favs.push({...currentQuestionData}); btn.classList.add('starred'); 
-        } 
-        saveLocalData('kpss_favs', favs); 
-    }
+    function toggleStar() { if (!currentQuestionData) return; const btn = document.getElementById('star-btn'); let favs = getLocalData('kpss_favs'); const idx = favs.findIndex(q => q.soru === currentQuestionData.soru); if (idx > -1) { favs.splice(idx, 1); btn.classList.remove('starred'); } else { favs.push({...currentQuestionData}); btn.classList.add('starred'); } saveLocalData('kpss_favs', favs); }
 
-    // Listeleri Görüntüleme
     function showLocalList(type) {
         currentListType = type;
         let key = type === 'fav' ? 'kpss_favs' : (type === 'wrong' ? 'kpss_wrongs' : 'kpss_blanks');
-        let title = type === 'fav' ? '⭐ Yıldızlı Sorular' : (type === 'wrong' ? '❌ Yanlış Yapılanlar' : '⚪ Boş Bırakılanlar');
+        let title = type === 'fav' ? '⭐ Yıldızlılar' : (type === 'wrong' ? '❌ Yanlışlar' : '⚪ Boşlarım');
         const list = getLocalData(key);
         document.getElementById('list-title').innerText = title;
-        
-        document.getElementById('list-content').innerHTML = list.length === 0 ? 
-            "<p style='padding:20px;'>Kayıt yok.</p>" : 
-            list.map(q => {
-                // Eğer cevap henüz işlenmemişse (nadiren olabilir) "Açıklanmadı" yazar
-                const answerText = (q.dogru !== null && q.siklar) ? q.siklar[q.dogru] : "Henüz Belirlenmedi";
-                return `
-                    <div class="list-item">
-                        <span class="q-text">${q.soru}</span>
-                        <span class="ans-text">✅ Doğru Cevap: ${answerText}</span>
-                    </div>
-                `;
-            }).join('');
-        
+        document.getElementById('list-content').innerHTML = list.length === 0 ? "<p style='padding:20px;'>Kayıt yok.</p>" : list.map(q => `<div class="list-item"><span class="q-text">${q.soru}</span><span class="ans-text">✅ Cevap: ${q.siklar ? q.siklar[q.dogru] : 'Belirlenmedi'}</span></div>`).join('');
         showScreen('screen-list');
     }
 
-    function clearList() { 
-        let key = currentListType === 'fav' ? 'kpss_favs' : (currentListType === 'wrong' ? 'kpss_wrongs' : 'kpss_blanks'); 
-        if(confirm("Listeyi temizlemek istediğine emin misin?")) {
-            localStorage.removeItem(key); showLocalList(currentListType); 
-        }
-    }
+    function clearList() { if(confirm("Temizlensin mi?")) { localStorage.removeItem(currentListType === 'fav' ? 'kpss_favs' : (currentListType === 'wrong' ? 'kpss_wrongs' : 'kpss_blanks')); showLocalList(currentListType); } }
 
     function createRoom() { const n = getUsername(); if(n) { localStorage.setItem('saved_username', n); socket.emit('createRoom', n); } }
     function joinRoom() { const n = getUsername(); const c = document.getElementById('room-code-input').value; if(n && c) { localStorage.setItem('saved_username', n); myCode = c; socket.emit('joinRoom', {username:n, roomCode:c}); } }
-    
-    function startGame() { 
-        const settings = {
-            count: document.getElementById('set-count').value,
-            duration: document.getElementById('set-duration').value,
-            subject: document.getElementById('set-subject').value,
-            difficulty: document.getElementById('set-difficulty').value
-        };
-        socket.emit('startGame', { roomCode: myCode, settings: settings }); 
-    }
-
+    function startGame() { const s = { count: document.getElementById('set-count').value, duration: document.getElementById('set-duration').value, subject: document.getElementById('set-subject').value, difficulty: document.getElementById('set-difficulty').value }; socket.emit('startGame', { roomCode: myCode, settings: s }); }
     function submitBlank() { socket.emit('submitAnswer', {roomCode: myCode, answerIndex: -1}); disableAllButtons(); }
     function disableAllButtons() { myButtons.forEach(x => x.disabled = true); document.getElementById('btn-blank').disabled = true; }
 
     socket.on('roomCreated', c => { myCode = c; document.getElementById('display-room-code').innerText = c; showScreen('screen-lobby'); document.getElementById('host-controls').style.display = 'block'; });
     socket.on('roomJoined', c => { myCode = c; document.getElementById('display-room-code').innerText = c; showScreen('screen-lobby'); document.getElementById('wait-msg').style.display = 'block'; });
-    
-    socket.on('updatePlayerList', p => { 
-        const html = p.map(x => `<div class="player-card"><span>${x.username}</span><span>${x.score}</span></div>`).join('');
-        document.getElementById('lobby-list').innerHTML = html;
-        document.getElementById('live-scores-list').innerHTML = html; 
-    });
+    socket.on('updatePlayerList', p => { const h = p.map(x => `<div class="player-card"><span>${x.username}</span><span>${x.score}</span></div>`).join(''); document.getElementById('lobby-list').innerHTML = h; document.getElementById('live-scores-list').innerHTML = h; });
 
     socket.on('newQuestion', d => {
         showScreen('screen-game');
         document.getElementById('result-msg').innerText = "";
-        // Yeni soruda doğru cevap indexi 'null' olarak başlar (sunucu göndermez)
-        currentQuestionData = { ...d, dogru: null }; 
-        
+        currentQuestionData = { ...d, dogru: null };
         const isFav = getLocalData('kpss_favs').find(q => q.soru === d.soru);
         document.getElementById('star-btn').classList.toggle('starred', !!isFav);
-
         document.getElementById('q-lesson').innerText = d.ders + (d.zorluk ? ` (${d.zorluk})` : "");
         document.getElementById('q-count').innerText = d.index + "/" + d.total;
         document.getElementById('q-text').innerText = d.soru;
         const img = document.getElementById('q-image');
         if(d.resim) { img.src = d.resim.startsWith('http') ? d.resim : '/img/' + d.resim; img.style.display = 'block'; } else { img.style.display = 'none'; }
-        
         const area = document.getElementById('opts-area'); area.innerHTML = ""; myButtons = [];
-        d.siklar.forEach((s, i) => { 
-            const b = document.createElement('button'); b.className = 'opt-btn'; b.innerText = s; 
-            b.onclick = () => { socket.emit('submitAnswer', {roomCode: myCode, answerIndex: i}); disableAllButtons(); }; 
-            area.appendChild(b); myButtons.push(b); 
-        });
+        d.siklar.forEach((s, i) => { const b = document.createElement('button'); b.className = 'opt-btn'; b.innerText = s; b.onclick = () => { socket.emit('submitAnswer', {roomCode: myCode, answerIndex: i}); disableAllButtons(); }; area.appendChild(b); myButtons.push(b); });
         document.getElementById('btn-blank').disabled = false;
         const bar = document.getElementById('timer-bar'); bar.style.transition = 'none'; bar.style.width = '100%'; setTimeout(() => { bar.style.transition = `width ${d.duration}s linear`; bar.style.width = '0%'; }, 50);
     });
 
     socket.on('answerResult', d => {
-        if(currentQuestionData) {
-            currentQuestionData.dogru = d.correctIndex;
-            // Eğer bu soru favorilerdeyse, cevabını oraya da işle (ÖNEMLİ)
-            saveToHistory(currentQuestionData, 'kpss_favs');
-        }
-        
-        if(d.points > 0) document.getElementById('result-msg').innerText = `+${d.points} Puan!`;
-        
-        if(d.isBlank) { 
-            myButtons[d.correctIndex].classList.add('correct'); 
-            saveToHistory(currentQuestionData, 'kpss_blanks'); 
-        } else {
+        if(currentQuestionData) { currentQuestionData.dogru = d.correctIndex; saveToHistory(currentQuestionData, 'kpss_favs'); }
+        if(d.points > 0) { document.getElementById('result-msg').innerText = `+${d.points} Puan!`; playSnd('snd-correct'); }
+        if(d.isBlank) { myButtons[d.correctIndex].classList.add('correct'); saveToHistory(currentQuestionData, 'kpss_blanks'); }
+        else {
             const btn = myButtons[d.selectedIndex];
-            if(d.correct) { 
-                btn.classList.add('correct'); 
-            } else { 
-                btn.classList.add('wrong'); 
-                myButtons[d.correctIndex].classList.add('correct'); 
-                saveToHistory(currentQuestionData, 'kpss_wrongs'); 
-            }
+            if(d.correct) { btn.classList.add('correct'); }
+            else { btn.classList.add('wrong'); playSnd('snd-wrong'); myButtons[d.correctIndex].classList.add('correct'); saveToHistory(currentQuestionData, 'kpss_wrongs'); }
         }
     });
 
-    socket.on('gameOver', p => { showScreen('screen-result'); p.sort((a,b) => b.score - a.score); document.getElementById('result-board').innerHTML = p.map((x,i) => `<div class="player-card"><span>${i+1}. ${x.username}</span><span>${x.score} P</span></div>`).join(''); });
+    socket.on('gameOver', p => {
+        showScreen('screen-result');
+        p.sort((a,b) => b.score - a.score);
+        document.getElementById('result-board').innerHTML = p.map((x,i) => `<div class="player-card"><span>${i+1}. ${x.username}</span><span>${x.score} P</span></div>`).join('');
+        // KONFETİ PATLAT
+        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+    });
     socket.on('errorMsg', m => alert(m));
 </script>
 </body>
