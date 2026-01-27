@@ -80,16 +80,22 @@ io.on("connection", (socket) => {
         io.to(roomCode).emit("updatePlayerList", Object.values(rooms[roomCode].players));
     });
 
-    // 3. OYUNU BAŞLAT
+    // 3. OYUNU BAŞLAT (GÜNCELLENDİ: ARTIK KARIŞTIRIYOR!)
     socket.on("startGame", ({ roomCode, settings }) => {
         const room = rooms[roomCode];
         if (!room) return;
 
         let havuz = [...tumSorular];
+        
+        // Dersi filtrele
         if (settings.subject !== "HEPSI") {
             havuz = havuz.filter(q => q.ders === settings.subject);
         }
+        // Eğer o dersten soru kalmadıysa hepsini koy
         if (havuz.length === 0) havuz = [...tumSorular];
+
+        // 🔥 İŞTE SİHİRLİ DOKUNUŞ BURASI (SORULARI KARIŞTIRIR) 🔥
+        havuz.sort(() => Math.random() - 0.5); 
 
         room.settings = settings;
         room.questions = havuz;
@@ -108,7 +114,7 @@ io.on("connection", (socket) => {
         if (!room || !room.gameStarted) return;
         
         const currentQ = room.questions[room.currentQuestionIndex];
-        const isCorrect = (answerIndex === currentQ.dogru);
+        const isCorrect = (answerIndex == currentQ.dogru);
         const player = room.players[socket.id];
 
         if (player) {
@@ -168,7 +174,6 @@ function sendQuestionToRoom(roomCode) {
     }, room.settings.duration * 1000);
 }
 
-// Render için PORT ayarı
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     console.log(`Sunucu ${PORT} portunda çalışıyor...`);
