@@ -13,26 +13,21 @@ app.use(express.static(path.join(__dirname, "public")));
 let tumSorular = [];
 const QUESTIONS_FILE = path.join(__dirname, 'questions.json');
 
-// Soruları Yükle
 try {
     if (fs.existsSync(QUESTIONS_FILE)) {
         const data = fs.readFileSync(QUESTIONS_FILE, 'utf8');
         tumSorular = JSON.parse(data);
-        console.log(`✅ ${tumSorular.length} soru yüklendi.`);
-    } else {
-        tumSorular = [];
     }
-} catch (e) { console.error("Soru yükleme hatası:", e); }
+} catch (e) { console.error("Soru dosyası okunamadı."); }
 
 function sorulariKaydet() {
     try { fs.writeFileSync(QUESTIONS_FILE, JSON.stringify(tumSorular, null, 2), 'utf8'); } 
-    catch (e) { console.error("Kayıt hatası:", e); }
+    catch (e) { console.error("Kayıt hatası."); }
 }
 
 const rooms = {};
 
 io.on("connection", (socket) => {
-    
     socket.on("createRoom", (username) => {
         const roomCode = Math.floor(1000 + Math.random() * 9000).toString();
         rooms[roomCode] = {
@@ -48,7 +43,7 @@ io.on("connection", (socket) => {
     });
 
     socket.on("joinRoom", ({ username, roomCode }) => {
-        if (!rooms[roomCode]) return socket.emit("errorMsg", "Böyle bir oda yok!");
+        if (!rooms[roomCode]) return socket.emit("errorMsg", "Oda bulunamadı!");
         socket.join(roomCode);
         rooms[roomCode].players[socket.id] = { id: socket.id, username: username, score: 0, isHost: false };
         socket.emit("roomJoined", roomCode);
@@ -58,19 +53,15 @@ io.on("connection", (socket) => {
     socket.on("startGame", ({ roomCode, settings }) => {
         const room = rooms[roomCode];
         if (!room) return;
-
         let havuz = [...tumSorular];
         if (settings.subject !== "HEPSI") havuz = havuz.filter(q => q.ders === settings.subject);
         if (settings.difficulty !== "HEPSI") havuz = havuz.filter(q => q.zorluk === settings.difficulty);
-
         if (havuz.length === 0) havuz = [...tumSorular];
         havuz.sort(() => Math.random() - 0.5); 
-
         room.settings = settings;
         room.questions = havuz;
         room.gameStarted = true;
         room.currentQuestionIndex = 0;
-        
         Object.keys(room.players).forEach(id => room.players[id].score = 0);
         sendQuestionToRoom(roomCode);
     });
@@ -78,56 +69,39 @@ io.on("connection", (socket) => {
     socket.on("submitAnswer", ({ roomCode, answerIndex }) => {
         const room = rooms[roomCode];
         if (!room || !room.gameStarted) return;
-        
         const currentQ = room.questions[room.currentQuestionIndex];
         const player = room.players[socket.id];
 
         if (player && !player.hasAnsweredThisRound) {
             player.hasAnsweredThisRound = true; 
             room.answerCount++; 
-
             let isCorrect = false;
             let earnedPoints = 0;
 
             if (answerIndex !== -1) { 
                 isCorrect = (answerIndex == currentQ.dogru);
                 if (isCorrect) {
-                    // --- 1/4 HIZ BONUSU VE ÜSTE YUVARLAMA ---
-                    const gecenSure = (Date.now() - room.questionStartTime) / 1000;
-                    const kalanSure = Math.max(0, room.settings.duration - gecenSure);
-                    const hizBonusu = Math.ceil(kalanSure / 4); 
-                    earnedPoints = 10 + hizBonusu;
+                    const gecen = (Date.now() - room.questionStartTime) / 1000;
+                    const kalan = Math.max(0, room.settings.duration - gecen);
+                    earnedPoints = 10 + Math.ceil(kalan / 4); 
                     player.score += earnedPoints;
                 } else {
                     player.score -= 5;
                 }
             }
-            
-            socket.emit("answerResult", { 
-                correct: isCorrect, 
-                correctIndex: currentQ.dogru, 
-                selectedIndex: answerIndex, 
-                isBlank: answerIndex === -1,
-                points: earnedPoints
-            });
-
+            socket.emit("answerResult", { correct: isCorrect, correctIndex: currentQ.dogru, selectedIndex: answerIndex, isBlank: answerIndex === -1, points: earnedPoints });
             io.to(roomCode).emit("updatePlayerList", Object.values(room.players));
 
-            const totalPlayers = Object.keys(room.players).length;
-            if (room.answerCount >= totalPlayers) {
+            // HERKES CEVAP VERDİĞİNDE 1 SANİYE BEKLE VE DİĞER SORUYA GEÇ
+            if (room.answerCount >= Object.keys(room.players).length) {
                 clearTimeout(room.timerId); 
                 room.currentQuestionIndex++; 
-                setTimeout(() => { sendQuestionToRoom(roomCode); }, 1500);
+                setTimeout(() => { sendQuestionToRoom(roomCode); }, 1000); 
             }
         }
     });
 
-    socket.on("addNewQuestion", (q) => {
-        tumSorular.push(q);
-        sorulariKaydet();
-        socket.emit("questionAddedSuccess", "Soru kaydedildi!");
-    });
-
+    socket.on("addNewQuestion", (q) => { tumSorular.push(q); sorulariKaydet(); });
     socket.on("disconnect", () => {
         for (const code in rooms) {
             if (rooms[code].players[socket.id]) {
@@ -144,26 +118,25 @@ function sendQuestionToRoom(roomCode) {
     if (!room) return;
     if (room.currentQuestionIndex >= room.settings.count || room.currentQuestionIndex >= room.questions.length) {
         io.to(roomCode).emit("gameOver", Object.values(room.players));
-        room.gameStarted = false;
-        return;
+        room.gameStarted = false; return;
     }
-
     room.answerCount = 0; 
     Object.keys(room.players).forEach(id => { room.players[id].hasAnsweredThisRound = false; });
     room.questionStartTime = Date.now();
-
     const q = room.questions[room.currentQuestionIndex];
     io.to(roomCode).emit("newQuestion", {
         soru: q.soru, siklar: q.siklar, ders: q.ders, resim: q.resim, zorluk: q.zorluk,
         index: room.currentQuestionIndex + 1, total: Math.min(room.settings.count, room.questions.length), duration: room.settings.duration
     });
-
-    room.timerId = setTimeout(() => {
-        if (rooms[roomCode] && room.gameStarted) {
-            room.currentQuestionIndex++; sendQuestionToRoom(roomCode);
-        }
+    
+    // SÜRE BİTTİĞİNDE DE 1 SANİYE BEKLEME EKLENDİ
+    room.timerId = setTimeout(() => { 
+        if (rooms[roomCode] && room.gameStarted) { 
+            room.currentQuestionIndex++; 
+            sendQuestionToRoom(roomCode); 
+        } 
     }, room.settings.duration * 1000);
 }
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`Sunucu ${PORT} portunda.`));
+server.listen(PORT, () => console.log(`Sunucu aktif.`));
