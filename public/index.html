@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mert 2210 - KPSS</title>
+    <title>Mert 2210 - Akademi</title>
     <style>
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -24,7 +24,7 @@
         button.green { background: #27ae60; }
         button.orange { background: #e67e22; }
         button.red { background: #c0392b; }
-        button.gray { background: #95a5a6; color: white; } /* Boş bırak butonu için */
+        button.gray { background: #95a5a6; color: white; }
         button.outline { background: transparent; border: 2px solid #1e3c72; color: #1e3c72; }
         .screen { display: none; } .active { display: block; animation: fadeIn 0.5s; }
         @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
@@ -37,13 +37,17 @@
         .opt-btn { background: #eef2f3; color: #333; text-align: left; margin-bottom: 8px; border: 2px solid #ddd; }
         .correct { background: #2ecc71 !important; color: white; border-color: #27ae60; }
         .wrong { background: #e74c3c !important; color: white; border-color: #c0392b; }
-        .blank-selected { background: #95a5a6 !important; border-color: #7f8c8d; } /* Boş seçilince */
+        .blank-selected { background: #95a5a6 !important; border-color: #7f8c8d; }
         
         #timer-bar { height: 6px; background: #e67e22; width: 100%; margin-top: 15px; border-radius: 3px; }
         .badge { background: #e67e22; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; }
         #q-image { width: 100%; max-height: 200px; object-fit: contain; border-radius: 8px; margin-bottom: 10px; display: none; border: 1px solid #ddd; }
         #star-btn { font-size: 1.5rem; background: none; border: none; color: #ccc; cursor: pointer; padding: 0; width: auto; }
         #star-btn.starred { color: #f1c40f; text-shadow: 0 0 5px #f39c12; }
+        
+        /* Yeni Ayar Kutuları için Stil */
+        .setting-group { display: flex; gap: 5px; }
+        .setting-group select { flex: 1; font-size: 0.9rem; }
     </style>
 </head>
 <body>
@@ -51,7 +55,7 @@
     
     <div id="screen-login" class="screen active">
         <h2>MERT 2210</h2>
-        <p>KPSS Bilgi Yarışması</p>
+        <p>Akademi & Yarışma</p>
         <input type="text" id="username" placeholder="Adınız" maxlength="12">
         <div style="border-top: 1px solid #eee; padding-top: 15px; margin-top: 15px;">
             <button onclick="createRoom()">🏠 ODA KUR</button>
@@ -76,7 +80,11 @@
 
     <div id="screen-add" class="screen">
         <h3>Yeni Soru Ekle</h3>
-        <select id="new-ders"><option value="TARİH">Tarih</option><option value="COĞRAFYA">Coğrafya</option><option value="VATANDAŞLIK">Vatandaşlık</option></select>
+        <div class="setting-group">
+            <select id="new-ders"><option value="TARİH">Tarih</option><option value="COĞRAFYA">Coğrafya</option><option value="VATANDAŞLIK">Vatandaşlık</option></select>
+            <select id="new-zorluk"><option value="KOLAY">Kolay</option><option value="ORTA">Orta</option><option value="ZOR">Zor</option></select>
+        </div>
+        <input id="new-konu" placeholder="Konu (Örn: OSMANLI)">
         <input id="new-soru" placeholder="Soru Metni">
         <input id="new-resim" placeholder="Resim adı veya Linki">
         <input id="new-a" placeholder="A Şıkkı"><input id="new-b" placeholder="B Şıkkı"><input id="new-c" placeholder="C Şıkkı"><input id="new-d" placeholder="D Şıkkı">
@@ -95,7 +103,27 @@
                 <input type="number" id="set-count" value="10" title="Soru Sayısı">
                 <input type="number" id="set-duration" value="15" title="Süre (sn)">
             </div>
-            <select id="set-subject"><option value="HEPSI">Karışık (Hepsi)</option><option value="TARİH">Tarih</option><option value="COĞRAFYA">Coğrafya</option><option value="VATANDAŞLIK">Vatandaşlık</option></select>
+            
+            <select id="set-subject" style="margin-bottom:5px;"><option value="HEPSI">Tüm Dersler</option><option value="TARİH">Tarih</option><option value="COĞRAFYA">Coğrafya</option><option value="VATANDAŞLIK">Vatandaşlık</option></select>
+            
+            <div class="setting-group">
+                <select id="set-difficulty">
+                    <option value="HEPSI">Tüm Zorluklar</option>
+                    <option value="KOLAY">Kolay</option>
+                    <option value="ORTA">Orta</option>
+                    <option value="ZOR">Zor</option>
+                </select>
+                <select id="set-topic">
+                    <option value="HEPSI">Tüm Konular</option>
+                    <option value="OSMANLI">Osmanlı</option>
+                    <option value="INKILAP">İnkılap Tarihi</option>
+                    <option value="HARITA">Harita Bilgisi</option>
+                    <option value="DAGLAR">Dağlar/Ovalar</option>
+                    <option value="YASAMA">Yasama/Yürütme</option>
+                </select>
+            </div>
+            <p style="font-size:0.7rem; color:#888;">* Konu filtresi için soruların etiketli olması gerekir.</p>
+
             <button onclick="startGame()" class="orange">BAŞLAT</button>
         </div>
         <p id="wait-msg" style="display:none; color:#777;">Kurucu bekleniyor...</p>
@@ -110,9 +138,7 @@
         <img id="q-image" src="" alt="Soru Resmi">
         <h3 id="q-text" style="min-height:60px; margin:10px 0;">Soru...</h3>
         <div id="opts-area"></div>
-        
         <button id="btn-blank" onclick="submitBlank()" class="gray" style="margin-top:10px;">⚪ BOŞ BIRAK</button>
-        
         <div id="timer-bar"></div>
         <div style="margin-top:15px; font-size:0.9rem;">Puanlar: <span id="live-scores"></span></div>
     </div>
@@ -128,76 +154,50 @@
 <script src="/socket.io/socket.io.js"></script>
 <script>
     const socket = io();
-    let myCode = ""; 
-    let myButtons = [];
-    let currentQuestionData = null; 
-    let currentListType = ""; 
-
+    let myCode = ""; let myButtons = []; let currentQuestionData = null; let currentListType = ""; 
     function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
-    
-    function getUsername() { 
-        const n = document.getElementById('username').value; 
-        if(!n) { alert("İsim yazın!"); return null; } 
-        localStorage.setItem('saved_username', n); 
-        return n; 
-    }
-    window.onload = function() {
-        const savedName = localStorage.getItem('saved_username');
-        if(savedName) document.getElementById('username').value = savedName;
-    }
-    
+    function getUsername() { const n = document.getElementById('username').value; if(!n) { alert("İsim yazın!"); return null; } localStorage.setItem('saved_username', n); return n; }
+    window.onload = function() { const savedName = localStorage.getItem('saved_username'); if(savedName) document.getElementById('username').value = savedName; }
     function getLocalData(key) { return JSON.parse(localStorage.getItem(key)) || []; }
     function saveLocalData(key, data) { localStorage.setItem(key, JSON.stringify(data)); }
-
-    function toggleStar() {
-        if (!currentQuestionData) return;
-        const btn = document.getElementById('star-btn');
-        let favs = getLocalData('kpss_favs');
-        const exists = favs.find(q => q.soru === currentQuestionData.soru);
-        if (exists) { favs = favs.filter(q => q.soru !== currentQuestionData.soru); btn.classList.remove('starred'); } 
-        else { favs.push(currentQuestionData); btn.classList.add('starred'); }
-        saveLocalData('kpss_favs', favs);
-    }
-    function saveWrongAnswer(qData) {
-        let wrongs = getLocalData('kpss_wrongs');
-        const exists = wrongs.find(q => q.soru === qData.soru);
-        if(!exists) { wrongs.push(qData); saveLocalData('kpss_wrongs', wrongs); }
-    }
-    function showLocalList(type) {
-        currentListType = type;
-        const key = type === 'fav' ? 'kpss_favs' : 'kpss_wrongs';
-        const title = type === 'fav' ? '⭐ Favori Sorularım' : '❌ Yanlış Yaptıklarım';
-        const list = getLocalData(key);
-        document.getElementById('list-title').innerText = title;
-        const div = document.getElementById('list-content');
-        if(list.length === 0) div.innerHTML = "<p style='padding:20px; color:#999;'>Henüz kayıtlı soru yok.</p>";
-        else div.innerHTML = list.map(q => `<div class="list-item"><span class="list-badge" style="background:${getDersColor(q.ders)}">${q.ders}</span>${q.soru}<strong>Cevap: ${q.siklar[q.dogru]}</strong></div>`).join('');
-        showScreen('screen-list');
-    }
-    function clearList() { if(confirm("Listeyi silmek istiyor musun?")) { localStorage.removeItem(currentListType==='fav'?'kpss_favs':'kpss_wrongs'); showLocalList(currentListType); } }
+    function toggleStar() { if (!currentQuestionData) return; const btn = document.getElementById('star-btn'); let favs = getLocalData('kpss_favs'); const exists = favs.find(q => q.soru === currentQuestionData.soru); if (exists) { favs = favs.filter(q => q.soru !== currentQuestionData.soru); btn.classList.remove('starred'); } else { favs.push(currentQuestionData); btn.classList.add('starred'); } saveLocalData('kpss_favs', favs); }
+    function saveWrongAnswer(qData) { let wrongs = getLocalData('kpss_wrongs'); const exists = wrongs.find(q => q.soru === qData.soru); if(!exists) { wrongs.push(qData); saveLocalData('kpss_wrongs', wrongs); } }
+    function showLocalList(type) { currentListType = type; const key = type === 'fav' ? 'kpss_favs' : 'kpss_wrongs'; const title = type === 'fav' ? '⭐ Favori Sorularım' : '❌ Yanlış Yaptıklarım'; const list = getLocalData(key); document.getElementById('list-title').innerText = title; const div = document.getElementById('list-content'); if(list.length === 0) div.innerHTML = "<p style='padding:20px; color:#999;'>Henüz kayıtlı soru yok.</p>"; else div.innerHTML = list.map(q => `<div class="list-item"><span class="list-badge" style="background:${getDersColor(q.ders)}">${q.ders}</span>${q.soru}<strong>Cevap: ${q.siklar[q.dogru]}</strong></div>`).join(''); showScreen('screen-list'); }
+    function clearList() { if(confirm("Silinsin mi?")) { localStorage.removeItem(currentListType==='fav'?'kpss_favs':'kpss_wrongs'); showLocalList(currentListType); } }
     function getDersColor(ders) { if(ders === 'TARİH') return '#e74c3c'; if(ders === 'COĞRAFYA') return '#27ae60'; if(ders === 'VATANDAŞLIK') return '#2980b9'; return '#777'; }
 
     function createRoom() { const n = getUsername(); if(n) socket.emit('createRoom', n); }
     function joinRoom() { const n = getUsername(); const c = document.getElementById('room-code-input').value; if(n && c) { myCode = c; socket.emit('joinRoom', {username:n, roomCode:c}); } else alert("İsim ve Kod gerekli!"); }
-    function saveQuestion() {
-        const q = { ders: document.getElementById('new-ders').value, soru: document.getElementById('new-soru').value, resim: document.getElementById('new-resim').value, siklar: [document.getElementById('new-a').value, document.getElementById('new-b').value, document.getElementById('new-c').value, document.getElementById('new-d').value], dogru: document.getElementById('new-dogru').value };
-        if(!q.soru || !q.siklar[0]) return alert("Eksik bilgi!");
-        socket.emit('addNewQuestion', q); document.getElementById('new-soru').value = ""; document.getElementById('new-resim').value = "";
-    }
-    function startGame() { socket.emit('startGame', { roomCode: myCode, settings: { count: document.getElementById('set-count').value, duration: document.getElementById('set-duration').value, subject: document.getElementById('set-subject').value } }); }
     
-    // --- YENİ: BOŞ BIRAK FONKSİYONU ---
-    function submitBlank() {
-        socket.emit('submitAnswer', {roomCode: myCode, answerIndex: -1}); // -1 Boş demek
-        disableAllButtons();
-        document.getElementById('btn-blank').innerText = "⚪ Boş Bırakıldı";
-        document.getElementById('btn-blank').classList.add('blank-selected');
+    function saveQuestion() {
+        const q = { 
+            ders: document.getElementById('new-ders').value, 
+            zorluk: document.getElementById('new-zorluk').value, 
+            konu: document.getElementById('new-konu').value.trim().toUpperCase(), // Konuyu büyük harf yap
+            soru: document.getElementById('new-soru').value, 
+            resim: document.getElementById('new-resim').value, 
+            siklar: [document.getElementById('new-a').value, document.getElementById('new-b').value, document.getElementById('new-c').value, document.getElementById('new-d').value], 
+            dogru: document.getElementById('new-dogru').value 
+        };
+        if(!q.soru || !q.siklar[0]) return alert("Eksik bilgi!");
+        socket.emit('addNewQuestion', q); document.getElementById('new-soru').value = ""; document.getElementById('new-konu').value = "";
     }
-
-    function disableAllButtons() {
-        myButtons.forEach(x => x.disabled = true);
-        document.getElementById('btn-blank').disabled = true;
+    
+    function startGame() { 
+        socket.emit('startGame', { 
+            roomCode: myCode, 
+            settings: { 
+                count: document.getElementById('set-count').value, 
+                duration: document.getElementById('set-duration').value, 
+                subject: document.getElementById('set-subject').value,
+                difficulty: document.getElementById('set-difficulty').value,
+                topic: document.getElementById('set-topic').value
+            } 
+        }); 
     }
+    
+    function submitBlank() { socket.emit('submitAnswer', {roomCode: myCode, answerIndex: -1}); disableAllButtons(); document.getElementById('btn-blank').innerText = "⚪ Boş Bırakıldı"; document.getElementById('btn-blank').classList.add('blank-selected'); }
+    function disableAllButtons() { myButtons.forEach(x => x.disabled = true); document.getElementById('btn-blank').disabled = true; }
 
     socket.on('roomCreated', c => { myCode = c; document.getElementById('display-room-code').innerText = c; showScreen('screen-lobby'); document.getElementById('host-controls').style.display = 'block'; document.getElementById('wait-msg').style.display = 'none'; });
     socket.on('roomJoined', c => { myCode = c; document.getElementById('display-room-code').innerText = c; showScreen('screen-lobby'); document.getElementById('host-controls').style.display = 'none'; document.getElementById('wait-msg').style.display = 'block'; });
@@ -209,7 +209,12 @@
         const favs = getLocalData('kpss_favs'); const isFav = favs.find(q => q.soru === d.soru);
         const starBtn = document.getElementById('star-btn'); if(isFav) starBtn.classList.add('starred'); else starBtn.classList.remove('starred');
 
-        document.getElementById('q-lesson').innerText = d.ders; document.getElementById('q-count').innerText = d.index + " / " + d.total; document.getElementById('q-text').innerText = d.soru;
+        // Dersin yanına zorluk seviyesini de yazalım (Varsa)
+        let baslik = d.ders;
+        if(d.zorluk) baslik += ` (${d.zorluk})`;
+        document.getElementById('q-lesson').innerText = baslik; 
+
+        document.getElementById('q-count').innerText = d.index + " / " + d.total; document.getElementById('q-text').innerText = d.soru;
         const imgEl = document.getElementById('q-image');
         if (d.resim && d.resim.trim() !== "") { if (d.resim.startsWith('http')) imgEl.src = d.resim; else imgEl.src = '/img/' + d.resim; imgEl.style.display = 'block'; } else imgEl.style.display = 'none';
 
@@ -220,26 +225,14 @@
             div.appendChild(b); myButtons.push(b); 
         });
 
-        // Boş Bırak butonunu sıfırla
-        const blankBtn = document.getElementById('btn-blank');
-        blankBtn.disabled = false; blankBtn.innerText = "⚪ BOŞ BIRAK"; blankBtn.classList.remove('blank-selected');
-
+        const blankBtn = document.getElementById('btn-blank'); blankBtn.disabled = false; blankBtn.innerText = "⚪ BOŞ BIRAK"; blankBtn.classList.remove('blank-selected');
         const bar = document.getElementById('timer-bar'); bar.style.transition = 'none'; bar.style.width = '100%'; setTimeout(() => { bar.style.transition = `width ${d.duration}s linear`; bar.style.width = '0%'; }, 50);
     });
 
     socket.on('answerResult', d => { 
         if(currentQuestionData) currentQuestionData.dogru = d.correctIndex;
-        
-        if (d.isBlank) {
-            // Eğer boş bıraktıysa doğru cevabı göster ama yanlış işaretleme
-            myButtons[d.correctIndex].classList.add('correct');
-        } else {
-            const btn = myButtons[d.selectedIndex]; 
-            if(d.correct) btn.classList.add('correct'); 
-            else { btn.classList.add('wrong'); myButtons[d.correctIndex].classList.add('correct'); saveWrongAnswer(currentQuestionData); } 
-        }
+        if (d.isBlank) { myButtons[d.correctIndex].classList.add('correct'); } else { const btn = myButtons[d.selectedIndex]; if(d.correct) btn.classList.add('correct'); else { btn.classList.add('wrong'); myButtons[d.correctIndex].classList.add('correct'); saveWrongAnswer(currentQuestionData); } }
     });
-
     socket.on('gameOver', p => { showScreen('screen-result'); p.sort((a,b) => b.score - a.score); document.getElementById('result-board').innerHTML = p.map((x,i) => `<div class="player-card"><span>${i+1}. ${x.username}</span><span>${x.score} P</span></div>`).join(''); });
     socket.on('questionAddedSuccess', m => alert(m)); socket.on('errorMsg', m => alert(m));
 </script>
