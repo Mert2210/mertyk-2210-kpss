@@ -1,0 +1,260 @@
+[
+  {
+    "soru": "Mustafa Kemal'e 'Mareşal' rütbesi ve 'Gazi' unvanı hangi savaştan sonra verilmiştir?",
+    "siklar": ["Büyük Taarruz", "Sakarya Meydan Muharebesi", "I. İnönü", "Eskişehir-Kütahya"],
+    "dogru": 1,
+    "ders": "TARİH"
+  },
+  {
+    "soru": "Türkiye'nin en doğu ucu ile en batı ucu arasında kaç dakikalık zaman farkı vardır?",
+    "siklar": ["60 dk", "76 dk", "45 dk", "90 dk"],
+    "dogru": 1,
+    "ders": "COĞRAFYA"
+  },
+  {
+    "soru": "1982 Anayasası'na göre yasama yetkisi kime aittir?",
+    "siklar": ["Cumhurbaşkanı", "TBMM", "Anayasa Mahkemesi", "Bakanlar Kurulu"],
+    "dogru": 1,
+    "ders": "VATANDAŞLIK"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi bir 'Tektonik Göl' değildir?",
+    "siklar": ["Tuz Gölü", "Sapanca Gölü", "Van Gölü", "Hazar Gölü"],
+    "dogru": 2,
+    "ders": "COĞRAFYA"
+  },
+  {
+    "soru": "Amasya Genelgesi'ni imzalayan komutanlardan biri değildir?",
+    "siklar": ["Rauf Orbay", "Ali Fuat Cebesoy", "Refet Bele", "İsmet İnönü"],
+    "dogru": 3,
+    "ders": "TARİH"
+  },
+  {
+    "soru": "Hangi ilimiz Büyükşehir Belediyesi statüsünde değildir?",
+    "siklar": ["Ordu", "Mardin", "Şanlıurfa", "Sivas"],
+    "dogru": 3,
+    "ders": "VATANDAŞLIK"
+  },
+  {
+    "soru": "Türkiye'de en çok yağış alan ilimiz hangisidir?",
+    "siklar": ["Trabzon", "Rize", "Artvin", "Muğla"],
+    "dogru": 1,
+    "ders": "COĞRAFYA"
+  },
+  {
+    "soru": "Osmanlı Devleti'nde ilk gümüş para hangi padişah döneminde basılmıştır?",
+    "siklar": ["Osman Bey", "Orhan Bey", "I. Murat", "Fatih Sultan Mehmet"],
+    "dogru": 1,
+    "ders": "TARİH"
+  },
+  {
+    "soru": "Türkiye'nin yüzölçümü bakımından en büyük gölü hangisidir?",
+    "siklar": ["Tuz Gölü", "Beyşehir Gölü", "Van Gölü", "Eğirdir Gölü"],
+    "dogru": 2,
+    "ders": "COĞRAFYA"
+  },
+  {
+    "soru": "Hatay, Türkiye topraklarına kaç yılında katılmıştır?",
+    "siklar": ["1923", "1930", "1938", "1939"],
+    "dogru": 3,
+    "ders": "TARİH"
+  },
+  {
+    "soru": "Milletvekili seçilme yaşı kaçtır?",
+    "siklar": ["18", "21", "25", "30"],
+    "dogru": 0,
+    "ders": "VATANDAŞLIK"
+  },
+  {
+    "soru": "Gap projesi kapsamında sulanan tarım arazilerinde en çok artış gösteren ürün hangisidir?",
+    "siklar": ["Buğday", "Pamuk", "Mısır", "Tütün"],
+    "dogru": 1,
+    "ders": "COĞRAFYA"
+  },
+  {
+    "soru": "TBMM'nin açılmasıyla en çok yetkiyi üzerine alan kurum hangisidir?",
+    "siklar": ["İcra Vekilleri Heyeti", "Diyanet İşleri", "Genelkurmay", "Adalet Bakanlığı"],
+    "dogru": 0,
+    "ders": "TARİH"
+  },
+  {
+    "soru": "Kanun Hükmünde Kararname çıkarma yetkisi kime aittir?",
+    "siklar": ["TBMM", "Cumhurbaşkanı", "Başbakan", "Anayasa Mahkemesi"],
+    "dogru": 1,
+    "ders": "VATANDAŞLIK"
+  },
+  {
+    "soru": "Türkiye'de rüzgar erozyonunun en fazla olduğu bölge hangisidir?",
+    "siklar": ["Ege", "Marmara", "İç Anadolu", "Karadeniz"],
+    "dogru": 2,
+    "ders": "COĞRAFYA"
+  },
+  {
+    "soru": "İstiklal Marşı hangi anayasada ilk kez yer almıştır?",
+    "siklar": ["1921 Anayasası", "1924 Anayasası", "1961 Anayasası", "1982 Anayasası"],
+    "dogru": 3,
+    "ders": "VATANDAŞLIK"
+  },
+  {
+    "soru": "Osmanlı Devleti'nde 'Lale Devri' hangi padişah döneminde yaşanmıştır?",
+    "siklar": ["III. Ahmet", "I. Mahmut", "II. Osman", "IV. Murat"],
+    "dogru": 0,
+    "ders": "TARİH"
+  },
+  {
+    "soru": "Türkiye'nin en uzun nehri hangisidir (Türkiye sınırları içindeki)?",
+    "siklar": ["Fırat", "Dicle", "Kızılırmak", "Sakarya"],
+    "dogru": 2,
+    "ders": "COĞRAFYA"
+  },
+  {
+    "soru": "TBMM seçimleri kaç yılda bir yapılır?",
+    "siklar": ["3", "4", "5", "6"],
+    "dogru": 2,
+    "ders": "VATANDAŞLIK"
+  },
+  {
+    "soru": "Sivas Kongresi'nde çıkarılmasına karar verilen gazete hangisidir?",
+    "siklar": ["İrade-i Milliye", "Hakimiyet-i Milliye", "Ceride-i Resmiye", "Minber"],
+    "dogru": 0,
+    "ders": "TARİH"
+  },
+  {
+    "soru": "Aşağıdaki illerden hangisinin denize kıyısı yoktur?",
+    "siklar": ["Tekirdağ", "Kırklareli", "Edirne", "Bolu"],
+    "dogru": 3,
+    "ders": "COĞRAFYA"
+  },
+  {
+    "soru": "Doktorluk, avukatlık gibi meslek kuruluşlarına ne ad verilir?",
+    "siklar": ["Sendika", "Dernek", "Vakıf", "Kamu Kurumu Niteliğindeki Meslek Kuruluşları"],
+    "dogru": 3,
+    "ders": "VATANDAŞLIK"
+  },
+  {
+    "soru": "Osmanlı'da ilk denk bütçeyi kim hazırlamıştır?",
+    "siklar": ["Tarhuncu Ahmet Paşa", "Köprülü Fazıl Ahmet", "Merzifonlu Kara Mustafa", "Sokullu Mehmet Paşa"],
+    "dogru": 0,
+    "ders": "TARİH"
+  },
+  {
+    "soru": "Türkiye'de çay tarımının tamamı hangi bölgede yapılır?",
+    "siklar": ["Marmara", "Ege", "Karadeniz", "Akdeniz"],
+    "dogru": 2,
+    "ders": "COĞRAFYA"
+  },
+  {
+    "soru": "Türk tarihinde ilk yazılı antlaşma hangisidir?",
+    "siklar": ["Kuzey Şansi", "Kadeş", "Margos", "Anatolius"],
+    "dogru": 0,
+    "ders": "TARİH"
+  },
+  {
+    "soru": "Cumhurbaşkanlığı Kararnameleri ne zaman yürürlüğe girer?",
+    "siklar": ["Onaylandığı gün", "Resmi Gazete'de yayımlandığı gün", "Bir hafta sonra", "TBMM onaylayınca"],
+    "dogru": 1,
+    "ders": "VATANDAŞLIK"
+  },
+  {
+    "soru": "Ege Bölgesi'nde dağların denize uzanış şekli nasıldır?",
+    "siklar": ["Paralel", "Dik", "Eğik", "Karmaşık"],
+    "dogru": 1,
+    "ders": "COĞRAFYA"
+  },
+  {
+    "soru": "Lozan Antlaşması'nda çözülemeyen tek sorun nedir?",
+    "siklar": ["Boğazlar", "Kapitülasyonlar", "Musul (Irak Sınırı)", "Azınlıklar"],
+    "dogru": 2,
+    "ders": "TARİH"
+  },
+  {
+    "soru": "Hangi kurum anayasal bir kuruluş değildir?",
+    "siklar": ["YÖK", "RTÜK", "Atatürk Kültür, Dil ve Tarih Yüksek Kurumu", "TÜBİTAK"],
+    "dogru": 3,
+    "ders": "VATANDAŞLIK"
+  },
+  {
+    "soru": "Türkiye'de nüfus yoğunluğunun en fazla olduğu bölge hangisidir?",
+    "siklar": ["Ege", "İç Anadolu", "Marmara", "Akdeniz"],
+    "dogru": 2,
+    "ders": "COĞRAFYA"
+  },
+  {
+    "soru": "Yeniçeri Ocağı hangi padişah tarafından kaldırılmıştır?",
+    "siklar": ["II. Mahmut", "III. Selim", "I. Abdülhamit", "Abdülmecit"],
+    "dogru": 0,
+    "ders": "TARİH"
+  },
+  {
+    "soru": "Valiler kim tarafından atanır?",
+    "siklar": ["İçişleri Bakanı", "TBMM Başkanı", "Cumhurbaşkanı", "Başbakan"],
+    "dogru": 2,
+    "ders": "VATANDAŞLIK"
+  },
+  {
+    "soru": "Peri Bacaları'nın oluşumunda etkili olan kayaç türü hangisidir?",
+    "siklar": ["Granit", "Bazalt", "Volkanik Tüf", "Kalker"],
+    "dogru": 2,
+    "ders": "COĞRAFYA"
+  },
+  {
+    "soru": "İlk Türk kadın başbakan kimdir?",
+    "siklar": ["Tansu Çiller", "Meral Akşener", "Rahşan Ecevit", "Behice Boran"],
+    "dogru": 0,
+    "ders": "TARİH"
+  },
+  {
+    "soru": "Köy muhtarını kim seçer?",
+    "siklar": ["Vali", "Kaymakam", "İhtiyar Heyeti", "Köy Derneği (Köy Halkı)"],
+    "dogru": 3,
+    "ders": "VATANDAŞLIK"
+  },
+  {
+    "soru": "Türkiye'de en az yağış alan bölge hangisidir?",
+    "siklar": ["Güneydoğu Anadolu", "İç Anadolu", "Doğu Anadolu", "Ege"],
+    "dogru": 1,
+    "ders": "COĞRAFYA"
+  },
+  {
+    "soru": "Mustafa Kemal Samsun'a hangi görevle çıkmıştır?",
+    "siklar": ["Yıldırım Orduları Komutanı", "9. Ordu Müfettişi", "Hareket Ordusu Komutanı", "Sofya Ataşemiliteri"],
+    "dogru": 1,
+    "ders": "TARİH"
+  },
+  {
+    "soru": "Belediye başkanı görevden uzaklaştırma yetkisi geçici olarak kime aittir?",
+    "siklar": ["Vali", "Danıştay", "İçişleri Bakanı", "Cumhurbaşkanı"],
+    "dogru": 2,
+    "ders": "VATANDAŞLIK"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi bir 'Karstik Göl' örneğidir?",
+    "siklar": ["Avlan Gölü", "Sapanca Gölü", "Tuz Gölü", "Van Gölü"],
+    "dogru": 0,
+    "ders": "COĞRAFYA"
+  },
+  {
+    "soru": "Osmanlı'da divan üyelerinden 'Nişancı'nın görevi nedir?",
+    "siklar": ["Ordu komutanlığı", "Dış işleri", "Padişah tuğrasını çekmek ve tapu kayıtları", "Adalet işleri"],
+    "dogru": 2,
+    "ders": "TARİH"
+  },
+  {
+    "soru": "Tüzük çıkarma yetkisi hangi anayasa değişikliği ile kaldırılmıştır?",
+    "siklar": ["2010", "2017", "2007", "1982 İlk hali"],
+    "dogru": 1,
+    "ders": "VATANDAŞLIK"
+  },
+  {
+    "soru": "Türkiye'de heyelan olaylarına en çok hangi mevsimde rastlanır?",
+    "siklar": ["Sonbahar", "Kış", "İlkbahar", "Yaz"],
+    "dogru": 2,
+    "ders": "COĞRAFYA"
+  },
+  {
+    "soru": "Tarihte bilinen ilk Türk devleti hangisidir?",
+    "siklar": ["Asya Hun", "Göktürk", "Uygur", "Kutluk"],
+    "dogru": 0,
+    "ders": "TARİH"
+  }
+]
