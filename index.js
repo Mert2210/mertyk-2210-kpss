@@ -21,9 +21,8 @@ try {
         console.log(`✅ ${tumSorular.length} soru yüklendi.`);
     } else {
         tumSorular = [];
-        console.log("⚠️ Soru dosyası yok.");
     }
-} catch (e) { console.error("Hata:", e); tumSorular = []; }
+} catch (e) { console.error("Soru yükleme hatası:", e); }
 
 function sorulariKaydet() {
     try { fs.writeFileSync(QUESTIONS_FILE, JSON.stringify(tumSorular, null, 2), 'utf8'); } 
@@ -39,8 +38,8 @@ io.on("connection", (socket) => {
         rooms[roomCode] = {
             code: roomCode, players: {}, gameStarted: false,
             currentQuestionIndex: 0, questions: [],
-            settings: { duration: 15, count: 10, subject: 'HEPSI', difficulty: 'HEPSI', topic: 'HEPSI' }, // Yeni ayarlar
-            timerId: null, answerCount: 0
+            settings: { duration: 15, count: 10, subject: 'HEPSI', difficulty: 'HEPSI' },
+            timerId: null, answerCount: 0, questionStartTime: 0
         };
         socket.join(roomCode);
         rooms[roomCode].players[socket.id] = { id: socket.id, username: username, score: 0, isHost: true };
@@ -50,7 +49,6 @@ io.on("connection", (socket) => {
 
     socket.on("joinRoom", ({ username, roomCode }) => {
         if (!rooms[roomCode]) return socket.emit("errorMsg", "Böyle bir oda yok!");
-        if (rooms[roomCode].gameStarted) return socket.emit("errorMsg", "Oyun başladı, giremezsin.");
         socket.join(roomCode);
         rooms[roomCode].players[socket.id] = { id: socket.id, username: username, score: 0, isHost: false };
         socket.emit("roomJoined", roomCode);
@@ -61,39 +59,19 @@ io.on("connection", (socket) => {
         const room = rooms[roomCode];
         if (!room) return;
 
-        // --- GELİŞMİŞ FİLTRELEME SİSTEMİ ---
         let havuz = [...tumSorular];
+        if (settings.subject !== "HEPSI") havuz = havuz.filter(q => q.ders === settings.subject);
+        if (settings.difficulty !== "HEPSI") havuz = havuz.filter(q => q.zorluk === settings.difficulty);
 
-        // 1. Ders Filtresi
-        if (settings.subject !== "HEPSI") {
-            havuz = havuz.filter(q => q.ders === settings.subject);
-        }
-
-        // 2. Zorluk Filtresi (Yeni)
-        if (settings.difficulty !== "HEPSI") {
-            havuz = havuz.filter(q => q.zorluk === settings.difficulty);
-        }
-
-        // 3. Konu Filtresi (Yeni)
-        if (settings.topic && settings.topic !== "HEPSI") {
-            havuz = havuz.filter(q => q.konu === settings.topic);
-        }
-
-        // Eğer filtreler sonucunda hiç soru kalmazsa uyarı ver veya tümünü kullan
-        if (havuz.length === 0) {
-            // Hiç soru yoksa genel havuzdan devam etmesin, boş dönsün ki anlaşılsın
-            // Ama oyun çökmesin diye tüm soruları veriyoruz (yedek plan)
-            havuz = [...tumSorular]; 
-        }
-
+        if (havuz.length === 0) havuz = [...tumSorular];
         havuz.sort(() => Math.random() - 0.5); 
+
         room.settings = settings;
         room.questions = havuz;
         room.gameStarted = true;
         room.currentQuestionIndex = 0;
         
         Object.keys(room.players).forEach(id => room.players[id].score = 0);
-        io.to(roomCode).emit("updatePlayerList", Object.values(room.players));
         sendQuestionToRoom(roomCode);
     });
 
@@ -109,20 +87,37 @@ io.on("connection", (socket) => {
             room.answerCount++; 
 
             let isCorrect = false;
-            if (answerIndex === -1) { isCorrect = false; } // Boş
-            else {
+            let earnedPoints = 0;
+
+            if (answerIndex !== -1) { 
                 isCorrect = (answerIndex == currentQ.dogru);
-                if (isCorrect) player.score += 10; else player.score -= 5;
+                if (isCorrect) {
+                    // --- 1/4 HIZ BONUSU VE ÜSTE YUVARLAMA ---
+                    const gecenSure = (Date.now() - room.questionStartTime) / 1000;
+                    const kalanSure = Math.max(0, room.settings.duration - gecenSure);
+                    const hizBonusu = Math.ceil(kalanSure / 4); 
+                    earnedPoints = 10 + hizBonusu;
+                    player.score += earnedPoints;
+                } else {
+                    player.score -= 5;
+                }
             }
             
-            socket.emit("answerResult", { correct: isCorrect, correctIndex: currentQ.dogru, selectedIndex: answerIndex, isBlank: answerIndex === -1 });
+            socket.emit("answerResult", { 
+                correct: isCorrect, 
+                correctIndex: currentQ.dogru, 
+                selectedIndex: answerIndex, 
+                isBlank: answerIndex === -1,
+                points: earnedPoints
+            });
+
             io.to(roomCode).emit("updatePlayerList", Object.values(room.players));
 
             const totalPlayers = Object.keys(room.players).length;
             if (room.answerCount >= totalPlayers) {
                 clearTimeout(room.timerId); 
                 room.currentQuestionIndex++; 
-                setTimeout(() => { sendQuestionToRoom(roomCode); }, 1000);
+                setTimeout(() => { sendQuestionToRoom(roomCode); }, 1500);
             }
         }
     });
@@ -155,15 +150,16 @@ function sendQuestionToRoom(roomCode) {
 
     room.answerCount = 0; 
     Object.keys(room.players).forEach(id => { room.players[id].hasAnsweredThisRound = false; });
+    room.questionStartTime = Date.now();
 
     const q = room.questions[room.currentQuestionIndex];
     io.to(roomCode).emit("newQuestion", {
-        soru: q.soru, siklar: q.siklar, ders: q.ders, resim: q.resim, zorluk: q.zorluk, // Zorluk bilgisini de ekrana yollayalım
+        soru: q.soru, siklar: q.siklar, ders: q.ders, resim: q.resim, zorluk: q.zorluk,
         index: room.currentQuestionIndex + 1, total: Math.min(room.settings.count, room.questions.length), duration: room.settings.duration
     });
 
     room.timerId = setTimeout(() => {
-        if (rooms[roomCode] && room.gameStarted && room.questions[room.currentQuestionIndex] === q) {
+        if (rooms[roomCode] && room.gameStarted) {
             room.currentQuestionIndex++; sendQuestionToRoom(roomCode);
         }
     }, room.settings.duration * 1000);
