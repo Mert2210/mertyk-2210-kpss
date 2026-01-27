@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mert 2210</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #fff; text-align: center; margin: 0;
+            display: flex; justify-content: center; align-items: center; min-height: 100vh;
+        }
+        .container {
+            background: rgba(255,255,255,0.95); color: #333;
+            width: 90%; max-width: 450px; padding: 25px;
+            border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            position: relative;
+        }
+        h2 { margin-top: 0; color: #1e3c72; letter-spacing: 1px; }
+        input, select, button { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; font-size: 1rem; text-align: center; }
+        button { background: #1e3c72; color: white; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        button:hover { background: #34568f; }
+        button.green { background: #27ae60; }
+        button.orange { background: #e67e22; }
+        button.outline { background: transparent; border: 2px solid #1e3c72; color: #1e3c72; }
+        .screen { display: none; } .active { display: block; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+        .player-card { background: #f0f2f5; padding: 10px; margin: 5px 0; border-radius: 5px; display: flex; justify-content: space-between; font-weight: bold; }
+        .opt-btn { background: #eef2f3; color: #333; text-align: left; margin-bottom: 8px; border: 2px solid #ddd; }
+        .correct { background: #2ecc71 !important; color: white; border-color: #27ae60; }
+        .wrong { background: #e74c3c !important; color: white; border-color: #c0392b; }
+        #timer-bar { height: 6px; background: #e67e22; width: 100%; margin-top: 15px; border-radius: 3px; }
+        .badge { background: #e67e22; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div id="screen-login" class="screen active">
+        <h2>MERT 2210</h2>
+        <p>KPSS Bilgi Yarışması</p>
+        <input type="text" id="username" placeholder="Adınız" maxlength="12">
+        <div style="border-top: 1px solid #eee; padding-top: 15px; margin-top: 15px;">
+            <button onclick="createRoom()">🏠 ODA KUR</button>
+            <div style="display:flex; gap:5px;">
+                <input type="number" id="room-code-input" placeholder="Oda Kodu" style="margin:0;">
+                <button onclick="joinRoom()" class="green" style="margin:0; width:60%;">KATIL</button>
+            </div>
+        </div>
+        <button onclick="showScreen('screen-add')" class="outline" style="margin-top:15px;">➕ SORU EKLE</button>
+    </div>
+    <div id="screen-add" class="screen">
+        <h3>Yeni Soru Ekle</h3>
+        <select id="new-ders"><option value="TARİH">Tarih</option><option value="COĞRAFYA">Coğrafya</option><option value="VATANDAŞLIK">Vatandaşlık</option></select>
+        <input id="new-soru" placeholder="Soru Metni">
+        <input id="new-a" placeholder="A Şıkkı"><input id="new-b" placeholder="B Şıkkı"><input id="new-c" placeholder="C Şıkkı"><input id="new-d" placeholder="D Şıkkı">
+        <select id="new-dogru"><option value="0">Doğru Cevap: A</option><option value="1">Doğru Cevap: B</option><option value="2">Doğru Cevap: C</option><option value="3">Doğru Cevap: D</option></select>
+        <button onclick="saveQuestion()" class="green">KAYDET</button>
+        <button onclick="showScreen('screen-login')" class="outline">GERİ DÖN</button>
+    </div>
+    <div id="screen-lobby" class="screen">
+        <p>Oda Kodun:</p>
+        <h1 id="display-room-code" style="color:#e67e22; letter-spacing:5px; margin:0;">----</h1>
+        <div id="lobby-list" style="margin-top:20px; min-height:50px;"></div>
+        <div id="host-controls" style="display:none; margin-top:20px; border-top:1px solid #eee; padding-top:10px;">
+            <label style="font-size:0.8rem; font-weight:bold;">OYUN AYARLARI</label>
+            <div style="display:flex; gap:10px; margin-top:5px;">
+                <input type="number" id="set-count" value="10" title="Soru Sayısı">
+                <input type="number" id="set-duration" value="15" title="Süre (sn)">
+            </div>
+            <select id="set-subject"><option value="HEPSI">Karışık (Hepsi)</option><option value="TARİH">Tarih</option><option value="COĞRAFYA">Coğrafya</option><option value="VATANDAŞLIK">Vatandaşlık</option></select>
+            <button onclick="startGame()" class="orange">BAŞLAT</button>
+        </div>
+        <p id="wait-msg" style="display:none; color:#777;">Kurucu bekleniyor...</p>
+    </div>
+    <div id="screen-game" class="screen">
+        <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+            <span id="q-lesson" class="badge">DERS</span>
+            <span id="q-count" style="font-weight:bold; color:#777;">1/10</span>
+        </div>
+        <h3 id="q-text" style="min-height:60px; margin:10px 0;">Soru...</h3>
+        <div id="opts-area"></div>
+        <div id="timer-bar"></div>
+        <div style="margin-top:15px; font-size:0.9rem;">Puanlar: <span id="live-scores"></span></div>
+    </div>
+    <div id="screen-result" class="screen">
+        <h2>🏆 SONUÇLAR</h2>
+        <div id="result-board"></div><br>
+        <button onclick="location.reload()" class="outline">ANA MENÜYE DÖN</button>
+    </div>
+</div>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    const socket = io();
+    let myCode = ""; let myButtons = [];
+    function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+    function getUsername() { const n = document.getElementById('username').value; if(!n) { alert("İsim yazın!"); return null; } return n; }
+    function createRoom() { const n = getUsername(); if(n) socket.emit('createRoom', n); }
+    function joinRoom() { const n = getUsername(); const c = document.getElementById('room-code-input').value; if(n && c) { myCode = c; socket.emit('joinRoom', {username:n, roomCode:c}); } else alert("İsim ve Kod gerekli!"); }
+    function saveQuestion() {
+        const q = { ders: document.getElementById('new-ders').value, soru: document.getElementById('new-soru').value, siklar: [document.getElementById('new-a').value, document.getElementById('new-b').value, document.getElementById('new-c').value, document.getElementById('new-d').value], dogru: document.getElementById('new-dogru').value };
+        if(!q.soru || !q.siklar[0]) return alert("Eksik bilgi!");
+        socket.emit('addNewQuestion', q); document.getElementById('new-soru').value = "";
+    }
+    function startGame() { socket.emit('startGame', { roomCode: myCode, settings: { count: document.getElementById('set-count').value, duration: document.getElementById('set-duration').value, subject: document.getElementById('set-subject').value } }); }
+    socket.on('roomCreated', c => { myCode = c; document.getElementById('display-room-code').innerText = c; showScreen('screen-lobby'); document.getElementById('host-controls').style.display = 'block'; document.getElementById('wait-msg').style.display = 'none'; });
+    socket.on('roomJoined', c => { myCode = c; document.getElementById('display-room-code').innerText = c; showScreen('screen-lobby'); document.getElementById('host-controls').style.display = 'none'; document.getElementById('wait-msg').style.display = 'block'; });
+    socket.on('updatePlayerList', p => { document.getElementById('lobby-list').innerHTML = p.map(x => `<div class="player-card"><span>${x.username} ${x.isHost?'👑':''}</span><span>${x.score}</span></div>`).join(''); document.getElementById('live-scores').innerHTML = p.map(x => `${x.username}:${x.score}`).join(' | '); });
+    socket.on('newQuestion', d => {
+        showScreen('screen-game'); document.getElementById('q-lesson').innerText = d.ders; document.getElementById('q-count').innerText = d.index + " / " + d.total; document.getElementById('q-text').innerText = d.soru;
+        const div = document.getElementById('opts-area'); div.innerHTML = ""; myButtons = [];
+        d.siklar.forEach((s, i) => { const b = document.createElement('button'); b.className = 'opt-btn'; b.innerText = s; b.onclick = () => { socket.emit('submitAnswer', {roomCode: myCode, answerIndex: i}); myButtons.forEach(x => x.disabled = true); }; div.appendChild(b); myButtons.push(b); });
+        const bar = document.getElementById('timer-bar'); bar.style.transition = 'none'; bar.style.width = '100%'; setTimeout(() => { bar.style.transition = `width ${d.duration}s linear`; bar.style.width = '0%'; }, 50);
+    });
+    socket.on('answerResult', d => { const btn = myButtons[d.selectedIndex]; if(d.correct) btn.classList.add('correct'); else { btn.classList.add('wrong'); myButtons[d.correctIndex].classList.add('correct'); } });
+    socket.on('gameOver', p => { showScreen('screen-result'); p.sort((a,b) => b.score - a.score); document.getElementById('result-board').innerHTML = p.map((x,i) => `<div class="player-card"><span>${i+1}. ${x.username}</span><span>${x.score} P</span></div>`).join(''); });
+    socket.on('questionAddedSuccess', m => alert(m)); socket.on('errorMsg', m => alert(m));
+</script>
+</body>
+</html>
