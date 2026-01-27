@@ -72,8 +72,7 @@
 
     <div id="screen-list" class="screen">
         <h3 id="list-title">Listem</h3>
-        <div id="list-content" style="max-height: 300px; overflow-y: auto; background: #f9f9f9; border-radius: 8px; margin-bottom: 10px;">
-            </div>
+        <div id="list-content" style="max-height: 300px; overflow-y: auto; background: #f9f9f9; border-radius: 8px; margin-bottom: 10px;"></div>
         <button onclick="clearList()" class="red" style="font-size:0.8rem;">Listeyi Temizle</button>
         <button onclick="showScreen('screen-login')" class="outline">GERİ DÖN</button>
     </div>
@@ -129,11 +128,26 @@
     const socket = io();
     let myCode = ""; 
     let myButtons = [];
-    let currentQuestionData = null; // Şu anki soruyu hafızada tutmak için
-    let currentListType = ""; // 'fav' veya 'wrong'
+    let currentQuestionData = null; 
+    let currentListType = ""; 
 
     function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
-    function getUsername() { const n = document.getElementById('username').value; if(!n) { alert("İsim yazın!"); return null; } return n; }
+    
+    // --- İSİM KAYDETME VE GETİRME ---
+    function getUsername() { 
+        const n = document.getElementById('username').value; 
+        if(!n) { alert("İsim yazın!"); return null; } 
+        localStorage.setItem('saved_username', n); // İsmi kaydet
+        return n; 
+    }
+
+    // Sayfa açıldığında ismi geri getir
+    window.onload = function() {
+        const savedName = localStorage.getItem('saved_username');
+        if(savedName) {
+            document.getElementById('username').value = savedName;
+        }
+    }
     
     // --- LOCAL STORAGE YÖNETİMİ ---
     function getLocalData(key) { return JSON.parse(localStorage.getItem(key)) || []; }
@@ -143,16 +157,12 @@
         if (!currentQuestionData) return;
         const btn = document.getElementById('star-btn');
         let favs = getLocalData('kpss_favs');
-        
-        // Zaten var mı kontrol et
         const exists = favs.find(q => q.soru === currentQuestionData.soru);
         
         if (exists) {
-            // Varsa çıkar
             favs = favs.filter(q => q.soru !== currentQuestionData.soru);
             btn.classList.remove('starred');
         } else {
-            // Yoksa ekle (Doğru cevabı da ekleyerek)
             favs.push(currentQuestionData);
             btn.classList.add('starred');
         }
@@ -161,7 +171,6 @@
 
     function saveWrongAnswer(qData) {
         let wrongs = getLocalData('kpss_wrongs');
-        // Aynı soruyu tekrar tekrar eklememek için kontrol
         const exists = wrongs.find(q => q.soru === qData.soru);
         if(!exists) {
             wrongs.push(qData);
@@ -196,7 +205,7 @@
         if(!confirm("Bu listeyi tamamen silmek istiyor musun?")) return;
         const key = currentListType === 'fav' ? 'kpss_favs' : 'kpss_wrongs';
         localStorage.removeItem(key);
-        showLocalList(currentListType); // Ekranı yenile
+        showLocalList(currentListType);
     }
 
     function getDersColor(ders) {
@@ -222,12 +231,10 @@
     socket.on('roomJoined', c => { myCode = c; document.getElementById('display-room-code').innerText = c; showScreen('screen-lobby'); document.getElementById('host-controls').style.display = 'none'; document.getElementById('wait-msg').style.display = 'block'; });
     socket.on('updatePlayerList', p => { document.getElementById('lobby-list').innerHTML = p.map(x => `<div class="player-card"><span>${x.username} ${x.isHost?'👑':''}</span><span>${x.score}</span></div>`).join(''); document.getElementById('live-scores').innerHTML = p.map(x => `${x.username}:${x.score}`).join(' | '); });
 
-    // YENİ SORU GELDİĞİNDE
     socket.on('newQuestion', d => {
         showScreen('screen-game'); 
-        currentQuestionData = { soru: d.soru, siklar: d.siklar, dogru: null, ders: d.ders }; // Şıkların doğru cevabını şu an bilmiyoruz, sonucu bekleyeceğiz ama metni aldık.
+        currentQuestionData = { soru: d.soru, siklar: d.siklar, dogru: null, ders: d.ders }; 
         
-        // Yıldız kontrolü (Daha önce favorilenmiş mi?)
         const favs = getLocalData('kpss_favs');
         const isFav = favs.find(q => q.soru === d.soru);
         const starBtn = document.getElementById('star-btn');
@@ -253,18 +260,14 @@
         setTimeout(() => { bar.style.transition = `width ${d.duration}s linear`; bar.style.width = '0%'; }, 50);
     });
 
-    // CEVAP SONUCU GELDİĞİNDE
     socket.on('answerResult', d => { 
-        // Sorunun doğru cevabını artık biliyoruz, hafızadaki veriyi güncelleyelim ki kaydederken lazım olur
         if(currentQuestionData) currentQuestionData.dogru = d.correctIndex;
-
         const btn = myButtons[d.selectedIndex]; 
         if(d.correct) {
             btn.classList.add('correct'); 
         } else { 
             btn.classList.add('wrong'); 
             myButtons[d.correctIndex].classList.add('correct'); 
-            // YANLIŞ CEVAPSA KAYDET!
             saveWrongAnswer(currentQuestionData);
         } 
     });
