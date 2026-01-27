@@ -18,12 +18,7 @@ try {
         const data = fs.readFileSync(QUESTIONS_FILE, 'utf8');
         tumSorular = JSON.parse(data);
     }
-} catch (e) { console.error("Soru dosyası okunamadı."); }
-
-function sorulariKaydet() {
-    try { fs.writeFileSync(QUESTIONS_FILE, JSON.stringify(tumSorular, null, 2), 'utf8'); } 
-    catch (e) { console.error("Kayıt hatası."); }
-}
+} catch (e) { console.error("Soru dosyası yüklenemedi."); }
 
 const rooms = {};
 
@@ -53,10 +48,17 @@ io.on("connection", (socket) => {
     socket.on("startGame", ({ roomCode, settings }) => {
         const room = rooms[roomCode];
         if (!room) return;
+        
+        // --- GELİŞMİŞ FİLTRELEME ---
         let havuz = [...tumSorular];
         if (settings.subject !== "HEPSI") havuz = havuz.filter(q => q.ders === settings.subject);
         if (settings.difficulty !== "HEPSI") havuz = havuz.filter(q => q.zorluk === settings.difficulty);
-        if (havuz.length === 0) havuz = [...tumSorular];
+        
+        if (havuz.length === 0) {
+            socket.emit("errorMsg", "Seçilen kriterlerde soru bulunamadı! Tüm sorular yükleniyor.");
+            havuz = [...tumSorular];
+        }
+        
         havuz.sort(() => Math.random() - 0.5); 
         room.settings = settings;
         room.questions = havuz;
@@ -92,16 +94,16 @@ io.on("connection", (socket) => {
             socket.emit("answerResult", { correct: isCorrect, correctIndex: currentQ.dogru, selectedIndex: answerIndex, isBlank: answerIndex === -1, points: earnedPoints });
             io.to(roomCode).emit("updatePlayerList", Object.values(room.players));
 
-            // HERKES CEVAP VERDİĞİNDE 1 SANİYE BEKLE VE DİĞER SORUYA GEÇ
+            // HERKES CEVAP VERDİĞİNDE 1.5 SANİYE BEKLE (Doğru cevabı görsünler)
             if (room.answerCount >= Object.keys(room.players).length) {
                 clearTimeout(room.timerId); 
                 room.currentQuestionIndex++; 
-                setTimeout(() => { sendQuestionToRoom(roomCode); }, 1000); 
+                setTimeout(() => { sendQuestionToRoom(roomCode); }, 1500); 
             }
         }
     });
 
-    socket.on("addNewQuestion", (q) => { tumSorular.push(q); sorulariKaydet(); });
+    socket.on("addNewQuestion", (q) => { tumSorular.push(q); });
     socket.on("disconnect", () => {
         for (const code in rooms) {
             if (rooms[code].players[socket.id]) {
@@ -129,7 +131,6 @@ function sendQuestionToRoom(roomCode) {
         index: room.currentQuestionIndex + 1, total: Math.min(room.settings.count, room.questions.length), duration: room.settings.duration
     });
     
-    // SÜRE BİTTİĞİNDE DE 1 SANİYE BEKLEME EKLENDİ
     room.timerId = setTimeout(() => { 
         if (rooms[roomCode] && room.gameStarted) { 
             room.currentQuestionIndex++; 
