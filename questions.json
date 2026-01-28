@@ -5126,8 +5126,567 @@
     "siklar": ["Matematik terimlerini Türkçeleştirmek", "Askeri strateji öğretmek", "Harf inkılabını tanıtmak", "Tarih bilincini aşılamak", "Yabancı dil öğretmek"],
     "dogru": 0
     },
+    {
+    "soru": "Osmanlı Devleti'nde, Avrupa'daki gelişmeleri takip etmek amacıyla ilk kez 'Geçici Elçilikler' hangi dönemde açılmıştır?",
+    "siklar": ["Lale Devri", "Tanzimat Dönemi", "II. Mahmut Dönemi", "I. Meşrutiyet"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ORTA"
+  },
+  {
+    "soru": "Türkiye'de 'Rüzgar Erozyonu'nun en şiddetli olduğu ve toprağın süpürüldüğü bölge hangisidir?",
+    "siklar": ["İç Anadolu (Konya-Karapınar)", "Karadeniz", "Marmara", "Akdeniz"],
+    "dogru": 0,
+    "ders": "COĞRAFYA",
+    "zorluk": "KOLAY"
+  },
+  {
+    "soru": "1982 Anayasası'na göre 'Milletlerarası Antlaşmaları' onaylama yetkisi kime aittir?",
+    "siklar": ["Cumhurbaşkanı", "TBMM Başkanı", "Dışişleri Bakanı", "Anayasa Mahkemesi"],
+    "dogru": 0,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ORTA"
+  },
+  {
+    "soru": "Mustafa Kemal Paşa'ya, hangi savaşın ardından TBMM tarafından 'Gazilik' unvanı ve 'Mareşallik' rütbesi verilmiştir?",
+    "siklar": ["Sakarya Meydan Muharebesi", "Büyük Taarruz", "I. İnönü", "Kütahya-Eskişehir"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "KOLAY"
+  },
+  {
+    "soru": "Türkiye'nin UNESCO Dünya Mirası Listesi'ne giren ilk eseri hangisidir?",
+    "siklar": ["Divriği Ulu Camii ve Darüşşifası", "Göbeklitepe", "Pamukkale", "Safranbolu Evleri"],
+    "dogru": 0,
+    "ders": "GÜNCEL BİLGİLER",
+    "zorluk": "DETAY"
+  },
+  {
+    "soru": "Osmanlı Devleti'nde 'Geliri doğrudan devlet hazinesine aktarılan' topraklara ne ad verilir?",
+    "siklar": ["Mukataa", "Dirlik", "Paşmaklık", "Yurtluk"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ZOR"
+  },
+  {
+    "soru": "Aşağıdaki illerden hangisi 'Güneydoğu Anadolu Projesi' (GAP) kapsamında yer almaz?",
+    "siklar": ["Şanlıurfa", "Diyarbakır", "Mardin", "Elazığ"],
+    "dogru": 3,
+    "ders": "COĞRAFYA",
+    "zorluk": "ORTA"
+  },
+  {
+    "soru": "Yüksek Seçim Kurulu (YSK) üyeleri hangi kurumlar tarafından seçilir?",
+    "siklar": ["Yargıtay ve Danıştay", "TBMM ve Cumhurbaşkanı", "Anayasa Mahkemesi", "Sayıştay ve Yargıtay"],
+    "dogru": 0,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ZOR"
+  },
+  {
+    "soru": "İstiklal Marşı, 1921 yılında hangi anayasada yer almıştır?",
+    "siklar": ["1982 Anayasası (İlk kez bu anayasada metne girmiştir)", "1921 Anayasası", "1924 Anayasası", "1961 Anayasası"],
+    "dogru": 0,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "DETAY"
+  },
+  {
+    "soru": "Türkiye'de 'Krom' madeninin en önemli çıkarım alanları nerelerdir?",
+    "siklar": ["Elazığ (Guleman) - Muğla (Köyceğiz)", "Zonguldak - Bartın", "Artvin - Rize", "İzmir - Manisa"],
+    "dogru": 0,
+    "ders": "COĞRAFYA",
+    "zorluk": "ORTA"
+  },
+  {
+    "soru": "Osmanlı Devleti'nde donanma askerlerine ne ad verilir?",
+    "siklar": ["Levent", "Yeniçeri", "Lağımcı", "Cebeci"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "KOLAY"
+  },
+  {
+    "soru": "2024 yılında Avrupa Futbol Şampiyonası (EURO 2024) hangi ülkede düzenlenmiştir?",
+    "siklar": ["Almanya", "Fransa", "İngiltere", "İtalya"],
+    "dogru": 0,
+    "ders": "GÜNCEL BİLGİLER",
+    "zorluk": "GÜNCEL"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi 'Doğrudan Demokrasi' araçlarından biridir?",
+    "siklar": ["Halkoylaması (Referandum)", "Seçim", "Temsilci atama", "Parti kurma"],
+    "dogru": 0,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ORTA"
+  },
+  {
+    "soru": "Milli Mücadele döneminde 'Manda ve Himaye' fikri kesin olarak nerede reddedilmiştir?",
+    "siklar": ["Sivas Kongresi", "Erzurum Kongresi", "Amasya Genelgesi", "Havza Genelgesi"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "KOLAY"
+  },
+  {
+    "soru": "Türkiye'de 'Fiyort' ve 'Skyer' tipi kıyıların görülmemesinin temel nedeni nedir?",
+    "siklar": ["Matematik Konum (Orta kuşakta olması)", "Özel Konum", "Dağların uzanışı", "Gel-git etkisi"],
+    "dogru": 0,
+    "ders": "COĞRAFYA",
+    "zorluk": "ZOR"
+  },
+  {
+    "soru": "1982 Anayasası'na göre, Cumhurbaşkanlığı Kararnameleri aksi belirtilmedikçe ne zaman yürürlüğe girer?",
+    "siklar": ["Resmi Gazete'de yayımlandığı gün", "Yayımlandıktan 15 gün sonra", "Yayımlandıktan 45 gün sonra", "TBMM onayladığı gün"],
+    "dogru": 0,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ORTA"
+  },
+  {
+    "soru": "Osmanlı Devleti'nde 'ilk kağıt para' (Kaime) hangi padişah döneminde basılmıştır?",
+    "siklar": ["Abdülmecit", "II. Mahmut", "Abdülaziz", "V. Murat"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "DETAY"
+  },
+  {
+    "soru": "Aşağıdaki nehirlerden hangisi Türkiye sınırları içinde doğup, sınır dışına dökülür?",
+    "siklar": ["Fırat", "Asi", "Meriç", "Gediz"],
+    "dogru": 0,
+    "ders": "COĞRAFYA",
+    "zorluk": "ORTA"
+  },
+  {
+    "soru": "Türkiye'nin 'En büyük adası' hangisidir?",
+    "siklar": ["Gökçeada (İmroz)", "Bozcaada", "Cunda", "Marmara Adası"],
+    "dogru": 0,
+    "ders": "COĞRAFYA",
+    "zorluk": "KOLAY"
+  },
+  {
+    "soru": "Lozan Barış Antlaşması'na göre 'Savaş Tazminatı' olarak Türkiye'ye verilen yer neresidir?",
+    "siklar": ["Karaağaç (Edirne)", "Batum", "Musul", "Hatay"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ORTA"
+  },
+  {
+    "soru": "Belediye Başkanı'nı görevden 'geçici olarak' uzaklaştırma yetkisi kime aittir?",
+    "siklar": ["İçişleri Bakanı", "Danıştay", "Vali", "Cumhurbaşkanı"],
+    "dogru": 0,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ZOR"
+  },
+  {
+    "soru": "Türkiye'nin ilk yerli ve milli otomobili Togg'un üretim fabrikası hangi ilimizdedir?",
+    "siklar": ["Bursa (Gemlik)", "Kocaeli", "Sakarya", "Eskişehir"],
+    "dogru": 0,
+    "ders": "GÜNCEL BİLGİLER",
+    "zorluk": "KOLAY"
+  },
+  {
+    "soru": "Anadolu Selçuklu Devleti'nde ticareti geliştirmek amacıyla yapılan yapılara ne ad verilir?",
+    "siklar": ["Kervansaray", "Külliye", "İmaret", "Darüşşifa"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "KOLAY"
+  },
+  {
+    "soru": "Hangi rüzgar Türkiye'de sıcaklığı düşürür?",
+    "siklar": ["Karayel", "Lodos", "Kıble", "Keşişleme"],
+    "dogru": 0, "ders": "COĞRAFYA", "zorluk": "KOLAY"
+  },
+  {
+    "soru": "TBMM'de grup kurabilmek için en az kaç milletvekili gereklidir?",
+    "siklar": ["20", "15", "30", "50"],
+    "dogru": 0,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "KOLAY"
+  },
+  {
+    "soru": "Osmanlı Devleti'nde 'Fetret Devri'ne (1402-1413) neden olan savaş hangisidir?",
+    "siklar": ["Ankara Savaşı", "Niğbolu Savaşı", "Varna Savaşı", "Kosova Savaşı"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ORTA"
+  },
+  {
+    "soru": "Türkiye'de 'Bor' madeni rezervinin dünyadaki payı yaklaşık ne kadardır?",
+    "siklar": ["%73 (Birinci sırada)", "%40", "%20", "%10"],
+    "dogru": 0,
+    "ders": "COĞRAFYA",
+    "zorluk": "ORTA"
+  },
+  {
+    "soru": "Köy muhtarını ve ihtiyar heyetini seçen, köyde ikamet eden seçmenlerin oluşturduğu birliğe ne denir?",
+    "siklar": ["Köy Derneği", "Köy Meclisi", "İmece", "Salma"],
+    "dogru": 0,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "DETAY"
+  },
+  {
+    "soru": "Dünyanın 'Yedi Harikası'ndan biri olan 'Artemis Tapınağı' hangi antik kentimizdedir?",
+    "siklar": ["Efes (İzmir)", "Halikarnas (Bodrum)", "Perge (Antalya)", "Truva (Çanakkale)"],
+    "dogru": 0,
+    "ders": "GÜNCEL BİLGİLER",
+    "zorluk": "KOLAY"
+  },
+  {
+    "soru": "Osmanlı Devleti'nin I. Dünya Savaşı'nda toprak kazandığı tek cephe hangisidir?",
+    "siklar": ["Kafkas Cephesi (Kars, Ardahan, Batum)", "Çanakkale Cephesi", "Irak Cephesi", "Kanal Cephesi"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ZOR"
+  },
+  {
+    "soru": "Türkiye'de 'Çay' tarımının sadece Doğu Karadeniz'de yapılabilmesi neyin sonucudur?",
+    "siklar": ["Mikroklima ve yıkanmış toprak", "Yükselti", "Bakı etkisi", "Enlem"],
+    "dogru": 0,
+    "ders": "COĞRAFYA",
+    "zorluk": "ORTA"
+  },
+  {
+    "soru": "Kamu Başdenetçisi'ni (Ombudsman) kim seçer?",
+    "siklar": ["TBMM", "Cumhurbaşkanı", "Anayasa Mahkemesi", "Halk"],
+    "dogru": 0,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ZOR"
+  },
+  {
+    "soru": "Mustafa Kemal'in 'Ben size taarruzu değil, ölmeyi emrediyorum' dediği yer neresidir?",
+    "siklar": ["Conkbayırı (Çanakkale)", "Kocatepe (Afyon)", "Metristepe (Bilecik)", "Duatepe (Ankara)"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ORTA"
+  },
+  {
+    "soru": "Türkiye'de demiryolu ağı ile aşağıdaki sınır kapılarından hangisine ULAŞILAMAZ?",
+    "siklar": ["Habur (Irak)", "Kapıkule (Bulgaristan)", "Kapıköy (İran)", "Çobanbey (Suriye)"],
+    "dogru": 0,
+    "ders": "COĞRAFYA",
+    "zorluk": "ZOR"
+  },
+  {
+    "soru": "Hukukumuzda 'Hak ehliyeti' ne zaman başlar?",
+    "siklar": ["Sağ ve tam doğmak şartıyla ana rahmine düşüldüğü an", "Doğum anında", "18 yaşını doldurunca", "Nüfus cüzdanı çıkınca"],
+    "dogru": 0,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ORTA"
+  },
+  {
+    "soru": "Türk tarihinde 'Sultan' unvanını kullanan ilk hükümdar kimdir?",
+    "siklar": ["Gazneli Mahmut", "Tuğrul Bey", "Alparslan", "Satuk Buğra Han"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ORTA"
+  },
+  {
+    "soru": "Türkiye'nin en uzun tüneli olan 'Yeni Zigana Tüneli' hangi iki il arasındadır?",
+    "siklar": ["Trabzon - Gümüşhane", "Rize - Erzurum", "Artvin - Ardahan", "Ordu - Giresun"],
+    "dogru": 0,
+    "ders": "GÜNCEL BİLGİLER",
+    "zorluk": "GÜNCEL"
+  },
+  {
+    "soru": "Ege Bölgesi'nde dağların denize dik uzanmasının sonucu olarak aşağıdakilerden hangisi görülmez?",
+    "siklar": ["Falez (Yalıyar) oluşumunun yaygın olması", "Deniz etkisinin iç kesimlere sokulabilmesi", "Kıyı ile iç kesim arasında ulaşımın kolay olması", "Limanların hinterlandının geniş olması"],
+    "dogru": 0,
+    "ders": "COĞRAFYA",
+    "zorluk": "ORTA"
+  },
+  {
+    "soru": "Anayasa Mahkemesi üyelerinin görev süresi kaç yıldır?",
+    "siklar": ["12 Yıl", "5 Yıl", "7 Yıl", "4 Yıl"],
+    "dogru": 0,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "KOLAY"
+  },
+  {
+    "soru": "Osmanlı Devleti'nin 'Batıda imzaladığı son kazançlı antlaşma' hangisidir?",
+    "siklar": ["Belgrad Antlaşması", "Pasarofça Antlaşması", "Karlofça Antlaşması", "Zitvatorok Antlaşması"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ZOR"
+  },
+  {
+    "soru": "Türkiye'de 'Muz' tarımının yapılabilmesi ülkenin hangi özelliğinin sonucudur?",
+    "siklar": ["Özel Konum (Mikroklima)", "Matematik Konum", "Yükselti", "Jeolojik Yapı"],
+    "dogru": 0,
+    "ders": "COĞRAFYA",
+    "zorluk": "ORTA"
+  },
+  {
+    "soru": "Cumhurbaşkanı yardımcılarını ve bakanları kim atar?",
+    "siklar": ["Cumhurbaşkanı", "TBMM", "Başbakan", "Yüksek Seçim Kurulu"],
+    "dogru": 0,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "KOLAY"
+  },
+  {
+    "soru": "Milli Mücadele'de 'İstiklal Yolu' güzergahı hangi illeri kapsar?",
+    "siklar": ["İnebolu - Kastamonu - Ilgaz - Ankara", "Samsun - Amasya - Sivas - Ankara", "İzmir - Uşak - Afyon - Ankara", "Trabzon - Erzurum - Erzincan - Ankara"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "DETAY"
+  },
+  {
+    "soru": "Aşağıdaki sanayi kollarından hangisi hammaddeye yakınlık zorunluluğu nedeniyle kurulduğu yerde bulunmak zorundadır?",
+    "siklar": ["Çay İşleme (Çabuk bozulduğu için)", "Dokuma", "Otomotiv", "Makine"],
+    "dogru": 0,
+    "ders": "COĞRAFYA",
+    "zorluk": "ORTA"
+  },
+  {
+    "soru": "Siyasi partilerin kapatılması davasını hangi mahkeme karara bağlar?",
+    "siklar": ["Anayasa Mahkemesi", "Yargıtay", "Danıştay", "Yüksek Seçim Kurulu"],
+    "dogru": 0,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "KOLAY"
+  },
+  {
+    "soru": "Türkiye'nin 'ilk yerli ve milli haberleşme uydusu' hangisidir?",
+    "siklar": ["Türksat 6A", "Göktürk-2", "Rasat", "İmece"],
+    "dogru": 0,
+    "ders": "GÜNCEL BİLGİLER",
+    "zorluk": "GÜNCEL"
+  },
+  {
+    "soru": "Osmanlı Devleti'nde 'Divan-ı Hümayun'u kaldıran ve yerine Nazırlıkları (Bakanlıkları) kuran padişah kimdir?",
+    "siklar": ["II. Mahmut", "III. Selim", "Abdülmecit", "II. Abdülhamit"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ORTA"
+  },
+  {
+    "soru": "Türkiye'de en çok 'köy' sayısına sahip ilimiz hangisidir?",
+    "siklar": ["Sivas", "Konya", "Kastamonu", "Şanlıurfa"],
+    "dogru": 0,
+    "ders": "COĞRAFYA",
+    "zorluk": "DETAY"
+  },
+  {
+    "soru": "İdarenin eylem ve işlemlerine karşı açılan davalara hangi yargı kolu bakar?",
+    "siklar": ["İdari Yargı", "Adli Yargı", "Anayasa Yargısı", "Uyuşmazlık Yargısı"],
+    "dogru": 0,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "KOLAY"
+  },
+  {
+    "soru": "Cumhuriyetin ilanı ile çözüme kavuşan sorunlardan biri hangisidir?",
+    "siklar": ["Devlet Başkanlığı ve Rejim Sorunu", "Musul Sorunu", "Hatay Sorunu", "Boğazlar Sorunu"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ORTA"
+  },
+  {
+    "soru": "Osmanlı Devleti'nde, toprağın mülkiyetinin devlete, kullanım hakkının köylüye, vergi toplama hakkının ise tımarlı sipahiye ait olduğu 'Dirlik Sistemi'nin bozulması, aşağıdakilerden hangisine neden OLMAMIŞTIR?",
+    "siklar": ["Celali İsyanları'nın çıkmasına", "Köyden kente göçün artmasına", "Tarımsal üretimin düşmesine", "Özel mülkiyet anlayışının tamamen yerleşmesine", "Merkezi otoritenin zayıflamasına"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "ZOR"
+  },
+  {
+    "soru": "Türkiye'de yer şekillerinin engebeli ve yüksek olması, kısa mesafelerde iklim ve bitki örtüsü çeşitliliğini artırmıştır. Aşağıdaki bölümlerden hangisinde, bu duruma bağlı olarak 'tarım ürünü çeşitliliği' diğerlerine göre daha fazladır?",
+    "siklar": ["Ergene Bölümü", "Konya Bölümü", "Antalya Bölümü", "Güney Marmara Bölümü", "Erzurum-Kars Bölümü"],
+    "dogru": 3,
+    "ders": "COĞRAFYA",
+    "zorluk": "DETAY"
+  },
+  {
+    "soru": "1982 Anayasası'na göre, Cumhurbaşkanı'nın 'hastalık, yurt dışına çıkma, çekilme veya ölüm' gibi nedenlerle görevden ayrılması durumunda, yenisi seçilene kadar Cumhurbaşkanlığı makamına kim vekalet eder ve yetkilerini kullanır?",
+    "siklar": ["TBMM Başkanı", "En yaşlı Cumhurbaşkanı Yardımcısı", "Cumhurbaşkanı'nın atadığı Yardımcı", "Anayasa Mahkemesi Başkanı", "İçişleri Bakanı"],
+    "dogru": 2,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ZOR"
+  },
+  {
+    "soru": "Milli Mücadele döneminde toplanan kongreler arasında, 'toplanış şekli bakımından bölgesel, aldığı kararlar bakımından ulusal' tek kongre olma özelliği taşıyan gelişme aşağıdakilerden hangisidir?",
+    "siklar": ["Sivas Kongresi", "Amasya Görüşmeleri", "Erzurum Kongresi", "Alaşehir Kongresi", "Balıkesir Kongresi"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "ORTA"
+  },
+  {
+    "soru": "Türkiye'nin nüfus piramidi incelendiğinde, son yıllarda tabanın daraldığı (doğum oranlarının düştüğü) ancak yaşlı nüfus oranının arttığı görülmektedir. Bu durum Türkiye'nin gelecekte karşılaşabileceği hangi soruna işaret eder?",
+    "siklar": ["İşsizlik oranının artması", "Kalkınma hızının düşmesi", "Sosyal güvenlik kurumlarının yükünün artması", "Dış göçlerin artması", "Okullaşma oranının düşmesi"],
+    "dogru": 2,
+    "ders": "COĞRAFYA",
+    "zorluk": "YORUM"
+  },
+  {
+    "soru": "Osmanlı Devleti'nde XVII. yüzyılda (Duraklama Dönemi) çıkan isyanların genel karakteri düşünüldüğünde, bu isyanların ortak özelliği aşağıdakilerden hangisidir?",
+    "siklar": ["Rejimi (Saltanatı) değiştirmeye yönelik olmaları", "Milliyetçilik akımından etkilenmeleri", "Kişilere ve yönetime tepki niteliğinde olmaları", "Dış devletlerin kışkırtmasıyla çıkmaları", "Azınlıkların hak talep etmesi"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "DETAY"
+  },
+  {
+    "soru": "4721 sayılı Türk Medeni Kanunu'na göre, 'ayırt etme gücüne sahip olmayan' (tam ehliyetsiz) bir kişinin yaptığı hukuki işlemlerin sonucu nedir?",
+    "siklar": ["İptal edilebilir", "Yokluk hükmündedir", "Kesin hükümsüzdür (Mutlak Butlan)", "Askıda hükümsüzdür", "Geçerlidir ancak tazminat gerektirir"],
+    "dogru": 2,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ZOR"
+  },
+  {
+    "soru": "Türkiye'de hidroelektrik enerji potansiyeli en yüksek bölge Doğu Anadolu iken, hidroelektrik enerji üretiminin en fazla olduğu bölge Güneydoğu Anadolu'dur. Bu durumun temel sebebi nedir?",
+    "siklar": ["GAP ile yapılan büyük barajların varlığı", "Akarsu debilerinin daha yüksek olması", "Sanayi tesislerinin fazla olması", "İklimin daha yağışlı olması", "Yatak eğiminin daha fazla olması"],
+    "dogru": 0,
+    "ders": "COĞRAFYA",
+    "zorluk": "DETAY"
+  },
+  {
+    "soru": "Lozan Barış Antlaşması'nda çözüme kavuşturulmasına rağmen, 1930'lu yıllarda Türkiye ile Fransa arasında tekrar sorun olan ve Milletler Cemiyeti'ne taşınan konu hangisidir?",
+    "siklar": ["Nüfus Mübadelesi", "Boğazlar Sorunu", "Hatay (Sancak) Sorunu", "Yabancı Okullar", "Musul Sorunu"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "ORTA"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi, 1982 Anayasası'nda 2017 yılında yapılan değişiklikle 'Yüksek Yargı Organları' arasından çıkarılmıştır?",
+    "siklar": ["Askeri Yargıtay ve Askeri Yüksek İdare Mahkemesi", "Devlet Güvenlik Mahkemeleri", "İstiklal Mahkemeleri", "Uyuşmazlık Mahkemesi", "Sayıştay"],
+    "dogru": 0,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "GÜNCEL"
+  },
+  {
+    "soru": "Fatih Sultan Mehmet döneminde 'Veraset Sistemi'nde yapılan değişiklikle 'Ülke padişahın malıdır' anlayışı getirilmiştir. Bu değişikliğin temel amacı aşağıdakilerden hangisidir?",
+    "siklar": ["Taht kavgalarını tamamen bitirmek", "Merkezi otoriteyi mutlak hale getirmek", "Ekber ve Erşed sistemine geçmek", "Devşirme sistemini güçlendirmek", "Halifeliği Osmanlı'ya kazandırmak"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "zorluk": "YORUM"
+  },
+  {
+    "soru": "Türkiye'de sanayinin dağılışı incelendiğinde, İstanbul-Kocaeli-Sakarya hattında sanayinin yoğunlaşmasının en önemli nedeni aşağıdakilerden hangisidir?",
+    "siklar": ["Hammadde kaynaklarına yakınlık", "Enerji üretiminin fazla olması", "Ulaşım, pazar ve sermaye olanaklarının gelişmişliği", "İklimin ılıman olması", "Su kaynaklarının bol olması"],
+    "dogru": 2,
+    "ders": "COĞRAFYA",
+    "zorluk": "YORUM"
+  },
+  {
+    "soru": "İdare Hukuku'nda 'Yetki Genişliği' ilkesi, merkezin yükünü hafifletmek ve bürokrasiyi azaltmak için sadece kime tanınmıştır?",
+    "siklar": ["Kaymakam", "Belediye Başkanı", "Vali", "Bölge Müdürü", "Cumhurbaşkanı Yardımcısı"],
+    "dogru": 2,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ZOR"
+  },
+  {
+    "soru": "Mustafa Kemal Paşa'nın, İstanbul Hükümeti tarafından 9. Ordu Müfettişi olarak Samsun'a gönderilmesinin 'resmi' gerekçesi nedir?",
+    "siklar": ["Milli Mücadele'yi başlatmak", "Karadeniz'deki Rum-Türk çatışmalarını önlemek ve asayişi sağlamak", "Kongreler düzenlemek", "İngilizlerle işbirliği yapmak", "Ordunun terhisini durdurmak"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "zorluk": "DETAY"
+  },
+  {
+    "soru": "Türkiye'de 'Rüzgar Enerjisi' potansiyeli en yüksek bölge Ege ve Marmara kıyılarıdır. Bunun temel meteorolojik nedeni nedir?",
+    "siklar": ["Basınç farklarının fazla olması ve sürekli rüzgarlar", "Dağların denize dik uzanması", "Deniz suyu sıcaklığı", "Bitki örtüsünün cılız olması", "Enlem etkisi"],
+    "dogru": 0,
+    "ders": "COĞRAFYA",
+    "zorluk": "DETAY"
+  },
+  {
+    "soru": "Cumhuriyet döneminde, 1929 Dünya Ekonomik Buhranı'nın etkisiyle Türkiye'nin ekonomide benimsediği ve I. Beş Yıllık Sanayi Planı'nın uygulandığı ilke hangisidir?",
+    "siklar": ["Liberalizm", "Devletçilik", "Halkçılık", "İnkılapçılık", "Laiklik"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "zorluk": "ORTA"
+  },
+  {
+    "soru": "Hukukumuzda 'kamulaştırma' (istimlak) işlemi, idarenin kamu yararı amacıyla özel mülkiyetteki hangi tür mallara el koymasıdır?",
+    "siklar": ["Sadece taşınır mallar", "Sadece taşınmaz mallar", "Hem taşınır hem taşınmaz mallar", "Sadece şirket hisseleri", "Sadece tarım arazileri"],
+    "dogru": 1,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ZOR"
+  },
+  {
+    "soru": "Türkiye'nin UNESCO Dünya Mirası Listesi'nde yer alan, hem 'Kültürel' hem de 'Doğal' miras (Karma Tip) kategorisindeki tek eserleri hangileridir?",
+    "siklar": ["Efes ve Bergama", "Kapadokya (Göreme) ve Pamukkale (Hierapolis)", "Hattuşaş ve Nemrut", "Truva ve Safranbolu", "Divriği ve Cumalıkızık"],
+    "dogru": 1,
+    "ders": "GÜNCEL BİLGİLER",
+    "zorluk": "DETAY"
+  },
+  {
+    "soru": "Osmanlı Devleti'nde II. Mahmut döneminde imzalanan ve Osmanlı'nın 'Boğazlar üzerindeki egemenlik hakkını tek başına kullandığı son antlaşma' olma özelliği taşıyan belge hangisidir?",
+    "siklar": ["Hünkar İskelesi Antlaşması", "Kütahya Antlaşması", "Baltalimanı Antlaşması", "Londra Boğazlar Sözleşmesi", "Paris Antlaşması"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ZOR"
+  },
+  {
+    "soru": "Doğu Anadolu Bölgesi'nde 'Gerçek sıcaklık' ile 'İndirgenmiş sıcaklık' arasındaki farkın fazla olmasının temel nedeni nedir?",
+    "siklar": ["Enlem etkisi", "Karasallık şiddeti", "Ortalama yükseltinin fazla olması", "Nem oranının az olması", "Bitki örtüsünün cılız olması"],
+    "dogru": 2,
+    "ders": "COĞRAFYA",
+    "zorluk": "ORTA"
+  },
+  {
+    "soru": "1982 Anayasası'na göre, 'Siyasi Partilerin Kapatılması Davası'nı Yargıtay Cumhuriyet Başsavcısı açar. Peki, kapatma kararını hangi mahkeme verir?",
+    "siklar": ["Yargıtay", "Danıştay", "Anayasa Mahkemesi", "Uyuşmazlık Mahkemesi", "Yüksek Seçim Kurulu"],
+    "dogru": 2,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "KOLAY"
+  },
+  {
+    "soru": "Milli Mücadele döneminde, TBMM'nin kurduğu düzenli ordunun Batı Cephesi'nde Yunanlılara karşı kaybettiği tek savaş hangisidir ve sonucunda ne olmuştur?",
+    "siklar": ["I. İnönü - Londra Konferansı toplandı", "Sakarya - Ankara Antlaşması imzalandı", "Kütahya-Eskişehir - Ordu Sakarya'nın doğusuna çekildi", "Büyük Taarruz - Mudanya imzalandı", "Gediz - Çerkez Ethem isyan etti"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "DETAY"
+  },
+  {
+    "soru": "Türkiye'de 'Demir Yolu' ağı incelendiğinde, aşağıdaki liman kentlerinden hangisinin iç kesimlerle demir yolu bağlantısı YOKTUR?",
+    "siklar": ["İzmir", "Mersin", "Samsun", "İskenderun", "Antalya"],
+    "dogru": 4,
+    "ders": "COĞRAFYA",
+    "zorluk": "ORTA"
+  },
+  {
+    "soru": "Devlet Memurları Kanunu'na göre, memurların 'Ticaret yapma yasağı' hangi ödev ve sorumluluk başlığı altında değerlendirilir?",
+    "siklar": ["Sadakat", "Tarafsızlık ve Devlete Bağlılık", "Başka iş ve hizmet yasağı", "Kişisel sorumluluk ve zarar", "Mal bildirimi"],
+    "dogru": 2,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "DETAY"
+  },
+  {
+    "soru": "Mustafa Kemal Atatürk'ün, 1937 yılında 'Hatay Benim Şahsi Meselemdir' diyerek hastalığına rağmen yakından ilgilendiği ve yazılarını 'Asım Us' takma adıyla yazdığı gazete hangisidir?",
+    "siklar": ["İrade-i Milliye", "Hakimiyet-i Milliye", "Kurun (Vakit)", "Minber", "Albayrak"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "DETAY"
+  },
+  {
+    "soru": "Türkiye'de 'Heyelan' olaylarının en çok Karadeniz Bölgesi'nde ve İlkbahar mevsiminde görülmesinin temel nedeni, yağışın yanı sıra hangi faktördür?",
+    "siklar": ["Karların erimesiyle toprağın suya doyması", "Ormanların tahrip edilmesi", "Depremlerin sık olması", "Yol yapım çalışmaları", "Yerleşim yerlerinin yanlış seçimi"],
+    "dogru": 0,
+    "ders": "COĞRAFYA",
+    "zorluk": "YORUM"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi, TBMM'nin bilgi edinme ve denetim yollarından biri olan 'Gensoru'nun (Bakanı veya Hükümeti düşürme yetkisi) kaldırıldığı anayasa değişikliğidir?",
+    "siklar": ["2001 Değişikliği", "2007 Referandumu", "2010 Referandumu", "2017 Anayasa Değişikliği", "1995 Değişikliği"],
+    "dogru": 3,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ZOR"
+  },
+  {
+    "soru": "Osmanlı Devleti'nde, şehzadelerin sancağa çıkma usulünün (Sancak Sistemi) kaldırılarak, yerine sarayda eğitim gördükleri 'Kafes Usulü'nün getirilmesi hangi padişah döneminde olmuştur?",
+    "siklar": ["I. Ahmet", "III. Mehmet", "II. Osman (Genç)", "IV. Murat", "Fatih Sultan Mehmet"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ORTA"
+  },
+  {
+    "soru": "Türkiye'de 'Karstik arazilerin' (kireç taşı) yaygın olduğu Akdeniz Bölgesi'nde, suların yer altına sızması nedeniyle yüzey suları azdır. Ancak bu bölgede hangi enerji türü potansiyeli bu durumdan olumsuz etkilenmez?",
+    "siklar": ["Hidroelektrik", "Güneş Enerjisi", "Termik Enerji", "Nükleer Enerji", "Biyokütle"],
+    "dogru": 1,
+    "ders": "COĞRAFYA",
+    "zorluk": "YORUM"
+  },
+  {
+    "soru": "2024 yılında, Türkiye'nin ilk astronotu Alper Gezeravcı'nın uzay yolculuğunu gerçekleştirdiği misyonun adı nedir?",
+    "siklar": ["SpaceX Crew-7", "Ax-3 (Axiom Mission 3)", "Artemis II", "Soyuz MS-24", "NASA Moon Mission"],
+    "dogru": 1,
+    "ders": "GÜNCEL BİLGİLER",
+    "zorluk": "GÜNCEL"
+  }
   
 ]
+
 
 
 
