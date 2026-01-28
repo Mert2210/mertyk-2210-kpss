@@ -32,7 +32,10 @@
         #q-image { width: 100%; max-height: 180px; object-fit: contain; margin-bottom: 10px; display: none; border-radius: 8px; }
         #star-btn { font-size: 1.5rem; background: none; border: none; color: #ccc; width: auto; cursor: pointer; padding: 0; line-height: 1; }
         #star-btn.starred { color: #f1c40f; text-shadow: 0 0 5px rgba(241,196,15,0.5); }
+        
+        /* CANLI SKOR ALANI STİLİ */
         #live-scores-container { margin-top: 15px; border-top: 2px solid #eee; padding-top: 10px; }
+        
         #btn-sound-toggle { font-size: 0.8rem; padding: 5px; margin-top: 10px; }
         .review-card { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-bottom: 15px; text-align: left; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .review-q { font-weight: bold; margin-bottom: 10px; color: #1e3c72; }
@@ -83,12 +86,10 @@
         
         <div id="host-controls" style="display:none; margin-top:20px; background: #f9f9f9; padding: 15px; border-radius: 10px;">
             <h3 style="font-size: 1rem; margin-bottom: 10px;">Sınav Ayarları</h3>
-
             <div style="display:flex; gap:5px;">
                 <div style="flex:1;"><span style="font-size:0.7rem; color:#666;">Soru Sayısı</span><input type="number" id="set-count" value="10"></div>
                 <div style="flex:1;"><span style="font-size:0.7rem; color:#666;">Süre (Saniye)</span><input type="number" id="set-duration" value="20"></div>
             </div>
-            
             <select id="set-subject">
                 <option value="HEPSI">Tüm Dersler</option>
                 <option value="TARİH">Tarih</option>
@@ -96,20 +97,17 @@
                 <option value="VATANDAŞLIK">Vatandaşlık</option>
                 <option value="GÜNCEL BİLGİLER">Güncel Bilgiler</option>
             </select>
-            
             <select id="set-difficulty">
                 <option value="HEPSI">Tüm Seviyeler</option>
                 <option value="KOLAY">Kolay</option>
                 <option value="ORTA">Orta</option>
                 <option value="ZOR">Zor</option>
             </select>
-
             <select id="set-sik-sayisi" style="border: 2px solid #2980b9; color: #2980b9; font-weight:bold;">
                 <option value="HEPSI">Karışık (Tüm Sorular)</option>
                 <option value="4">Başlangıç Soruları (4 Şıklı)</option>
                 <option value="5">Yeni Nesil Sorular (5 Şıklı)</option>
             </select>
-
             <button onclick="startGame()" class="orange" style="margin-top:10px;">SINAVI BAŞLAT</button>
         </div>
         <p id="wait-msg" style="display:none; color:#777;">Kurucu ayarları yapıyor...</p>
@@ -132,6 +130,11 @@
         <button id="btn-blank" onclick="submitBlank()" style="background:#95a5a6; margin-top:10px;">⚪ BOŞ BIRAK</button>
         <div id="timer-bar"></div>
         <div id="result-msg" style="height: 20px; margin-top: 10px; font-weight: bold; color: #e67e22;"></div>
+
+        <div id="live-scores-container">
+            <h4 style="margin:0 0 5px 0; font-size:0.8rem; color:#1e3c72; text-align:left; border-bottom: 1px solid #ddd;">📊 CANLI SKORLAR</h4>
+            <div id="live-scores-list"></div>
+        </div>
     </div>
 
     <div id="screen-result" class="screen">
@@ -236,7 +239,13 @@
         if(isTrialMode) document.getElementById('wait-msg').style.display = 'none';
     });
     socket.on('roomJoined', c => { myCode=c; document.getElementById('display-room-code').innerText=c; showScreen('screen-lobby'); document.getElementById('wait-msg').style.display='block'; });
-    socket.on('updatePlayerList', p => { const h=p.map(x=>`<div class="player-card"><span>${x.username}</span><span>${x.score}</span></div>`).join(''); document.getElementById('lobby-list').innerHTML=isTrialMode?"":h; });
+    
+    // SKORLARI HEM LOBİDE HEM OYUNDA GÜNCELLE
+    socket.on('updatePlayerList', p => { 
+        const h = p.map(x => `<div class="player-card"><span>${x.username}</span><span>${x.score}</span></div>`).join(''); 
+        document.getElementById('lobby-list').innerHTML = isTrialMode ? "" : h; 
+        document.getElementById('live-scores-list').innerHTML = h; // Oyun içindeki canlı liste
+    });
 
     socket.on('newQuestion', d => {
         if (d.index === 1) gameHistory = []; 
