@@ -3,14 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mert 2210 - Akademi</title>
+    <title>MYK 2210 - KPSS Yarışması</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#1e3c72">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: #fff; text-align: center; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
         .container { background: rgba(255,255,255,0.95); color: #333; width: 95%; max-width: 450px; padding: 20px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: relative; max-height: 95vh; overflow-y: auto; }
-        h2 { margin-top: 0; color: #1e3c72; }
+        h1, h2, h3 { margin-top: 0; color: #1e3c72; }
         input, select, button { width: 100%; padding: 12px; margin-bottom: 8px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; font-size: 1rem; }
         button { background: #1e3c72; color: white; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        button:hover { opacity: 0.9; }
         button.green { background: #27ae60; }
         button.orange { background: #e67e22; }
         button.red { background: #c0392b; }
@@ -43,7 +46,9 @@
 
 <div class="container">
     <div id="screen-login" class="screen active">
-        <h2>MERT 2210</h2>
+        <h1 style="margin: 0; color: #e67e22; letter-spacing: 2px; font-size: 2.5rem;">MYK 2210</h1>
+        <h3 style="margin: 5px 0 20px 0; font-weight: normal; font-size: 0.9rem; opacity: 0.9; color: #1e3c72;">KPSS SORU ÇÖZME YARIŞMASI</h3>
+        
         <input type="text" id="username" placeholder="Adınız">
         <button onclick="createRoom()">🏠 ODA KUR</button>
         <div style="display:flex; gap:5px;">
@@ -74,7 +79,7 @@
                 <div style="flex:1;"><span style="font-size:0.7rem; color:#666;">Soru</span><input type="number" id="set-count" value="10"></div>
                 <div style="flex:1;"><span style="font-size:0.7rem; color:#666;">Süre</span><input type="number" id="set-duration" value="15"></div>
             </div>
-            <select id="set-subject"><option value="HEPSI">Tüm Dersler</option><option value="TARİH">Tarih</option><option value="COĞRAFYA">Coğrafya</option><option value="VATANDAŞLIK">Vatandaşlık</option></select>
+            <select id="set-subject"><option value="HEPSI">Tüm Dersler</option><option value="TARİH">Tarih</option><option value="COĞRAFYA">Coğrafya</option><option value="VATANDAŞLIK">Vatandaşlık</option><option value="GÜNCEL BİLGİLER">Güncel Bilgiler</option></select>
             <select id="set-difficulty"><option value="HEPSI">Tüm Seviyeler</option><option value="KOLAY">Kolay</option><option value="ORTA">Orta</option><option value="ZOR">Zor</option></select>
             <button onclick="startGame()" class="orange" style="margin-top:10px;">OYUNU BAŞLAT</button>
         </div>
@@ -111,10 +116,15 @@
 
     function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
     function getUsername() { return document.getElementById('username').value || null; }
+    
     window.onload = function() { 
         const savedName = localStorage.getItem('saved_username'); 
         if(savedName) document.getElementById('username').value = savedName; 
         updateSoundUI();
+        // PWA Kaydı (Mobil uygulama özelliği için)
+        if ('serviceWorker' in navigator) {
+             navigator.serviceWorker.register('/sw.js').catch(err => console.log(err));
+        }
     }
 
     function toggleSound() { isSoundEnabled = !isSoundEnabled; localStorage.setItem('kpss_sound', isSoundEnabled); updateSoundUI(); }
@@ -187,7 +197,6 @@
         showScreen('screen-result');
         p.sort((a,b) => b.score - a.score);
         document.getElementById('result-board').innerHTML = p.map((x,i) => `<div class="player-card"><span>${i+1}. ${x.username}</span><span>${x.score} P</span></div>`).join('');
-        // KONFETİ PATLAT
         confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
     });
     socket.on('errorMsg', m => alert(m));
