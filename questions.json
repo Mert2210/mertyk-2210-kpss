@@ -8359,9 +8359,546 @@
     "zorluk": "ZOR",
     "deneme": "1",
     "cozum": "Parlamenterler Asamblesi, Avrupa Konseyi'nin bir organıdır. BM'nin temel organları: Genel Kurul, Güvenlik Konseyi, ECOSOC, Vesayet Konseyi, Adalet Divanı ve Sekreterlik'tir[cite: 1045, 5556]."
-  }
+  },
+  {
+    "soru": "İslam öncesi Türk devletlerinde balbal, şaman ve kurgan gibi kavramlar aşağıdaki alanlardan hangisi ile ilgilidir?",
+    "siklar": ["Yönetim", "Askerlik", "Sanat", "Din", "Ekonomi"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "KOLAY",
+    "deneme": "2",
+    "cozum": "Balbal (mezar taşı), şaman (din adamı) ve kurgan (oda mezar) kavramları eski Türklerdeki dini inanış ve ölüm sonrası hayat ile ilgilidir[cite: 1672, 1674]."
+  },
+  {
+    "soru": "I. Gazneli Mahmut, II. Tuğrul Bey, III. Alparslan. Yukarıdaki Türk-İslam hükümdarlarından hangilerine İslam dinine hizmetlerinden dolayı halife tarafından ünvan verilmiştir?",
+    "siklar": ["Yalnız I", "I ve II", "I ve III", "II ve III", "I, II ve III"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "2",
+    "cozum": "Her üç hükümdar da halifeyi ve İslam dünyasını korudukları için özel unvanlar almıştır: Gazneli Mahmut 'Sultan', Tuğrul Bey 'Doğunun ve Batının Sultanı', Alparslan ise 'Ebulfeth' unvanını almıştır[cite: 1692, 1703]."
+  },
+  {
+    "soru": "Anadolu Selçuklu Dönemi'nde bir esnaf örgütlenmesi olarak kurulan Ahi Teşkilatının faaliyetleri arasında aşağıdakilerden hangisi yer almaz?",
+    "siklar": ["Malların kalite kontrolünü yapmak", "Ürünlerin fiyatını belirlemek", "Kayıtlı esnaftan vergi toplamak", "Mesleki eğitim vermek", "Ölen üyelerin ailelerine yardım etmek"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "2",
+    "cozum": "Ahi teşkilatı esnafı denetler, eğitir ve sosyal yardımlaşma sağlar; ancak vergi toplama görevi devlete aittir, esnaf örgütüne değil[cite: 1717, 1720]."
+  },
+  {
+    "soru": "Fatih Sultan Mehmet Dönemi'nde Osmanlı'dan ayrıcalık alan ve İstanbul'da elçilik açan ilk devlet aşağıdakilerden hangisidir?",
+    "siklar": ["Venedik", "Avusturya", "Macaristan", "Ceneviz", "Fransa"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "KOLAY",
+    "deneme": "2",
+    "cozum": "1479'daki imtiyazlarla Venedikliler İstanbul'da 'Balyos' adı verilen bir elçi bulundurma ve serbest ticaret yapma hakkı kazanan ilk devlet olmuştur[cite: 1677, 1678, 1680]."
+  },
+  {
+    "soru": "Sokullu Mehmet Paşa, aşağıdaki projelerden hangisi ile Coğrafi Keşifler nedeniyle önemini yitiren Akdeniz limanlarına eski canlılığını kazandırmayı amaçlamıştır?",
+    "siklar": ["Süveyş Kanalı Projesi", "Don-Volga Kanalı Projesi", "Marmara Kanalı Projesi", "Sapanca Gölü Projesi", "Bağdat-Berlin Demiryolu Projesi"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "2",
+    "cozum": "Akdeniz'i Kızıldeniz'e bağlamayı hedefleyen Süveyş Kanalı projesi, ticaret yolunu tekrar Akdeniz limanlarına çekme amacını taşır[cite: 1708, 1709]."
+  },
+  {
+    "soru": "II. Mahmut Dönemi'nde gerçekleşen ve padişahın 'Denize düşen yılana sarılır.' diyerek Ruslardan yardım istemesine neden olan isyan hangisidir?",
+    "siklar": ["Canberdi Gazali İsyanı", "Vardar Ali Paşa İsyanı", "Abaza Mehmet Paşa İsyanı", "Kavalalı Mehmet Ali Paşa İsyanı", "Kalenderoğlu İsyanı"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "2",
+    "cozum": "Mısır Valisi Kavalalı'nın isyanı bastırılamayınca, II. Mahmut kendi valisine karşı Ruslardan yardım istemek zorunda kalmıştır[cite: 1724, 1728]."
+  },
+  {
+    "soru": "Osmanlı Devleti'nde padişahın devlet memurlarının mallarına el koyabilmesi yetkisine ne ad verilir ve temel amacı nedir?",
+    "siklar": ["Tımar - Tarımı artırmak", "Müsadere - Merkezi otoriteyi güçlendirmek", "İltizam - Hazineye para çekmek", "Pençik - Orduyu kurmak", "Sancak - Tecrübe kazandırmak"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "2",
+    "cozum": "Müsadere usulü ile devlet içinde zenginleşen ve merkeze rakip olabilecek güçlerin oluşması engellenerek padişahın otoritesi korunmuştur[cite: 1733, 1737]."
+  },
+  {
+    "soru": "Osmanlı Devleti, I. Abdülhamit Dönemi'nde aşağıdakilerin hangisinden borç (Esham sistemi) almıştır?",
+    "siklar": ["Mültezimler", "Ayanlar", "Galata Bankerleri", "Osmanlı Bankası", "Sekbanlar"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "2",
+    "cozum": "Esham (iç borçlanma) senedi uygulamasıyla devlet, Galata Bankerleri olarak bilinen yerel sarraflardan borç almıştır[cite: 1752, 1755]."
+  },
+  {
+    "soru": "Osmanlı Devleti'nde Enderun Mektebi'nde yetiştirilen memurlar arasından aşağıdaki görevlilerden hangisinin çıkması mümkün değildir?",
+    "siklar": ["Sadrazam", "Nişancı", "Kazasker", "Defterdar", "Yeniçeri Ağası"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "ZOR",
+    "deneme": "2",
+    "cozum": "Kazaskerlik 'İlmiye' sınıfına aittir ve sadece medrese mezunu Türk asıllı Müslümanlar bu göreve gelebilir. Enderun devşirme kökenlileri yetiştirir[cite: 1761, 1763]."
+  },
+  {
+    "soru": "Osmanlı Devleti'nde XVIII. yüzyıl (Gerileme Dönemi) ıslahatlarının hangi alanlarda daha fazla yoğunlaştığı söylenebilir?",
+    "siklar": ["Askerî", "Eğitim", "Hukuk", "Ekonomi", "Diplomasi"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "2",
+    "cozum": "Gerileme dönemindeki ıslahatların temel amacı askeri mağlubiyetleri durdurmak olduğu için yenilikler askeri alanda yoğunlaşmıştır[cite: 1785, 1791, 5560]."
+  },
+  {
+    "soru": "III. Mustafa Dönemi'nde gerçekleşen; I. Sürat topçuları sınıfının kurulması, II. Deniz Mühendishanesi'nin kurulması gelişmelerinden hangileri bu dönemin yeniliklerindendir?",
+    "siklar": ["Yalnız I", "Yalnız II", "I ve II", "II ve III", "I, II ve III"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "DETAY",
+    "deneme": "2",
+    "cozum": "III. Mustafa döneminde orduyu modernize etmek için Sürat Topçuları ve Deniz Mühendishanesi açılmıştır[cite: 1743, 1749]."
+  },
+  {
+    "soru": "Osmanlı Devleti'nde XIX. yüzyılda inşa edilen ve batılılaşmanın mimari etkilerini taşıyan yapılardan biri olmayan hangisidir?",
+    "siklar": ["Dolmabahçe Sarayı", "Beylerbeyi Sarayı", "Çırağan Sarayı", "Yıldız Sarayı", "Çinili Köşk"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "2",
+    "cozum": "Çinili Köşk, Fatih Sultan Mehmet döneminde (15. yy) klasik Osmanlı mimarisiyle inşa edilmiştir; 19. yy yapıları arasında yer almaz[cite: 1770, 1784]."
+  },
+  {
+    "soru": "I. Düzenli ordu kurma isteği, II. Millî birliği gerçekleştirme arzusu, III. İstanbul Hükümeti'nin işgallere karşı pasif tavrı. Yukarıdakilerden hangileri TBMM'nin açılma nedenleri arasındadır?",
+    "siklar": ["Yalnız I", "I ve II", "I ve III", "II ve III", "I, II ve III"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "2",
+    "cozum": "TBMM, Milli Mücadeleyi tek merkezden yönetmek, orduyu disipline etmek ve halkın iradesini tüm dünyaya göstermek için açılmıştır[cite: 1798, 1806]."
+  },
+  {
+    "soru": "Milli Mücadele Dönemi'ndeki azınlık cemiyetleri ve onlarla mücadele eden direnme cemiyetleri eşleştirmelerinden hangileri yanlıştır? II. Mavri Mira-Kilikyalılar, IV. Etnik-i Eterya-İslam Teali",
+    "siklar": ["I ve III", "II ve III", "II ve IV", "I ve IV", "III ve IV"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "ZOR",
+    "deneme": "2",
+    "cozum": "Kilikyalılar Çukurova bölgesinde (Fransız ve Ermenilere karşı) savaşmıştır, Mavri Mira (Rum) ile eşleşmez. İslam Teali ise bir direnme cemiyeti değil, zararlı bir cemiyettir[cite: 1810, 1824]."
+  },
+  {
+    "soru": "Amasya Genelgesi'nin aşağıdaki maddelerinin hangisinde hem ulusal egemenlik hem de ulusal bağımsızlık vurgusu bir arada yapılmıştır?",
+    "siklar": ["Vatanın bütünlüğü ve milletin istiklali tehlikededir.", "Milli bir kurul oluşturulmalıdır.", "Milletin istiklalini yine milletin azim ve kararı kurtaracaktır.", "Sivas'ta ulusal bir kongre toplanmalıdır.", "İstanbul Hükümeti görevini yerine getirememektedir."],
+    "prop": "dogru",
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "2",
+    "cozum": "'Milletin istiklali' bağımsızlığı, 'Milletin azim ve kararı' ise millet egemenliğini ifade eden ihtilal maddesidir[cite: 1827, 1830]."
+  },
+  {
+    "soru": "İstanbul Hükümeti Temsil Heyetini hukuken 'ilk kez' aşağıdaki gelişmelerin hangisi ile tanımıştır?",
+    "siklar": ["Amasya Görüşmeleri", "Bilecik Görüşmeleri", "Amasya Genelgesi", "Erzurum Kongresi", "Sivas Kongresi"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "KOLAY",
+    "deneme": "2",
+    "cozum": "Amasya Görüşmeleri'nde Temsil Heyeti ile İstanbul Hükümeti bakanı Salih Paşa'nın masaya oturmasıyla Temsil Heyeti resmen tanınmıştır[cite: 1862, 1863]."
+  },
+  {
+    "soru": "Bir antlaşmanın hukuken geçerli olması için Meclis onayı gerekmektedir. Bu bilgiye dayanarak hangisinin 'hukuken geçersiz' bir antlaşma olduğu savunulabilir?",
+    "siklar": ["Lozan Antlaşması", "Mondros Mütarekesi", "Sevr Antlaşması", "Mudanya Mütarekesi", "Kars Antlaşması"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "2",
+    "cozum": "Sevr Antlaşması, Mebusan Meclisi onayından geçmediği ve halk tarafından reddedildiği için hukuken 'ölü doğmuş' sayılır[cite: 1816, 1820]."
+  },
+  {
+    "soru": "Türkiye Cumhuriyeti'nde Patrikhane'nin dünyevi yetkilerinin (boşanma, mahkeme vb.) elinden alınarak sadece bir dinî kurum olarak kalmasını sağlayan temel düzenleme hangisidir?",
+    "siklar": ["Türk Ceza Kanunu", "Anayasa Değişikliği", "Tevhid-i Tedrisat Kanunu", "Türk Medeni Kanunu", "Teşkilatı Esasiye Kanunu"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "2",
+    "cozum": "1926 Türk Medeni Kanunu ile aile ve hukuk işleri dini kurallardan çıkarılmış, Patrikhane’nin yetkileri kısıtlanmıştır[cite: 1846, 1850]."
+  },
+  {
+    "soru": "Millî Mücadele Dönemi'nde hangi cephelerde düzenli ordu yerine Kuvayımilliye birliklerinin düşmana karşı mücadele ettiği söylenebilir?",
+    "siklar": ["Yalnız I (Batı)", "Yalnız II (Güney)", "Yalnız III (Doğu)", "I ve II (Batı ve Güney)", "I, II ve III"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "2",
+    "cozum": "Güney cephesinde tamamen Kuvayımilliye; Batı cephesinde ise düzenli ordu kurulana kadar Kuvayımilliye savaşmıştır. (Soru cevabı cevap anahtarına göre Batı ve Güney olarak işaretlenmiştir) [cite: 1855, 1858]."
+  },
+  {
+    "soru": "Şeyh Sait İsyanı'nı bastırmak amacıyla İsmet İnönü Hükümeti'nin aldığı tedbirler arasında yer almayan hangisidir?",
+    "siklar": ["Bölgede seferberlik ilanı", "Kolordu sevkiyatı", "Takrir-i Sükün Kanunu", "İstiklal Mahkemeleri", "Hıyaneti Vataniye Kanunu"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "2",
+    "cozum": "Hıyanet-i Vataniye Kanunu 1920'de Meclis'e karşı çıkan isyanlar için çıkarılmıştır; 1925'teki Şeyh Sait isyanı ile doğrudan ilgili ana tedbir değildir[cite: 1868, 1874]."
+  },
+  {
+    "soru": "Halkın yönetime katılma oranını artırdığı savunulabilir? I. Vergi/mülk şartının kaldırılması, II. Seçme yaşının 22'ye çıkarılması, III. Genel oy prensibi.",
+    "siklar": ["Yalnız I", "Yalnız II", "I ve II", "I ve III", "I, II ve III"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "KOLAY",
+    "deneme": "2",
+    "cozum": "Mülkiyet şartının kalkması ve cinsiyet ayrımı gözetmeyen 'Genel Oy' ilkesi seçmen sayısını artırarak katılımı yükseltmiştir[cite: 1880, 1881, 1894]."
+  },
+  {
+    "soru": "Aşağıdaki önemli isimlerden hangisinin soyadını bizzat Mustafa Kemal Atatürk 'vermemiştir'?",
+    "siklar": ["Kâzım Karabekir", "Fethi Okyar", "Salih Bozok", "İsmet İnönü", "Fahrettin Altay"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "DETAY",
+    "deneme": "2",
+    "cozum": "Kâzım Karabekir'in soyadı aile mirasıdır. Diğerlerini Atatürk bizzat belirlemiştir (İnönü-savaş anısına vb.)[cite: 1896, 1898]."
+  },
+  {
+    "soru": "Türkiye'nin 1932'de Milletler Cemiyeti'ne üye olmasında hangi sorunun çözülmüş olması barışçı bir imaj çizerek olumlu katkı yapmıştır?",
+    "siklar": ["Borçlar", "Etabli (Nüfus mübadelesi)", "Boğazlar", "Hatay", "Kıbrıs"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "zorluk": "ZOR",
+    "deneme": "2",
+    "cozum": "Yunanistan ile yaşanan Etabli (Mübadele) sorununun 1930'da barışla çözülmesi Türkiye'ye güven kazandırmış ve üyelik sürecini başlatmıştır[cite: 1910, 1923, 1927]."
+  },
+  {
+    "soru": "Atatürk'ün 'Kırk asırlık Türk yurdu düşman eline bırakılamaz' diyerek ömrünün son yıllarında 'şahsi meselem' olarak gördüğü konu hangisidir?",
+    "siklar": ["Musul", "Ege Adaları", "Batı Trakya", "On İki Ada", "Hatay"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "KOLAY",
+    "deneme": "2",
+    "cozum": "Atatürk hasta yatağındayken bile Hatay'ın anavatana katılması için diplomatik mücadeleyi bizzat yürütmüştür[cite: 1931, 1936]."
+  },
+  {
+    "soru": "I. NATO, II. Bağdat Paktı, III. Balkan İttifakı. Hangileri Türkiye'nin 'Soğuk Savaş' dönemi faaliyetleri arasındadır?",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "I ve III", "I, II ve III"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "2",
+    "cozum": "Türkiye, İkinci Dünya Savaşı sonrasında Sovyet tehdidine karşı kurulan bu paktların tamamına katılarak güvenliğini sağlamıştır[cite: 1882, 1895]."
+  },
+  {
+    "soru": "Demokrat Parti (1950-1960) dönemi dış politikada yaşanan gelişmeler arasında yer almayan hangisidir?",
+    "siklar": ["Balkan Paktı", "NATO Üyeliği", "Bağdat Paktı", "IMF'den borç alınması", "Birleşmiş Milletler (BM) üyeliği"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "2",
+    "cozum": "Türkiye, Birleşmiş Milletlere 1945 yılında (İsmet İnönü döneminde) kurucu üye olarak katılmıştır[cite: 1914, 1919]."
+  },
+  {
+    "soru": "Birleşmiş Milletler'in Kuveyt'i Irak işgalinden kurtarmak amacıyla 1991'de başlattığı askerî harekât hangisidir?",
+    "siklar": ["Yom Kippur", "I. Körfez Savaşı", "Süveyş Savaşı", "II. Körfez Savaşı", "Altı Gün Savaşı"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "zorluk": "KOLAY",
+    "deneme": "2",
+    "cozum": "1990'daki işgal üzerine BM koalisyonunun yaptığı müdahale Birinci Körfez Savaşı olarak bilinir[cite: 1937, 1939]."
+  },
+  {
+    "soru": "Türkiye'nin kuzeydoğu ve güneybatı uç noktalarının coğrafi koordinatları aşağıdakilerden hangisinde sırasıyla doğru olarak verilmiştir?",
+    "siklar": [
+      "42°K - 45°D ve 36°K - 26°D",
+      "42°K - 26°D ve 42°K - 45°D",
+      "36°K - 45°D ve 36°K - 26°D",
+      "42°K - 26°D ve 36°K - 45°D",
+      "36°K - 42°K ve 26°D - 45°D"
+    ],
+    "dogru": 0,
+    "ders": "COĞRAFYA",
+    "zorluk": "ORTA",
+    "deneme": "2",
+    "cozum": "Türkiye'nin en kuzeydoğusu (Iğdır ucu) 42°K - 45°D iken, en güneybatısı (Muğla/Dalaman çevresi ucu) 36°K - 26°D koordinatlarındadır."
+  },
+  {
+    "soru": "Aşağıdaki dağlar oluşum özelliklerine (kıvrım, kırık, volkanik) göre kendi aralarında eşleştirilirse hangisi dışarıda kalır?",
+    "siklar": ["Köroğlu", "Yunt", "Erciyes", "Bolkar", "Madra"],
+    "dogru": 2,
+    "ders": "COĞRAFYA",
+    "zorluk": "ORTA",
+    "deneme": "2",
+    "cozum": "Yunt ve Madra kırıklı, Köroğlu ve Bolkar kıvrımlı dağlardır. Erciyes ise volkanik oluşumlu bir dağ olduğu için eşleşme dışında kalır."
+  },
+  {
+    "soru": "Erozyon, yer kabuğunun dış etkenlerle aşındırılıp taşınmasıdır. Buna göre, aşağıdakilerden hangisi erozyonu hızlandıran etmenlerden biri değildir?",
+    "siklar": [
+      "Toprakların nadasa bırakılması",
+      "Meraların tarım alanına dönüştürülmesi",
+      "Tarım arazilerinin eğime dik sürülmesi",
+      "Ormanların tahrip edilmesi",
+      "Anız yakılması"
+    ],
+    "dogru": 2,
+    "ders": "COĞRAFYA",
+    "zorluk": "KOLAY",
+    "deneme": "2",
+    "cozum": "Arazinin eğime dik (yatay) sürülmesi, suyun akış hızını keser ve toprağın taşınmasını önleyerek erozyonu azaltır."
+  },
+  {
+    "soru": "Ocak ayı sıcaklık değerleri göz önüne alındığında Antalya ile Çanakkale arasındaki sıcaklık ilişkisi (Enlem etkisi) Trabzon ile hangi il arasında gözlenebilir?",
+    "siklar": ["Kastamonu", "Malatya", "Aydın", "Bayburt", "Isparta"],
+    "dogru": 2,
+    "ders": "COĞRAFYA",
+    "zorluk": "ZOR",
+    "deneme": "2",
+    "cozum": "Antalya (Güney) ve Çanakkale (Kuzey) arasındaki temel sıcaklık farkı enlemdir. Benzer şekilde Kuzeydeki Trabzon ile Güneydeki Aydın arasında da enlem etkisi belirgindir."
+  },
+  {
+    "soru": "Son yılların bitkisel ürün tabloları incelendiğinde, yurt içi üretimin talebi karşılama oranı (yeterlilik düzeyi) en yüksek olan ürün aşağıdakilerden hangisidir?",
+    "siklar": ["İncir", "Buğday", "Muz", "Pirinç", "Şeker pancarı"],
+    "dogru": 0,
+    "ders": "COĞRAFYA",
+    "zorluk": "ORTA",
+    "deneme": "2",
+    "cozum": "Türkiye incir ve fındık gibi ürünlerde dünya lideri olduğu için üretim, ülke ihtiyacının çok üzerindedir ve yeterlilik oranı en yüksektir."
+  },
+  {
+    "soru": "Türkiye'de dağların denize bakan yamaçları daha çok yağış aldığı için bitki örtüsü daha gürdür. Buna göre aşağıda verilen alanların hangisinde bitki örtüsünün daha gür olması beklenir?",
+    "siklar": [
+      "Yıldız dağlarının güney yamacında",
+      "Bolkar dağlarının kuzey yamacında",
+      "Kaçkar dağlarının kuzey yamacında",
+      "Aladağların kuzey yamacında",
+      "Canik dağlarının güney yamacında"
+    ],
+    "dogru": 2,
+    "ders": "COĞRAFYA",
+    "zorluk": "ORTA",
+    "deneme": "2",
+    "cozum": "Kaçkar Dağları'nın kuzey yamacı doğrudan Karadeniz'e baktığı için en fazla yağışı alır ve Türkiye'nin en gür bitki örtüsüne sahiptir."
+  },
+  {
+    "soru": "Aşağıda verilen madenlerden hangisi Türkiye'nin ihraç ettiği (dışarıya sattığı) madenlerden biri değildir?",
+    "siklar": ["Bakır", "Cıva", "Krom", "Mermer", "Bor minerali"],
+    "dogru": 1,
+    "ders": "COĞRAFYA",
+    "zorluk": "ZOR",
+    "deneme": "2",
+    "cozum": "Cıva, çevre ve insan sağlığına zararları nedeniyle Türkiye'de üretimi durdurulmuş bir madendir, ihracat listesinde yer almaz."
+  },
+  {
+    "soru": "Türkiye'de tekstil sanayisinin gelişmesinde aşağıdakilerden hangisinin etkisi diğerlerine göre daha azdır?",
+    "siklar": [
+      "İşgücü potansiyelinin yüksek olması",
+      "Yüksek teknoloji gerektirmemesi",
+      "Ulaşım maliyetinin düşük olması",
+      "Hammaddenin ülke içinden karşılanabilmesi",
+      "Ürünlere olan talebin yüksek olması"
+    ],
+    "dogru": 2,
+    "ders": "COĞRAFYA",
+    "zorluk": "ORTA",
+    "deneme": "2",
+    "cozum": "Tekstil sanayisi hammadde (pamuk) ve ucuz işgücü sayesinde gelişmiştir. Ulaşım maliyetleri sanayi kollarında genel bir faktör olsa da tekstilin gelişimindeki ana motor değildir."
+  },
+  {
+    "soru": "Türkiye'de modernleşme yolunda atılan adımlardan biri olan 'İlk yüksek hızlı tren' seferleri hangi iki kent arasında yapılmıştır?",
+    "siklar": ["Ankara-Konya", "Konya-Eskişehir", "Ankara-Eskişehir", "İstanbul-Eskişehir", "Sivas-Kayseri"],
+    "dogru": 2,
+    "ders": "COĞRAFYA",
+    "zorluk": "KOLAY",
+    "deneme": "2",
+    "cozum": "Türkiye'nin ilk yüksek hızlı tren hattı 2009 yılında Ankara ile Eskişehir arasında hizmete açılmıştır."
+  },
+  {
+    "soru": "I. Nene Hatun Milli Parkı, II. Başkomutan Milli Parkı, III. İstiklal Yolu Milli Parkı, IV. Uludağ Milli Parkı, V. Soğuksu Milli Parkı. Yukarıdakilerden hangileri tarihi milli park sınıflandırılamaz?",
+    "siklar": ["I ve II", "I ve IV", "II ve III", "III ve V", "IV ve V"],
+    "dogru": 4,
+    "ders": "COĞRAFYA",
+    "zorluk": "DETAY",
+    "deneme": "2",
+    "cozum": "Uludağ ve Soğuksu milli parkları doğal güzellikleri ve orman yapıları nedeniyle milli parktır; Nene Hatun veya Sakarya Meydan Muharebesi gibi tarihi bir olaya dayanmazlar."
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi Türkiye'nin dış ticaret açığının azaltılması için alınabilecek önlemlerden biri değildir?",
+    "siklar": [
+      "Ar-Ge yatırımlarını artırmak",
+      "Yenilenebilir enerjiye yatırım yapmak",
+      "Turizm tanıtımını yaygınlaştırmak",
+      "Yenilikçilik ve markalaşmaya önem vermek",
+      "Enerji üretiminde doğal gazın payını artırmak"
+    ],
+    "dogru": 4,
+    "ders": "COĞRAFYA",
+    "zorluk": "ORTA",
+    "deneme": "2",
+    "cozum": "Doğal gaz Türkiye'nin en büyük ithalat kalemlerinden biridir. Enerjide doğal gazın payını artırmak dışa bağımlılığı ve dolayısıyla ticaret açığını artırır."
+  },
+  {
+    "soru": "Aşağıda verilen tarihi eserlerin hangisinin bulunduğu il yanlış verilmiştir?",
+    "siklar": [
+      "St. Nicholas Kilisesi - Antalya",
+      "St. Pierre Kilisesi - Mersin",
+      "Sümela Manastırı - Trabzon",
+      "İshakpaşa Sarayı - Ağrı",
+      "Selimiye Camii - Edirne"
+    ],
+    "dogru": 1,
+    "ders": "COĞRAFYA",
+    "zorluk": "KOLAY",
+    "deneme": "2",
+    "cozum": "St. Pierre Kilisesi Mersin'de değil, Hatay'ın Antakya ilçesinde bulunmaktadır ve dünyanın ilk mağara kilisesi olarak kabul edilir."
+  },
+  {
+    [cite_start]"soru": "Kişinin yerine getirmediği yükümlülüklerin devlet zoru ile yerine getirtilmesi şeklinde uygulanan yaptırım aşağıdakilerden hangisidir? [cite: 2083]",
+    "siklar": ["Tazminat", "Hükümsüzlük", "Cebri icra", "İptal", "Ceza"],
+    "dogru": 2,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "KOLAY",
+    "deneme": "2",
+    [cite_start]"cozum": "Hukuki yükümlülüklerin (borç, askerlik, vergi vb.) devlet gücüyle zorla yerine getirilmesine 'Cebri İcra' denir. [cite: 5558, 5559]"
+  },
+  {
+    [cite_start]"soru": "Türk Medeni Kanunu'na göre aşağıda verilen kişilerden hangisi, 'sınırlı ehliyetsizler' içerisinde yer alır? [cite: 2103]",
+    "siklar": ["12 yaşından küçük çocuk", "45 yaşında ayırt etme gücüne sahip kişi", "25 yaşında akıl hastası", "16 yaşında ayırt etme gücüne sahip çocuk", "32 yaşında evli kişi"],
+    "dogru": 3,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ORTA",
+    "deneme": "2",
+    [cite_start]"cozum": "Ayırt etme gücüne sahip küçükler (18 yaş altı) ve kısıtlılar (vasi atananlar) hukukta 'sınırlı ehliyetsiz' olarak kabul edilir. [cite: 5558, 5559]"
+  },
+  {
+    [cite_start]"soru": "Türk Hukuk Sistemi'ndeki normlar hiyerarşisi göz önünde bulundurulduğunda, aşağıdaki normlardan hangisi hiyerarşinin en üstünde yer alır? [cite: 2108]",
+    "siklar": ["Anayasa", "Kanun", "Cumhurbaşkanlığı Kararnamesi", "Yönetmelik", "Milletler arası sözleşmeler"],
+    "dogru": 0,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "KOLAY",
+    "deneme": "2",
+    [cite_start]"cozum": "Hukuk kuralları arasındaki hiyerarşide (Kelsen'in Normlar Piramidi) en üstte ve en temel bağlayıcı olan kural Anayasa'dır. [cite: 5558, 5559]"
+  },
+  {
+    [cite_start]"soru": "1982 Anayasası'na göre, aşağıdakilerden hangisi milletvekili seçilebilme yeterliliklerinden biri değildir? [cite: 2126]",
+    "siklar": ["18 yaşını doldurmuş olmak", "En az ilkokul mezunu olmak", "Toplamda bir yıldan fazla hüküm giymemek", "Yükümlü olduğu askerlik görevini yerine getirmiş olmak", "Kamu görevinden yasaklı olmamak"],
+    "dogru": 3,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ORTA",
+    "deneme": "2",
+    "cozum": "Milletvekili seçilmek için 'askerlik hizmetini yapmış olmak' şartı aranmaz; [cite_start]'askerlikle ilişiği olmamak' (yapmış, muaf ya da tecilli olmak) yeterlidir. [cite: 5558, 5559]"
+  },
+  {
+    [cite_start]"soru": "Aşağıdakilerden hangisi 1982 Anayasası'nda düzenlenen 'çekirdek haklardan' (savaş halinde dahi dokunulamaz) biri değildir? [cite: 2147]",
+    "siklar": ["İbadet hürriyeti", "Düşünce ve kanaat özgürlüğü", "Masumiyet karinesi", "Kişinin maddi ve manevi bütünlüğü", "Suç ve cezaların geçmişe yürütülememesi"],
+    "dogru": 0,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ZOR",
+    "deneme": "2",
+    [cite_start]"cozum": "Masumiyet karinesi ve işkence yasağı gibi haklar çekirdek haktır ancak ibadet hürriyeti kamu düzeni gerekçesiyle sınırlandırılabilir. [cite: 5558, 5559]"
+  },
+  {
+    [cite_start]"soru": "1982 Anayasası'na göre, Hâkim ve Savcılar Kurulu (HSK) kaç üyeden oluşur? [cite: 2116]",
+    "siklar": ["11", "13", "15", "17", "22"],
+    "dogru": 1,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "KOLAY",
+    "deneme": "2",
+    [cite_start]"cozum": "2017 anayasa değişikliği ile Hâkim ve Savcılar Kurulu'nun üye sayısı 13 olarak belirlenmiştir. [cite: 5558, 5559]"
+  },
+  {
+    [cite_start]"soru": "Aşağıdakilerden hangisi 1982 Anayasası'nda düzenlenen yönetmelik normu ile ilgili 'doğru' bir bilgidir? [cite: 2119]",
+    "siklar": [
+      "Yönetmelikler kanunların üstündedir.",
+      "TBMM kanunları açıklamak için yönetmelik çıkarır.",
+      "Yönetmelikler sadece Resmî Gazete'de yayımlanır.",
+      "Mahalli idareler yönetmelik çıkaramaz.",
+      "Yönetmeliklerin denetimini idari yargı kurumları yapar."
+    ],
+    "dogru": 4,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ORTA",
+    "deneme": "2",
+    [cite_start]"cozum": "Yönetmeliklerin yargısal denetimi, çıkarıldığı makama göre Danıştay veya idare mahkemeleri tarafından (idari yargı) gerçekleştirilir. [cite: 5558, 5559]"
+  },
+  {
+    [cite_start]"soru": "Anayasaya göre amirin verdiği, 'konusu suç teşkil eden' emirle ilgili hangisi doğrudur? [cite: 2141]",
+    "siklar": [
+      "Kesinlikle yerine getirilmez.",
+      "Yerine getirilir ancak bir üst makama bildirilir.",
+      "Yazılı olarak tekrar edilirse yerine getirilir.",
+      "Yerine getirilir ancak yargıya gidilir.",
+      "Yerine getirilir ancak kolluk güçlerine bildirilir."
+    ],
+    "dogru": 0,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ORTA",
+    "deneme": "2",
+    "cozum": "Anayasa m. [cite_start]137'ye göre 'Kanunsuz Emir' yazılı istenirse yapılır ve sorumluluk emri verene geçer; ancak emir suç ise hiçbir şekilde yapılamaz. [cite: 5558, 5559]"
+  },
+  {
+    [cite_start]"soru": "Devlet adına, herhangi bir kişiye veya kuruma imtiyaz (ayrıcalık) verme yetkisi aşağıdakilerden hangisine aittir? [cite: 2153]",
+    "siklar": ["Cumhurbaşkanına", "İlgili bakanlığa", "TBMM Genel Kuruluna", "İl Genel Meclisine", "İçişleri Bakanlığına"],
+    "dogru": 0,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ORTA",
+    "deneme": "2",
+    [cite_start]"cozum": "İdari sözleşmeler ve imtiyaz verme yetkisi devlet adına yürütmenin başı olan Cumhurbaşkanı tarafından gerçekleştirilir. [cite: 5558, 5559]"
+  },
+  {
+    [cite_start]"soru": "Birleşmiş Milletler (BM) Örgütü'nde 'daimî veto yetkisi' bulunmayan ülke aşağıdakilerden hangisidir? [cite: 2163]",
+    "siklar": ["Çin", "Fransa", "İtalya", "Rusya", "ABD"],
+    "dogru": 2,
+    "ders": "GÜNCEL BİLGİLER",
+    "zorluk": "KOLAY",
+    "deneme": "2",
+    [cite_start]"cozum": "BM Güvenlik Konseyi'nin veto yetkisine sahip 5 daimî üyesi (FİRÇA): Fransa, İngiltere, Rusya, Çin ve ABD'dir. [cite: 5558, 5559]"
+  },
+  {
+    [cite_start]"soru": "Dünyanın ilk güneş enerjisi ile çalışan havaalanı hangisidir? [cite: 2178]",
+    "siklar": ["ABD - Denver", "Hindistan - Cochin", "Çin - Pekin", "Kanada - Toronto", "Finlandiya - Helsinki"],
+    "dogru": 1,
+    "ders": "GÜNCEL BİLGİLER",
+    "zorluk": "GÜNCEL",
+    "deneme": "2",
+    [cite_start]"cozum": "Hindistan'da bulunan Cochin Uluslararası Havaalanı, 2015 yılında tüm enerji ihtiyacını güneşten karşılayan ilk havalimanı olmuştur. [cite: 5558, 5559]"
+  },
+  {
+    [cite_start]"soru": "2028 Yaz Olimpiyatlarının aşağıdaki şehirlerin hangisinde yapılması kararlaştırılmıştır? [cite: 2199]",
+    "siklar": ["Los Angeles", "New York", "San Fransisko", "Miami", "Boston"],
+    "dogru": 0,
+    "ders": "GÜNCEL BİLGİLER",
+    "zorluk": "GÜNCEL",
+    "deneme": "2",
+    [cite_start]"cozum": "Uluslararası Olimpiyat Komitesi, 2028 Yaz Olimpiyat Oyunları'nın ABD'nin Los Angeles şehrinde yapılacağını ilan etmiştir. [cite: 5558, 5559]"
+  },
+  {
+    [cite_start]"soru": "1903 yılında Nobel Fizik Ödülü'ne layık görülen ve Nobel ödülü almış ilk kadın olan bilim insanı hangisidir? [cite: 2169]",
+    "siklar": ["Marie Curie", "Bertha von Suttner", "Selma Lagerlöf", "Jane Addams", "Malala Yousafzai"],
+    "dogru": 0,
+    "ders": "GÜNCEL BİLGİLER",
+    "zorluk": "KOLAY",
+    "deneme": "2",
+    [cite_start]"cozum": "Radyoaktivite üzerine çalışmalarıyla Marie Curie, Nobel alan ilk kadın bilim insanı ve iki farklı dalda (fizik-kimya) ödül alan tek kişidir. [cite: 5558, 5559]"
+  },
+  {
+    [cite_start]"soru": "Ocak 2025 tarihinde ABD'de günlerce süren ve büyük can/mal kaybına neden olan dev yangınlar hangi şehirde yaşanmıştır? [cite: 2190]",
+    "siklar": ["New York", "Washington", "Los Angeles", "Chicago", "San Francisco"],
+    "dogru": 2,
+    "ders": "GÜNCEL BİLGİLER",
+    "zorluk": "GÜNCEL",
+    "deneme": "2",
+    [cite_start]"cozum": "Ocak 2025'te Los Angeles ve çevresinde çıkan devasa yangınlar nedeniyle bölgede olağanüstü hal ilan edilmiş ve binlerce ev kül olmuştur. [cite: 5558, 5559]"
+  },
+  {
+    [cite_start]"soru": "Birleşmiş Milletler Gıda ve Tarım Örgütü'nün (FAO) merkezi aşağıdaki şehirlerden hangisindedir? [cite: 2204]",
+    "siklar": ["Montreal", "New York", "Cenevre", "Viyana", "Roma"],
+    "dogru": 4,
+    "ders": "GÜNCEL BİLGİLER",
+    "zorluk": "ORTA",
+    "deneme": "2",
+    [cite_start]"cozum": "Dünya genelinde açlıkla mücadele eden FAO'nun merkezi İtalya'nın başkenti Roma'dadır. [cite: 5558, 5559]"
+  },
+  
   
 ]
+
 
 
 
