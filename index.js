@@ -10,17 +10,69 @@ const io = new Server(server);
 
 app.use(express.static(path.join(__dirname, "public")));
 
+// --- 🛠️ GÜVENLİ VE AKILLI SORU YÜKLEME SİSTEMİ ---
 let tumSorular = [];
 const QUESTIONS_FILE = path.join(__dirname, 'questions.json');
 
-try {
+function sorulariYukle() {
+    console.log("📂 Soru dosyası okunuyor...");
+    
     if (fs.existsSync(QUESTIONS_FILE)) {
-        const data = fs.readFileSync(QUESTIONS_FILE, 'utf8');
-        tumSorular = JSON.parse(data);
+        try {
+            let rawData = fs.readFileSync(QUESTIONS_FILE, 'utf8');
+
+            // 1. ADIM: Olası format hatalarını otomatik düzelt (][ birleştirme)
+            rawData = rawData.replace(/\]\s*\[/g, ",");
+            rawData = rawData.replace(/\]\s*,\s*\[/g, ",");
+            
+            // Eğer dosya başında birden fazla [[ varsa düzelt
+            while (rawData.startsWith("[[")) { rawData = rawData.replace("[[", "["); }
+            while (rawData.endsWith("]]")) { rawData = rawData.replace("]]", "]"); }
+
+            try {
+                // Temizlenmiş veriyi parse et
+                tumSorular = JSON.parse(rawData);
+                console.log(`✅ BAŞARILI: Toplam ${tumSorular.length} soru hafızaya alındı.`);
+            } catch (parseErr) {
+                // Eğer hala hata varsa, daha agresif bir temizlik yap (Regex ile çek)
+                console.log("⚠️ Basit okuma başarısız, derinlemesine temizlik yapılıyor...");
+                const matches = rawData.match(/\{.*?\}/gs); // Sadece süslü parantez bloklarını bul
+                if (matches) {
+                    const fixedJson = "[" + matches.join(",") + "]";
+                    tumSorular = JSON.parse(fixedJson);
+                    console.log(`✅ TAMİR EDİLDİ: ${tumSorular.length} soru kurtarıldı.`);
+                } else {
+                    throw new Error("Soru formatı kurtarılamadı.");
+                }
+            }
+
+        } catch (err) {
+            console.error("❌ KRİTİK HATA: questions.json dosyası çok bozuk!");
+            // Oyunun çökmemesi için acil durum sorusu ekle
+            tumSorular = [{
+                "soru": "SİSTEM HATASI: Soru dosyası (questions.json) okunamadı. Lütfen yöneticiye bildir.",
+                "ders": "SİSTEM", "siklar": ["Tamam", "Anlaşıldı"], "dogru": 0, "zorluk": "KOLAY"
+            }];
+        }
+    } else {
+        console.log("⚠️ questions.json bulunamadı! Örnek soru oluşturuluyor.");
+        tumSorular = [{ "soru": "Deneme Sorusu", "ders": "GENEL", "siklar": ["A", "B"], "dogru": 0 }];
     }
-} catch (e) { console.error("Soru dosyası yüklenemedi."); }
+}
+
+// Sunucu başlarken soruları yükle
+sorulariYukle();
 
 const rooms = {};
+
+// Şık Karıştırma Fonksiyonu
+function shuffleOptions(q) {
+    if (!q || !q.siklar) return q;
+    const originalCorrectText = q.siklar[q.dogru];
+    const shuffledSiklar = [...q.siklar].sort(() => Math.random() - 0.5);
+    const newCorrectIndex = shuffledSiklar.indexOf(originalCorrectText);
+    return { ...q, siklar: shuffledSiklar, dogru: newCorrectIndex };
+}
 
 io.on("connection", (socket) => {
     socket.on("createRoom", (username) => {
@@ -45,7 +97,7 @@ io.on("connection", (socket) => {
         io.to(roomCode).emit("updatePlayerList", Object.values(rooms[roomCode].players));
     });
 
- socket.on("startGame", ({ roomCode, settings }) => {
+    socket.on("startGame", ({ roomCode, settings }) => {
         const room = rooms[roomCode];
         if (!room) return;
         
@@ -75,7 +127,10 @@ io.on("connection", (socket) => {
         if(pool.length === 0) {
             console.log("⚠️ Filtreye uygun soru bulunamadı! Tüm sorular yükleniyor...");
             pool = [...tumSorular]; 
-            // Kullanıcıya bilgi vermek istersen buraya bir socket.emit ekleyebilirsin
+            // Eğer dosya tamamen boşsa veya bozuksa ve yukarıdaki tamir çalışmadıysa
+            if(pool.length === 0) {
+                 pool = [{ "soru": "HİÇ SORU YOK! Lütfen questions.json dosyasını kontrol et.", "ders": "HATA", "siklar": ["Tamam"], "dogru": 0 }];
+            }
         } else {
             console.log(`✅ Filtreleme Başarılı! ${pool.length} soru bulundu.`);
         }
@@ -84,6 +139,9 @@ io.on("connection", (socket) => {
         room.questions = pool.sort(() => Math.random() - 0.5)
                              .slice(0, settings.count || 20)
                              .map(q => shuffleOptions(q));
+        
+        // Ayarları odaya kaydet
+        room.settings = settings;
                              
         room.gameStarted = true;
         room.currentQuestionIndex = 0;
@@ -126,6 +184,7 @@ io.on("connection", (socket) => {
     });
 
     socket.on("addNewQuestion", (q) => { tumSorular.push(q); });
+    
     socket.on("disconnect", () => {
         for (const code in rooms) {
             if (rooms[code].players[socket.id]) {
@@ -140,14 +199,17 @@ io.on("connection", (socket) => {
 function sendQuestionToRoom(roomCode) {
     const room = rooms[roomCode];
     if (!room) return;
+    
     if (room.currentQuestionIndex >= room.settings.count || room.currentQuestionIndex >= room.questions.length) {
         io.to(roomCode).emit("gameOver", Object.values(room.players));
         room.gameStarted = false; return;
     }
+    
     room.answerCount = 0; 
     Object.keys(room.players).forEach(id => { room.players[id].hasAnsweredThisRound = false; });
     room.questionStartTime = Date.now();
     const q = room.questions[room.currentQuestionIndex];
+    
     io.to(roomCode).emit("newQuestion", {
         soru: q.soru, siklar: q.siklar, ders: q.ders, resim: q.resim, zorluk: q.zorluk,
         index: room.currentQuestionIndex + 1, total: Math.min(room.settings.count, room.questions.length), duration: room.settings.duration
@@ -162,5 +224,4 @@ function sendQuestionToRoom(roomCode) {
 }
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`Sunucu aktif.`));
-
+server.listen(PORT, () => console.log(`🚀 Sunucu ${PORT} portunda aktif.`));
