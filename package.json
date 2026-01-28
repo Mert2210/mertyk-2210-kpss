@@ -1,16 +1,14 @@
 {
   "name": "mert-2210-final",
   "version": "1.0.0",
-  "description": "KPSS Bilgi Yarismasi ve WhatsApp Botu",
+  "description": "KPSS Bilgi Yarismasi",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
   "dependencies": {
     "express": "^4.18.2",
-    "socket.io": "^4.7.2",
-    "whatsapp-web.js": "^1.23.0",
-    "qrcode-terminal": "^0.12.0"
+    "socket.io": "^4.7.2"
   },
   "engines": {
     "node": ">=14.0.0"
