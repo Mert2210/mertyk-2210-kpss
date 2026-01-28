@@ -2681,10 +2681,2450 @@
     "soru": "Anayasa Mahkemesi, siyasi partilerin kapatılmasına 'üyelerin kaçta kaç çoğunluğuyla' karar verir?",
     "siklar": ["Salt Çoğunluk", "Üçte İki Çoğunluk", "Beşte Üç Çoğunluk", "Oy Birliği"],
     "dogru": 1
+  },
+  [
+  {
+    "soru": "1982 Anayasası'na göre, aşağıdakilerden hangileri Cumhurbaşkanlığı Kararnamesi ile düzenlenemez?\n\nI. Temel haklar ve ödevler\nII. Siyasi haklar ve ödevler\nIII. Sosyal ve ekonomik haklar",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["Yalnız I", "Yalnız II", "I ve II", "II ve III", "I, II ve III"],
+    "dogru": 2
+  },
+  {
+    "soru": "Osmanlı Devleti'nde 'Vaka-i Hayriye' olarak bilinen Yeniçeri Ocağı'nın kaldırılması olayının sonuçları arasında;\n\nI. Padişahın otoritesinin güçlenmesi\nII. Bektaşilik tarikatının yasaklanması\nIII. Asakir-i Mansure-i Muhammediye ordusunun kurulması\n\ngelişmelerinden hangileri yer alır?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["Yalnız I", "I ve II", "I ve III", "II ve III", "I, II ve III"],
+    "dogru": 4
+  },
+  {
+    "soru": "Türkiye'nin jeopolitik konumunu etkileyen unsurlardan hangileri 'değişmeyen' (doğal) unsurlar arasında yer alır?\n\nI. İklim özellikleri\nII. Politik yönetim şekli\nIII. Jeolojik yapı ve yer şekilleri\nIV. Nüfus ve yerleşme",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["I ve II", "I ve III", "II ve IV", "III ve IV", "I, III ve IV"],
+    "dogru": 1
+  },
+  {
+    "soru": "Aşağıdakilerden hangileri TBMM'nin bilgi edinme ve denetim yolları arasında yer almaz?\n\nI. Gensoru\nII. Meclis Soruşturması\nIII. Güvenoylaması\nIV. Yazılı Soru",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["Yalnız I", "I ve III", "II ve IV", "III ve IV", "I, II ve III"],
+    "dogru": 1
+  },
+  {
+    "soru": "Lozan Barış Antlaşması'nda çözüme kavuşturulmasına rağmen daha sonra tekrar gündeme gelen sorunlar hangileridir?\n\nI. Musul Sorunu\nII. Boğazlar Sorunu\nIII. Hatay Sorunu",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["Yalnız I", "Yalnız II", "I ve III", "II ve III", "I, II ve III"],
+    "dogru": 4
+  },
+  {
+    "soru": "Türkiye'de nüfusun dağılışını etkileyen doğal faktörler düşünüldüğünde, aşağıdaki yerlerden hangisinin seyrek nüfuslu olmasının nedeni 'karstik arazi yapısı'dır?\n\nI. Taşeli Platosu\nII. Teke Yöresi\nIII. Hakkari Yöresi\nIV. Menteşe Yöresi",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["Yalnız I", "I ve II", "II ve III", "III ve IV", "I, II ve IV"],
+    "dogru": 1
+  },
+  {
+    "soru": "4721 sayılı Türk Medeni Kanunu'na göre, aşağıdakilerden hangileri 'tüzel kişiliği sona erdiren' haller arasında yer alır?\n\nI. Amacın gerçekleşmesi\nII. Borç ödemede acze düşme\nIII. İlk genel kurul toplantısının yapılamaması",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Yalnız I", "I ve II", "I ve III", "II ve III", "I, II ve III"],
+    "dogru": 4
+  },
+  {
+    "soru": "I. Balkan Savaşı sonucunda Osmanlı Devleti'nin kaybettiği topraklar arasında aşağıdakilerden hangileri bulunur?\n\nI. Arnavutluk\nII. Batı Trakya\nIII. Makedonya\nIV. Ege Adaları",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["I ve II", "II ve III", "I, II ve III", "II, III ve IV", "Hepsi"],
+    "dogru": 4
+  },
+  {
+    "soru": "Aşağıdaki göllerden hangileri 'oluşum bakımından' diğerlerinden farklı bir grupta yer alır?\n\nI. İznik Gölü\nII. Sapanca Gölü\nIII. Nemrut Gölü\nIV. Tuz Gölü",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["Yalnız III", "I ve II", "II ve IV", "III ve IV", "Yalnız I"],
+    "dogru": 0
+  },
+  {
+    "soru": "1982 Anayasası'na göre; milletvekilliğinin düşme nedenlerinden hangileri için Meclis Genel Kurulu kararı GEREKMEZ (Kendiliğinden düşer)?\n\nI. Cumhurbaşkanı seçilme\nII. Ölüm\nIII. İstifa\nIV. Kısıtlanma",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["I ve II", "II ve III", "I, II ve IV", "III ve IV", "I, III ve IV"],
+    "dogru": 0
+  },
+  {
+    "soru": "Mustafa Kemal Atatürk'ün 'Milli Mücadele'nin manifestosu' olarak nitelendirilen eseri Nutuk'ta, aşağıdaki dönemlerden hangisi anlatılmaktadır?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["1919 - 1923", "1919 - 1927", "1920 - 1938", "1914 - 1923", "1923 - 1938"],
+    "dogru": 1
+  },
+  {
+    "soru": "Türkiye'de 'mikroklima' iklim alanları düşünüldüğünde, aşağıdaki eşleştirmelerden hangisi yanlıştır?\n\nI. Rize - Turunçgil\nII. Iğdır - Pamuk\nIII. Anamur - Muz\nIV. Artvin - Zeytin\nV. Erzurum - Çay",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["I", "II", "III", "IV", "V"],
+    "dogru": 4
+  },
+  {
+    "soru": "İdare Hukuku ilkelerine göre, aşağıdakilerden hangileri 'Kamu Hizmeti'nin temel özellikleri arasında yer alır?\n\nI. Süreklilik (Devamlılık)\nII. Nesnellik (Eşitlik)\nIII. Değişkenlik (Uyarlama)\nIV. Bedelsizlik (Meccanilik - Kural olarak)",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["I ve II", "II ve III", "I, II ve III", "II, III ve IV", "Hepsi"],
+    "dogru": 4
+  },
+  {
+    "soru": "II. Mahmut döneminde yapılan ıslahatlardan hangileri 'merkezi otoriteyi güçlendirme' amacı taşır?\n\nI. Ayanlığın kaldırılması\nII. Posta teşkilatının kurulması\nIII. Köy ve mahalle muhtarlıklarının kurulması",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["Yalnız I", "I ve II", "I ve III", "II ve III", "I, II ve III"],
+    "dogru": 4
+  },
+  {
+    "soru": "Türkiye'nin dış ticareti incelendiğinde, aşağıdaki enerji kaynaklarından hangisinde dışa bağımlılık oranı diğerlerine göre daha DÜŞÜKTÜR?\n\nI. Doğalgaz\nII. Petrol\nIII. Linyit\nIV. Taş Kömürü",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Yalnız I", "Yalnız III", "II ve IV", "I ve II", "III ve IV"],
+    "dogru": 1
+  },
+  {
+    "soru": "Vali, ilde aşağıdakilerden hangilerini temsil eder?\n\nI. Cumhurbaşkanı\nII. Devlet Tüzel Kişiliği\nIII. Bakanlıklar\nIV. TBMM",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["I ve II", "II ve III", "I, II ve III", "I, III ve IV", "Hepsi"],
+    "dogru": 2
+  },
+  {
+    "soru": "Aşağıdakilerden hangileri 1. TBMM döneminde (1920-1923) gerçekleşen olaylar arasındadır?\n\nI. İstiklal Marşı'nın kabulü\nII. Saltanatın kaldırılması\nIII. Cumhuriyetin ilanı\nIV. Ankara'nın başkent olması",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["I ve II", "I ve III", "II ve IV", "I, II ve III", "Hepsi"],
+    "dogru": 0
+  },
+  {
+    "soru": "Türkiye'de 'Buzul (Sirk) Gölleri'ne genellikle yüksek dağlık alanlarda rastlanır. Buna göre aşağıdaki dağların hangisinde buzul göllerine rastlanmaz?\n\nI. Kaçkar Dağları\nII. Uludağ\nIII. Yıldız Dağları\nIV. Cilo Dağları",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["Yalnız I", "Yalnız III", "II ve IV", "I ve IV", "II ve III"],
+    "dogru": 1
+  },
+  {
+    "soru": "2024 yılı itibarıyla NATO'nun 32. üyesi olan ve 'tarafsızlık' politikasını terk eden ülke hangisidir?",
+    "ders": "GÜNCEL BİLGİLER",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Finlandiya", "İsveç", "Norveç", "Ukrayna", "İrlanda"],
+    "dogru": 1
+  },
+  {
+    "soru": "Aşağıdakilerden hangileri 'Kişisel Verilerin Korunması Kanunu' kapsamında 'Özel Nitelikli Kişisel Veri' sayılır?\n\nI. Kişinin ırkı ve etnik kökeni\nII. Siyasi düşüncesi\nIII. Cep telefonu numarası\nIV. Sağlık bilgileri",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["I ve II", "I, II ve IV", "II, III ve IV", "I, III ve IV", "Hepsi"],
+    "dogru": 1
+  },
+  [
+  {
+    "soru": "Osmanlı Devleti'nde, padişahın yetkilerini ilk kez kendi rızasıyla kısıtladığı ve anayasal düzene geçişin ilk aşaması kabul edilen gelişme hangisidir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Tanzimat Fermanı", "Islahat Fermanı", "Sened-i İttifak", "Kanun-i Esasi", "I. Meşrutiyet"],
+    "dogru": 2
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi, Milli Mücadele döneminde İstanbul Hükümeti ile Temsil Heyeti arasında yapılan ilk resmi görüşmedir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Bilecik Görüşmeleri", "Amasya Görüşmeleri", "Amasya Genelgesi", "Sivas Kongresi", "Ali Galip Olayı"],
+    "dogru": 1
+  },
+  {
+    "soru": "Türkiye'nin yer şekilleri düşünüldüğünde, aşağıdaki kıyı tiplerinden hangisinin Türkiye'de görülmesi 'Matematik Konum' (Enlem) nedeniyle mümkün değildir?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["Ria Tipi Kıyı", "Dalmaçya Tipi Kıyı", "Limanlı Kıyı", "Fiyort Tipi Kıyı", "Boyuna Kıyı"],
+    "dogru": 3
+  },
+  {
+    "soru": "1982 Anayasası'na göre, aşağıdakilerden hangisi Cumhurbaşkanının 'Yargı' ile ilgili görev ve yetkilerinden biri değildir?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["Anayasa Mahkemesi üyelerini seçmek", "Danıştay üyelerinin dörtte birini seçmek", "Yargıtay Cumhuriyet Başsavcısını seçmek", "Hakimler ve Savcılar Kurulu üyelerini seçmek", "Sayıştay Başkanını seçmek"],
+    "dogru": 4
+  },
+  {
+    "soru": "UNESCO Dünya Mirası Listesi'nde yer alan 'Ani Arkeolojik Alanı' hangi ilimiz sınırları içerisindedir?",
+    "ders": "GÜNCEL BİLGİLER",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Ağrı", "Kars", "Van", "Erzurum", "Iğdır"],
+    "dogru": 1
+  },
+  {
+    "soru": "Türk İslam devletlerinde 'hükümdarın ve sarayın korunmasından sorumlu' görevli aşağıdakilerden hangisidir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Candar", "Alemdar", "Hacip", "Serhenk", "Çaşnigir"],
+    "dogru": 0
+  },
+  {
+    "soru": "I. Dünya Savaşı sırasında, Osmanlı Devleti'nin toprakları dışında müttefiklerine yardım amacıyla savaştığı cepheler hangileridir?\n\nI. Galiçya\nII. Kanal\nIII. Romanya\nIV. Makedonya",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["I ve II", "I, III ve IV", "II ve III", "III ve IV", "Hepsi"],
+    "dogru": 1
+  },
+  {
+    "soru": "Türkiye'de 'kıl keçisi' yetiştiriciliğinin ormanlara zarar verdiği gerekçesiyle azaltılmaya çalışıldığı, ancak makilik alanlara uyum sağladığı için en çok Akdeniz Bölgesi'nde görüldüğü bilinmektedir. Buna göre aşağıdaki illerden hangisinde kıl keçisi sayısı daha fazladır?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Mersin", "Konya", "Rize", "Edirne", "Kars"],
+    "dogru": 0
+  },
+  {
+    "soru": "İdare Hukuku'na göre, aşağıdakilerden hangisi 'Mahalli İdareler' (Yerel Yönetimler) içerisinde yer almaz?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["İl Özel İdaresi", "Belediye", "Köy", "Büyükşehir Belediyesi", "Bucak"],
+    "dogru": 4
+  },
+  [
+  {
+    "soru": "Osmanlı Devleti'nde 'Şeyhülislam' ve 'Kazasker' aşağıdaki yönetici sınıflarından hangisine mensuptur?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Seyfiye (Yönetim/Askeri)", "Kalemiye (Bürokrasi)", "İlmiye (Din/Hukuk/Eğitim)", "Reaya (Halk)", "Enderun"],
+    "dogru": 2
+  },
+  {
+    "soru": "Türkiye'de 'Bakır' madeni denilince akla gelen ilk yerler nerelerdir?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Divriği - Hekimhan", "Seydişehir - Akseki", "Kastamonu (Küre) - Artvin (Murgul)", "Susurluk - Bigadiç", "Batman - Raman"],
+    "dogru": 2
+  },
+  {
+    "soru": "1982 Anayasası'na göre, TBMM'nin 'Savaş İlanı'na karar verebilmesi için gereken toplantı ve karar yeter sayısı nedir?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["Üye tamsayısının salt çoğunluğu", "Toplantıya katılanların salt çoğunluğu", "Üye tamsayısının üçte ikisi", "Üye tamsayısının beşte üçü", "Toplantı yeter sayısı aranmaz"],
+    "dogru": 1
+  },
+  {
+    "soru": "Mustafa Kemal Atatürk'ün Samsun'a çıkarken kullandığı vapurun adı ve kaptanı hangi şıkta doğru verilmiştir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "DETAY",
+    "siklar": ["Gülcemal Vapuru - İsmail Hakkı Bey", "Bandırma Vapuru - İsmail Hakkı Durusu", "Nusret Mayın Gemisi - Tophaneli Hakkı", "Yavuz Zırhlısı - Rauf Orbay", "Alemdar Gemisi - Dursun Kaptan"],
+    "dogru": 1
+  },
+  {
+    "soru": "Aşağıdaki göllerden hangisi 'Volkanik Set Gölü' değildir?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["Nazik", "Erçek", "Çıldır", "Haçlı", "Beyşehir"],
+    "dogru": 4
+  },
+  {
+    "soru": "Hukuk devleti ilkesinin bir gereği olarak, idarenin eylem ve işlemlerine karşı yargı yolu açıktır. Ancak bazı işlemler yargı denetimi dışındadır. Aşağıdakilerden hangisi buna örnektir?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["Kamulaştırma Kararları", "Memur Disiplin Cezaları", "Cumhurbaşkanının tek başına yaptığı işlemler (Eskiden kapalıydı, şimdi açık)", "Yüksek Askeri Şura'nın (YAŞ) terfi işlemleri", "Belediye Meclisi Kararları"],
+    "dogru": 3
+  },
+  {
+    "soru": "I. Dünya Savaşı sırasında İtilaf Devletleri'nin Osmanlı'yı paylaşmak için yaptıkları gizli antlaşmalardan hangisi, Rusya'nın savaştan çekilmesiyle 'ölü doğmuş' ve uygulanamamıştır?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Sykes-Picot", "Saint Jean de Maurienne", "Londra Antlaşması", "İstanbul (Boğazlar) Antlaşması", "Mac Mahon Antlaşması"],
+    "dogru": 3
+  },
+  {
+    "soru": "Türkiye'de 'Endemik Bitki' çeşitliliğinin en fazla olduğu coğrafi bölgemiz hangisidir?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Karadeniz", "Akdeniz", "Doğu Anadolu", "İç Anadolu", "Marmara"],
+    "dogru": 1
+  },
+  {
+    "soru": "Türkiye'nin 'En Genç Volkanik Dağı' olarak bilinen ve üzerinde insan ayak izlerine rastlanan volkan konisi hangisidir?",
+    "ders": "GÜNCEL BİLGİLER",
+    "sinav": "KPSS",
+    "zorluk": "GÜNCEL",
+    "siklar": ["Kula Volkanları (Manisa)", "Erciyes Dağı", "Nemrut Dağı", "Tendürek Dağı", "Karadağ"],
+    "dogru": 0
+  },
+  {
+    "soru": "Siyasi partilerin kapatılması davasını hangi makam açar, hangi mahkeme karara bağlar?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Adalet Bakanı açar - Danıştay karar verir", "TBMM Başkanı açar - Yargıtay karar verir", "Yargıtay C. Başsavcısı açar - Anayasa Mahkemesi karar verir", "Cumhurbaşkanı açar - YSK karar verir", "Yargıtay C. Başsavcısı açar - Yargıtay karar verir"],
+    "dogru": 2
+  },
+  {
+    "soru": "Osmanlı Devleti'nde 'Lale Devri'ni sona erdiren isyan aşağıdakilerden hangisidir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Kabakçı Mustafa İsyanı", "Patrona Halil İsyanı", "Şeyh Bedrettin İsyanı", "Celali İsyanları", "31 Mart Vakası"],
+    "dogru": 1
+  },
+  {
+    "soru": "Aşağıdaki sanayi tesislerinden hangisinin yer seçiminde 'Hammaddeye Yakınlık' zorunluluğu yoktur?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["Rize - Çay İşleme", "Batman - Petrol Rafinerisi", "Konya - Şeker Fabrikası", "İskenderun - Demir Çelik", "Muğla - Kağıt Fabrikası"],
+    "dogru": 3
+  },
+  {
+    "soru": "1982 Anayasası'na göre 'Milletlerarası Antlaşmaların' onaylanmasını uygun bulma yetkisi kime aittir?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Cumhurbaşkanı", "Dışişleri Bakanı", "TBMM", "Anayasa Mahkemesi", "Birleşmiş Milletler Temsilcisi"],
+    "dogru": 2
+  },
+  {
+    "soru": "Türk tarihinde 'Çarşı-Pazar denetimi yapan' görevliye ne ad verilir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "DETAY",
+    "siklar": ["Subaşı", "Muhtesip", "Kadı", "Beylerbeyi", "Nişancı"],
+    "dogru": 1
+  },
+  {
+    "soru": "Türkiye'de nüfusun dağılışı incelendiğinde; Menteşe Yöresi (Muğla) ve Hakkari Yöresi'nin seyrek nüfuslu olmasının ortak temel nedeni nedir?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["İklim koşulları", "Toprak verimsizliği", "Yer şekillerinin engebeli olması", "Sanayinin gelişmemesi", "Su kaynaklarının azlığı"],
+    "dogru": 2
+  },
+  {
+    "soru": "Devlet Memurları Kanunu'na göre, memurların mazeretsiz olarak kesintisiz kaç gün işe gelmemesi 'Çekilmiş (Müstafi)' sayılmalarına neden olur?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["3 Gün", "5 Gün", "7 Gün", "10 Gün", "15 Gün"],
+    "dogru": 3
+  },
+  {
+    "soru": "Mustafa Kemal Atatürk'ün kaleme aldığı 'Nutuk' adlı eser, hangi yılları kapsamaktadır?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["1914 - 1923", "1919 - 1923", "1919 - 1927", "1920 - 1938", "1923 - 1938"],
+    "dogru": 2
+  },
+  {
+    "soru": "Aşağıdaki toprak türlerinden hangisi Türkiye'de GÖRÜLMEZ?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Terra Rossa", "Çernezyom", "Laterit", "Podzol", "Alüvyal"],
+    "dogru": 2
+  },
+  {
+    "soru": "Avrupa Merkez Bankası (ECB) Başkanı olan ve imzasını Euro banknotlarına atan ilk kadın başkan kimdir?",
+    "ders": "GÜNCEL BİLGİLER",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["Angela Merkel", "Ursula von der Leyen", "Christine Lagarde", "Giorgia Meloni", "Kamala Harris"],
+    "dogru": 2
+  },
+  {
+    "soru": "Osmanlı Devleti'nde ilk resmi gazete olan 'Takvim-i Vekayi' hangi padişah döneminde çıkarılmıştır?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["II. Mahmut", "Abdülmecit", "III. Selim", "II. Abdülhamit", "V. Mehmet Reşat"],
+    "dogru": 0
+  },
+  {
+    "soru": "Türkiye'de 'Falez' (Yalıyar) oluşumlarına en çok hangi kıyılarımızda rastlanır?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Ege ve Marmara", "Doğu Karadeniz ve Batı Akdeniz", "Orta Karadeniz ve Ege", "Marmara ve Batı Karadeniz", "Akdeniz ve Güneydoğu"],
+    "dogru": 1
+  },
+  {
+    "soru": "Bir ilde 'Büyükşehir Belediyesi' kurulabilmesi için nüfusun en az kaç olması gerekir?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["250.000", "500.000", "750.000", "1.000.000", "2.000.000"],
+    "dogru": 2
+  },
+  {
+    "soru": "Kurtuluş Savaşı'nda 'İlk Kurşun'u İzmir'de Yunan işgaline karşı sıkan gazeteci kimdir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Hasan Tahsin", "Sütçü İmam", "Şahin Bey", "Yörük Ali Efe", "Çerkez Ethem"],
+    "dogru": 0
+  },
+  {
+    "soru": "Türkiye'de demir yolu ağı ile aşağıdaki sınır kapılarından hangisine ULAŞILAMAZ?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["Kapıkule (Bulgaristan)", "Kapıköy (İran)", "Çobanbey (Suriye)", "Habur (Irak)", "Uzunköprü (Yunanistan)"],
+    "dogru": 3
+  },
+  {
+    "soru": "İdari vesayet yetkisi, aşağıdaki ilişkilerden hangisinde söz konusudur?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["Kaymakam - İlçe Milli Eğitim Müdürü", "Vali - Kaymakam", "İçişleri Bakanı - Belediye Başkanı", "Cumhurbaşkanı - Bakan", "Rektör - Dekan"],
+    "dogru": 2
+  },
+  [
+  {
+    "soru": "II. Dünya Savaşı sırasında Türkiye'nin izlediği 'Denge Politikası' kapsamında, Müttefik Devletlerin Türkiye'yi savaşa sokmak için düzenlediği konferanslar arasında hangisi yer almaz?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["Adana Görüşmeleri", "I. Kahire Konferansı", "II. Kahire Konferansı", "Moskova Konferansı", "Yalta Konferansı"],
+    "dogru": 4
+  },
+  {
+    "soru": "Türkiye'de nüfusun dağılışı ve yoğunluğu incelendiğinde, aşağıdakilerden hangisi nüfusun kıyı kesimlerde toplanmasının temel nedenlerinden biri DEĞİLDİR?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["İklim koşullarının elverişli olması", "Toprağın verimli olması", "Ulaşım imkanlarının gelişmiş olması", "Sanayi faaliyetlerinin yoğun olması", "Maden çeşitliliğinin fazla olması"],
+    "dogru": 4
+  },
+  {
+    "soru": "1982 Anayasası'na göre, aşağıdakilerden hangisi 'Yüksek Seçim Kurulu'nun (YSK) özelliklerinden biri değildir?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["Üyeleri Yargıtay ve Danıştay tarafından seçilir", "Kararlarına karşı Anayasa Mahkemesi'ne başvurulabilir", "7 asıl, 4 yedek üyeden oluşur", "Seçimlerin genel yönetim ve denetimini yapar", "Kararları kesindir"],
+    "dogru": 1
+  },
+  {
+    "soru": "Aşağıdaki demir yolu sınır kapılarımızdan hangisi 'Suriye' ile bağlantı sağlar?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "DETAY",
+    "siklar": ["Kapıkule", "Kapıköy", "Çobanbey", "Akyaka", "Uzunköprü"],
+    "dogru": 2
+  },
+  {
+    "soru": "1947 yılında ABD'nin Sovyet tehdidine karşı Türkiye ve Yunanistan'a askeri ve ekonomik yardım yapmasını öngören belge hangisidir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Marshall Planı", "Truman Doktrini", "Eisenhower Doktrini", "Monroe Doktrini", "Schuman Bildirgesi"],
+    "dogru": 1
+  },
+  {
+    "soru": "Türkiye'nin ilk 'Sakin Şehir'i (Cittaslow) Seferihisar iken, 2024 yılında bu listeye eklenen veya listede yer alan yerlerden biri aşağıdakilerden hangisidir?",
+    "ders": "GÜNCEL BİLGİLER",
+    "sinav": "KPSS",
+    "zorluk": "GÜNCEL",
+    "siklar": ["Safranbolu (Karabük)", "Şirince (İzmir)", "Ahlat (Bitlis)", "Kemaliye (Erzincan)", "Tüm şıklar Cittaslow ağına dahildir"],
+    "dogru": 3
+  },
+  {
+    "soru": "Türkiye'de 'Köyaltı Yerleşmeleri' düşünüldüğünde, 'Kom' ve 'Ağıl' gibi yerleşmelerin ortak ekonomik faaliyeti nedir?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Tarım", "Hayvancılık", "Turizm", "Madencilik", "Balıkçılık"],
+    "dogru": 1
+  },
+  {
+    "soru": "Demokrat Parti (DP) döneminde (1950-1960) kurulan üniversiteler arasında aşağıdakilerden hangisi yer alır?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "DETAY",
+    "siklar": ["İstanbul Üniversitesi", "Ankara Üniversitesi", "Orta Doğu Teknik Üniversitesi (ODTÜ)", "İstanbul Teknik Üniversitesi", "Boğaziçi Üniversitesi"],
+    "dogru": 2
+  },
+  {
+    "soru": "Aşağıdaki uluslararası kuruluşlardan hangisine Türkiye üye DEĞİLDİR?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Avrupa Konseyi", "NATO", "AGİT (OSCE)", "OPEC (Petrol İhraç Eden Ülkeler)", "Karadeniz Ekonomik İşbirliği (KEİ)"],
+    "dogru": 3
+  },
+  {
+    "soru": "Türkiye'de 'Boru Hatları' ile taşımacılıkta en büyük paya sahip olan enerji kaynağı hangisidir?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Doğalgaz", "Petrol", "Su", "Bor", "Kömür"],
+    "dogru": 1
+  },
+  {
+    "soru": "Kıbrıs Barış Harekatı (1974) sırasında Türkiye Cumhuriyeti Başbakanı ve Başbakan Yardımcısı kimlerdir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Bülent Ecevit - Necmettin Erbakan", "Süleyman Demirel - İsmet İnönü", "Turgut Özal - Kenan Evren", "Adnan Menderes - Fatin Rüştü Zorlu", "Bülent Ecevit - Deniz Baykal"],
+    "dogru": 0
+  },
+  {
+    "soru": "Aşağıdaki illerden hangisi 'Doğu Anadolu Projesi (DAP)' kapsamında yer almaz?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["Erzurum", "Malatya", "Sivas", "Çorum", "Elazığ"],
+    "dogru": 3
+  },
+  {
+    "soru": "Hukukumuzda 'Gaiplik' kararı vermeye yetkili mahkeme hangisidir?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Asliye Hukuk Mahkemesi", "Sulh Hukuk Mahkemesi", "Aile Mahkemesi", "İdare Mahkemesi", "Asliye Ceza Mahkemesi"],
+    "dogru": 1
+  },
+  {
+    "soru": "Soğuk Savaş döneminde, Doğu Bloku ülkelerinin kendi aralarındaki ekonomik iş birliğini sağlamak amacıyla kurdukları örgüt hangisidir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["NATO", "Varşova Paktı", "COMECON", "COMINFORM", "Avrupa Ekonomik Topluluğu"],
+    "dogru": 2
+  },
+  {
+    "soru": "Türkiye'de 'Serbest Bölgeler'in kurulmasının temel amacı nedir?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["İç ticareti canlandırmak", "İhracatı artırmak ve döviz girdisi sağlamak", "Nüfus dağılışını dengelemek", "Tarım alanlarını korumak", "Turizmi geliştirmek"],
+    "dogru": 1
+  },
+  {
+    "soru": "Birleşmiş Milletler (BM) Genel Kurulu'nda alınan kararla her yıl 15 Mart tarihi ne günü olarak ilan edilmiştir?",
+    "ders": "GÜNCEL BİLGİLER",
+    "sinav": "KPSS",
+    "zorluk": "GÜNCEL",
+    "siklar": ["Dünya Kadınlar Günü", "İslamofobiyle Mücadele Uluslararası Günü", "Dünya Su Günü", "İnsan Hakları Günü", "Dünya Çevre Günü"],
+    "dogru": 1
+  },
+  {
+    "soru": "1961 Anayasası ile kurulan ve 2004 yılında kaldırılan mahkeme/kurum hangisidir?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["Devlet Güvenlik Mahkemeleri (DGM)", "Askeri Yargıtay", "Yüksek Hakimler Kurulu", "Milli Güvenlik Kurulu", "Cumhuriyet Senatosu"],
+    "dogru": 0
+  },
+  {
+    "soru": "Atatürk Dönemi'nde (1923-1938) Türk dış politikasının öncelikli hedefleri arasında hangisi YOKTUR?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Musul'un geri alınması", "Hatay'ın anavatana katılması", "NATO'ya üye olunması", "Boğazlar üzerinde tam egemenlik", "Yabancı okulların denetim altına alınması"],
+    "dogru": 2
+  },
+  {
+    "soru": "Türkiye'de demir yolu ağı ile aşağıdaki limanlardan hangisine bağlantı YOKTUR?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["İskenderun Limanı", "Mersin Limanı", "İzmir Limanı", "Samsun Limanı", "Antalya Limanı"],
+    "dogru": 4
+  },
+  {
+    "soru": "Memurlara 'Toplu Sözleşme Hakkı' hangi yıl yapılan anayasa değişikliği ile verilmiştir?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "DETAY",
+    "siklar": ["2001", "2004", "2007", "2010", "2017"],
+    "dogru": 3
+  },
+  {
+    "soru": "İsrail ile Arap devletleri arasında imzalanan ve Mısır'ın İsrail'i tanıdığı ilk antlaşma olan 'Camp David' hangi yıl imzalanmıştır?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["1948", "1956", "1967", "1978", "1993"],
+    "dogru": 3
+  },
+  {
+    "soru": "Türkiye'nin ilk 'Yüksek Hızlı Tren' (YHT) hattı hangi iller arasında açılmıştır?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["İstanbul - Ankara", "Ankara - Eskişehir", "Ankara - Konya", "Eskişehir - İstanbul", "Ankara - Sivas"],
+    "dogru": 1
+  },
+  {
+    "soru": "2023 yılında vefat eden, 'Boş Beşik', 'Yılanların Öcü' gibi eserlerin filmini çeken ünlü yönetmenimiz kimdir?",
+    "ders": "GÜNCEL BİLGİLER",
+    "sinav": "KPSS",
+    "zorluk": "GÜNCEL",
+    "siklar": ["Metin Erksan", "Yılmaz Güney", "Erden Kıral", "Memduh Ün", "Ömer Lütfi Akad"],
+    "dogru": 2
+  },
+  {
+    "soru": "Aşağıdaki devletlerden hangisi 'Sadabad Paktı'na (1937) üye DEĞİLDİR?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Türkiye", "İran", "Irak", "Suriye", "Afganistan"],
+    "dogru": 3
+  },
+  {
+    "soru": "Kamu Başdenetçisini (Ombudsman) kim seçer?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Cumhurbaşkanı", "TBMM", "Anayasa Mahkemesi", "Danıştay", "Halk"],
+    "dogru": 1
+  },
+  [
+  {
+    "soru": "Türkiye'nin ilk ve tek 'UNESCO Global Jeoparkı' aşağıdakilerden hangisidir?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "DETAY",
+    "siklar": ["Kapadokya", "Pamukkale", "Kula - Salihli", "Nemrut Kalderası", "Ihlara Vadisi"],
+    "dogru": 2
+  },
+  {
+    "soru": "1982 Anayasası'na göre, 'Bütçe Kanun Teklifi'ni TBMM'ye sunma yetkisi kime aittir?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Maliye Bakanı", "TBMM Bütçe Komisyonu", "Cumhurbaşkanı", "Cumhurbaşkanı Yardımcısı", "Sayıştay Başkanı"],
+    "dogru": 2
+  },
+  {
+    "soru": "Kurtuluş Savaşı'nda, düzenli ordunun Batı Cephesi'nde kazandığı ilk askeri zafer hangisidir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["I. İnönü Savaşı", "II. İnönü Savaşı", "Sakarya Savaşı", "Gediz Muharebesi", "Eskişehir-Kütahya Savaşları"],
+    "dogru": 0
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi Türkiye'nin 'Ramsar Sözleşmesi' (Sulak Alanların Korunması) kapsamında koruma altına alınan alanlarından biri DEĞİLDİR?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["Sultan Sazlığı (Kayseri)", "Seyfe Gölü (Kırşehir)", "Kuş Gölü (Balıkesir)", "Meke Gölü (Konya)", "Tortum Şelalesi (Erzurum)"],
+    "dogru": 4
+  },
+  {
+    "soru": "2024 Avrupa Futbol Şampiyonası (EURO 2024) şampiyonu olan ülke hangisidir?",
+    "ders": "GÜNCEL BİLGİLER",
+    "sinav": "KPSS",
+    "zorluk": "GÜNCEL",
+    "siklar": ["İngiltere", "Fransa", "İspanya", "Almanya", "İtalya"],
+    "dogru": 2
+  },
+  {
+    "soru": "Osmanlı Devleti'nde 'olağanüstü durumlarda' toplanan vergiye ne ad verilir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Öşür", "Cizye", "Avarız", "Haraç", "Ağnam"],
+    "dogru": 2
+  },
+  {
+    "soru": "Türkiye'de aşağıdaki turizm çeşitlerinden hangisinin gelişimi, diğerlerine göre daha YENİDİR?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Yayla Turizmi", "Kıyı Turizmi", "Kaplıca Turizmi", "Kış Turizmi", "Kruvaziyer (Gemi) Turizmi"],
+    "dogru": 4
+  },
+  {
+    "soru": "4721 sayılı Türk Medeni Kanunu'na göre, olağan evlenme yaşı (kadın ve erkek için) kaçtır?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["16 yaşını doldurmak", "17 yaşını doldurmak", "18 yaşını doldurmak", "19 yaşını doldurmak", "20 yaşını doldurmak"],
+    "dogru": 1
+  },
+  {
+    "soru": "Mustafa Kemal Atatürk'ün 'Benim Gazetem' dediği ve Milli Mücadele'yi destekleyen yayın organı hangisidir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "DETAY",
+    "siklar": ["İrade-i Milliye", "Hakimiyet-i Milliye", "Minber", "Albayrak", "Tasvir-i Efkar"],
+    "dogru": 0
+  },
+  {
+    "soru": "Türkiye'nin tamamen yerli mühendislik imkanlarıyla geliştirilen ilk yerli haberleşme uydusu hangisidir?",
+    "ders": "GÜNCEL BİLGİLER",
+    "sinav": "KPSS",
+    "zorluk": "GÜNCEL",
+    "siklar": ["RASAT", "GÖKTÜRK-2", "TÜRKSAT 6A", "İMECE", "BİLSAT"],
+    "dogru": 2
+  },
+  {
+    "soru": "Aşağıdaki illerimizden hangisi 'Büyükşehir Belediyesi' statüsünde DEĞİLDİR?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["Ordu", "Muğla", "Tekirdağ", "Sivas", "Van"],
+    "dogru": 3
+  },
+  {
+    "soru": "Lozan Barış Antlaşması'nda 'Boğazlar Komisyonu'nun kurulması kararlaştırılmıştır. Bu komisyonun başkanı hangi ülkeden olacaktır?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["İngiltere", "Fransa", "Türkiye", "Sovyet Rusya", "İtalya"],
+    "dogru": 2
+  },
+  {
+    "soru": "Türkiye'de 'Pamuk' üretiminde, Güneydoğu Anadolu Projesi'nin (GAP) etkisiyle birinci sıraya yerleşen ilimiz hangisidir?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Adana", "Şanlıurfa", "Aydın", "Hatay", "İzmir"],
+    "dogru": 1
+  },
+  {
+    "soru": "1982 Anayasası'na göre, aşağıdakilerden hangisi Cumhurbaşkanının 'Yasama' ile ilgili yetkilerinden biridir?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["Kanun teklif etmek (Bütçe hariç)", "TBMM İçtüzüğünü hazırlamak", "Milletlerarası antlaşmaları onaylamak ve yayımlamak", "Yüksek yargı organlarına üye seçmek", "Milli Güvenlik Kurulu'nu toplamak"],
+    "dogru": 2
+  },
+  {
+    "soru": "Türk tarihinde 'kendi adına hutbe okutan ve para bastıran' ilk Türk-İslam hükümdarı kimdir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "DETAY",
+    "siklar": ["Satuk Buğra Han", "Gazneli Mahmut", "Tuğrul Bey", "Kutun Bilge Kül Kadir Han", "Alparslan"],
+    "dogru": 3
+  },
+  {
+    "soru": "Türkiye'de aşağıdaki bitki topluluklarından hangisi, ormanların tahrip edilmesi sonucunda oluşan çalılıklara verilen isimdir?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Maki", "Garig", "Psödomaki", "Antropojen Bozkır", "Alpin Çayır"],
+    "dogru": 3
+  },
+  {
+    "soru": "Cumhurbaşkanlığı Forsu'ndaki güneşi çevreleyen 16 yıldız neyi temsil eder?",
+    "ders": "GÜNCEL BİLGİLER",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["16 Türk Boyunu", "Tarihteki 16 Büyük Türk Devletini", "16 Büyük Savaşı", "Osmanlı'nın 16 Yüzyılını", "Türkiye'nin 16 Bölgesini"],
+    "dogru": 1
+  },
+  {
+    "soru": "TBMM'de bir siyasi parti grubu oluşturabilmek için en az kaç milletvekili gerekir?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["15", "20", "25", "30", "50"],
+    "dogru": 1
+  },
+  {
+    "soru": "Osmanlı Devleti'nde, Avrupa başkentlerine gönderilen ilk 'daimi' elçilik hangi padişah döneminde ve nerede açılmıştır?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["III. Ahmet - Paris", "III. Selim - Londra", "II. Mahmut - Viyana", "III. Selim - Paris", "III. Ahmet - Londra"],
+    "dogru": 1
+  },
+  {
+    "soru": "Türkiye'de 'Rüzgar'ın şekillendirici etkisinin en fazla olduğu bölge ve nedeni hangisidir?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Karadeniz - Yağışın bol olması", "İç Anadolu - Bitki örtüsünün cılız olması", "Akdeniz - Karstik arazinin yaygın olması", "Ege - Dağların denize dik uzanması", "Doğu Anadolu - Yükseltinin fazla olması"],
+    "dogru": 1
+  },
+  {
+    "soru": "657 sayılı Devlet Memurları Kanunu'na göre, memurluğa girişte aranan genel yaş şartı (alt sınır) kural olarak kaçtır?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["15", "16", "17", "18", "21"],
+    "dogru": 3
+  },
+  {
+    "soru": "Sanayi İnkılabı'nın Osmanlı Devleti üzerindeki olumsuz etkilerini azaltmak amacıyla 1838'de imzalanan ancak devleti 'açık pazar' haline getiren antlaşma hangisidir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Hünkar İskelesi Antlaşması", "Baltalimanı Ticaret Antlaşması", "Kütahya Antlaşması", "Paris Antlaşması", "Berlin Antlaşması"],
+    "dogru": 1
+  },
+  {
+    "soru": "Türkiye'nin en uzun tüneli olan ve Rize ile Erzurum'u birbirine bağlayan tünel hangisidir?",
+    "ders": "GÜNCEL BİLGİLER",
+    "sinav": "KPSS",
+    "zorluk": "GÜNCEL",
+    "siklar": ["Ovit Tüneli", "Zigana Tüneli (Yeni)", "Avrasya Tüneli", "Ilgaz Tüneli", "Bolu Tüneli"],
+    "dogru": 1
+  },
+  {
+    "soru": "Aşağıdaki yargı mercilerinden hangisinin kararları 'kesin' değildir, itiraz veya temyiz yolu açıktır?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["Yüksek Seçim Kurulu", "Hakimler ve Savcılar Kurulu (Meslekten çıkarma hariç)", "Sayıştay", "İlk Derece Mahkemeleri", "Kamu Görevlileri Hakem Kurulu"],
+    "dogru": 3
+  },
+  {
+    "soru": "Mustafa Kemal Atatürk'ün naaşı, 1938'den 1953'e kadar nerede muhafaza edilmiştir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Dolmabahçe Sarayı", "Anıtkabir", "Etnografya Müzesi", "TBMM", "Çankaya Köşkü"],
+    "dogru": 2
+  },
+  [
+  {
+    "soru": "Osmanlı Devleti'nde, geliri doğrudan devlet hazinesine aktarılan topraklara ne ad verilirdi?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Dirlik", "Mukataa", "Paşmaklık", "Vakıf", "Malikane"],
+    "dogru": 1
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi Türkiye'de 'Delta Ovası' oluşumunu kolaylaştıran faktörlerden biri DEĞİLDİR?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["Kıta sahanlığının geniş olması", "Akarsuyun bol alüvyon taşıması", "Kıyıda güçlü gel-git olayının olması", "Deniz derinliğinin az olması", "Kıyıda akıntıların zayıf olması"],
+    "dogru": 2
+  },
+  {
+    "soru": "1982 Anayasası'na göre, aşağıdakilerden hangisi TBMM'nin görev ve yetkileri arasında yer almaz?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Para basılmasına karar vermek", "Savaş ilanına karar vermek", "Kanunları yayımlamak", "Genel ve özel af ilan etmek", "Bütçe kanun teklifini görüşmek ve kabul etmek"],
+    "dogru": 2
+  },
+  {
+    "soru": "Mustafa Kemal Paşa, 'Sine-i Millete' (Milletin bağrına) dönerek askerlik görevinden hangi gelişmeden sonra istifa etmiştir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["Sivas Kongresi öncesi", "Amasya Genelgesi sonrası", "Erzurum Kongresi sonrası", "Havza Genelgesi sonrası", "TBMM'nin açılması öncesi"],
+    "dogru": 1
+  },
+  {
+    "soru": "Türkiye'de 'Nadas' yönteminin en az uygulandığı bölge Karadeniz'dir. Bunun temel nedeni nedir?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Tarım alanlarının dar olması", "Makineleşmenin zor olması", "Her mevsim yağışlı olması", "Toprak veriminin yüksek olması", "Nüfus yoğunluğunun fazla olması"],
+    "dogru": 2
+  },
+  {
+    "soru": "Aşağıdaki Türk devletlerinden hangisi 'Musevilik' dinini benimsemiştir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Hazarlar", "Uygurlar", "Avarlar", "Peçenekler", "Macarlar"],
+    "dogru": 0
+  },
+  {
+    "soru": "Türkiye'nin aşağıdaki sınır kapılarından hangisi, hem demiryolu hem de karayolu geçişine sahiptir?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "DETAY",
+    "siklar": ["İpsala", "Sarp", "Kapıkule", "Cilvegözü", "Habur"],
+    "dogru": 2
+  },
+  {
+    "soru": "Türk Ceza Kanunu'na göre, aşağıdakilerden hangisi 'hukuka uygunluk nedenleri'nden biri değildir?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["Meşru Müdafaa", "Hakkın Kullanılması", "Kanunun Emrini Yerine Getirme", "Amirin Konusu Suç Olan Emrini Yerine Getirme", "İlgilinin Rızası"],
+    "dogru": 3
+  },
+  {
+    "soru": "Osmanlı Devleti'nde 'Ekber ve Erşed' (En yaşlı ve en olgun) sistemini getirerek veraset sisteminde son değişikliği yapan padişah kimdir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["I. Ahmet", "IV. Murat", "II. Osman", "Fatih Sultan Mehmet", "Kanuni Sultan Süleyman"],
+    "dogru": 0
+  },
+  {
+    "soru": "Türkiye'nin en büyük 'Alüvyal Set Gölü' aşağıdakilerden hangisidir?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "DETAY",
+    "siklar": ["Marmara Gölü", "Köyceğiz Gölü", "Bafa (Çamiçi) Gölü", "Eymir Gölü", "Mogan Gölü"],
+    "dogru": 2
+  },
+  {
+    "soru": "Cumhurbaşkanlığı Kabinesi'nde 'Milli Güvenlik Kurulu Genel Sekreteri' yer alır mı?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["Evet, doğal üyedir", "Hayır, yer almaz", "Sadece olağanüstü durumlarda katılır", "Cumhurbaşkanı çağırırsa oy hakkıyla katılır", "Sadece dış politika konularında katılır"],
+    "dogru": 1
+  },
+  {
+    "soru": "Lozan Barış Antlaşması'na göre 'mübadele dışı' bırakılan (yerleşik sayılan) Rumlar nerede yaşamaktaydı?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["İzmir ve Trabzon", "İstanbul, Gökçeada ve Bozcaada", "Batı Trakya ve İstanbul", "Sadece İstanbul", "Edirne ve Kırklareli"],
+    "dogru": 1
+  },
+  {
+    "soru": "2024 yılında 'NATO'nun kuruluşunun kaçıncı yılı' kutlanmıştır?",
+    "ders": "GÜNCEL BİLGİLER",
+    "sinav": "KPSS",
+    "zorluk": "GÜNCEL",
+    "siklar": ["50.", "60.", "70.", "75.", "80."],
+    "dogru": 3
+  },
+  {
+    "soru": "Aşağıdaki sanayi kollarından hangisi Türkiye'de 'hammadde yetersizliği' nedeniyle gelişmemiştir?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Şeker", "Çimento", "Petro-Kimya", "Deri", "Cam"],
+    "dogru": 2
+  },
+  {
+    "soru": "Hukukumuzda 'vasi tayini' gerektiren haller arasında aşağıdakilerden hangisi yer almaz?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["Akıl hastalığı", "Alkol bağımlılığı", "Bir yıl veya daha fazla hapis cezası alma", "Yaşlılık (Kendi isteği olmadan)", "Savurganlık"],
+    "dogru": 3
+  },
+  {
+    "soru": "Mimar Sinan'ın 'Çıraklık Eserim' dediği cami hangisidir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Şehzade Camii", "Selimiye Camii", "Süleymaniye Camii", "Mihrimah Sultan Camii", "Rüstem Paşa Camii"],
+    "dogru": 0
+  },
+  {
+    "soru": "Türkiye'de 'kış turizmi' potansiyelinin en az olduğu bölge hangisidir?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Ege", "Güneydoğu Anadolu", "Marmara", "Akdeniz", "Karadeniz"],
+    "dogru": 1
+  },
+  {
+    "soru": "Türk tarihinde 'Sultan' unvanını kullanan ilk Osmanlı padişahı kimdir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "DETAY",
+    "siklar": ["Osman Bey", "Orhan Bey", "I. Murat", "Yıldırım Bayezid", "II. Murat"],
+    "dogru": 1
+  },
+  {
+    "soru": "TBMM'nin denetim yollarından biri olan 'Genel Görüşme'yi kimler isteyebilir?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["Sadece Cumhurbaşkanı", "Sadece siyasi parti grupları", "Hükümet veya siyasi parti grupları ya da en az 20 milletvekili", "Sadece TBMM Başkanı", "En az 50 milletvekili"],
+    "dogru": 2
+  },
+  {
+    "soru": "Aşağıdaki illerden hangisi 'Doğu Karadeniz Projesi' (DOKAP) kapsamına sonradan eklenmiştir?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "DETAY",
+    "siklar": ["Artvin", "Rize", "Tokat", "Giresun", "Trabzon"],
+    "dogru": 2
+  },
+  {
+    "soru": "Dünyanın en derin çukuru olan 'Mariana Çukuru' hangi okyanustadır?",
+    "ders": "GÜNCEL BİLGİLER",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Atlantik Okyanusu", "Hint Okyanusu", "Büyük Okyanus (Pasifik)", "Arktik Okyanusu", "Güney Okyanusu"],
+    "dogru": 2
+  },
+  {
+    "soru": "Osmanlı Devleti'nde 'resim' sanatının yasak olması nedeniyle gelişen süsleme sanatı hangisidir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Hat", "Tezhip", "Minyatür", "Ebru", "Çini"],
+    "dogru": 2
+  },
+  {
+    "soru": "Türkiye'de 'Jeotermal Enerji' (Sıcak Su) potansiyelinin en yüksek olduğu bölge hangisidir?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Marmara", "Ege", "İç Anadolu", "Doğu Anadolu", "Akdeniz"],
+    "dogru": 1
+  },
+  {
+    "soru": "İl Genel İdaresi'nin başı ve mercii kimdir?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Belediye Başkanı", "Vali", "İl Genel Meclisi Başkanı", "Kaymakam", "Cumhuriyet Başsavcısı"],
+    "dogru": 1
+  },
+  {
+    "soru": "Mustafa Kemal'e 'Başöğretmen' unvanı hangi kanunla verilmiştir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Tevhid-i Tedrisat Kanunu", "Harf İnkılabı Kanunu", "Millet Mektepleri Talimatnamesi", "Soyadı Kanunu", "Tekke ve Zaviyelerin Kapatılması"],
+    "dogru": 2
+  },
+  [
+  {
+    "soru": "Milli Mücadele'de 'Doğu Cephesi'nde kimlere karşı savaşılmıştır?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Ruslar", "Ermeniler", "Gürcüler", "İngilizler", "Fransızlar"],
+    "dogru": 1
+  },
+  {
+    "soru": "Aşağıdaki ovalardan hangisi 'Karstik Ova' (Polye) grubunda yer almaz?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Tefenni", "Acıpayam", "Kestel", "Elmalı", "Bafra"],
+    "dogru": 4
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi 'Yönetmelik' çıkaramaz?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["Cumhurbaşkanı", "Bakanlıklar", "Kamu Tüzel Kişileri", "Danıştay", "TBMM"],
+    "dogru": 4
+  },
+  {
+    "soru": "Osmanlı Devleti'nde 'ilk dış borç' hangi savaş sırasında ve hangi ülkeden alınmıştır?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["93 Harbi - Rusya", "Kırım Savaşı - İngiltere", "Balkan Savaşları - Almanya", "Trablusgarp Savaşı - İtalya", "Kırım Savaşı - Fransa"],
+    "dogru": 1
+  },
+  {
+    "soru": "Türkiye'de 'Nüfus yoğunluğunun' en fazla olduğu bölüm (yöre) hangisidir?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Adana Bölümü", "Kıyı Ege Bölümü", "Çatalca - Kocaeli Bölümü", "Antalya Bölümü", "Doğu Karadeniz Bölümü"],
+    "dogru": 2
+  },
+  {
+    "soru": "Türkiye'nin Oscar (Akademi) ödüllerine aday gösterilen ilk filmi hangisidir?",
+    "ders": "GÜNCEL BİLGİLER",
+    "sinav": "KPSS",
+    "zorluk": "DETAY",
+    "siklar": ["Susuz Yaz", "Yol", "Umut", "Kış Uykusu", "Ahlat Ağacı"],
+    "dogru": 0
+  },
+  {
+    "soru": "Sivas Kongresi'nde çıkarılmasına karar verilen gazete hangisidir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["İrade-i Milliye", "Hakimiyet-i Milliye", "Ceride-i Resmiye", "Albayrak", "Öğüt"],
+    "dogru": 0
+  },
+  {
+    "soru": "Aşağıdaki madenlerden hangisi 'alüminyumun' ham maddesidir?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Krom", "Bakır", "Boksit", "Barit", "Feldispat"],
+    "dogru": 2
+  },
+  {
+    "soru": "4982 sayılı Bilgi Edinme Hakkı Kanunu'na göre, idare bilgi edinme başvurularına en geç kaç gün içinde cevap vermelidir?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["10 gün", "15 iş günü", "30 gün", "45 gün", "60 gün"],
+    "dogru": 1
+  },
+  {
+    "soru": "Türk tarihinde 'ikili teşkilat' (Doğu-Batı) sistemini uygulayan ilk devlet hangisidir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Asya Hun Devleti", "Göktürkler", "Uygurlar", "Karahanlılar", "Selçuklular"],
+    "dogru": 0
+  },
+  {
+    "soru": "Türkiye'de 'Muz' tarımının yapılabilmesi, ülkenin hangi özelliğinin bir sonucudur?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["Matematik Konum (Enlem)", "Özel Konum (Mikroklima)", "Yükselti", "Bakı Etkisi", "Denizellik"],
+    "dogru": 1
+  },
+  {
+    "soru": "Belediye Meclisi'ni feshetme yetkisi kime aittir?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["İçişleri Bakanı", "Vali", "Danıştay", "Cumhurbaşkanı", "Yargıtay"],
+    "dogru": 2
+  },
+  {
+    "soru": "Kanuni Sultan Süleyman'ın son seferi hangisidir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Viyana Kuşatması", "Mohaç Meydan Muharebesi", "Zigetvar Seferi", "Bağdat Seferi", "Rodos Seferi"],
+    "dogru": 2
+  },
+  {
+    "soru": "Türkiye'de 'Tiftik Keçisi' (Ankara Keçisi) yetiştiriciliğinde birinci olan ilimiz hangisidir?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Ankara", "Siirt", "Mardin", "Eskişehir", "Kütahya"],
+    "dogru": 0
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi 'TBMM Başkanlık Divanı' üyelerinden biri değildir?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Meclis Başkanı", "Başkanvekilleri", "Katip Üyeler", "İdare Amirleri", "Grup Başkanvekilleri"],
+    "dogru": 4
+  },
+  {
+    "soru": "Milli Mücadele'de 'Tekalif-i Milliye Emirleri' hangi savaştan sonra yayınlanmıştır?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["I. İnönü", "II. İnönü", "Kütahya-Eskişehir", "Sakarya", "Büyük Taarruz"],
+    "dogru": 2
+  },
+  {
+    "soru": "Türkiye'nin en uzun akarsuyu hangisidir?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Fırat", "Dicle", "Kızılırmak", "Yeşilırmak", "Sakarya"],
+    "dogru": 2
+  },
+  {
+    "soru": "Türkiye'nin ilk kadın başbakanı kimdir?",
+    "ders": "GÜNCEL BİLGİLER",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Tansu Çiller", "Meral Akşener", "Rahşan Ecevit", "Behice Boran", "İmren Aykut"],
+    "dogru": 0
+  },
+  {
+    "soru": "Osmanlı Devleti'nde 'divan üyelerinin' görüşlerini ve alınan kararları kaydeden deftere ne ad verilir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "DETAY",
+    "siklar": ["Mühimme Defteri", "Tahrir Defteri", "Şeriye Sicili", "Ruznamçe", "Tereke Defteri"],
+    "dogru": 0
+  },
+  {
+    "soru": "Aşağıdaki illerden hangisinin 'Demiryolu bağlantısı' YOKTUR?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Burdur", "Isparta", "Antalya", "Kütahya", "Afyonkarahisar"],
+    "dogru": 2
+  },
+  {
+    "soru": "TBMM seçimleri yenileme kararı alırsa, seçimler ne zaman yapılır?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["Karardan sonraki 60. günü takip eden ilk Pazar", "Karardan sonraki 90. gün", "Hemen yapılır", "Karardan sonraki ilk Pazar", "YSK'nın belirleyeceği tarihte"],
+    "dogru": 0
+  },
+  {
+    "soru": "Mustafa Kemal'in 'Ordular! İlk hedefiniz Akdeniz'dir, ileri!' emrini verdiği savaş hangisidir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Sakarya Meydan Muharebesi", "Başkomutanlık Meydan Muharebesi (Büyük Taarruz)", "I. İnönü", "Çanakkale Savaşı", "Trablusgarp Savaşı"],
+    "dogru": 1
+  },
+  {
+    "soru": "Türkiye'de 'Kağıt Sanayisi'nin bulunduğu iller arasında hangisi yer almaz?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Zonguldak (Çaycuma)", "Muğla (Dalaman)", "Giresun (Aksu)", "Mersin (Taşucu)", "Erzurum"],
+    "dogru": 4
+  },
+  {
+    "soru": "Danıştay üyelerinin dörtte üçünü (3/4) kim seçer?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Cumhurbaşkanı", "TBMM", "Hakimler ve Savcılar Kurulu (HSK)", "Anayasa Mahkemesi", "Yargıtay"],
+    "dogru": 2
+  },
+  {
+    "soru": "2024 yılında 'Eurovision Şarkı Yarışması'nı kazanan ülke (Nemo - The Code) hangisidir?",
+    "ders": "GÜNCEL BİLGİLER",
+    "sinav": "KPSS",
+    "zorluk": "GÜNCEL",
+    "siklar": ["İsveç", "İsviçre", "Ukrayna", "İtalya", "Hollanda"],
+    "dogru": 1
+  },[
+  {
+    "soru": "II. Dünya Savaşı'ndan sonra kurulan ve 'Demir Perde' kavramını ilk kez kullanan devlet adamı kimdir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["Winston Churchill", "Harry S. Truman", "Joseph Stalin", "Franklin D. Roosevelt", "Dwight Eisenhower"],
+    "dogru": 0
+  },
+  {
+    "soru": "Türkiye'de nüfus sayımları sonucunda 'Ortanca Yaş'ın sürekli yükselmesi, aşağıdakilerden hangisinin göstergesidir?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Nüfusun azaldığının", "Nüfusun yaşlandığının", "Doğum oranlarının arttığının", "Dış göçlerin arttığının", "Erkek nüfusun kadın nüfustan fazla olduğunun"],
+    "dogru": 1
+  },
+  {
+    "soru": "Birleşmiş Milletler'in (BM) yargı organı olan 'Uluslararası Adalet Divanı'nın merkezi neresidir?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["Lahey (Hollanda)", "Cenevre (İsviçre)", "New York (ABD)", "Strazburg (Fransa)", "Brüksel (Belçika)"],
+    "dogru": 0
+  },
+  {
+    "soru": "Milli Mücadele'de 'İstiklal Yolu' olarak bilinen güzergah hangi illeri kapsar?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["İnebolu - Kastamonu - Ilgaz - Ankara", "Samsun - Amasya - Sivas - Ankara", "İzmir - Uşak - Afyon - Ankara", "Trabzon - Gümüşhane - Erzurum - Ankara", "Antalya - Burdur - Konya - Ankara"],
+    "dogru": 0
+  },
+  {
+    "soru": "Türkiye'de 'Linyit' ile çalışan termik santrallerimizden hangisi Ege Bölgesi'nde yer ALMAZ?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["Yatağan", "Soma", "Tunçbilek", "Afşin-Elbistan", "Seyitömer"],
+    "dogru": 3
+  },
+  {
+    "soru": "2024 yılında 74. Berlin Film Festivali'nde (Berlinale) 'En İyi Film' (Altın Ayı) ödülünü kazanan belgesel hangisidir?",
+    "ders": "GÜNCEL BİLGİLER",
+    "sinav": "KPSS",
+    "zorluk": "GÜNCEL",
+    "siklar": ["Dahomey", "On the Adamant", "Alcarràs", "Bad Luck Banging", "Touch Me Not"],
+    "dogru": 0
+  },
+  {
+    "soru": "Osmanlı Devleti'nde 'Toprak kaybetmediğimiz halde' yapılan son antlaşma hangisidir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "DETAY",
+    "siklar": ["Prut Antlaşması", "Pasarofça Antlaşması", "Belgrad Antlaşması", "Ziştovi Antlaşması", "Yaş Antlaşması"],
+    "dogru": 2
+  },
+  {
+    "soru": "Aşağıdaki göllerden hangisi 'Karma Oluşumlu' (Hem tektonik hem karstik) göllere örnektir?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "DETAY",
+    "siklar": ["Eğirdir Gölü", "Van Gölü", "Tuz Gölü", "Sapanca Gölü", "Bafa Gölü"],
+    "dogru": 0
+  },
+  {
+    "soru": "1982 Anayasası'na göre 'Milli Güvenlik Kurulu' (MGK) gündemini kim belirler?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Cumhurbaşkanı", "Genelkurmay Başkanı", "Milli Savunma Bakanı", "İçişleri Bakanı", "Cumhurbaşkanı Yardımcısı"],
+    "dogru": 0
+  },
+  {
+    "soru": "Türkiye'de 'ilk nüfus sayımı' hangi yıl yapılmıştır?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["1923", "1927", "1935", "1940", "1950"],
+    "dogru": 1
+  },
+  {
+    "soru": "Sovyetler Birliği'nin dağılmasından sonra bağımsızlığını kazanan 'ilk' Türk cumhuriyeti hangisidir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["Azerbaycan", "Kazakistan", "Kırgızistan", "Özbekistan", "Türkmenistan"],
+    "dogru": 0
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi 'Köy İhtiyar Heyeti'nin doğal üyesidir?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Köy İmamı ve Öğretmen", "Sadece Muhtar", "Azalar", "Köy Bekçisi", "Köy Katibi"],
+    "dogru": 0
+  },
+  {
+    "soru": "Osmanlı'da 'hazineye ait arazilerin gelirlerinin açık artırma ile kiraya verilmesi' sistemine ne ad verilir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["İltizam", "Tımar", "Müsadere", "Vakıf", "Gedik"],
+    "dogru": 0
+  },
+  {
+    "soru": "Türkiye'nin 'En büyük ithalat' (dış alım) yaptığı ülke genellikle hangisidir (2023-2024 verilerine göre)?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "GÜNCEL",
+    "siklar": ["Rusya", "Çin", "Almanya", "ABD", "İtalya"],
+    "dogru": 0
+  },
+  {
+    "soru": "Cumhurbaşkanlığı Kararnameleri, kanunlarla çatışırsa ne olur?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Kanun hükümleri uygulanır", "Kararname hükümleri uygulanır", "Anayasa Mahkemesi karar verir", "TBMM karar verir", "Danıştay karar verir"],
+    "dogru": 0
+  },
+  {
+    "soru": "Mustafa Kemal'in 'Şapka İnkılabı'nı ilk kez tanıttığı ilimiz hangisidir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Kastamonu", "Ankara", "İzmir", "İstanbul", "Sivas"],
+    "dogru": 0
+  },
+  {
+    "soru": "Türkiye'de 'Kenevir' üretiminin devlet kontrolünde yapılmasının temel nedeni nedir?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Uyuşturucu yapımında kullanılması", "İhraç ürünü olması", "Toprağı yorması", "Su tüketiminin fazla olması", "Stratejik ürün olması"],
+    "dogru": 0
+  },
+  {
+    "soru": "Aşağıdaki eserlerden hangisi Mimar Sinan'a ait DEĞİLDİR?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["Sultanahmet Camii", "Süleymaniye Camii", "Selimiye Camii", "Mihrimah Sultan Camii", "Rüstem Paşa Camii"],
+    "dogru": 0
+  },
+  {
+    "soru": "2024 Yaz Olimpiyatları'nda (Paris) 'Milli Takımımız adına ilk madalyayı' kazanan sporcularımız kimlerdir (Okçuluk)?",
+    "ders": "GÜNCEL BİLGİLER",
+    "sinav": "KPSS",
+    "zorluk": "GÜNCEL",
+    "siklar": ["Mete Gazoz, Ulaş Berkim Tümer, Muhammed Abdullah Yıldırmış", "Busenaz Sürmeneli, Buse Naz Çakıroğlu", "Rıza Kayaalp, Taha Akgül", "Eda Erdem, Zehra Güneş", "Filenin Sultanları"],
+    "dogru": 0
+  },
+  {
+    "soru": "Osmanlı Devleti'nde 'ilk rasathane'yi kuran bilim insanı kimdir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Takiyüddin Mehmet", "Ali Kuşçu", "Matrakçı Nasuh", "Piri Reis", "Seydi Ali Reis"],
+    "dogru": 0
+  },
+  {
+    "soru": "Türkiye'de 'Yaylacılık' faaliyetlerinin en yaygın olduğu iki bölge hangisidir?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Karadeniz - Akdeniz", "Karadeniz - Doğu Anadolu", "Ege - Marmara", "İç Anadolu - Güneydoğu", "Doğu Anadolu - Akdeniz"],
+    "dogru": 0
+  },
+  {
+    "soru": "Kamu görevlilerinin, görevleri sırasında işledikleri suçlardan dolayı yargılanabilmeleri için gerekli olan izne ne denir?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Soruşturma İzni", "Yargılama İzni", "Dokunulmazlık", "Disiplin Cezası", "Görevden Uzaklaştırma"],
+    "dogru": 0
+  },
+  {
+    "soru": "Soğuk Savaş döneminde 'Bağlantısızlar Hareketi'nin öncüleri olan liderler kimlerdir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "DETAY",
+    "siklar": ["Nehru - Tito - Nasır", "Stalin - Churchill - Roosevelt", "Atatürk - Lenin - Wilson", "Hitler - Mussolini - Hirohito", "Gorbauçov - Reagan - Thatcher"],
+    "dogru": 0
+  },
+  {
+    "soru": "Türkiye'de 'Toryum' rezervinin en fazla olduğu ilimiz hangisidir?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "DETAY",
+    "siklar": ["Eskişehir (Sivrihisar)", "Isparta (Aksu)", "Manisa (Gördes)", "Artvin (Murgul)", "Elazığ (Maden)"],
+    "dogru": 0
+  },
+  {
+    "soru": "TBMM tarafından 'Gazilik' unvanı ve 'İstiklal Madalyası' verilen tek ilimiz hangisidir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Gaziantep", "Kahramanmaraş", "Şanlıurfa", "İzmir", "Sakarya"],
+    "dogru": 0
+  },
+  [
+  {
+    "soru": "Bozkırın Tezenesi olarak bilinen ve 'Yalan Dünya', 'Neredesin Sen' gibi eserleriyle tanınan halk ozanımız kimdir?",
+    "ders": "GÜNCEL BİLGİLER",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Neşet Ertaş", "Aşık Veysel", "Mahsuni Şerif", "Musa Eroğlu", "Barış Manço"],
+    "dogru": 0
+  },
+  {
+    "soru": "Osmanlı Devleti'nde 'ilk iç borçlanma' (Esham Sistemi) hangi padişah döneminde uygulanmaya başlanmıştır?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["I. Abdülhamit", "III. Mustafa", "III. Selim", "II. Mahmut", "Abdülmecit"],
+    "dogru": 0
+  },
+  {
+    "soru": "Türkiye'de aşağıdaki madenlerden hangisinin rezervi DÜNYADA İLK sıradadır?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Bor", "Krom", "Bakır", "Demir", "Altın"],
+    "dogru": 0
+  },
+  {
+    "soru": "4721 sayılı Türk Medeni Kanunu'na göre 'nişanlanma' ile ilgili aşağıdakilerden hangisi yanlıştır?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["Nişanlılık evlenmeye zorlamak için dava hakkı verir", "Nişanlanma evlenme vaadiyle olur", "Yasal temsilcinin rızası gerekir (Küçükler için)", "Nişan bozulursa maddi tazminat istenebilir", "Nişan bozulursa manevi tazminat istenebilir"],
+    "dogru": 0
+  },
+  {
+    "soru": "Milli Mücadele'de 'Hattı müdafaa yoktur, sathı müdafaa vardır' sözü hangi savaşta söylenmiştir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Sakarya Meydan Muharebesi", "Başkomutanlık Meydan Muharebesi", "I. İnönü", "Kütahya-Eskişehir", "Çanakkale Savaşı"],
+    "dogru": 0
+  },
+  {
+    "soru": "Türkiye'de 'İpek Böcekçiliği'nin en yoğun yapıldığı ilimiz hangisidir?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "DETAY",
+    "siklar": ["Diyarbakır", "Bursa", "Antalya", "Edirne", "Bilecik"],
+    "dogru": 0
+  },
+  {
+    "soru": "Yüksek Seçim Kurulu (YSK) üyelerinin görev süresi kaç yıldır?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["6 Yıl", "4 Yıl", "5 Yıl", "7 Yıl", "9 Yıl"],
+    "dogru": 0
+  },
+  {
+    "soru": "Avrupa Birliği'nin (AB) yürütme organı aşağıdakilerden hangisidir?",
+    "ders": "GÜNCEL BİLGİLER",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["Avrupa Komisyonu", "Avrupa Parlamentosi", "Avrupa Konseyi", "Adalet Divanı", "Sayıştay"],
+    "dogru": 0
+  },
+  {
+    "soru": "Osmanlı Devleti'nde 'Belediye işlerini yürüten' (Bugünkü Zabıta) görevli kimdir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Muhtesip", "Subaşı", "Kadı", "Beylerbeyi", "Sancakbeyi"],
+    "dogru": 0
+  },
+  {
+    "soru": "Türkiye'de 'Feribot ile vagon taşımacılığı' yapılan gölümüz hangisidir?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Van Gölü", "Tuz Gölü", "Beyşehir Gölü", "Eğirdir Gölü", "İznik Gölü"],
+    "dogru": 0
+  },
+  {
+    "soru": "Köy bütçesini kim kabul eder?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "DETAY",
+    "siklar": ["Köy Derneği", "İhtiyar Heyeti", "Muhtar", "Kaymakam", "Vali"],
+    "dogru": 0
+  },
+  {
+    "soru": "Mustafa Kemal'in 'Siz orada yalnız düşmanı değil, milletin makus (kötü) talihini de yendiniz' telgrafını çektiği savaş hangisidir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["II. İnönü Savaşı", "I. İnönü Savaşı", "Sakarya Savaşı", "Büyük Taarruz", "Aslıhanlar-Dumlupınar"],
+    "dogru": 0
+  },
+  {
+    "soru": "Türkiye'de 'En fazla ihracat' (dış satım) yaptığımız ülke hangisidir (2023-2024 verilerine göre)?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "GÜNCEL",
+    "siklar": ["Almanya", "ABD", "Irak", "İngiltere", "İtalya"],
+    "dogru": 0
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi 'Cumhurbaşkanlığına bağlı Devlet Denetleme Kurulu'nun (DDK) denetleyemeyeceği yerdir?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["Yargı Organları (Mahkemeler)", "Türk Silahlı Kuvvetleri", "Üniversiteler", "Kamu Kurumu Niteliğindeki Meslek Kuruluşları", "Sendikalar"],
+    "dogru": 0
+  },
+  {
+    "soru": "UNESCO tarafından 'Dünya Belleği Kütüğü'ne kaydedilen, Kültepe Tabletleri hangi ilimizdedir?",
+    "ders": "GÜNCEL BİLGİLER",
+    "sinav": "KPSS",
+    "zorluk": "DETAY",
+    "siklar": ["Kayseri", "Çorum", "Konya", "Nevşehir", "Yozgat"],
+    "dogru": 0
+  },
+  {
+    "soru": "Mondros Ateşkes Antlaşması'nı Osmanlı adına kim imzalamıştır?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Rauf Orbay", "Damat Ferit Paşa", "Ali Rıza Paşa", "Salih Paşa", "Refet Bele"],
+    "dogru": 0
+  },
+  {
+    "soru": "Türkiye'de 'Kuş Cenneti' olarak bilinen ve Ramsar alanı olan gölümüz hangisidir?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Manyas (Kuş) Gölü", "Uluabat Gölü", "Eber Gölü", "Akşehir Gölü", "Burdur Gölü"],
+    "dogru": 0
+  },
+  {
+    "soru": "Siyasi partilere devlet yardımı yapılabilmesi için son genel seçimlerde en az yüzde kaç oy almaları gerekir?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["%3", "%5", "%7", "%10", "%1"],
+    "dogru": 0
+  },
+  {
+    "soru": "Türkiye'nin ilk yerli savaş uçağının adı nedir?",
+    "ders": "GÜNCEL BİLGİLER",
+    "sinav": "KPSS",
+    "zorluk": "GÜNCEL",
+    "siklar": ["KAAN", "HÜRJET", "HÜRKUŞ", "ANKA", "AKINCI"],
+    "dogru": 0
+  },
+  {
+    "soru": "Osmanlı Devleti'nde 'Padişahın tuğrasını çeken' divan üyesi kimdir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Nişancı", "Defterdar", "Kazasker", "Reisülküttab", "Sadrazam"],
+    "dogru": 0
+  },
+  {
+    "soru": "Türkiye'de 'Taşevler'in yaygın olduğu ve volkanik arazinin görüldüğü bölge hangisidir?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Doğu Anadolu (Erzurum-Kars)", "Akdeniz (Teke-Taşeli)", "Karadeniz", "İç Anadolu", "Güneydoğu Anadolu"],
+    "dogru": 0
+  },
+  {
+    "soru": "Hangi anayasa ile 'Kuvvetler Birliği' ilkesi benimsenmiştir?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["1921 Anayasası", "1924 Anayasası", "1961 Anayasası", "1982 Anayasası", "Kanun-i Esasi"],
+    "dogru": 0
+  },
+  {
+    "soru": "Dünya Sağlık Örgütü (WHO) genel merkezi neresidir?",
+    "ders": "GÜNCEL BİLGİLER",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Cenevre", "New York", "Paris", "Londra", "Viyana"],
+    "dogru": 0
+  },
+  {
+    "soru": "Cumhuriyetin ilanı ile 'İlk Cumhurbaşkanı' ve 'İlk Başbakan' kimler olmuştur?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["M. Kemal Atatürk - İsmet İnönü", "M. Kemal Atatürk - Fethi Okyar", "İsmet İnönü - Celal Bayar", "M. Kemal Atatürk - Kazım Karabekir", "İsmet İnönü - Fevzi Çakmak"],
+    "dogru": 0
+  },
+  {
+    "soru": "Türkiye'de 'Mavi Tünel Projesi' ile suları Konya Ovası'na aktarılan nehir hangisidir?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["Göksu", "Manavgat", "Seyhan", "Ceyhan", "Yeşilırmak"],
+    "dogru": 0
+  },
+  [
+  {
+    "soru": "Osmanlı Devleti'nde 'ilk denk bütçe'yi hazırlayan devlet adamı kimdir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Köprülü Mehmet Paşa", "Tarhuncu Ahmet Paşa", "Merzifonlu Kara Mustafa Paşa", "Sokullu Mehmet Paşa", "Damat İbrahim Paşa"],
+    "dogru": 1
+  },
+  {
+    "soru": "Türkiye'de 'kireç taşı' (kalker) arazilerinin en yaygın olduğu ve bu nedenle 'Lapya, Dolin, Obruk' gibi şekillerin görüldüğü bölge hangisidir?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Doğu Anadolu", "Akdeniz (Teke-Taşeli)", "Karadeniz", "Marmara (Yıldız Dağları)", "Ege"],
+    "dogru": 1
+  },
+  {
+    "soru": "1982 Anayasası'na göre, TBMM seçimleri hangi durumda 'ara seçim' yapılmasını zorunlu kılar?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["TBMM üye tamsayısının %5'i boşalırsa (30 vekil)", "Bir ilin veya seçim çevresinin hiç milletvekili kalmazsa", "Hükümet güvenoyu alamazsa", "Meclis Başkanı istifa ederse", "Savaş hali ilan edilirse"],
+    "dogru": 1
+  },
+  {
+    "soru": "Mustafa Kemal'in 'Sizden taarruzu değil, ölmeyi emrediyorum' sözünü söylediği yer neresidir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Conkbayırı (Çanakkale)", "Metristepe (I. İnönü)", "Duatepe (Sakarya)", "Kocatepe (Büyük Taarruz)", "Trablusgarp"],
+    "dogru": 0
+  },
+  {
+    "soru": "Türkiye'de 'Güneş Enerjisi' potansiyelinin en düşük olduğu bölge neden Doğu Karadeniz'dir?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Enlem etkisi", "Bulutluluk süresinin fazla olması", "Yükseltinin fazla olması", "Ormanların gür olması", "Bakı etkisi"],
+    "dogru": 1
+  },
+  {
+    "soru": "2024 yılında 'Türk Dünyası Kültür Başkenti' seçilen şehir hangisidir?",
+    "ders": "GÜNCEL BİLGİLER",
+    "sinav": "KPSS",
+    "zorluk": "GÜNCEL",
+    "siklar": ["Bursa", "Anev (Türkmenistan)", "Şuşa (Azerbaycan)", "Oş (Kırgızistan)", "Hive (Özbekistan)"],
+    "dogru": 1
+  },
+  {
+    "soru": "Osmanlı Devleti'nde 'Devletin dış işlerinden sorumlu olan' ve günümüzdeki Dışişleri Bakanı'na karşılık gelen divan üyesi kimdir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Reisülküttab", "Nişancı", "Defterdar", "Kazasker", "Sadrazam"],
+    "dogru": 0
+  },
+  {
+    "soru": "Aşağıdaki nehirlerden hangisi üzerinde ulaşım ve taşımacılık yapılabilmektedir (Bartın Çayı hariç)?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["Kızılırmak", "Fırat", "Manavgat Çayı (Kısmen)", "Çoruh", "Dicle"],
+    "dogru": 2
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi 'Yönetim Hukuku'nun özelliklerinden biri değildir?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "DETAY",
+    "siklar": ["Tedvin edilmemiştir (Dağınıktır)", "İçtihatlara dayanır", "Kamu yararını üstün tutar", "Özel hukuk kuralları geçerlidir", "Statüsel niteliktedir"],
+    "dogru": 3
+  },
+  {
+    "soru": "Milli Mücadele döneminde 'kadın kahramanlarımızdan' Şerife Bacı, hangi güzergahta cephane taşırken donarak şehit olmuştur?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "DETAY",
+    "siklar": ["İnebolu - Kastamonu", "İzmir - Aydın", "Maraş - Antep", "Erzurum - Kars", "Ankara - Polatlı"],
+    "dogru": 0
+  },
+  {
+    "soru": "Türkiye'de 'Aspir ve Haşhaş' üretiminde ilk sırada yer alan bölgemiz hangisidir?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Ege", "İç Anadolu", "Akdeniz", "Karadeniz", "Güneydoğu Anadolu"],
+    "dogru": 1
+  },
+  {
+    "soru": "Anayasa Mahkemesi'ne 'Bireysel Başvuru' hakkı ne zaman getirilmiştir?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["2010 Anayasa Değişikliği", "2017 Anayasa Değişikliği", "2001 Anayasa Değişikliği", "1982 Anayasası'nın kabulüyle", "2007 Referandumu"],
+    "dogru": 0
+  },
+  {
+    "soru": "Fatih Sultan Mehmet'in 'Kayser-i Rum' (Roma İmparatoru) unvanını almasını sağlayan fetih hangisidir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["İstanbul'un Fethi", "Trabzon'un Fethi", "Mora'nın Fethi", "Kırım'ın Fethi", "Amasra'nın Fethi"],
+    "dogru": 0
+  },
+  {
+    "soru": "Türkiye'nin aşağıdaki sınır kapılarından hangisi 'İran' ile bağlantılı DEĞİLDİR?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Gürbulak", "Kapıköy", "Esendere", "Dilucu", "Türkgözü"],
+    "dogru": 4
+  },
+  {
+    "soru": "Avrupa İnsan Hakları Mahkemesi (AİHM) yargı yetkisini kabul eden 'ilk' ülke hangisidir?",
+    "ders": "GÜNCEL BİLGİLER",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["Türkiye", "Fransa", "Almanya", "İngiltere", "İtalya"],
+    "dogru": 0
+  },
+  {
+    "soru": "Osmanlı Devleti'nde 'ilk matbaa'yı kuranlar kimlerdir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["İbrahim Müteferrika - Sait Efendi", "Lagari Hasan Çelebi", "Katip Çelebi", "Evliya Çelebi", "Takiyüddin Mehmet"],
+    "dogru": 0
+  },
+  {
+    "soru": "Türkiye'de 'Krom' madeninin en çok çıkarıldığı ve ihraç edildiği yerler nerelerdir?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Elazığ (Guleman) - Muğla (Köyceğiz)", "Zonguldak - Bartın", "Artvin - Rize", "Konya - Seydişehir", "Batman - Siirt"],
+    "dogru": 0
+  },
+  {
+    "soru": "Memurlar hakkında disiplin soruşturması açılmadan disiplin cezası verilebilir mi?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Hayır, savunma hakkı verilmeden ceza verilemez", "Evet, amirin takdirine bağlıdır", "Evet, olağanüstü hallerde verilebilir", "Sadece uyarma cezası verilebilir", "Sadece kınama cezası verilebilir"],
+    "dogru": 0
+  },
+  {
+    "soru": "Mustafa Kemal Atatürk'ün 'Hatay Benim Şahsi Meselemdir' sözünü söylediği gazete hangisidir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "DETAY",
+    "siklar": ["Kurun (Vakit) Gazetesi", "Hakimiyet-i Milliye", "İrade-i Milliye", "Tanin", "Minber"],
+    "dogru": 0
+  },
+  {
+    "soru": "Türkiye'nin 'En büyük adası' olan Gökçeada (İmroz) hangi ilimize bağlıdır?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Çanakkale", "Balıkesir", "İzmir", "Muğla", "Antalya"],
+    "dogru": 0
+  },
+  {
+    "soru": "Cumhurbaşkanlığı Kararnameleri ile 'yeni bir suç ve ceza' konulabilir mi?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Hayır, suç ve cezalar kanunla konulur (Suçta ve cezada kanunilik)", "Evet, olağanüstü hallerde konulabilir", "Evet, TBMM onaylarsa konulabilir", "Evet, idari para cezası konulabilir", "Sadece disiplin suçu konulabilir"],
+    "dogru": 0
+  },
+  {
+    "soru": "Türkiye'nin ilk yerli gözlem uydusu hangisidir?",
+    "ders": "GÜNCEL BİLGİLER",
+    "sinav": "KPSS",
+    "zorluk": "GÜNCEL",
+    "siklar": ["RASAT", "GÖKTÜRK-1", "BİLSAT", "TÜRKSAT 1B", "İMECE"],
+    "dogru": 0
+  },
+  {
+    "soru": "Osmanlı Devleti'nde 'Padişahın yetkilerini sınırlandıran' İLK belge hangisidir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Sened-i İttifak", "Tanzimat Fermanı", "Islahat Fermanı", "Kanun-i Esasi", "Teşkilat-ı Esasiye"],
+    "dogru": 0
+  },
+  {
+    "soru": "Türkiye'de 'Çeltik (Pirinç)' tarımının yerleşim yerlerinden uzakta yapılmasının sebebi nedir?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Sıtma hastalığına neden olan sivrisinekler", "Çok su istemesi", "Toprağı kirletmesi", "Kokusu", "Veriminin düşük olması"],
+    "dogru": 0
+  },
+  {
+    "soru": "Milletvekili genel seçimlerinde oy kullanma yaşı kaçtır?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["18", "20", "21", "25", "19"],
+    "dogru": 0
+  },
+  [
+  {
+    "soru": "Aşağıdaki Türk beyliklerinden hangisi 'denizcilikle' uğraşmamıştır?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Germiyanoğulları", "Karesioğulları", "Aydınoğulları", "Menteşeoğulları", "Saruhanoğulları"],
+    "dogru": 0
+  },
+  {
+    "soru": "Türkiye'de aşağıdaki enerji kaynaklarından hangisi 'tükenebilir' (yenilenemez) enerji kaynağıdır?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Doğalgaz", "Rüzgar", "Güneş", "Jeotermal", "Biyokütle"],
+    "dogru": 0
+  },
+  {
+    "soru": "1982 Anayasası'na göre, aşağıdakilerden hangisi 'Sosyal ve Ekonomik Haklar' grubunda yer alır?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["Konut hakkı", "Konut dokunulmazlığı", "Mülkiyet hakkı", "Özel hayatın gizliliği", "Haberleşme hürriyeti"],
+    "dogru": 0
+  },
+  {
+    "soru": "II. Dünya Savaşı'ndan sonra kurulan Birleşmiş Milletler'in (BM) merkezi neresidir?",
+    "ders": "GÜNCEL BİLGİLER",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["New York", "Cenevre", "Viyana", "Paris", "Londra"],
+    "dogru": 0
+  },
+  {
+    "soru": "Milli Mücadele'de 'Gediz Taarruzu'nun başarısız olması üzerine Batı Cephesi Komutanlığı'ndan alınan komutan kimdir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "DETAY",
+    "siklar": ["Ali Fuat Cebesoy", "Refet Bele", "Kazım Karabekir", "İsmet İnönü", "Fevzi Çakmak"],
+    "dogru": 0
+  },
+  {
+    "soru": "Türkiye'de 'Otomotiv Sanayisi'nin en çok geliştiği ilimiz hangisidir?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Bursa", "İzmir", "Adana", "Ankara", "Eskişehir"],
+    "dogru": 0
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi 'idari yargı' kuruluşlarından biridir?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Bölge İdare Mahkemesi", "Asliye Hukuk Mahkemesi", "Sulh Ceza Hakimliği", "Yargıtay", "Ağır Ceza Mahkemesi"],
+    "dogru": 0
+  },
+  {
+    "soru": "Osmanlı Devleti'nde 'ilk isyan eden azınlık' hangisidir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Sırplar", "Yunanlılar (Rumlar)", "Bulgarlar", "Ermeniler", "Arnavutlar"],
+    "dogru": 0
+  },
+  {
+    "soru": "Türkiye'nin 'en fazla yağış alan' ili Rize iken, 'en az yağış alan' bölgesi neresidir?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["İç Anadolu (Tuz Gölü çevresi)", "Güneydoğu Anadolu", "Marmara", "Ege", "Akdeniz"],
+    "dogru": 0
+  },
+  {
+    "soru": "Türk tarihinde 'Orta Asya'dan Anadolu'ya gelen ilk Türk boyları' (Hunlardan sonra) kimlerdir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "DETAY",
+    "siklar": ["Sabarlar (Sibirlerr)", "Peçenekler", "Oğuzlar", "Kıpçaklar", "Karluklar"],
+    "dogru": 0
+  },
+  {
+    "soru": "Belediye sınırları içinde 'nüfusun 2000'in altına düşmesi' durumunda belediyenin köye dönüşmesine kim karar verir?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["Cumhurbaşkanı", "İçişleri Bakanı", "Vali", "Danıştay", "TBMM"],
+    "dogru": 0
+  },
+  {
+    "soru": "UNESCO Dünya Mirası Listesi'ne 2023 yılında dahil edilen 'Gordion' (Yassıhöyük) hangi medeniyetin başkentidir?",
+    "ders": "GÜNCEL BİLGİLER",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Frigler", "Lidyalılar", "Hititler", "Urartular", "İyonlar"],
+    "dogru": 0
+  },
+  {
+    "soru": "Osmanlı Devleti'nde 'Yeniçeri Ocağı'nı kuran padişah kimdir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["I. Murat", "Orhan Bey", "Yıldırım Bayezid", "II. Murat", "Fatih Sultan Mehmet"],
+    "dogru": 0
+  },
+  {
+    "soru": "Türkiye'de 'Mısır' üretiminde, sulama imkanlarının artmasıyla birinci sıraya yerleşen ilimiz hangisidir?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Konya", "Adana", "Samsun", "Sakarya", "Şanlıurfa"],
+    "dogru": 0
+  },
+  {
+    "soru": "4721 sayılı Türk Medeni Kanunu'na göre 'ayırt etme gücüne sahip küçükler ve kısıtlılar' hangi ehliyet grubuna girer?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["Sınırlı Ehliyetsizler", "Tam Ehliyetsizler", "Sınırlı Ehliyetliler", "Tam Ehliyetliler", "Yarı Ehliyetliler"],
+    "dogru": 0
+  },
+  {
+    "soru": "Lozan Antlaşması'na göre 'Boğazlar Komisyonu'nun kaldırılması' hangi sözleşme ile gerçekleşmiştir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Montrö Boğazlar Sözleşmesi", "Londra Konferansı", "Paris Barış Konferansı", "San Remo Konferansı", "Helsinki Nihai Senedi"],
+    "dogru": 0
+  },
+  {
+    "soru": "Türkiye'de 'kışın yaprak döken ormanların' en yaygın olduğu bölge hangisidir?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Karadeniz (Geniş yapraklılar)", "Akdeniz", "Ege", "İç Anadolu", "Güneydoğu Anadolu"],
+    "dogru": 0
+  },
+  {
+    "soru": "Anayasa Mahkemesi, Yüce Divan sıfatıyla yargılama yaparken 'Savcılık' görevini kim yapar?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["Yargıtay Cumhuriyet Başsavcısı", "Adalet Bakanı", "Cumhurbaşkanı Hukuk Danışmanı", "Danıştay Başsavcısı", "Anayasa Mahkemesi Başkanı"],
+    "dogru": 0
+  },
+  {
+    "soru": "Dünyanın 'ilk yazılı anayasası' olarak kabul edilen belge hangisidir (Modern anlamda)?",
+    "ders": "GÜNCEL BİLGİLER",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["ABD Anayasası", "Fransız Anayasası", "Magna Carta", "Hammurabi Kanunları", "Kanun-i Esasi"],
+    "dogru": 0
+  },
+  {
+    "soru": "Osmanlı Devleti'nde 'ilk gümüş para' (Akçe) hangi padişah döneminde bastırılmıştır?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Orhan Bey", "Osman Bey", "I. Murat", "Fatih Sultan Mehmet", "Yavuz Sultan Selim"],
+    "dogru": 0
+  },
+  {
+    "soru": "Türkiye'de 'Gel-Git (Med-Cezir)' genliğinin az olması nedeniyle HANGİ kıyı tipi görülmez?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Haliç (Estuar)", "Ria", "Dalmaçya", "Boyuna", "Enine"],
+    "dogru": 0
+  },
+  {
+    "soru": "Dernek kurmak için önceden izin almaya gerek var mıdır?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Hayır, izin alınmaz (Bildirim yeterlidir)", "Evet, Valilikten izin alınır", "Evet, Emniyetten izin alınır", "Evet, İçişleri Bakanlığından izin alınır", "Evet, Belediyeden izin alınır"],
+    "dogru": 0
+  },
+  {
+    "soru": "Mustafa Kemal Atatürk'ün 'Milli Mücadele'yi başlattığı tarih olarak kabul edilen '19 Mayıs 1919'da' Samsun'a hangi rütbe ile çıkmıştır?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["9. Ordu Müfettişi", "Yıldırım Orduları Komutanı", "Kurmay Yüzbaşı", "Anafartalar Kahramanı", "Hareket Ordusu Komutanı"],
+    "dogru": 0
+  },
+  {
+    "soru": "Türkiye'nin 'En büyük ihracat limanı' (Konteyner ve Sanayi) hangisidir?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["İzmir (Alsancak-Aliağa)", "İstanbul (Ambarlı)", "Mersin", "Kocaeli", "Bursa (Gemlik)"],
+    "dogru": 0
+  },
+  {
+    "soru": "2024 NATO Zirvesi nerede yapılmıştır?",
+    "ders": "GÜNCEL BİLGİLER",
+    "sinav": "KPSS",
+    "zorluk": "GÜNCEL",
+    "siklar": ["Washington D.C. (ABD)", "Vilnius (Litvanya)", "Brüksel (Belçika)", "Madrid (İspanya)", "Londra (İngiltere)"],
+    "dogru": 0
+  },
+  [
+  {
+    "soru": "Osmanlı Devleti'nde 'İltizam' sisteminde vergileri toplayan kişiye ne ad verilir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Mültezim", "Muhtesip", "Mütevelli", "Nişancı", "Cebelu"],
+    "dogru": 0
+  },
+  {
+    "soru": "Türkiye'nin 'Mermer' rezervleri bakımından en zengin bölgesi ve dünyaca ünlü mermer adası (Marmara Adası) hangi ilimizdedir?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Afyonkarahisar", "Bursa", "Balıkesir", "Muğla", "Bilecik"],
+    "dogru": 2
+  },
+  {
+    "soru": "Milletvekillerinin meclis çalışmalarındaki oy ve sözlerinden dolayı sorumlu tutulmamasına ne ad verilir?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Yasama Sorumsuzluğu", "Yasama Dokunulmazlığı", "Kürsü Hakkı", "Siyasi Bağışıklık", "Temsili Adalet"],
+    "dogru": 0
+  },
+  {
+    "soru": "Lozan Antlaşması'na göre, Türkiye'de kalan Rumların 'dini lideri' olan Fener Rum Patrikhanesi'nin hangi yetkisi elinden alınmıştır?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["Dini temsil yetkisi", "İstanbul'da ikamet etme hakkı", "Ekümeniklik (Evrensellik) sıfatı", "Ayin yapma hakkı", "Kilise açma yetkisi"],
+    "dogru": 2
+  },
+  {
+    "soru": "Türkiye'de 'Zeytin' üretiminde görülen ve bir yıl çok ürün, bir yıl az ürün alınması durumuna ne ad verilir?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "DETAY",
+    "siklar": ["Nadas", "Var yılı - Yok yılı (Periyodisite)", "Ekim nöbeti", "Anız yakma", "Verdin"],
+    "dogru": 1
+  },
+  {
+    "soru": "2026 Kış Olimpiyatları'na (Milano-Cortina) ev sahipliği yapacak ülke hangisidir?",
+    "ders": "GÜNCEL BİLGİLER",
+    "sinav": "KPSS",
+    "zorluk": "GÜNCEL",
+    "siklar": ["Fransa", "İtalya", "İsviçre", "Kanada", "Japonya"],
+    "dogru": 1
+  },
+  {
+    "soru": "İslamiyet öncesi Türk sanatında, taşınabilir malzemeler üzerine yapılan hayvan figürlerine ne ad verilir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Hayvan Üslubu", "Bitkisel Motif", "Geometrik Desen", "Minyatür", "Fresko"],
+    "dogru": 0
+  },
+  {
+    "soru": "Marmara Bölgesi'nde, Çatalca-Kocaeli bölümü yoğun nüfuslu iken, Yıldız Dağları bölümünün seyrek nüfuslu olmasının temel nedeni nedir?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Yer şekillerinin engebeli olması", "İklimin karasal olması", "Toprağın verimsiz olması", "Denize kıyısı olmaması", "Ormanların az olması"],
+    "dogru": 0
+  },
+  {
+    "soru": "Devlet Denetleme Kurulu (DDK), aşağıdakilerden hangisini denetleyemez?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["TRT", "Kamu İktisadi Teşebbüsleri (KİT)", "Sendikalar", "Yargı Organları (Mahkemeler)", "Vakıflar"],
+    "dogru": 3
+  },
+  {
+    "soru": "Osmanlı Devleti'nde kurulan 'ilk banka' hangisidir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["Bank-ı Dersaadet", "Bank-ı Osmani (Osmanlı Bankası)", "Ziraat Bankası", "İtibar-ı Milli Bankası", "Memleket Sandıkları"],
+    "dogru": 0
+  },
+  {
+    "soru": "Türkiye'de 'ilk jeotermal enerji santrali' (JES) hangi ilimizde kurulmuştur?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Denizli (Sarayköy)", "Aydın (Germencik)", "Manisa", "Afyonkarahisar", "İzmir"],
+    "dogru": 0
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi 'Kamu Tüzel Kişiliği'ne sahiptir?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["TRT (Türkiye Radyo Televizyon Kurumu)", "Emniyet Genel Müdürlüğü", "Diyanet İşleri Başkanlığı", "Bakanlıklar", "Cumhurbaşkanlığı"],
+    "dogru": 0
+  },
+  {
+    "soru": "I. Dünya Savaşı'nda Medine'yi İngilizlere karşı kahramanca savunan ve 'Çöl Kaplanı' lakabıyla bilinen komutanımız kimdir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Fahrettin (Türkkan) Paşa", "Enver Paşa", "Cemal Paşa", "Halil (Kut) Paşa", "Kazım Karabekir"],
+    "dogru": 0
+  },
+  {
+    "soru": "Trakya'da yaygın olan, kurak dönemde çatlayan ve dönen toprak olarak bilinen toprak türü hangisidir?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "DETAY",
+    "siklar": ["Vertisol", "Terra Rossa", "Podzol", "Çernezyom", "Laterit"],
+    "dogru": 0
+  },
+  {
+    "soru": "Cumhurbaşkanı, bütçe kanun teklifini mali yılbaşından en az kaç gün önce TBMM'ye sunmalıdır?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["75 gün", "60 gün", "45 gün", "30 gün", "90 gün"],
+    "dogru": 0
+  },
+  {
+    "soru": "Türkiye'nin en büyük teknoloji festivali olan 'TEKNOFEST', Türkiye dışında ilk kez hangi ülkede düzenlenmiştir?",
+    "ders": "GÜNCEL BİLGİLER",
+    "sinav": "KPSS",
+    "zorluk": "GÜNCEL",
+    "siklar": ["Azerbaycan", "KKTC", "Katar", "Almanya", "Özbekistan"],
+    "dogru": 0
+  },
+  {
+    "soru": "Yeni Türk Devleti'nin ekonomi politikasının belirlendiği 'İzmir İktisat Kongresi' hangi yıl toplanmıştır?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["1923", "1924", "1921", "1929", "1930"],
+    "dogru": 0
+  },
+  {
+    "soru": "Aşağıdaki büyükşehirlerden hangisine 'Demiryolu' ile ulaşım MÜMKÜN DEĞİLDİR?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Eskişehir", "Kayseri", "Adana", "Antalya", "Konya"],
+    "dogru": 3
+  },
+  {
+    "soru": "Olağanüstü Hal (OHAL) Cumhurbaşkanlığı Kararnameleri ne zaman yürürlüğe girer?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["Resmi Gazete'de yayımlandığı gün", "TBMM onayladığı gün", "45 gün sonra", "15 gün sonra", "Bir sonraki ayın başında"],
+    "dogru": 0
+  },
+  {
+    "soru": "Osmanlı Devleti'nde 'ilk bakır para' (Mangır) hangi padişah döneminde bastırılmıştır?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "DETAY",
+    "siklar": ["Osman Bey", "Orhan Bey", "I. Murat", "Fatih Sultan Mehmet", "Yavuz Sultan Selim"],
+    "dogru": 0
+  },
+  {
+    "soru": "Türkiye ormanlarında en yaygın bulunan ağaç türü 'Kızılçam' en çok hangi bölgemizde görülür?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Akdeniz", "Karadeniz", "Doğu Anadolu", "İç Anadolu", "Güneydoğu Anadolu"],
+    "dogru": 0
+  },
+  {
+    "soru": "Siyasi partilerin kapatılması davasını Anayasa Mahkemesi'nde kim AÇAR?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Yargıtay Cumhuriyet Başsavcısı", "Adalet Bakanı", "Cumhurbaşkanı", "TBMM Başkanı", "Anayasa Mahkemesi Başkanı"],
+    "dogru": 0
+  },
+  {
+    "soru": "Kurtuluş Savaşı'nın askeri safhasını bitiren Mudanya Ateşkes Antlaşması ile savaş yapılmadan kurtarılan yer neresidir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Doğu Trakya", "İzmir", "Antalya", "Adana", "Kars"],
+    "dogru": 0
+  },
+  {
+    "soru": "Türkiye'de rüzgar gücüyle elektrik üretiminde ilk sırada yer alan bölgemiz hangisidir?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Ege", "Marmara", "Akdeniz", "İç Anadolu", "Karadeniz"],
+    "dogru": 0
+  },
+  {
+    "soru": "A Milli Kadın Voleybol Takımımızın (Filenin Sultanları) başantrenörü kimdir (2024 itibariyle)?",
+    "ders": "GÜNCEL BİLGİLER",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Daniele Santarelli", "Giovanni Guidetti", "Massimo Barbolini", "Marco Motta", "Ferhat Akbaş"],
+    "dogru": 0
+  },
+  [
+  {
+    "soru": "Osmanlı Devleti'nde, şehzadelerin sancaklarda eğitiminden sorumlu olan tecrübeli devlet adamına ne ad verilir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Lala", "Atabey", "Melik", "Hace", "Müderris"],
+    "dogru": 0
+  },
+  {
+    "soru": "Türkiye'de 'Karstik Şekillerin' (Lapya, Dolin, Polye) en yaygın olduğu bölge Akdeniz iken, 'Volkanik Şekillerin' en yaygın olduğu bölge hangisidir?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Doğu Anadolu", "Marmara", "Ege", "Karadeniz", "Güneydoğu Anadolu"],
+    "dogru": 0
+  },
+  {
+    "soru": "TBMM Başkanı, seçildikten sonra siyasi partisiyle olan ilişkisi hakkında nasıl bir durum oluşur?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["Partisiyle ilişiği kesilmez ancak parti faaliyetlerine katılamaz", "Partisinden istifa etmek zorundadır", "Parti üyeliği dondurulur", "Milletvekilliği sona erer", "Sadece oy kullanma hakkı devam eder"],
+    "dogru": 0
+  },
+  {
+    "soru": "Milli Mücadele'de, Mustafa Kemal'e 'Mareşal' rütbesi ve 'Gazi' unvanı hangi savaştan sonra verilmiştir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Sakarya Meydan Muharebesi", "Büyük Taarruz", "Kütahya-Eskişehir", "I. İnönü", "II. İnönü"],
+    "dogru": 0
+  },
+  {
+    "soru": "Türkiye'nin 'En büyük tatlı su gölü' aşağıdakilerden hangisidir?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Beyşehir Gölü", "Van Gölü (Sodalı)", "Tuz Gölü", "Eğirdir Gölü", "İznik Gölü"],
+    "dogru": 0
+  },
+  {
+    "soru": "Türk edebiyatının ilk psikolojik romanı olan 'Eylül'ün yazarı kimdir?",
+    "ders": "GÜNCEL BİLGİLER",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Mehmet Rauf", "Namık Kemal", "Peyami Safa", "Halit Ziya Uşaklıgil", "Recaizade Mahmut Ekrem"],
+    "dogru": 0
+  },
+  {
+    "soru": "Osmanlı Devleti'nde 'Donanma Komutanı'na verilen unvan nedir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Kaptan-ı Derya", "Levent", "Reisülküttab", "Subaşı", "Humbaracı"],
+    "dogru": 0
+  },
+  {
+    "soru": "Türkiye'de 'Fındık' üretiminde birinci olan ilimiz Ordu iken, 'İncir' üretiminde birinci olan ilimiz hangisidir?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Aydın", "İzmir", "Muğla", "Bursa", "Manisa"],
+    "dogru": 0
+  },
+  {
+    "soru": "Memurların 'haftalık çalışma süresi' kanunen kaç saattir?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["40 Saat", "45 Saat", "48 Saat", "35 Saat", "50 Saat"],
+    "dogru": 0
+  },
+  {
+    "soru": "Türkiye'nin NATO'ya üye olmak için asker gönderdiği savaş hangisidir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Kore Savaşı", "Vietnam Savaşı", "Körfez Savaşı", "Kosova Savaşı", "Afganistan Savaşı"],
+    "dogru": 0
+  },
+  {
+    "soru": "Türkiye'de 'Demir-Çelik' sanayisinin geliştiği İskenderun'da bu fabrikanın kurulma nedeni nedir?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Ulaşım (Liman) kolaylığı", "Hammaddeye yakınlık", "Enerjiye yakınlık", "Su kaynaklarına yakınlık", "Pazara yakınlık"],
+    "dogru": 0
+  },
+  {
+    "soru": "Anayasa Mahkemesi üyelerini görevden alma yetkisi kime aittir?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "ZOR",
+    "siklar": ["Anayasa Mahkemesi Genel Kurulu", "Cumhurbaşkanı", "TBMM", "HSK", "Yargıtay"],
+    "dogru": 0
+  },
+  {
+    "soru": "2025 yılı 'NATO Zirvesi'ne ev sahipliği yapacak ülke hangisidir?",
+    "ders": "GÜNCEL BİLGİLER",
+    "sinav": "KPSS",
+    "zorluk": "GÜNCEL",
+    "siklar": ["Hollanda (Lahey)", "Türkiye", "Almanya", "Polonya", "İspanya"],
+    "dogru": 0
+  },
+  {
+    "soru": "Osmanlı Devleti'nde 'Lale Devri'nin ünlü şairi kimdir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Nedim", "Baki", "Fuzuli", "Nefi", "Şeyh Galip"],
+    "dogru": 0
+  },
+  {
+    "soru": "Türkiye'de 'Delta Ovası' oluşabilmesi için kıyıda aşağıdakilerden hangisinin OLMAMASI gerekir?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Güçlü akıntı ve gel-git", "Alüvyon", "Sığ deniz", "Geniş kıta sahanlığı", "Akarsu"],
+    "dogru": 0
+  },
+  {
+    "soru": "Belediye Başkanı, mazeretsiz olarak göreve kaç gün gelmezse başkanlığı düşer?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "DETAY",
+    "siklar": ["20 gün", "10 gün", "30 gün", "45 gün", "60 gün"],
+    "dogru": 0
+  },
+  {
+    "soru": "Cumhuriyet döneminde 'çok partili hayata' kesin geçiş hangi yıl ve hangi parti ile olmuştur?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["1946 - Demokrat Parti (Öncesi MKP)", "1924 - Terakkiperver", "1930 - Serbest Cumhuriyet", "1950 - Demokrat Parti", "1960 - Adalet Partisi"],
+    "dogru": 0
+  },
+  {
+    "soru": "Türkiye'nin 'En az nüfusa sahip ili' hangisidir (2023 verilerine göre)?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "GÜNCEL",
+    "siklar": ["Bayburt", "Tunceli", "Ardahan", "Gümüşhane", "Kilis"],
+    "dogru": 0
+  },
+  {
+    "soru": "Hukukumuzda 'Olağanüstü Hal' (OHAL) en fazla kaç aylığına ilan edilebilir?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["6 Ay", "3 Ay", "1 Yıl", "2 Yıl", "4 Ay"],
+    "dogru": 0
+  },
+  {
+    "soru": "Türkiye'nin insansız ilk savaş uçağı olan 'KIZILELMA'yı üreten firma hangisidir?",
+    "ders": "GÜNCEL BİLGİLER",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Baykar", "Tusaş", "Aselsan", "Roketsan", "Havelsan"],
+    "dogru": 0
+  },
+  {
+    "soru": "Osmanlı Devleti'nde 'Fetret Devri'ne (1402-1413) neden olan savaş hangisidir?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Ankara Savaşı", "Niğbolu Savaşı", "Varna Savaşı", "Kosova Savaşı", "Sırpsındığı Savaşı"],
+    "dogru": 0
+  },
+  {
+    "soru": "Türkiye'de 'Horozları' ile ünlü ve tekstil sanayisi gelişmiş ilimiz hangisidir?",
+    "ders": "COĞRAFYA",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Denizli", "Uşak", "Aydın", "Manisa", "Bursa"],
+    "dogru": 0
+  },
+  {
+    "soru": "İlçe idaresinin başı olan Kaymakam, atama ile mi yoksa seçimle mi göreve gelir?",
+    "ders": "VATANDAŞLIK",
+    "sinav": "KPSS",
+    "zorluk": "KOLAY",
+    "siklar": ["Cumhurbaşkanı onayı ile atanır", "Halk tarafından seçilir", "İçişleri Bakanı seçer", "Vali atar", "TBMM seçer"],
+    "dogru": 0
+  },
+  {
+    "soru": "Türkiye'nin 'En uzun tüneli' olan Zigana Tüneli hangi iki ili birbirine bağlar?",
+    "ders": "GÜNCEL BİLGİLER",
+    "sinav": "KPSS",
+    "zorluk": "GÜNCEL",
+    "siklar": ["Trabzon - Gümüşhane", "Rize - Erzurum", "Artvin - Ardahan", "Ordu - Giresun", "Erzurum - Bayburt"],
+    "dogru": 0
+  },
+  {
+    "soru": "Mustafa Kemal Atatürk'ün yazdığı 'Geometri' kitabı hangi amaçla yazılmıştır?",
+    "ders": "TARİH",
+    "sinav": "KPSS",
+    "zorluk": "ORTA",
+    "siklar": ["Matematik terimlerini Türkçeleştirmek", "Askeri strateji öğretmek", "Harf inkılabını tanıtmak", "Tarih bilincini aşılamak", "Yabancı dil öğretmek"],
+    "dogru": 0
   }
- 
 ]
-  
-
-
 
