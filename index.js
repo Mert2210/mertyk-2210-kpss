@@ -45,26 +45,48 @@ io.on("connection", (socket) => {
         io.to(roomCode).emit("updatePlayerList", Object.values(rooms[roomCode].players));
     });
 
-    socket.on("startGame", ({ roomCode, settings }) => {
+ socket.on("startGame", ({ roomCode, settings }) => {
         const room = rooms[roomCode];
         if (!room) return;
         
-        // --- GELİŞMİŞ FİLTRELEME ---
-        let havuz = [...tumSorular];
-        if (settings.subject !== "HEPSI") havuz = havuz.filter(q => q.ders === settings.subject);
-        if (settings.difficulty !== "HEPSI") havuz = havuz.filter(q => q.zorluk === settings.difficulty);
+        // 1. Tüm soruları havuza al
+        let pool = [...tumSorular];
         
-        if (havuz.length === 0) {
-            socket.emit("errorMsg", "Seçilen kriterlerde soru bulunamadı! Tüm sorular yükleniyor.");
-            havuz = [...tumSorular];
+        console.log(`🔍 Filtreleme Başlıyor... Toplam Soru: ${pool.length}`);
+        console.log(`👉 İstenen Ders: ${settings.subject}`);
+
+        // 2. Filtreleme Mantığı (GÜÇLENDİRİLMİŞ)
+        if (settings.subject && settings.subject !== "HEPSI") {
+            const arananDers = settings.subject.trim().toLocaleUpperCase('tr');
+            
+            pool = pool.filter(q => {
+                // Soru verisinde ders etiketi yoksa 'GENEL' varsay
+                const soruDersi = (q.ders || "GENEL").trim().toLocaleUpperCase('tr');
+                return soruDersi === arananDers;
+            });
         }
         
-        havuz.sort(() => Math.random() - 0.5); 
-        room.settings = settings;
-        room.questions = havuz;
+        // 3. Zorluk Seviyesi Filtresi (Varsa)
+        if (settings.difficulty && settings.difficulty !== "HEPSI") {
+             pool = pool.filter(q => (q.zorluk || "ORTA") === settings.difficulty);
+        }
+        
+        // 4. Eğer filtre sonucu 0 soru kaldıysa, mecburen tümünü yükle (Çökmemesi için)
+        if(pool.length === 0) {
+            console.log("⚠️ Filtreye uygun soru bulunamadı! Tüm sorular yükleniyor...");
+            pool = [...tumSorular]; 
+            // Kullanıcıya bilgi vermek istersen buraya bir socket.emit ekleyebilirsin
+        } else {
+            console.log(`✅ Filtreleme Başarılı! ${pool.length} soru bulundu.`);
+        }
+
+        // 5. Soruları Karıştır ve Odaya Yükle
+        room.questions = pool.sort(() => Math.random() - 0.5)
+                             .slice(0, settings.count || 20)
+                             .map(q => shuffleOptions(q));
+                             
         room.gameStarted = true;
         room.currentQuestionIndex = 0;
-        Object.keys(room.players).forEach(id => room.players[id].score = 0);
         sendQuestionToRoom(roomCode);
     });
 
@@ -141,3 +163,4 @@ function sendQuestionToRoom(roomCode) {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Sunucu aktif.`));
+
