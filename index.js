@@ -125,14 +125,10 @@ io.on("connection", (socket) => {
              pool = pool.filter(q => (q.zorluk || "ORTA") === settings.difficulty);
         }
 
-        // ==================================================
-        // 4. ADIM: ŞIK SAYISI FİLTRESİ (YENİ EKLENEN KISIM)
-        // ==================================================
+        // 4. ŞIK SAYISI FİLTRESİ
         if (settings.sikSayisi && settings.sikSayisi !== "HEPSI") {
-            // "4" seçildiyse sadece 4 şıklıları, "5" seçildiyse 5 şıklıları getir
             pool = pool.filter(q => q.siklar && q.siklar.length == settings.sikSayisi);
         }
-        // ==================================================
         
         // 5. Eğer filtre sonucu 0 soru kaldıysa tümünü yükle
         if(pool.length === 0) {
@@ -218,8 +214,16 @@ function sendQuestionToRoom(roomCode) {
     const q = room.questions[room.currentQuestionIndex];
     
     io.to(roomCode).emit("newQuestion", {
-        soru: q.soru, siklar: q.siklar, ders: q.ders, resim: q.resim, zorluk: q.zorluk,
-        index: room.currentQuestionIndex + 1, total: Math.min(room.settings.count, room.questions.length), duration: room.settings.duration
+        soru: q.soru, 
+        siklar: q.siklar, 
+        ders: q.ders, 
+        resim: q.resim, 
+        zorluk: q.zorluk,
+        deneme: q.deneme, // Deneme bilgisini ekledik
+        cozum: q.cozum,   // <--- İŞTE EKLENEN KISIM (3. ADIM)
+        index: room.currentQuestionIndex + 1, 
+        total: Math.min(room.settings.count, room.questions.length), 
+        duration: room.settings.duration
     });
     
     room.timerId = setTimeout(() => { 
