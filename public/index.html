@@ -80,7 +80,7 @@
                 <div style="flex:1;"><span style="font-size:0.7rem; color:#666;">Süre</span><input type="number" id="set-duration" value="15"></div>
             </div>
             <select id="set-subject"><option value="HEPSI">Tüm Dersler</option><option value="TARİH">Tarih</option><option value="COĞRAFYA">Coğrafya</option><option value="VATANDAŞLIK">Vatandaşlık</option><option value="GÜNCEL BİLGİLER">Güncel Bilgiler</option></select>
-            <select id="set-difficulty"><option value="HEPSI">Tüm Seviyeler</option><option value="KOLAY">Kolay</option><option value="ORTA">Orta</option><option value="ZOR">Zor</option></select>
+            <select id="set-difficulty"><option value="HEPSI">Tüm Seviyeler</option><option value="KOLAY">Kolay</option><option value="ORTA">Orta</option><option value="ZOR">Zor</option><option value="DETAY">Detay</option><option value="GÜNCEL">Güncel</option></select>
             <button onclick="startGame()" class="orange" style="margin-top:10px;">OYUNU BAŞLAT</button>
         </div>
         <p id="wait-msg" style="display:none; color:#777;">Kurucu ayarları yapıyor...</p>
@@ -110,7 +110,13 @@
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
-    const socket = io();
+    // --- GÜVENLİK DUVARI AŞMA AYARI ---
+    // Websocket engellenirse, HTTP Polling'e düşmesini zorunlu kılıyoruz.
+    const socket = io({
+        transports: ["polling", "websocket"]
+    });
+    // ----------------------------------
+
     let myCode = ""; let myButtons = []; let currentQuestionData = null; let currentListType = "";
     let isSoundEnabled = localStorage.getItem('kpss_sound') !== 'false';
 
