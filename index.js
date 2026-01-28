@@ -3,104 +3,93 @@ const http = require("http");
 const { Server } = require("socket.io");
 const fs = require("fs");
 const path = require("path");
-const { Client, LocalAuth } = require('whatsapp-web.js');
-const qrcode = require('qrcode-terminal');
 
 const app = express();
 const server = http.createServer(app);
-
-// --- ⚙️ SOCKET.IO AYARLARI (Kurumsal Ağlar İçin İyileştirildi) ---
 const io = new Server(server, {
     cors: { origin: "*", methods: ["GET", "POST"] },
-    pingTimeout: 60000,
-    pingInterval: 25000,
-    transports: ["polling", "websocket"]
+    transports: ["polling", "websocket"] // Hem polling hem websocket desteği
 });
 
 app.use(express.static(path.join(__dirname, "public")));
 
+// --- 🟢 UPTIME ROBOT İÇİN PING NOKTASI ---
 app.get("/ping", (req, res) => {
-    res.send("Pong! Sunucu Aktif.");
+    res.send("Pong! Sunucu Aktif ve Çalışıyor.");
 });
+// --------------------------------------------------
 
-// --- 🛠️ SORU YÜKLEME VE KAYDETME SİSTEMİ ---
+// --- 🛠️ GÜVENLİ VE AKILLI SORU YÜKLEME SİSTEMİ ---
 let tumSorular = [];
 const QUESTIONS_FILE = path.join(__dirname, 'questions.json');
 
 function sorulariYukle() {
+    console.log("📂 Soru dosyası okunuyor...");
+    
     if (fs.existsSync(QUESTIONS_FILE)) {
         try {
             let rawData = fs.readFileSync(QUESTIONS_FILE, 'utf8');
-            tumSorular = JSON.parse(rawData);
-            console.log(`✅ ${tumSorular.length} soru yüklendi.`);
+
+            // 1. ADIM: Olası format hatalarını otomatik düzelt
+            rawData = rawData.replace(/\]\s*\[/g, ",");
+            rawData = rawData.replace(/\]\s*,\s*\[/g, ",");
+            
+            while (rawData.startsWith("[[")) { rawData = rawData.replace("[[", "["); }
+            while (rawData.endsWith("]]")) { rawData = rawData.replace("]]", "]"); }
+
+            try {
+                tumSorular = JSON.parse(rawData);
+                console.log(`✅ BAŞARILI: Toplam ${tumSorular.length} soru hafızaya alındı.`);
+            } catch (parseErr) {
+                console.log("⚠️ Basit okuma başarısız, derinlemesine temizlik yapılıyor...");
+                const matches = rawData.match(/\{.*?\}/gs); 
+                if (matches) {
+                    const fixedJson = "[" + matches.join(",") + "]";
+                    tumSorular = JSON.parse(fixedJson);
+                    console.log(`✅ TAMİR EDİLDİ: ${tumSorular.length} soru kurtarıldı.`);
+                } else {
+                    throw new Error("Soru formatı kurtarılamadı.");
+                }
+            }
+
         } catch (err) {
-            console.error("❌ Soru dosyası okunamadı!");
-            tumSorular = [{ "soru": "Sistem Hatası", "ders": "HATA", "siklar": ["Tamam"], "dogru": 0 }];
+            console.error("❌ KRİTİK HATA: questions.json dosyası çok bozuk!");
+            tumSorular = [{
+                "soru": "SİSTEM HATASI: Soru dosyası okunamadı.",
+                "ders": "SİSTEM", "siklar": ["Tamam"], "dogru": 0, "zorluk": "KOLAY"
+            }];
         }
+    } else {
+        console.log("⚠️ questions.json bulunamadı! Örnek soru oluşturuluyor.");
+        tumSorular = [{ "soru": "Deneme Sorusu", "ders": "GENEL", "siklar": ["A", "B"], "dogru": 0 }];
     }
 }
+
+// Sunucu başlarken soruları yükle
 sorulariYukle();
 
-// --- 📱 WHATSAPP BOT ENTEGRASYONU ---
-const client = new Client({
-    authStrategy: new LocalAuth(),
-    puppeteer: { args: ['--no-sandbox', '--disable-setuid-sandbox'] }
-});
-
-client.on('qr', (qr) => {
-    qrcode.generate(qr, { small: true });
-    console.log('📱 WhatsApp QR Kodunu taratın!');
-});
-
-client.on('ready', () => console.log('✅ WhatsApp Botu Aktif!'));
-
-const wpSessions = {};
-
-client.on('message', async (msg) => {
-    const user = msg.from;
-    const text = msg.body.toLocaleLowerCase('tr').trim();
-
-    if (text === 'soru') {
-        const randomIdx = Math.floor(Math.random() * tumSorular.length);
-        const soru = tumSorular[randomIdx];
-        wpSessions[user] = { correct: soru.dogru, options: soru.siklar };
-
-        let optionsText = soru.siklar.map((s, i) => `${String.fromCharCode(65 + i)}) ${s}`).join('\n');
-        msg.reply(`📝 *KPSS SORUSU*\n\n${soru.soru}\n\n*ŞIKLAR:*\n${optionsText}\n\n_Cevap için sadece harf gönderin._`);
-    } 
-    else if (wpSessions[user] && /^[a-eA-E]$/.test(text)) {
-        const choice = text.toUpperCase().charCodeAt(0) - 65;
-        const session = wpSessions[user];
-
-        if (choice === session.correct) {
-            msg.reply("✅ *Doğru Cevap!* \nYeni soru için 'soru' yazın.");
-        } else {
-            msg.reply(`❌ *Yanlış!* \nDoğru: *${String.fromCharCode(65 + session.correct)}) ${session.options[session.correct]}*`);
-        }
-        delete wpSessions[user];
-    }
-});
-client.initialize();
-
-// --- 🎮 OYUN MANTIĞI VE ODALAR ---
 const rooms = {};
 
+// Şık Karıştırma Fonksiyonu
 function shuffleOptions(q) {
     if (!q || !q.siklar) return q;
     const originalCorrectText = q.siklar[q.dogru];
     const shuffledSiklar = [...q.siklar].sort(() => Math.random() - 0.5);
-    return { ...q, siklar: shuffledSiklar, dogru: shuffledSiklar.indexOf(originalCorrectText) };
+    const newCorrectIndex = shuffledSiklar.indexOf(originalCorrectText);
+    return { ...q, siklar: shuffledSiklar, dogru: newCorrectIndex };
 }
 
 io.on("connection", (socket) => {
     socket.on("createRoom", (username) => {
         const roomCode = Math.floor(1000 + Math.random() * 9000).toString();
         rooms[roomCode] = {
-            code: roomCode, players: {}, gameStarted: false, currentQuestionIndex: 0, questions: [],
-            settings: { duration: 15, count: 10, subject: 'HEPSI', difficulty: 'HEPSI', sikSayisi: 'HEPSI' }
+            code: roomCode, players: {}, gameStarted: false,
+            currentQuestionIndex: 0, questions: [],
+            settings: { duration: 15, count: 10, subject: 'HEPSI', difficulty: 'HEPSI', sikSayisi: 'HEPSI' },
+            timerId: null, answerCount: 0, questionStartTime: 0
         };
         socket.join(roomCode);
-        rooms[roomCode].players[socket.id] = { id: socket.id, username, score: 0, isHost: true };
+        rooms[roomCode].players[socket.id] = { id: socket.id, username: username, score: 0, isHost: true };
         socket.emit("roomCreated", roomCode);
         io.to(roomCode).emit("updatePlayerList", Object.values(rooms[roomCode].players));
     });
@@ -108,7 +97,7 @@ io.on("connection", (socket) => {
     socket.on("joinRoom", ({ username, roomCode }) => {
         if (!rooms[roomCode]) return socket.emit("errorMsg", "Oda bulunamadı!");
         socket.join(roomCode);
-        rooms[roomCode].players[socket.id] = { id: socket.id, username, score: 0, isHost: false };
+        rooms[roomCode].players[socket.id] = { id: socket.id, username: username, score: 0, isHost: false };
         socket.emit("roomJoined", roomCode);
         io.to(roomCode).emit("updatePlayerList", Object.values(rooms[roomCode].players));
     });
@@ -116,19 +105,51 @@ io.on("connection", (socket) => {
     socket.on("startGame", ({ roomCode, settings }) => {
         const room = rooms[roomCode];
         if (!room) return;
-
+        
+        // 1. Tüm soruları havuza al
         let pool = [...tumSorular];
-        if (settings.subject !== "HEPSI") {
-            pool = pool.filter(q => (q.ders || "").trim().toLocaleUpperCase('tr') === settings.subject.trim().toLocaleUpperCase('tr'));
+        
+        console.log(`🔍 Filtreleme Başlıyor... Toplam Soru: ${pool.length}`);
+
+        // 2. Ders Filtresi
+        if (settings.subject && settings.subject !== "HEPSI") {
+            const arananDers = settings.subject.trim().toLocaleUpperCase('tr');
+            pool = pool.filter(q => {
+                const soruDersi = (q.ders || "GENEL").trim().toLocaleUpperCase('tr');
+                return soruDersi === arananDers;
+            });
         }
-        if (settings.difficulty !== "HEPSI") pool = pool.filter(q => (q.zorluk || "ORTA") === settings.difficulty);
-        if (settings.sikSayisi !== "HEPSI") pool = pool.filter(q => q.siklar.length == settings.sikSayisi);
+        
+        // 3. Zorluk Seviyesi Filtresi
+        if (settings.difficulty && settings.difficulty !== "HEPSI") {
+             pool = pool.filter(q => (q.zorluk || "ORTA") === settings.difficulty);
+        }
 
-        room.questions = (pool.length > 0 ? pool : tumSorular)
-            .sort(() => Math.random() - 0.5)
-            .slice(0, settings.count)
-            .map(q => shuffleOptions(q));
+        // ==================================================
+        // 4. ADIM: ŞIK SAYISI FİLTRESİ (YENİ EKLENEN KISIM)
+        // ==================================================
+        if (settings.sikSayisi && settings.sikSayisi !== "HEPSI") {
+            // "4" seçildiyse sadece 4 şıklıları, "5" seçildiyse 5 şıklıları getir
+            pool = pool.filter(q => q.siklar && q.siklar.length == settings.sikSayisi);
+        }
+        // ==================================================
+        
+        // 5. Eğer filtre sonucu 0 soru kaldıysa tümünü yükle
+        if(pool.length === 0) {
+            console.log("⚠️ Filtreye uygun soru bulunamadı! Tüm sorular yükleniyor...");
+            pool = [...tumSorular]; 
+            if(pool.length === 0) {
+                 pool = [{ "soru": "HİÇ SORU YOK! Lütfen questions.json dosyasını kontrol et.", "ders": "HATA", "siklar": ["Tamam"], "dogru": 0 }];
+            }
+        } else {
+            console.log(`✅ Filtreleme Başarılı! ${pool.length} soru bulundu.`);
+        }
 
+        // 6. Soruları Karıştır ve Odaya Yükle
+        room.questions = pool.sort(() => Math.random() - 0.5)
+                             .slice(0, settings.count || 20)
+                             .map(q => shuffleOptions(q));
+        
         room.settings = settings;
         room.gameStarted = true;
         room.currentQuestionIndex = 0;
@@ -142,40 +163,41 @@ io.on("connection", (socket) => {
         const player = room.players[socket.id];
 
         if (player && !player.hasAnsweredThisRound) {
-            player.hasAnsweredThisRound = true;
+            player.hasAnsweredThisRound = true; 
+            room.answerCount++; 
+            let isCorrect = false;
             let earnedPoints = 0;
-            const isCorrect = answerIndex == currentQ.dogru;
 
-            if (isCorrect) {
-                const gecen = (Date.now() - room.questionStartTime) / 1000;
-                earnedPoints = 10 + Math.ceil(Math.max(0, room.settings.duration - gecen) / 4);
-                player.score += earnedPoints;
-            } else if (answerIndex !== -1) player.score -= 5;
-
+            if (answerIndex !== -1) { 
+                isCorrect = (answerIndex == currentQ.dogru);
+                if (isCorrect) {
+                    const gecen = (Date.now() - room.questionStartTime) / 1000;
+                    const kalan = Math.max(0, room.settings.duration - gecen);
+                    earnedPoints = 10 + Math.ceil(kalan / 4); 
+                    player.score += earnedPoints;
+                } else {
+                    player.score -= 5;
+                }
+            }
             socket.emit("answerResult", { correct: isCorrect, correctIndex: currentQ.dogru, selectedIndex: answerIndex, isBlank: answerIndex === -1, points: earnedPoints });
             io.to(roomCode).emit("updatePlayerList", Object.values(room.players));
 
-            if (Object.values(room.players).every(p => p.hasAnsweredThisRound)) {
-                clearTimeout(room.timerId);
-                room.currentQuestionIndex++;
-                setTimeout(() => sendQuestionToRoom(roomCode), 1500);
+            if (room.answerCount >= Object.keys(room.players).length) {
+                clearTimeout(room.timerId); 
+                room.currentQuestionIndex++; 
+                setTimeout(() => { sendQuestionToRoom(roomCode); }, 1500); 
             }
         }
     });
 
-    // --- 💾 KALICI SORU EKLEME ---
-    socket.on("addNewQuestion", (q) => {
-        tumSorular.push(q);
-        try {
-            fs.writeFileSync(QUESTIONS_FILE, JSON.stringify(tumSorular, null, 2), 'utf8');
-        } catch (err) { console.error("Soru kaydedilemedi!"); }
-    });
-
+    socket.on("addNewQuestion", (q) => { tumSorular.push(q); });
+    
     socket.on("disconnect", () => {
         for (const code in rooms) {
             if (rooms[code].players[socket.id]) {
                 delete rooms[code].players[socket.id];
                 io.to(code).emit("updatePlayerList", Object.values(rooms[code].players));
+                if (Object.keys(rooms[code].players).length === 0) delete rooms[code]; 
             }
         }
     });
@@ -184,26 +206,27 @@ io.on("connection", (socket) => {
 function sendQuestionToRoom(roomCode) {
     const room = rooms[roomCode];
     if (!room) return;
-
-    if (room.currentQuestionIndex >= room.questions.length) {
+    
+    if (room.currentQuestionIndex >= room.settings.count || room.currentQuestionIndex >= room.questions.length) {
         io.to(roomCode).emit("gameOver", Object.values(room.players));
-        room.gameStarted = false;
-        return;
+        room.gameStarted = false; return;
     }
-
-    Object.keys(room.players).forEach(id => room.players[id].hasAnsweredThisRound = false);
+    
+    room.answerCount = 0; 
+    Object.keys(room.players).forEach(id => { room.players[id].hasAnsweredThisRound = false; });
     room.questionStartTime = Date.now();
     const q = room.questions[room.currentQuestionIndex];
-
+    
     io.to(roomCode).emit("newQuestion", {
-        ...q, index: room.currentQuestionIndex + 1, total: room.questions.length, duration: room.settings.duration
+        soru: q.soru, siklar: q.siklar, ders: q.ders, resim: q.resim, zorluk: q.zorluk,
+        index: room.currentQuestionIndex + 1, total: Math.min(room.settings.count, room.questions.length), duration: room.settings.duration
     });
-
-    room.timerId = setTimeout(() => {
-        if (rooms[roomCode] && room.gameStarted) {
-            room.currentQuestionIndex++;
-            sendQuestionToRoom(roomCode);
-        }
+    
+    room.timerId = setTimeout(() => { 
+        if (rooms[roomCode] && room.gameStarted) { 
+            room.currentQuestionIndex++; 
+            sendQuestionToRoom(roomCode); 
+        } 
     }, room.settings.duration * 1000);
 }
 
