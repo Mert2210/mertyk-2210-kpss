@@ -8015,9 +8015,354 @@
     "dogru": 0,
     "ders": "COĞRAFYA",
     "zorluk": "KOLAY"
+  },
+  {
+    "soru": "İslamiyet öncesi Türk topluluklarının sosyal yapıları ile ilgili aşağıdaki bilgilerden hangisi yanlıştır?",
+    "siklar": ["Eski Türk toplumunda aile, kan bağı esasına dayanmıştır.", "Türkler, devlete 'el' veya 'il' adını vermiştir.", "Özel mülkiyet anlayışı gelişmemiştir.", "Uruglar en küçük sosyal yapılanmalardır.", "Toplum içerisinde sınıf ayrımı görülmemiştir."],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "1",
+    "cozum": "Eski Türk toplumunda sosyal yapının en küçük birimi aile (oguş) iken, uruglar ailelerin birleşmesiyle oluşan 'boy'ları temsil eder. Bu nedenle en küçük yapı değildir. [cite: 639, 643]"
+  },
+  {
+    "soru": "Türk-İslam devletlerinde vakıf adı verilen kurumlar aracılığı ile halkın ihtiyaçlarını karşılamak için birçok kurum oluşturulmuş ve buralardan halkın ücretsiz faydalanması sağlanmıştır. Bu bilgilere bakılarak Türk-İslam devletlerinde hangi devlet anlayışının ön planda tutulduğu söylenebilir?",
+    "siklar": ["Merkeziyetçi devlet", "Teokratik devlet", "Sosyal devlet", "Federatif devlet", "Monarşik devlet"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "KOLAY",
+    "deneme": "1",
+    "cozum": "Halkın temel ihtiyaçlarının devlet/vakıf eliyle ücretsiz karşılanması, devletin halkı için var olduğu 'Sosyal Devlet' ilkesinin sonucudur. [cite: 676, 677, 680]"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi ilk Türk-İslam devletlerinden biri olan Karahanlılar'ın ulusçu bir karaktere sahip olduğuna kanıt gösterilebilir?",
+    "siklar": ["Ribat adı verilen kervansaraylar inşa etmeleri", "Bimarhane adı verilen hastaneler açmaları", "Türkçeyi resmî dil ilan etmeleri", "Posta teşkilatı kurmaları", "Türk-İslam tarihinin ilk medresesini kurmaları"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "1",
+    "cozum": "Türkçeyi resmi dil olarak benimsemeleri, Karahanlıların milli kimliklerini korumaya çalıştıklarını ve ulusçu olduklarını gösterir. [cite: 684, 687]"
+  },
+  {
+    "soru": "I. Divan-ı Hümayun kuruldu. II. Osmanlı'nın ilk bakır parası bastırıldı. III. İlk vakıf teşkilatı oluşturuldu. IV. Vezir ataması yapıldı. Yukarıda verilen gelişmelerden hangileri Orhan Bey Dönemi'nde gerçekleşmiştir?",
+    "siklar": ["Yalnız I", "Yalnız II", "I ve II", "I, II ve IV", "I, III ve IV"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "DETAY",
+    "deneme": "1",
+    "cozum": "Divan-ı Hümayun, ilk vezir ataması ve vakıf teşkilatı Orhan Bey döneminde yapılmıştır. İlk bakır para ise Osman Bey dönemine aittir. [cite: 646, 651, 656]"
+  },
+  {
+    "soru": "Osmanlı Devleti Yükselme Dönemi'nde önce bir iç sorunken Fransa, Papalık ve Rodos Şövalyeleri'nin araya girmesiyle bir dış sorun hâline gelen olay aşağıdakilerden hangisidir?",
+    "siklar": ["Düzmece Mustafa İsyanı", "Cem Sultan Olayı", "Şahkulu İsyanı", "Şeyh Bedrettin İsyanı", "Kavalalı Mehmet Ali Paşa İsyanı"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "zorluk": "KOLAY",
+    "deneme": "1",
+    "cozum": "Fatih'in oğlu Cem Sultan'ın kardeşi II. Bayezid ile girdiği taht mücadelesi, Avrupalı güçlerin eline geçmesiyle uluslararası bir krize dönüşmüştür. [cite: 662, 667]"
+  },
+  {
+    "soru": "Osmanlı Devleti'nde Kanuni Dönemi'nden itibaren protokol kurallarına göre divanda sadrazama denk gelen görevli aşağıdakilerden hangisidir?",
+    "siklar": ["Kazasker", "Defterdar", "Şeyhülislam", "Nişancı", "Yeniçeri Ağası"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "ZOR",
+    "deneme": "1",
+    "cozum": "Kanuni döneminde yapılan düzenleme ile Şeyhülislamlık makamı dini yetkilerinden ötürü protokolde Veziriazam (Sadrazam) ile eşitlenmiştir. [cite: 699, 701]"
+  },
+  {
+    "soru": "Osmanlı Devleti'nde padişahın devlet memurlarının mallarına el koyabilmesi yetkisine 'müsadere usulü' adı verilir. Bu uygulamanın amacı aşağıdakilerden hangisidir?",
+    "siklar": ["Feodal bir yönetim anlayışı oluşturmak", "Özel mülkiyet anlayışını korumak", "Merkezî otoriteyi güçlendirmek", "Sınırların genişlemesini hızlandırmak", "Halkın yönetime katılmasını kolaylaştırmak"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "1",
+    "cozum": "Müsadere ile güçlü ailelerin zenginleşerek devlete rakip olması engellenmiş, merkezi otorite korunmuştur. [cite: 1733, 1737]"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi XVIII. yüzyıl ıslahatlarından biri olduğu söylenemez?",
+    "siklar": ["Tulumbacı Ocağı'nın kurulması", "Meşveret meclislerinin kurulması", "İlk devlet matbaasının kurulması", "İlk resmî gazetenin çıkarılması", "İstihkam okulunun kurulması"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "ZOR",
+    "deneme": "1",
+    "cozum": "İlk resmi gazete olan Takvim-i Vekayi, II. Mahmut döneminde (XIX. yüzyıl) çıkarılmıştır. [cite: 707]"
+  },
+  {
+    "soru": "Mustafa Kemal Paşa'nın, İstanbul Hükümeti'ne karşı çıkarak 'Sine-i Millete' dönerek askerlik mesleğinden istifa ettiği olay hangisidir?",
+    "siklar": ["Misakımilli kararlarının kabulü", "Amasya Genelgesi sonrası", "Erzurum Kongresi öncesi", "Londra Konferansı", "Sakarya Savaşı sonrası"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "1",
+    "cozum": "Amasya Genelgesi'nden sonra geri çağrılan Mustafa Kemal, Erzurum Kongresi başlamadan hemen önce askerlikten istifa etmiştir. [cite: 746, 751]"
+  },
+  {
+    "soru": "Türkiye fiziki haritasında bazı yerlerde renk tonlarının kısa mesafelerde belirgin ölçüde değiştiği gözlemlenmiştir. Bu durum hangisinin kesin kanıtıdır?",
+    "siklar": ["Ovalık alan olduğunun", "Deniz kıyısı olduğunun", "Depremselliğin fazlalığının", "Yükselti farkının fazlalığının", "Kar yağışının fazlalığının"],
+    "dogru": 3,
+    "ders": "COĞRAFYA",
+    "zorluk": "KOLAY",
+    "deneme": "1",
+    "cozum": "Fiziki haritadaki renk değişimleri yükselti değişimlerini temsil eder. Ton farkının artması dik yamaçları ve yükselti farkını gösterir. [cite: 827, 832]"
+  },
+  {
+    "soru": "Orta Anadolu ve Doğu Anadolu'da yer alan volkan konileri fay hatlarının uzanış doğrultusuna paralel bir diziliş göstermektedir. Bu volkan konilerinin diziliş doğrultusu hangisidir?",
+    "siklar": ["Kuzeydoğu-Güneybatı", "Güneydoğu-Güneybatı", "Kuzey-Güney", "Doğu-Batı", "Kuzeybatı-Güneydoğu"],
+    "dogru": 0,
+    "ders": "COĞRAFYA",
+    "zorluk": "ORTA",
+    "deneme": "1",
+    "cozum": "Türkiye'deki genç volkanik dağlar genelde Kuzeydoğu-Güneybatı uzanımlı fay hatlarını takip eder. [cite: 840, 842]"
+  },
+  {
+    "soru": "Aşağıda verilen madenlerden hangisi Türkiye'nin hem ihraç hem de ithal ettiği ürünlerden biri değildir?",
+    "siklar": ["Otomotiv", "Beyaz eşya", "Doğal gaz", "Gıda", "Tekstil"],
+    "dogru": 2,
+    "ders": "COĞRAFYA",
+    "zorluk": "KOLAY",
+    "deneme": "1",
+    "cozum": "Türkiye otomotiv, gıda ve tekstil gibi ürünleri hem ihraç hem ithal ederken, doğal gazda neredeyse tamamen dışa bağımlıdır ve ihraç etmez. [cite: 947, 949]"
+  },
+  {
+    "soru": "Mahkemelerde yapılan yargılamanın yöntemini düzenleyen kamu hukuku alt dalı hangisidir?",
+    "siklar": ["İdare hukuku", "Devletler genel hukuku", "Ceza hukuku", "Anayasa hukuku", "Usul hukuku"],
+    "dogru": 4,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ORTA",
+    "deneme": "1",
+    "cozum": "Mahkemelerin nasıl işleyeceğini, davanın nasıl açılacağını belirleyen hukuk dalı Usul Hukuku'dur. [cite: 985, 990]"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi 1982 Anayasası'nın değiştirilemez ilkelerinden biri değildir?",
+    "siklar": ["Resmî dilin Türkçe olması", "Başkentin Ankara olması", "Millî marşın İstiklal Marşı olması", "Bayrağın şekli ve boyutları", "Ülkesiyle milletiyle bölünmez bütünlük"],
+    "dogru": 3,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ZOR",
+    "deneme": "1",
+    "cozum": "Anayasanın 3. maddesinde bayrağın 'şekli kanunda belirtilen, beyaz ay yıldızlı al bayrak' olduğu yazar ve değiştirilemez. Ancak 'boyutları' kanunla düzenlenir, anayasal bir değişmezlik kuralı değildir. [cite: 1024, 1028]"
+  },
+  {
+    "soru": "1982 Anayasası'na göre, milletvekili adayı olabilmek için görevden çekilmek zorunda olmayan kimdir?",
+    "siklar": ["TSK mensupları", "Hâkim ve savcılar", "Kamuda çalışan işçiler", "Kamuda çalışan memurlar", "Öğretim elemanları"],
+    "dogru": 2,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ORTA",
+    "deneme": "1",
+    "cozum": "Anayasaya göre kamuda işçi statüsünde çalışanların adaylık için istifa etme zorunluluğu yoktur. [cite: 994, 997]"
+  },
+  {
+    "soru": "657 sayılı Devlet Memurları Kanunu'na göre, hangisi disiplin cezalarından biri değildir?",
+    "siklar": ["Uyarı", "Kınama", "Açığa alınma", "Kademe ilerlemesinin durdurulması", "Aylıktan kesim"],
+    "dogru": 2,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "KOLAY",
+    "deneme": "1",
+    "cozum": "Açığa alınma bir disiplin cezası değil, soruşturma süresince uygulanan bir ihtiyati tedbirdir. [cite: 1041, 1043]"
+  },
+  {
+    "soru": "Aşağıdaki devletlerden hangileri 2025 yılında Avrupa Birliği Dönem başkanlığı görevini yürüteceklerdir?",
+    "siklar": ["Polonya- Danimarka", "Bulgaristan-Romanya", "Almanya-İspanya", "İtalya- Hırvatistan", "Portekiz- Fransa"],
+    "dogru": 0,
+    "ders": "GÜNCEL BİLGİLER",
+    "zorluk": "GÜNCEL",
+    "deneme": "1",
+    "cozum": "2025'in ilk yarısında Polonya, ikinci yarısında ise Danimarka AB dönem başkanlığını üstlenecektir. [cite: 1053, 1054]"
+  },{
+    "soru": "Aşağıdaki gelişmelerden hangisi II. Meşrutiyet Dönemi'nde (1908-1918) meydana gelen gelişmelerden biri değildir?",
+    "siklar": ["Trablusgarp Savaşı", "93 Harbi", "Balkan Savaşları", "I. Dünya Savaşı", "31 Mart Ayaklanması"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "1",
+    "cozum": "93 Harbi (1877-1878 Osmanlı-Rus Savaşı), II. Abdülhamit'in saltanatının ilk yıllarında, I. Meşrutiyet döneminde yaşanmıştır[cite: 690, 5554]."
+  },
+  {
+    "soru": "Osmanlı Devleti'nde; I. Öşür, II. İspenç, III. Çift Resmi vergilerinden hangileri Müslüman çiftçilerden alınan vergiler arasında yer alır?",
+    "siklar": ["Yalnız I", "I ve II", "I ve III", "II ve III", "I, II ve III"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "1",
+    "cozum": "Öşür ve Çift Resmi Müslümanlardan alınırken; İspenç vergisi gayrimüslim çiftçilerden alınan bir toprak vergisidir[cite: 717, 720, 721, 723, 5555]."
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi Duraklama Dönemi yeniliklerinin ortak özelliklerinden biri değildir?",
+    "siklar": [
+      "Yenilikler, yapan kişinin ömrü ile sınırlı kalmıştır.",
+      "Yeniliklerde halkın düşünceleri dikkate alınmamıştır.",
+      "Yenilikler baskı ve şiddete dayalı yapılmıştır.",
+      "Özellikle askerî alanda batının üstünlüğü kabul edilmiştir.",
+      "Yenilikler daha çok askerî ve mali alanda yoğunlaşmıştır."
+    ],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "1",
+    "cozum": "Batı'nın üstünlüğü Duraklama Dönemi'nde (17. yy) değil, Lale Devri ile başlayan Gerileme Dönemi'nde (18. yy) kabul edilmiştir[cite: 734, 738, 5555]."
+  },
+  {
+    "soru": "II. Mahmut Dönemi'ndeki; I. Muhtarlıkların kurulması, II. Posta teşkilatının kurulması, III. Yeniçeri Ocağının kaldırılması gelişmelerinden hangilerinin merkezî otoriteyi artırmak amacı taşıdığı söylenebilir?",
+    "siklar": ["Yalnız I", "Yalnız II", "I ve II", "I ve III", "I, II ve III"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "KOLAY",
+    "deneme": "1",
+    "cozum": "Muhtarlıklar ve posta teşkilatı ile merkezin taşra üzerindeki denetimi artmış, Yeniçeri Ocağı'nın kaldırılmasıyla padişahın önündeki en büyük engel kalkmıştır[cite: 707, 5555]."
+  },
+  {
+    "soru": "I. Dünya Savaşı'nda Kanal Cephesi'nin devamı olarak görülen ve Mustafa Kemal'in Yıldırım Orduları Grup Komutanı sıfatıyla yer aldığı cephe aşağıdakilerden hangisidir?",
+    "siklar": ["Hicaz-Yemen", "Çanakkale", "Kafkas", "Suriye-Filistin", "Irak"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "1",
+    "cozum": "Mustafa Kemal, I. Dünya Savaşı'nda en son Suriye-Filistin Cephesi'nde görev almış ve İngiliz ilerleyişini Halep önlerinde durdurmuştur[cite: 707, 5555]."
+  },
+  {
+    "soru": "Direnme cemiyetleri içinde 'bölgesel' nitelikte olmayıp, basın-yayın yoluyla ulusal çapta faaliyet gösteren cemiyet hangisidir?",
+    "siklar": ["Kilikyalılar Cemiyeti", "Kars İslam Şurası", "Trakya Paşaeli Cemiyeti", "Doğu Anadolu Müdafaayıhukuk Cemiyeti", "Millî Kongre Cemiyeti"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "1",
+    "cozum": "Milli Kongre Cemiyeti, diğerlerinden farklı olarak bölgesel kurtuluşu değil, ulusal bağımsızlığı basın ve yayın yoluyla savunmuştur[cite: 707, 5555]."
+  },
+  {
+    "soru": "İtilaf Devletleri'nin İstanbul'u resmen işgal edip Mebusan Meclisi'ni dağıtmalarına neden olan gelişme aşağıdakilerden hangisidir?",
+    "siklar": ["TBMM'nin açılması", "Kongrelerin yapılması", "Sakarya Savaşı", "Londra Konferansı", "Misakımilli kararlarının kabulü"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "1",
+    "cozum": "Son Osmanlı Mebusan Meclisi'nde 'Misakımilli' kararlarının alınması üzerine İtilaf Devletleri 16 Mart 1920'de İstanbul'u resmen işgal etmiştir[cite: 746, 751, 5555]."
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi, Teşvik-i Sanayi Kanunu'ndan (1927) istenilen sonuçların alınamamasının nedenleri arasında gösterilemez?",
+    "siklar": [
+      "Kamu İktisadi Teşekküllerinin (KİT) zarar etmesi",
+      "Yabancı sermaye baskısının devam etmesi",
+      "1929 Dünya Ekonomik Buhranı",
+      "Özel sermayenin yetersiz olması",
+      "Gümrük tarifelerinin düşük olması"
+    ],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ZOR",
+    "deneme": "1",
+    "cozum": "KİT'ler, Teşvik-i Sanayi Kanunu başarısız olduktan sonra Devletçilik ilkesi doğrultusunda kurulmuştur, başarısızlığın nedeni olamazlar[cite: 752, 5555]."
+  },
+  {
+    "soru": "I. Türkçeyi bir bilim dili hâline getirmek, II. Okuryazar oranını artırmak, III. Dilimizdeki yabancı kelimelerin Türkçe karşılığını bulmak. Yukarıdakilerden hangileri Türk Dil Kurumunun amaçlarındandır?",
+    "siklar": ["Yalnız I", "Yalnız III", "I ve II", "I ve III", "I, II ve III"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "1",
+    "cozum": "TDK dilin özleşmesi ve bilim dili olmasıyla ilgilenir. Okuryazar oranını artırmak eğitim ve harf inkılabıyla ilgili genel bir amaçtır[cite: 752, 5555]."
+  },
+  {
+    "soru": "Atatürkçü Düşünce Sistemi'nde yer alan unsurlardan biri olmayan aşağıdakilerden hangisidir?",
+    "siklar": ["Ulusal egemenlik", "Dogmatik düşünce", "Gerçekçilik", "Batılılaşma", "Çağdaşlaşma"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "zorluk": "KOLAY",
+    "deneme": "1",
+    "cozum": "Atatürkçü düşünce akla ve bilime dayalıdır; değişmez, katı kuralları olan dogmatik düşünceye karşıdır[cite: 752, 5555]."
+  },
+  {
+    "soru": "1934'te imzalanan Balkan Antantı'nda revizyonist (yayılmacı) politikadan yana olduğu için yer almayan devlet hangisidir?",
+    "siklar": ["Türkiye", "Yunanistan", "Bulgaristan", "Yugoslavya", "Romanya"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "1",
+    "cozum": "Bulgaristan, II. Balkan Savaşı'nda kaybettiği toprakları geri almak istediği için Balkan Antantı'na katılmamıştır[cite: 789, 791, 5555]."
+  },
+  {
+    "soru": "Aşağıdaki ovalardan hangisi Kuzey Anadolu Fay Hattı (KAF) üzerinde yer almamaktadır?",
+    "siklar": ["Merzifon Ovası", "Elbistan Ovası", "Suluova", "Niksar Ovası", "Taşova"],
+    "dogru": 1,
+    "ders": "COĞRAFYA",
+    "zorluk": "DETAY",
+    "deneme": "1",
+    "cozum": "Elbistan Ovası, Doğu Anadolu Fay Hattı (DAF) üzerindedir. Diğerleri KAF kuşağında yer alır[cite: 864, 868, 5556]."
+  },
+  {
+    "soru": "Hangi ülke çifti, en kısa yolu kullanarak ticaret yapmak için Türkiye topraklarını (transit ticaret) kullanmalıdır?",
+    "siklar": ["Gürcistan-Ermenistan", "Irak-İran", "Suriye-Irak", "İran-Yunanistan", "Yunanistan-Bulgaristan"],
+    "dogru": 3,
+    "ders": "COĞRAFYA",
+    "zorluk": "ORTA",
+    "deneme": "1",
+    "cozum": "İran'ın Avrupa'ya (Yunanistan'a) yapacağı karayolu taşımacılığında en kısa ve stratejik güzergâh Türkiye'dir[cite: 881, 886, 5556]."
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi bir 'geçici kır yerleşmesi' örneğidir?",
+    "siklar": ["Çiftlik", "Oba", "Mezra", "Mahalle", "Divan"],
+    "dogru": 1,
+    "ders": "COĞRAFYA",
+    "zorluk": "ORTA",
+    "deneme": "1",
+    "cozum": "Oba ve yaylalar hayvancılık faaliyetleri için kullanılan geçici yerleşmelerdir. Mezra ve Divan gibi yerler kalıcıya daha yakındır[cite: 908, 925, 5556]."
+  },
+  {
+    "soru": "UNESCO Dünya Mirası listesine Türkiye'den diğerlerine göre daha sonra eklenen alan hangisidir?",
+    "siklar": ["Safranbolu Şehri", "Nemrut Dağı", "Gordion Höyüğü", "Selimiye Camii", "Çatalhöyük"],
+    "dogru": 2,
+    "ders": "COĞRAFYA",
+    "zorluk": "GÜNCEL",
+    "deneme": "1",
+    "cozum": "Ankara'da bulunan Gordion Höyüğü, 2023 yılında listeye dahil edilerek en son eklenenlerden biri olmuştur[cite: 953, 5556]."
+  },
+  {
+    "soru": "Türk Hukuk Sistemi'ne göre aşağıdakilerden hangisi 'maddi müeyyide' (yaptırım) kapsamında yer almaz?",
+    "siklar": ["Ceza", "Ayıplama", "Tazminat", "Cebr-i İcra", "Hükümsüzlük"],
+    "dogru": 1,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "KOLAY",
+    "deneme": "1",
+    "cozum": "Ayıplama, dışlama gibi durumlar toplumsal kuralların 'manevi' yaptırımıdır. Hukuk kurallarının yaptırımları maddi ve devlet gücüledir[cite: 953, 5556]."
+  },
+  {
+    "soru": "Cumhurbaşkanı'nı görev ve yetkilerinden dolayı yargılama yetkisine sahip mahkeme hangisidir?",
+    "siklar": ["Yargıtay", "Danıştay", "Hâkimler ve Savcılar Kurulu", "Sayıştay", "Anayasa Mahkemesi"],
+    "dogru": 4,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ORTA",
+    "deneme": "1",
+    "cozum": "Anayasa Mahkemesi, 'Yüce Divan' sıfatıyla Cumhurbaşkanı ve üst düzey yetkilileri yargılar[cite: 1011, 1023, 5556]."
+  },
+  {
+    "soru": "Mahkemelerin kuruluşu ve işleyişi aşağıdaki normlardan hangisi ile düzenlenir?",
+    "siklar": ["Anayasa", "Yönetmelik", "İç tüzük", "Kanun", "Genelge"],
+    "dogru": 3,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ORTA",
+    "deneme": "1",
+    "cozum": "Anayasa m. 142'ye göre: 'Mahkemelerin kuruluşu, görev ve yetkileri, işleyişi ve yargılama usulleri kanunla düzenlenir.' [cite: 1031, 1035, 5556]"
+  },
+  {
+    "soru": "2019 yılında ilk kez Hazar Ekonomik Forumu'na ev sahipliği yapan ülke hangisidir?",
+    "siklar": ["Azerbaycan", "Kazakistan", "Ermenistan", "Özbekistan", "Türkmenistan"],
+    "dogru": 4,
+    "ders": "GÜNCEL BİLGİLER",
+    "zorluk": "ORTA",
+    "deneme": "1",
+    "cozum": "Birinci Hazar Ekonomik Forumu 2019 yılında Türkmenistan'ın Avaza kentinde yapılmıştır[cite: 1066, 1071, 5556]."
+  },
+  {
+    "soru": "Birleşmiş Milletler'in (UN) temel organları arasında yer almayan aşağıdakilerden hangisidir?",
+    "siklar": ["Genel Sekreterlik", "Genel Kurul", "Adalet Divanı", "Vesayet Konseyi", "Parlamenterler Asamblesi"],
+    "dogru": 4,
+    "ders": "GÜNCEL BİLGİLER",
+    "zorluk": "ZOR",
+    "deneme": "1",
+    "cozum": "Parlamenterler Asamblesi, Avrupa Konseyi'nin bir organıdır. BM'nin temel organları: Genel Kurul, Güvenlik Konseyi, ECOSOC, Vesayet Konseyi, Adalet Divanı ve Sekreterlik'tir[cite: 1045, 5556]."
   }
   
 ]
+
 
 
 
