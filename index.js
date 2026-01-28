@@ -6,12 +6,14 @@ const path = require("path");
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+const io = new Server(server, {
+    cors: { origin: "*", methods: ["GET", "POST"] },
+    transports: ["polling", "websocket"] // Hem polling hem websocket desteği
+});
 
 app.use(express.static(path.join(__dirname, "public")));
 
-// --- 🟢 UPTIME ROBOT İÇİN PING NOKTASI (EKLEME) ---
-// Bu olmazsa UptimeRobot sitenin açık olduğunu anlayamaz.
+// --- 🟢 UPTIME ROBOT İÇİN PING NOKTASI ---
 app.get("/ping", (req, res) => {
     res.send("Pong! Sunucu Aktif ve Çalışıyor.");
 });
@@ -28,22 +30,19 @@ function sorulariYukle() {
         try {
             let rawData = fs.readFileSync(QUESTIONS_FILE, 'utf8');
 
-            // 1. ADIM: Olası format hatalarını otomatik düzelt (][ birleştirme)
+            // 1. ADIM: Olası format hatalarını otomatik düzelt
             rawData = rawData.replace(/\]\s*\[/g, ",");
             rawData = rawData.replace(/\]\s*,\s*\[/g, ",");
             
-            // Eğer dosya başında birden fazla [[ varsa düzelt
             while (rawData.startsWith("[[")) { rawData = rawData.replace("[[", "["); }
             while (rawData.endsWith("]]")) { rawData = rawData.replace("]]", "]"); }
 
             try {
-                // Temizlenmiş veriyi parse et
                 tumSorular = JSON.parse(rawData);
                 console.log(`✅ BAŞARILI: Toplam ${tumSorular.length} soru hafızaya alındı.`);
             } catch (parseErr) {
-                // Eğer hala hata varsa, daha agresif bir temizlik yap (Regex ile çek)
                 console.log("⚠️ Basit okuma başarısız, derinlemesine temizlik yapılıyor...");
-                const matches = rawData.match(/\{.*?\}/gs); // Sadece süslü parantez bloklarını bul
+                const matches = rawData.match(/\{.*?\}/gs); 
                 if (matches) {
                     const fixedJson = "[" + matches.join(",") + "]";
                     tumSorular = JSON.parse(fixedJson);
@@ -55,10 +54,9 @@ function sorulariYukle() {
 
         } catch (err) {
             console.error("❌ KRİTİK HATA: questions.json dosyası çok bozuk!");
-            // Oyunun çökmemesi için acil durum sorusu ekle
             tumSorular = [{
-                "soru": "SİSTEM HATASI: Soru dosyası (questions.json) okunamadı. Lütfen yöneticiye bildir.",
-                "ders": "SİSTEM", "siklar": ["Tamam", "Anlaşıldı"], "dogru": 0, "zorluk": "KOLAY"
+                "soru": "SİSTEM HATASI: Soru dosyası okunamadı.",
+                "ders": "SİSTEM", "siklar": ["Tamam"], "dogru": 0, "zorluk": "KOLAY"
             }];
         }
     } else {
@@ -87,7 +85,7 @@ io.on("connection", (socket) => {
         rooms[roomCode] = {
             code: roomCode, players: {}, gameStarted: false,
             currentQuestionIndex: 0, questions: [],
-            settings: { duration: 15, count: 10, subject: 'HEPSI', difficulty: 'HEPSI' },
+            settings: { duration: 15, count: 10, subject: 'HEPSI', difficulty: 'HEPSI', sikSayisi: 'HEPSI' },
             timerId: null, answerCount: 0, questionStartTime: 0
         };
         socket.join(roomCode);
@@ -112,29 +110,34 @@ io.on("connection", (socket) => {
         let pool = [...tumSorular];
         
         console.log(`🔍 Filtreleme Başlıyor... Toplam Soru: ${pool.length}`);
-        console.log(`👉 İstenen Ders: ${settings.subject}`);
 
-        // 2. Filtreleme Mantığı (GÜÇLENDİRİLMİŞ)
+        // 2. Ders Filtresi
         if (settings.subject && settings.subject !== "HEPSI") {
             const arananDers = settings.subject.trim().toLocaleUpperCase('tr');
-            
             pool = pool.filter(q => {
-                // Soru verisinde ders etiketi yoksa 'GENEL' varsay
                 const soruDersi = (q.ders || "GENEL").trim().toLocaleUpperCase('tr');
                 return soruDersi === arananDers;
             });
         }
         
-        // 3. Zorluk Seviyesi Filtresi (Varsa)
+        // 3. Zorluk Seviyesi Filtresi
         if (settings.difficulty && settings.difficulty !== "HEPSI") {
              pool = pool.filter(q => (q.zorluk || "ORTA") === settings.difficulty);
         }
+
+        // ==================================================
+        // 4. ADIM: ŞIK SAYISI FİLTRESİ (YENİ EKLENEN KISIM)
+        // ==================================================
+        if (settings.sikSayisi && settings.sikSayisi !== "HEPSI") {
+            // "4" seçildiyse sadece 4 şıklıları, "5" seçildiyse 5 şıklıları getir
+            pool = pool.filter(q => q.siklar && q.siklar.length == settings.sikSayisi);
+        }
+        // ==================================================
         
-        // 4. Eğer filtre sonucu 0 soru kaldıysa, mecburen tümünü yükle (Çökmemesi için)
+        // 5. Eğer filtre sonucu 0 soru kaldıysa tümünü yükle
         if(pool.length === 0) {
             console.log("⚠️ Filtreye uygun soru bulunamadı! Tüm sorular yükleniyor...");
             pool = [...tumSorular]; 
-            // Eğer dosya tamamen boşsa veya bozuksa ve yukarıdaki tamir çalışmadıysa
             if(pool.length === 0) {
                  pool = [{ "soru": "HİÇ SORU YOK! Lütfen questions.json dosyasını kontrol et.", "ders": "HATA", "siklar": ["Tamam"], "dogru": 0 }];
             }
@@ -142,14 +145,12 @@ io.on("connection", (socket) => {
             console.log(`✅ Filtreleme Başarılı! ${pool.length} soru bulundu.`);
         }
 
-        // 5. Soruları Karıştır ve Odaya Yükle
+        // 6. Soruları Karıştır ve Odaya Yükle
         room.questions = pool.sort(() => Math.random() - 0.5)
                              .slice(0, settings.count || 20)
                              .map(q => shuffleOptions(q));
         
-        // Ayarları odaya kaydet
         room.settings = settings;
-                             
         room.gameStarted = true;
         room.currentQuestionIndex = 0;
         sendQuestionToRoom(roomCode);
@@ -181,7 +182,6 @@ io.on("connection", (socket) => {
             socket.emit("answerResult", { correct: isCorrect, correctIndex: currentQ.dogru, selectedIndex: answerIndex, isBlank: answerIndex === -1, points: earnedPoints });
             io.to(roomCode).emit("updatePlayerList", Object.values(room.players));
 
-            // HERKES CEVAP VERDİĞİNDE 1.5 SANİYE BEKLE (Doğru cevabı görsünler)
             if (room.answerCount >= Object.keys(room.players).length) {
                 clearTimeout(room.timerId); 
                 room.currentQuestionIndex++; 
