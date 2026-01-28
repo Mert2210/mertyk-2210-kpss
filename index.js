@@ -10,6 +10,13 @@ const io = new Server(server);
 
 app.use(express.static(path.join(__dirname, "public")));
 
+// --- 🟢 UPTIME ROBOT İÇİN PING NOKTASI (YENİ EKLENDİ) ---
+// Render'ın uyku moduna girmesini engellemek için bu adres kullanılır.
+app.get("/ping", (req, res) => {
+    res.send("Pong! Sunucu Aktif ve Çalışıyor. (MYK 2210)");
+});
+// -------------------------------------------------------
+
 // --- 🛠️ GÜVENLİ VE AKILLI SORU YÜKLEME SİSTEMİ ---
 let tumSorular = [];
 const QUESTIONS_FILE = path.join(__dirname, 'questions.json');
