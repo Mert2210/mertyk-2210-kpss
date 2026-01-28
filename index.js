@@ -85,7 +85,7 @@ io.on("connection", (socket) => {
         rooms[roomCode] = {
             code: roomCode, players: {}, gameStarted: false,
             currentQuestionIndex: 0, questions: [],
-            settings: { duration: 15, count: 10, subject: 'HEPSI', difficulty: 'HEPSI', sikSayisi: 'HEPSI' },
+            settings: { duration: 15, count: 10, subject: 'HEPSI', difficulty: 'HEPSI', sikSayisi: 'HEPSI', deneme: 'HEPSI' },
             timerId: null, answerCount: 0, questionStartTime: 0
         };
         socket.join(roomCode);
@@ -106,46 +106,62 @@ io.on("connection", (socket) => {
         const room = rooms[roomCode];
         if (!room) return;
         
-        // 1. Tüm soruları havuza al
         let pool = [...tumSorular];
         
-        console.log(`🔍 Filtreleme Başlıyor... Toplam Soru: ${pool.length}`);
+        console.log(`🔍 Filtreleme Başlıyor... Toplam Havuz: ${pool.length}`);
 
-        // 2. Ders Filtresi
-        if (settings.subject && settings.subject !== "HEPSI") {
-            const arananDers = settings.subject.trim().toLocaleUpperCase('tr');
-            pool = pool.filter(q => {
-                const soruDersi = (q.ders || "GENEL").trim().toLocaleUpperCase('tr');
-                return soruDersi === arananDers;
+        // ==================================================
+        // ADIM 1: DENEME SEÇİMİ VE ÖZEL SIRALAMA MANTIĞI
+        // ==================================================
+        if (settings.deneme && settings.deneme !== "HEPSI") {
+            // Sadece seçilen denemenin sorularını al
+            pool = pool.filter(q => q.deneme == settings.deneme);
+            
+            // DERS SIRALAMA SİSTEMİ (Tarih -> Coğrafya -> Vatandaşlık -> Güncel)
+            const dersSirasi = { 
+                "TARİH": 1, 
+                "COĞRAFYA": 2, 
+                "VATANDAŞLIK": 3, 
+                "GÜNCEL BİLGİLER": 4 
+            };
+            
+            pool.sort((a, b) => {
+                const siraA = dersSirasi[(a.ders || "").trim().toLocaleUpperCase('tr')] || 99;
+                const siraB = dersSirasi[(b.ders || "").trim().toLocaleUpperCase('tr')] || 99;
+                return siraA - siraB;
             });
-        }
-        
-        // 3. Zorluk Seviyesi Filtresi
-        if (settings.difficulty && settings.difficulty !== "HEPSI") {
-             pool = pool.filter(q => (q.zorluk || "ORTA") === settings.difficulty);
-        }
 
-        // 4. ŞIK SAYISI FİLTRESİ
-        if (settings.sikSayisi && settings.sikSayisi !== "HEPSI") {
-            pool = pool.filter(q => q.siklar && q.siklar.length == settings.sikSayisi);
-        }
-        
-        // 5. Eğer filtre sonucu 0 soru kaldıysa tümünü yükle
-        if(pool.length === 0) {
-            console.log("⚠️ Filtreye uygun soru bulunamadı! Tüm sorular yükleniyor...");
-            pool = [...tumSorular]; 
-            if(pool.length === 0) {
-                 pool = [{ "soru": "HİÇ SORU YOK! Lütfen questions.json dosyasını kontrol et.", "ders": "HATA", "siklar": ["Tamam"], "dogru": 0 }];
-            }
+            // Deneme modunda havuzdan karıştırmadan (sıralı) alıyoruz
+            room.questions = pool.slice(0, settings.count || 60).map(q => shuffleOptions(q));
         } else {
-            console.log(`✅ Filtreleme Başarılı! ${pool.length} soru bulundu.`);
+            // --- GENEL HAVUZ MODU (ESKİ MANTIK KORUNDU) ---
+            if (settings.subject && settings.subject !== "HEPSI") {
+                const arananDers = settings.subject.trim().toLocaleUpperCase('tr');
+                pool = pool.filter(q => {
+                    const soruDersi = (q.ders || "GENEL").trim().toLocaleUpperCase('tr');
+                    return soruDersi === arananDers;
+                });
+            }
+            
+            if (settings.difficulty && settings.difficulty !== "HEPSI") {
+                 pool = pool.filter(q => (q.zorluk || "ORTA") === settings.difficulty);
+            }
+
+            if (settings.sikSayisi && settings.sikSayisi !== "HEPSI") {
+                pool = pool.filter(q => q.siklar && q.siklar.length == settings.sikSayisi);
+            }
+
+            // Genel havuzda soruları her zaman karıştır
+            room.questions = pool.sort(() => Math.random() - 0.5)
+                                 .slice(0, settings.count || 20)
+                                 .map(q => shuffleOptions(q));
+        }
+        
+        // Eğer filtre sonucu hiç soru kalmadıysa hata vermemesi için uyarı sorusu ekle
+        if(room.questions.length === 0) {
+             room.questions = [{ "soru": "Kriterlere uygun soru bulunamadı!", "ders": "HATA", "siklar": ["Anlaşıldı"], "dogru": 0 }];
         }
 
-        // 6. Soruları Karıştır ve Odaya Yükle
-        room.questions = pool.sort(() => Math.random() - 0.5)
-                             .slice(0, settings.count || 20)
-                             .map(q => shuffleOptions(q));
-        
         room.settings = settings;
         room.gameStarted = true;
         room.currentQuestionIndex = 0;
@@ -219,8 +235,8 @@ function sendQuestionToRoom(roomCode) {
         ders: q.ders, 
         resim: q.resim, 
         zorluk: q.zorluk,
-        deneme: q.deneme, // Deneme bilgisini ekledik
-        cozum: q.cozum,   // <--- İŞTE EKLENEN KISIM (3. ADIM)
+        deneme: q.deneme,
+        cozum: q.cozum,   
         index: room.currentQuestionIndex + 1, 
         total: Math.min(room.settings.count, room.questions.length), 
         duration: room.settings.duration
