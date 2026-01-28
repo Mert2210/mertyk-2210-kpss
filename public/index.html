@@ -74,15 +74,38 @@
         <p>Oda Kodu:</p>
         <h1 id="display-room-code" style="color:#e67e22; margin:0;">----</h1>
         <div id="lobby-list" style="margin-top:10px;"></div>
+        
         <div id="host-controls" style="display:none; margin-top:20px; background: #f9f9f9; padding: 15px; border-radius: 10px;">
             <div style="display:flex; gap:5px;">
                 <div style="flex:1;"><span style="font-size:0.7rem; color:#666;">Soru</span><input type="number" id="set-count" value="10"></div>
                 <div style="flex:1;"><span style="font-size:0.7rem; color:#666;">Süre</span><input type="number" id="set-duration" value="15"></div>
             </div>
-            <select id="set-subject"><option value="HEPSI">Tüm Dersler</option><option value="TARİH">Tarih</option><option value="COĞRAFYA">Coğrafya</option><option value="VATANDAŞLIK">Vatandaşlık</option><option value="GÜNCEL BİLGİLER">Güncel Bilgiler</option></select>
-            <select id="set-difficulty"><option value="HEPSI">Tüm Seviyeler</option><option value="KOLAY">Kolay</option><option value="ORTA">Orta</option><option value="ZOR">Zor</option><option value="DETAY">Detay</option><option value="GÜNCEL">Güncel</option></select>
+            
+            <select id="set-subject">
+                <option value="HEPSI">Tüm Dersler</option>
+                <option value="TARİH">Tarih</option>
+                <option value="COĞRAFYA">Coğrafya</option>
+                <option value="VATANDAŞLIK">Vatandaşlık</option>
+                <option value="GÜNCEL BİLGİLER">Güncel Bilgiler</option>
+            </select>
+            
+            <select id="set-difficulty">
+                <option value="HEPSI">Tüm Seviyeler</option>
+                <option value="KOLAY">Kolay</option>
+                <option value="ORTA">Orta</option>
+                <option value="ZOR">Zor</option>
+                <option value="DETAY">Detay</option>
+                <option value="GÜNCEL">Güncel</option>
+            </select>
+
+            <select id="set-sik-sayisi" style="border: 2px solid #2980b9; color: #2980b9; font-weight:bold;">
+                <option value="HEPSI">Karışık (Tüm Sorular)</option>
+                <option value="4">Sadece 4 Şıklı (Başlangıç)</option>
+                <option value="5">Sadece 5 Şıklı (Yeni Denemeler)</option>
+            </select>
             <button onclick="startGame()" class="orange" style="margin-top:10px;">OYUNU BAŞLAT</button>
         </div>
+        
         <p id="wait-msg" style="display:none; color:#777;">Kurucu ayarları yapıyor...</p>
     </div>
 
@@ -110,12 +133,9 @@
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
-    // --- GÜVENLİK DUVARI AŞMA AYARI ---
-    // Websocket engellenirse, HTTP Polling'e düşmesini zorunlu kılıyoruz.
     const socket = io({
         transports: ["polling", "websocket"]
     });
-    // ----------------------------------
 
     let myCode = ""; let myButtons = []; let currentQuestionData = null; let currentListType = "";
     let isSoundEnabled = localStorage.getItem('kpss_sound') !== 'false';
@@ -127,7 +147,6 @@
         const savedName = localStorage.getItem('saved_username'); 
         if(savedName) document.getElementById('username').value = savedName; 
         updateSoundUI();
-        // PWA Kaydı (Mobil uygulama özelliği için)
         if ('serviceWorker' in navigator) {
              navigator.serviceWorker.register('/sw.js').catch(err => console.log(err));
         }
@@ -163,7 +182,24 @@
 
     function createRoom() { const n = getUsername(); if(n) { localStorage.setItem('saved_username', n); socket.emit('createRoom', n); } }
     function joinRoom() { const n = getUsername(); const c = document.getElementById('room-code-input').value; if(n && c) { localStorage.setItem('saved_username', n); myCode = c; socket.emit('joinRoom', {username:n, roomCode:c}); } }
-    function startGame() { const s = { count: document.getElementById('set-count').value, duration: document.getElementById('set-duration').value, subject: document.getElementById('set-subject').value, difficulty: document.getElementById('set-difficulty').value }; socket.emit('startGame', { roomCode: myCode, settings: s }); }
+    
+    // ===========================================
+    // 2. ADIM: JAVASCRIPT GÜNCELLEMESİ
+    // ===========================================
+    function startGame() { 
+        const s = { 
+            count: document.getElementById('set-count').value, 
+            duration: document.getElementById('set-duration').value, 
+            subject: document.getElementById('set-subject').value, 
+            difficulty: document.getElementById('set-difficulty').value,
+            
+            // BURASI EKLENDİ
+            sikSayisi: document.getElementById('set-sik-sayisi').value 
+        }; 
+        socket.emit('startGame', { roomCode: myCode, settings: s }); 
+    }
+    // ===========================================
+
     function submitBlank() { socket.emit('submitAnswer', {roomCode: myCode, answerIndex: -1}); disableAllButtons(); }
     function disableAllButtons() { myButtons.forEach(x => x.disabled = true); document.getElementById('btn-blank').disabled = true; }
 
