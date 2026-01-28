@@ -8615,8 +8615,6 @@
       "36°K - 45°D ve 36°K - 26°D",
       "42°K - 26°D ve 36°K - 45°D",
       "36°K - 42°K ve 26°D - 45°D"
-  },
-  {
     "dogru": 0,
     "ders": "COĞRAFYA",
     "zorluk": "ORTA",
@@ -8640,8 +8638,6 @@
       "Tarım arazilerinin eğime dik sürülmesi",
       "Ormanların tahrip edilmesi",
       "Anız yakılması"
-  },
-  {
     "dogru": 2,
     "ders": "COĞRAFYA",
     "zorluk": "KOLAY",
@@ -8697,8 +8693,6 @@
       "Ulaşım maliyetinin düşük olması",
       "Hammaddenin ülke içinden karşılanabilmesi",
       "Ürünlere olan talebin yüksek olması"
-  },
-  {
     "dogru": 2,
     "ders": "COĞRAFYA",
     "zorluk": "ORTA",
@@ -8731,8 +8725,6 @@
       "Turizm tanıtımını yaygınlaştırmak",
       "Yenilikçilik ve markalaşmaya önem vermek",
       "Enerji üretiminde doğal gazın payını artırmak"
-  },
-  {
     "dogru": 4,
     "ders": "COĞRAFYA",
     "zorluk": "ORTA",
@@ -8747,8 +8739,6 @@
       "Sümela Manastırı - Trabzon",
       "İshakpaşa Sarayı - Ağrı",
       "Selimiye Camii - Edirne"
-  },
-  {
     "dogru": 1,
     "ders": "COĞRAFYA",
     "zorluk": "KOLAY",
@@ -8812,6 +8802,7 @@
   
   
 ]
+
 
 
 
