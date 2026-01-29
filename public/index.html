@@ -20,11 +20,9 @@
         button.purple { background: #8e44ad; }
         button.outline { background: transparent; border: 2px solid #1e3c72; color: #1e3c72; }
         .screen { display: none; } .active { display: block; }
-        
         .list-item { background: #fff; border-bottom: 2px solid #f0f2f5; padding: 12px; text-align: left; font-size: 0.85rem; }
         .list-item .q-text { font-weight: bold; color: #333; display: block; margin-bottom: 5px; }
         .list-item .ans-text { color: #27ae60; font-weight: bold; font-size: 0.8rem; background: #e8f5e9; padding: 4px; border-radius: 4px; display: inline-block; }
-        
         .player-card { background: #f0f2f5; padding: 8px; margin: 4px 0; border-radius: 5px; display: flex; justify-content: space-between; font-size: 0.9rem; font-weight: bold; }
         .opt-btn { background: #eef2f3; color: #333; text-align: left; border: 2px solid #ddd; width: 100%; margin-bottom: 8px;}
         .correct { background: #2ecc71 !important; color: white; border-color: #27ae60; }
@@ -49,7 +47,7 @@
         .text-red { color: #c0392b; }
         .review-solution { background: #fff3cd; color: #856404; padding: 10px; border-radius: 5px; font-size: 0.85rem; margin-top: 10px; border-left: 4px solid #ffeeba; }
 
-        /* BRANŞ ANALİZİ STİLİ (YENİ) */
+        /* BRANŞ ANALİZİ STİLİ */
         .analysis-card { background: #f8f9fa; border-radius: 8px; padding: 10px; margin-top: 10px; text-align: left; border: 1px solid #e9ecef; }
         .analysis-item { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px dashed #ddd; font-size: 0.85rem; }
         .analysis-item:last-child { border-bottom: none; }
@@ -67,18 +65,20 @@
         
         <input type="text" id="username" placeholder="Adınız">
         <button onclick="startTrial()" class="purple">📝 HIZLI DENEME ÇÖZ</button>
-        <button onclick="startMistakesTrial()" class="red">🧠 HATALARIMDAN SINAV YAP</button>
-        
         <button onclick="createRoom()">🏠 ODA KUR (ARKADAŞINLA)</button>
+        
         <div style="display:flex; gap:5px;">
             <input type="number" id="room-code-input" placeholder="Oda Kodu">
             <button onclick="joinRoom()" class="green" style="width:60%;">KATIL</button>
         </div>
+
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px; margin-top:5px;">
             <button onclick="showLocalList('fav')" class="outline" style="font-size:0.75rem;">⭐ Yıldızlılar</button>
             <button onclick="showLocalList('wrong')" class="outline" style="font-size:0.75rem;">❌ Yanlışlar</button>
-            <button onclick="showLocalList('blank')" class="outline" style="font-size:0.75rem; grid-column: span 2;">⚪ Boşlarım</button>
+            <button onclick="showLocalList('blank')" class="outline" style="font-size:0.75rem;">⚪ Boşlarım</button>
+            <button onclick="startMistakesTrial()" class="red" style="font-size:0.75rem;">🧠 Hata Sınavı</button>
         </div>
+
         <button id="btn-sound-toggle" onclick="toggleSound()" class="outline">🔊 SES: AÇIK</button>
     </div>
 
@@ -153,9 +153,7 @@
 
     <div id="screen-result" class="screen">
         <h2>🏆 SONUÇLAR</h2>
-        <div id="result-board"></div>
-        
-        <div class="analysis-card" id="branch-analysis"></div>
+        <div id="result-board"></div> <div class="analysis-card" id="branch-analysis"></div>
         <br>
         
         <button onclick="showReviewScreen()" class="orange" style="margin-bottom: 10px;">🔍 SORULARI İNCELE & ÇÖZÜMLER</button>
@@ -240,9 +238,7 @@
             sikSayisi: document.getElementById('set-sik-sayisi').value 
         };
         
-        // Hata modu aktifse, yanlış soruları sunucuya bildir (Sunucu bu metinlere sahip soruları filtreler)
         if(isMistakeMode) {
-            settings.count = getLocalData('kpss_wrongs').length;
             settings.isMistakeMode = true;
             settings.mistakeList = getLocalData('kpss_wrongs').map(q => q.soru);
         }
@@ -278,24 +274,17 @@
         document.getElementById('host-controls').style.display = 'block'; 
         if(isTrialMode) {
             document.getElementById('wait-msg').style.display = 'none';
-            // Hata modunda ayarları kilitle
+            // DİKKAT: Artık Hata Modunda filtreleri KİLİTLEMİYORUZ (Disabled kaldırıldı)
+            document.getElementById('set-subject').disabled = false;
+            document.getElementById('set-difficulty').disabled = false;
             if(isMistakeMode) {
-                document.getElementById('set-subject').disabled = true;
-                document.getElementById('set-difficulty').disabled = true;
-                document.getElementById('set-count').value = getLocalData('kpss_wrongs').length;
-                document.getElementById('set-count').disabled = true;
-            } else {
-                // Hata modu değilse kilitleri aç
-                document.getElementById('set-subject').disabled = false;
-                document.getElementById('set-difficulty').disabled = false;
-                document.getElementById('set-count').disabled = false;
+                document.getElementById('set-count').value = Math.min(10, getLocalData('kpss_wrongs').length);
             }
         }
     });
     
     socket.on('roomJoined', c => { myCode=c; document.getElementById('display-room-code').innerText=c; showScreen('screen-lobby'); document.getElementById('wait-msg').style.display='block'; });
     
-    // SKOR LİSTESİNİ GÜNCELLE
     socket.on('updatePlayerList', p => { 
         const h = p.map(x => `<div class="player-card"><span>${x.username}</span><span>${x.score}</span></div>`).join(''); 
         document.getElementById('lobby-list').innerHTML = isTrialMode ? "" : h; 
@@ -330,13 +319,11 @@
             saveToHistory(currentQuestionData, 'kpss_favs'); 
             gameHistory.push({ question: currentQuestionData, userAnswerIndex: d.selectedIndex, isCorrect: d.correct, correctAnswerIndex: d.correctIndex });
             
-            // Eğer Hata Modundaysak ve DOĞRU bildiysek, soruyu yanlışlar listesinden sil
             if(isMistakeMode && d.correct) {
                 let wrongs = getLocalData('kpss_wrongs');
                 wrongs = wrongs.filter(q => q.soru !== currentQuestionData.soru);
                 saveLocalData('kpss_wrongs', wrongs);
             } 
-            // Normal modda yanlış yaparsak listeye ekle
             else if (!d.correct && !isMistakeMode && d.selectedIndex !== -1) {
                 saveToHistory(currentQuestionData, 'kpss_wrongs');
             }
@@ -355,7 +342,7 @@
         p.sort((a,b) => b.score - a.score);
         document.getElementById('result-board').innerHTML = p.map((x,i) => `<div class="player-card"><span>${i+1}. ${x.username}</span><span>${x.score} P</span></div>`).join('');
         
-        // YENİ: BRANŞ BAŞARI ANALİZİ HESAPLAMA
+        // YENİ: BRANŞ ANALİZİ HESAPLAMA
         const stats = {};
         gameHistory.forEach(item => {
             const ders = item.question.ders || "Genel";
@@ -365,7 +352,7 @@
         });
 
         let analysisHTML = "<h4 style='margin:0 0 10px 0; color:#1e3c72;'>📊 Branş Başarı Analizi</h4>";
-        if(Object.keys(stats).length === 0) analysisHTML += "<p>Analiz için veri yok.</p>";
+        if(Object.keys(stats).length === 0) analysisHTML += "<p>Veri yok.</p>";
         else {
             for(let ders in stats) {
                 const yuzde = Math.round((stats[ders].dogru / stats[ders].toplam) * 100);
