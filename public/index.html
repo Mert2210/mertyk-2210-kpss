@@ -33,7 +33,6 @@
         #star-btn { font-size: 1.5rem; background: none; border: none; color: #ccc; width: auto; cursor: pointer; padding: 0; line-height: 1; }
         #star-btn.starred { color: #f1c40f; text-shadow: 0 0 5px rgba(241,196,15,0.5); }
         
-        /* CANLI SKOR ALANI STİLİ */
         #live-scores-container { margin-top: 15px; border-top: 2px solid #eee; padding-top: 10px; }
         #btn-sound-toggle { font-size: 0.8rem; padding: 5px; margin-top: 10px; }
         
@@ -46,15 +45,13 @@
         .text-red { color: #c0392b; }
         .review-solution { background: #fff3cd; color: #856404; padding: 10px; border-radius: 5px; font-size: 0.85rem; margin-top: 10px; border-left: 4px solid #ffeeba; }
 
-        /* BRANŞ ANALİZİ STİLİ */
         .analysis-card { background: #f8f9fa; border-radius: 8px; padding: 10px; margin-top: 10px; text-align: left; border: 1px solid #e9ecef; }
         .analysis-item { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px dashed #ddd; font-size: 0.85rem; }
         .analysis-item:last-child { border-bottom: none; }
 
-        /* --- YENİ EKLENENLER: NAVİGASYON --- */
         #question-navigator {
             display: grid;
-            grid-template-columns: repeat(5, 1fr); /* Yan yana 5 kutu */
+            grid-template-columns: repeat(5, 1fr); 
             gap: 5px;
             margin-top: 15px;
             padding: 10px;
@@ -74,7 +71,6 @@
         .nav-box.correct { background: #27ae60; color: white; border-color: #2ecc71; }
         .nav-box.wrong { background: #c0392b; color: white; border-color: #e74c3c; }
 
-        /* KİBAR BUTONLAR */
         #nav-buttons { display: flex; justify-content: space-between; margin-top: 15px; gap: 15px; }
         .nav-btn {
             flex: 1; padding: 12px; border: none; border-radius: 12px;
@@ -92,6 +88,27 @@
         
         #report-btn { font-size: 1.2rem; background: none; border: none; cursor: pointer; padding: 0; line-height: 1; margin-left: 5px; }
         #report-btn:hover { transform: scale(1.1); }
+
+        /* CHECKBOX LİSTESİ TASARIMI */
+        .checkbox-container {
+            max-height: 150px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 8px;
+            background: #fff;
+            text-align: left;
+            margin-bottom: 8px;
+        }
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            padding: 4px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .checkbox-item:last-child { border-bottom: none; }
+        .checkbox-item input { width: auto; margin-right: 8px; margin-bottom: 0; cursor: pointer; }
+        .checkbox-item label { cursor: pointer; font-size: 0.9rem; flex: 1; color: #333; }
     </style>
 </head>
 <body>
@@ -159,17 +176,19 @@
                 </div>
             </div>
             
-            <select id="set-deneme" style="border: 2px solid #e67e22; color: #e67e22; font-weight:bold;">
-                <option value="HEPSI">Karışık (Tüm Havuzdan)</option>
-            </select>
+            <span style="font-size:0.7rem; color:#666; display:block; margin-bottom:2px;">Çözülecek Denemeleri Seçin:</span>
+            <div id="deneme-list-container" class="checkbox-container">
+                <div style="padding:10px; color:#999;">Yükleniyor...</div>
+            </div>
             
-            <select id="set-subject">
-                <option value="HEPSI">Tüm Dersler</option>
-                <option value="TARİH">Tarih</option>
-                <option value="COĞRAFYA">Coğrafya</option>
-                <option value="VATANDAŞLIK">Vatandaşlık</option>
-                <option value="GÜNCEL BİLGİLER">Güncel Bilgiler</option>
-            </select>
+            <span style="font-size:0.7rem; color:#666; display:block; margin-bottom:2px;">Dersleri Seçin:</span>
+            <div id="subject-list-container" class="checkbox-container">
+                <div class="checkbox-item"><input type="checkbox" id="sub-all" onchange="toggleAllSubjects(this)"><label for="sub-all"><strong>TÜMÜNÜ SEÇ / KALDIR</strong></label></div>
+                <div class="checkbox-item"><input type="checkbox" name="subject-secim" value="TARİH" id="sub-1"><label for="sub-1">Tarih</label></div>
+                <div class="checkbox-item"><input type="checkbox" name="subject-secim" value="COĞRAFYA" id="sub-2"><label for="sub-2">Coğrafya</label></div>
+                <div class="checkbox-item"><input type="checkbox" name="subject-secim" value="VATANDAŞLIK" id="sub-3"><label for="sub-3">Vatandaşlık</label></div>
+                <div class="checkbox-item"><input type="checkbox" name="subject-secim" value="GÜNCEL BİLGİLER" id="sub-4"><label for="sub-4">Güncel Bilgiler</label></div>
+            </div>
             
             <select id="set-difficulty">
                 <option value="HEPSI">Tüm Seviyeler</option>
@@ -284,7 +303,7 @@
 
     function toggleStar() { if (!currentQuestionData) return; const btn = document.getElementById('star-btn'); let favs = getLocalData('kpss_favs'); const idx = favs.findIndex(q => q.soru === currentQuestionData.soru); if (idx > -1) { favs.splice(idx, 1); btn.classList.remove('starred'); } else { favs.push({...currentQuestionData}); btn.classList.add('starred'); } saveLocalData('kpss_favs', favs); }
 
-    // YENİ: Hata Bildirme Fonksiyonu
+    // Hata Bildirme Fonksiyonu
     function reportCurrentQuestion() {
         if (!currentQuestionData) return;
         const reason = prompt("Bu sorudaki hata nedir? (Örn: Cevap anahtarı yanlış, Yazım hatası vb.)");
@@ -341,12 +360,22 @@
     }
 
     function startGame() { 
+        // Seçili Denemeleri Topla
+        const secilenDenemeler = [];
+        document.querySelectorAll('input[name="deneme-secim"]:checked').forEach(cb => secilenDenemeler.push(cb.value));
+        const denemeValue = secilenDenemeler.length > 0 ? secilenDenemeler : "HEPSI";
+
+        // Seçili Dersleri Topla
+        const secilenDersler = [];
+        document.querySelectorAll('input[name="subject-secim"]:checked').forEach(cb => secilenDersler.push(cb.value));
+        const dersValue = secilenDersler.length > 0 ? secilenDersler : "HEPSI";
+
         let settings = { 
-            deneme: document.getElementById('set-deneme').value, 
+            deneme: denemeValue, 
             count: document.getElementById('set-count').value, 
             timerMode: document.getElementById('set-timer-mode').value, 
             duration: document.getElementById('set-duration').value, 
-            subject: document.getElementById('set-subject').value, 
+            subject: dersValue, 
             difficulty: document.getElementById('set-difficulty').value,
             sikSayisi: document.getElementById('set-sik-sayisi').value 
         };
@@ -481,24 +510,39 @@
         document.getElementById('host-controls').style.display = 'block'; 
         if(isTrialMode) {
             document.getElementById('wait-msg').style.display = 'none';
-            document.getElementById('set-deneme').disabled = isMistakeMode;
             if(isMistakeMode) {
                 document.getElementById('set-count').value = Math.min(10, getLocalData('kpss_wrongs').length);
             }
         }
     });
     
-    // YENİ: Otomatik Deneme Listesi
     socket.on('updateDenemeList', (liste) => {
-        const select = document.getElementById('set-deneme');
-        select.innerHTML = '<option value="HEPSI">Karışık (Tüm Havuzdan)</option>';
-        liste.forEach(denemeAdi => {
-            const opt = document.createElement('option');
-            opt.value = denemeAdi;
-            opt.innerText = denemeAdi; 
-            select.appendChild(opt);
+        const container = document.getElementById('deneme-list-container');
+        container.innerHTML = '';
+        
+        const allDiv = document.createElement('div');
+        allDiv.className = 'checkbox-item';
+        allDiv.style.backgroundColor = '#f0f8ff';
+        allDiv.innerHTML = `<input type="checkbox" id="cb-all" onchange="toggleAllDeneme(this)"><label for="cb-all"><strong>TÜMÜNÜ SEÇ / KALDIR</strong></label>`;
+        container.appendChild(allDiv);
+
+        liste.forEach((denemeAdi, index) => {
+            const div = document.createElement('div');
+            div.className = 'checkbox-item';
+            div.innerHTML = `<input type="checkbox" name="deneme-secim" id="cb-${index}" value="${denemeAdi}"><label for="cb-${index}">${denemeAdi}</label>`;
+            container.appendChild(div);
         });
     });
+
+    function toggleAllDeneme(source) {
+        const checkboxes = document.querySelectorAll('input[name="deneme-secim"]');
+        checkboxes.forEach(cb => cb.checked = source.checked);
+    }
+
+    function toggleAllSubjects(source) {
+        const checkboxes = document.querySelectorAll('input[name="subject-secim"]');
+        checkboxes.forEach(cb => cb.checked = source.checked);
+    }
     
     socket.on('roomJoined', c => { myCode=c; document.getElementById('display-room-code').innerText=c; showScreen('screen-lobby'); document.getElementById('wait-msg').style.display='block'; });
     
@@ -509,7 +553,8 @@
     });
 
     socket.on('newQuestion', d => {
-        if (d.index === 1) { 
+        // DÜZELTME: Sadece liste henüz oluşmamışsa sıfırla. Navigasyonla 1'e dönünce silinmez.
+        if (!questionStatusList || questionStatusList.length !== d.total) { 
             gameHistory = []; 
             questionStatusList = new Array(d.total).fill(null); 
         } 
@@ -609,6 +654,7 @@
 
     socket.on('gameOver', p => {
         renderResultScreen(p);
+        questionStatusList = []; // Oyun bitince listeyi temizle
     });
     socket.on('errorMsg', m => alert(m));
 </script>
