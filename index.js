@@ -22,7 +22,7 @@ app.get("/ping", (req, res) => {
 // --- 🛠️ SORU YÜKLEME VE TAMİR ---
 let tumSorular = [];
 const QUESTIONS_FILE = path.join(__dirname, 'questions.json');
-const REPORTS_FILE = path.join(__dirname, 'reports.json'); // YENİ: Rapor dosyası
+const REPORTS_FILE = path.join(__dirname, 'reports.json'); // Rapor dosyası
 
 function sorulariYukle() {
     console.log("📂 Soru dosyası okunuyor...");
@@ -122,14 +122,33 @@ function shuffleOptions(q) {
     return { ...q, siklar: shuffledSiklar, dogru: newCorrectIndex };
 }
 
+// --- YARDIMCI FONKSİYON: DERS FİLTRELEME ---
+function filterBySubject(pool, selectedSubjects) {
+    // Eğer "HEPSI" seçiliyse veya boşsa filtreleme yapma
+    if (!selectedSubjects || selectedSubjects === "HEPSI" || selectedSubjects.includes("HEPSI")) return pool;
+    
+    // Seçilen dersleri diziye çevir ve büyük harf yap
+    const targets = (Array.isArray(selectedSubjects) ? selectedSubjects : [selectedSubjects])
+                    .map(s => s.trim().toLocaleUpperCase('tr'));
+    
+    // Havuzdaki soruların dersi bu listede var mı?
+    return pool.filter(q => {
+        const qDers = (q.ders || "GENEL").trim().toLocaleUpperCase('tr');
+        return targets.includes(qDers);
+    });
+}
+
 io.on("connection", (socket) => {
     
-    // --- OTOMATİK DENEME LİSTESİ GÖNDERME ---
+    // --- OTOMATİK DENEME ve DERS LİSTESİ GÖNDERME ---
     const mevcutDenemeler = [...new Set(tumSorular.map(q => q.deneme).filter(x => x))].sort();
+    const mevcutDersler = [...new Set(tumSorular.map(q => (q.ders || "").trim().toLocaleUpperCase('tr')).filter(x => x))].sort();
+    
     socket.emit('updateDenemeList', mevcutDenemeler);
+    socket.emit('updateSubjectList', mevcutDersler); // YENİ: Dersleri de gönderiyoruz
     // ----------------------------------------
 
-    // --- YENİ: HATALI SORU BİLDİRİMİ ALMA ---
+    // --- HATALI SORU BİLDİRİMİ ALMA ---
     socket.on('reportQuestion', (data) => {
         console.log("⚠️ Bir soru rapor edildi:", data.soru);
         
@@ -152,7 +171,6 @@ io.on("connection", (socket) => {
             if(err) console.error("Rapor kaydedilemedi.");
         });
     });
-    // ----------------------------------------
 
     // ODA YÖNETİMİ
     socket.on("createRoom", (username) => {
@@ -184,12 +202,13 @@ io.on("connection", (socket) => {
         let pool = [...tumSorular];
         console.log(`Oyun Başlıyor: Oda ${roomCode}, Mod: ${settings.isMistakeMode ? "HATA" : "NORMAL"}, Deneme: ${settings.deneme}`);
 
+        // 1. HATA ANALİZ MODU
         if (settings.isMistakeMode && settings.mistakeList && settings.mistakeList.length > 0) {
             pool = pool.filter(q => settings.mistakeList.includes(q.soru));
-            if (settings.subject && settings.subject !== "HEPSI") {
-                const aranan = settings.subject.trim().toLocaleUpperCase('tr');
-                pool = pool.filter(q => (q.ders || "GENEL").trim().toLocaleUpperCase('tr') === aranan);
-            }
+            
+            // DERS FİLTRESİ (Çoklu Seçim)
+            pool = filterBySubject(pool, settings.subject);
+
             if (settings.difficulty && settings.difficulty !== "HEPSI") {
                  pool = pool.filter(q => (q.zorluk || "ORTA") === settings.difficulty);
             }
@@ -200,12 +219,17 @@ io.on("connection", (socket) => {
                                  .slice(0, settings.count || 20)
                                  .map(q => shuffleOptions(q));
         }
+
+        // 2. DENEME MODU (Çoklu Seçim)
         else if (settings.deneme && settings.deneme !== "HEPSI") {
-            pool = pool.filter(q => q.deneme == settings.deneme);
-            if (settings.subject && settings.subject !== "HEPSI") {
-                const aranan = settings.subject.trim().toLocaleUpperCase('tr');
-                pool = pool.filter(q => (q.ders || "").trim().toLocaleUpperCase('tr') === aranan);
-            }
+            const secilenDenemeler = Array.isArray(settings.deneme) ? settings.deneme : [settings.deneme];
+            // Deneme Filtresi
+            pool = pool.filter(q => secilenDenemeler.includes(q.deneme));
+
+            // DERS FİLTRESİ (Çoklu Seçim)
+            pool = filterBySubject(pool, settings.subject);
+            
+            // Sıralama (Tarih -> Coğrafya...)
             const dersSirasi = { "TARİH": 1, "COĞRAFYA": 2, "VATANDAŞLIK": 3, "GÜNCEL BİLGİLER": 4 };
             pool.sort((a, b) => {
                 const dersA = (a.ders || "").trim().toLocaleUpperCase('tr');
@@ -214,14 +238,17 @@ io.on("connection", (socket) => {
                 const siraB = dersSirasi[dersB] || 99;
                 return siraA - siraB;
             });
+
+            // Soru Limiti
             const limit = parseInt(settings.count) || pool.length;
             room.questions = pool.slice(0, limit).map(q => shuffleOptions(q));
         }
+
+        // 3. GENEL MOD
         else {
-            if (settings.subject && settings.subject !== "HEPSI") {
-                const aranan = settings.subject.trim().toLocaleUpperCase('tr');
-                pool = pool.filter(q => (q.ders || "GENEL").trim().toLocaleUpperCase('tr') === aranan);
-            }
+            // DERS FİLTRESİ (Çoklu Seçim)
+            pool = filterBySubject(pool, settings.subject);
+
             if (settings.difficulty && settings.difficulty !== "HEPSI") {
                  pool = pool.filter(q => (q.zorluk || "ORTA") === settings.difficulty);
             }
@@ -233,10 +260,12 @@ io.on("connection", (socket) => {
                                  .map(q => shuffleOptions(q));
         }
         
+        // Boş Kontrolü
         if(room.questions.length === 0) {
              room.questions = [{ "soru": "Seçilen kriterlere uygun soru bulunamadı!", "ders": "UYARI", "siklar": ["Tamam"], "dogru": 0 }];
         }
 
+        // --- SÜRE AYARLARI ---
         room.settings = settings;
         room.timerMode = settings.timerMode || 'question';
         
@@ -256,6 +285,7 @@ io.on("connection", (socket) => {
         sendQuestionToRoom(roomCode);
     });
 
+    // CEVAP İŞLEME
     socket.on("submitAnswer", ({ roomCode, answerIndex }) => {
         const room = rooms[roomCode];
         if (!room || !room.gameStarted) return;
@@ -293,6 +323,7 @@ io.on("connection", (socket) => {
         }
     });
 
+    // SORU ATLAMA / NAVİGASYON
     socket.on("jumpToQuestion", ({ roomCode, index }) => {
         const room = rooms[roomCode];
         if (!room) return;
@@ -303,6 +334,7 @@ io.on("connection", (socket) => {
         sendQuestionToRoom(roomCode);
     });
     
+    // YENİ SORU KAYDETME
     socket.on("addNewQuestion", (q) => { 
         tumSorular.push(q);
         fs.writeFile(QUESTIONS_FILE, JSON.stringify(tumSorular, null, 2), (err) => {
@@ -310,6 +342,7 @@ io.on("connection", (socket) => {
         });
     });
     
+    // BAĞLANTI KOPMASI
     socket.on("disconnect", () => {
         for (const code in rooms) {
             if (rooms[code].players[socket.id]) {
