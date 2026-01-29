@@ -20,9 +20,11 @@
         button.purple { background: #8e44ad; }
         button.outline { background: transparent; border: 2px solid #1e3c72; color: #1e3c72; }
         .screen { display: none; } .active { display: block; }
+        
         .list-item { background: #fff; border-bottom: 2px solid #f0f2f5; padding: 12px; text-align: left; font-size: 0.85rem; }
         .list-item .q-text { font-weight: bold; color: #333; display: block; margin-bottom: 5px; }
         .list-item .ans-text { color: #27ae60; font-weight: bold; font-size: 0.8rem; background: #e8f5e9; padding: 4px; border-radius: 4px; display: inline-block; }
+        
         .player-card { background: #f0f2f5; padding: 8px; margin: 4px 0; border-radius: 5px; display: flex; justify-content: space-between; font-size: 0.9rem; font-weight: bold; }
         .opt-btn { background: #eef2f3; color: #333; text-align: left; border: 2px solid #ddd; width: 100%; margin-bottom: 8px;}
         .correct { background: #2ecc71 !important; color: white; border-color: #27ae60; }
@@ -37,6 +39,7 @@
         #live-scores-container { margin-top: 15px; border-top: 2px solid #eee; padding-top: 10px; }
         
         #btn-sound-toggle { font-size: 0.8rem; padding: 5px; margin-top: 10px; }
+        
         .review-card { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-bottom: 15px; text-align: left; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .review-q { font-weight: bold; margin-bottom: 10px; color: #1e3c72; }
         .review-row { display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 5px; }
@@ -45,6 +48,11 @@
         .text-green { color: #27ae60; }
         .text-red { color: #c0392b; }
         .review-solution { background: #fff3cd; color: #856404; padding: 10px; border-radius: 5px; font-size: 0.85rem; margin-top: 10px; border-left: 4px solid #ffeeba; }
+
+        /* BRANŞ ANALİZİ STİLİ (YENİ) */
+        .analysis-card { background: #f8f9fa; border-radius: 8px; padding: 10px; margin-top: 10px; text-align: left; border: 1px solid #e9ecef; }
+        .analysis-item { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px dashed #ddd; font-size: 0.85rem; }
+        .analysis-item:last-child { border-bottom: none; }
     </style>
 </head>
 <body>
@@ -59,6 +67,8 @@
         
         <input type="text" id="username" placeholder="Adınız">
         <button onclick="startTrial()" class="purple">📝 HIZLI DENEME ÇÖZ</button>
+        <button onclick="startMistakesTrial()" class="red">🧠 HATALARIMDAN SINAV YAP</button>
+        
         <button onclick="createRoom()">🏠 ODA KUR (ARKADAŞINLA)</button>
         <div style="display:flex; gap:5px;">
             <input type="number" id="room-code-input" placeholder="Oda Kodu">
@@ -90,6 +100,7 @@
                 <div style="flex:1;"><span style="font-size:0.7rem; color:#666;">Soru Sayısı</span><input type="number" id="set-count" value="10"></div>
                 <div style="flex:1;"><span style="font-size:0.7rem; color:#666;">Süre (Saniye)</span><input type="number" id="set-duration" value="20"></div>
             </div>
+            
             <select id="set-subject">
                 <option value="HEPSI">Tüm Dersler</option>
                 <option value="TARİH">Tarih</option>
@@ -97,17 +108,20 @@
                 <option value="VATANDAŞLIK">Vatandaşlık</option>
                 <option value="GÜNCEL BİLGİLER">Güncel Bilgiler</option>
             </select>
+            
             <select id="set-difficulty">
                 <option value="HEPSI">Tüm Seviyeler</option>
                 <option value="KOLAY">Kolay</option>
                 <option value="ORTA">Orta</option>
                 <option value="ZOR">Zor</option>
             </select>
+
             <select id="set-sik-sayisi" style="border: 2px solid #2980b9; color: #2980b9; font-weight:bold;">
                 <option value="HEPSI">Karışık (Tüm Sorular)</option>
                 <option value="4">Başlangıç Soruları (4 Şıklı)</option>
                 <option value="5">Yeni Nesil Sorular (5 Şıklı)</option>
             </select>
+
             <button onclick="startGame()" class="orange" style="margin-top:10px;">SINAVI BAŞLAT</button>
         </div>
         <p id="wait-msg" style="display:none; color:#777;">Kurucu ayarları yapıyor...</p>
@@ -139,7 +153,11 @@
 
     <div id="screen-result" class="screen">
         <h2>🏆 SONUÇLAR</h2>
-        <div id="result-board"></div><br>
+        <div id="result-board"></div>
+        
+        <div class="analysis-card" id="branch-analysis"></div>
+        <br>
+        
         <button onclick="showReviewScreen()" class="orange" style="margin-bottom: 10px;">🔍 SORULARI İNCELE & ÇÖZÜMLER</button>
         <button onclick="location.reload()" class="outline">ANA MENÜYE DÖN</button>
     </div>
@@ -156,7 +174,7 @@
     const socket = io({ transports: ["polling", "websocket"] });
     let myCode = "", myButtons = [], currentQuestionData = null, currentListType = "";
     let isSoundEnabled = localStorage.getItem('kpss_sound') !== 'false';
-    let isTrialMode = false, gameHistory = [];
+    let isTrialMode = false, isMistakeMode = false, gameHistory = [];
 
     function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
     function getUsername() { return document.getElementById('username').value || null; }
@@ -173,6 +191,7 @@
 
     function getLocalData(key) { return JSON.parse(localStorage.getItem(key)) || []; }
     function saveLocalData(key, data) { localStorage.setItem(key, JSON.stringify(data)); }
+    
     function saveToHistory(qData, listKey) {
         let list = getLocalData(listKey);
         const idx = list.findIndex(q => q.soru === qData.soru);
@@ -192,22 +211,43 @@
 
     function clearList() { if(confirm("Silinsin mi?")) { localStorage.removeItem(currentListType==='fav'?'kpss_favs':(currentListType==='wrong'?'kpss_wrongs':'kpss_blanks')); showLocalList(currentListType); } }
 
-    function createRoom() { const n = getUsername(); if(n) { localStorage.setItem('saved_username', n); isTrialMode=false; socket.emit('createRoom', n); } else alert("İsim giriniz!"); }
-    function startTrial() { const n = getUsername(); if(n) { localStorage.setItem('saved_username', n); isTrialMode=true; socket.emit('createRoom', n); } else alert("İsim giriniz!"); }
+    function createRoom() { const n = getUsername(); if(n) { localStorage.setItem('saved_username', n); isTrialMode=false; isMistakeMode=false; socket.emit('createRoom', n); } else alert("İsim giriniz!"); }
+    
+    // HIZLI DENEME
+    function startTrial() { const n = getUsername(); if(n) { localStorage.setItem('saved_username', n); isTrialMode=true; isMistakeMode=false; socket.emit('createRoom', n); } else alert("İsim giriniz!"); }
+    
+    // YENİ: HATALARDAN SINAV YAP
+    function startMistakesTrial() {
+        const n = getUsername();
+        const wrongs = getLocalData('kpss_wrongs');
+        if(!n) return alert("İsim giriniz!");
+        if(wrongs.length < 3) return alert("Hatalardan sınav yapmak için en az 3 yanlış sorunuz olmalı!");
+        localStorage.setItem('saved_username', n);
+        isTrialMode = true;
+        isMistakeMode = true;
+        socket.emit('createRoom', n);
+    }
+
     function joinRoom() { const n = getUsername(), c = document.getElementById('room-code-input').value; if(n && c) { localStorage.setItem('saved_username', n); isTrialMode=false; myCode = c; socket.emit('joinRoom', {username:n, roomCode:c}); } }
     
     function startGame() { 
-        socket.emit('startGame', { 
-            roomCode: myCode, 
-            settings: { 
-                deneme: 'HEPSI', 
-                count: document.getElementById('set-count').value, 
-                duration: document.getElementById('set-duration').value, 
-                subject: document.getElementById('set-subject').value, 
-                difficulty: document.getElementById('set-difficulty').value,
-                sikSayisi: document.getElementById('set-sik-sayisi').value 
-            } 
-        }); 
+        let settings = { 
+            deneme: 'HEPSI', 
+            count: document.getElementById('set-count').value, 
+            duration: document.getElementById('set-duration').value, 
+            subject: document.getElementById('set-subject').value, 
+            difficulty: document.getElementById('set-difficulty').value,
+            sikSayisi: document.getElementById('set-sik-sayisi').value 
+        };
+        
+        // Hata modu aktifse, yanlış soruları sunucuya bildir (Sunucu bu metinlere sahip soruları filtreler)
+        if(isMistakeMode) {
+            settings.count = getLocalData('kpss_wrongs').length;
+            settings.isMistakeMode = true;
+            settings.mistakeList = getLocalData('kpss_wrongs').map(q => q.soru);
+        }
+
+        socket.emit('startGame', { roomCode: myCode, settings: settings }); 
     }
 
     function confirmExit() { if(confirm("Yarışmadan çıkıp ana menüye dönmek istiyor musun?")) { socket.disconnect(); socket.connect(); showScreen('screen-login'); } }
@@ -232,19 +272,34 @@
 
     socket.on('roomCreated', c => { 
         myCode = c; 
-        document.getElementById('display-room-code').innerText = isTrialMode ? "BİREYSEL DENEME" : c; 
-        document.getElementById('room-info-text').innerText = isTrialMode ? "Oturum Modu:" : "Oda Kodu:";
+        document.getElementById('display-room-code').innerText = isTrialMode ? (isMistakeMode ? "HATA ANALİZ" : "BİREYSEL DENEME") : c; 
+        document.getElementById('room-info-text').innerText = isTrialMode ? "Mod:" : "Oda Kodu:";
         showScreen('screen-lobby'); 
         document.getElementById('host-controls').style.display = 'block'; 
-        if(isTrialMode) document.getElementById('wait-msg').style.display = 'none';
+        if(isTrialMode) {
+            document.getElementById('wait-msg').style.display = 'none';
+            // Hata modunda ayarları kilitle
+            if(isMistakeMode) {
+                document.getElementById('set-subject').disabled = true;
+                document.getElementById('set-difficulty').disabled = true;
+                document.getElementById('set-count').value = getLocalData('kpss_wrongs').length;
+                document.getElementById('set-count').disabled = true;
+            } else {
+                // Hata modu değilse kilitleri aç
+                document.getElementById('set-subject').disabled = false;
+                document.getElementById('set-difficulty').disabled = false;
+                document.getElementById('set-count').disabled = false;
+            }
+        }
     });
+    
     socket.on('roomJoined', c => { myCode=c; document.getElementById('display-room-code').innerText=c; showScreen('screen-lobby'); document.getElementById('wait-msg').style.display='block'; });
     
-    // SKORLARI HEM LOBİDE HEM OYUNDA GÜNCELLE
+    // SKOR LİSTESİNİ GÜNCELLE
     socket.on('updatePlayerList', p => { 
         const h = p.map(x => `<div class="player-card"><span>${x.username}</span><span>${x.score}</span></div>`).join(''); 
         document.getElementById('lobby-list').innerHTML = isTrialMode ? "" : h; 
-        document.getElementById('live-scores-list').innerHTML = h; // Oyun içindeki canlı liste
+        document.getElementById('live-scores-list').innerHTML = h; 
     });
 
     socket.on('newQuestion', d => {
@@ -274,9 +329,20 @@
             currentQuestionData.dogru = d.correctIndex;
             saveToHistory(currentQuestionData, 'kpss_favs'); 
             gameHistory.push({ question: currentQuestionData, userAnswerIndex: d.selectedIndex, isCorrect: d.correct, correctAnswerIndex: d.correctIndex });
+            
+            // Eğer Hata Modundaysak ve DOĞRU bildiysek, soruyu yanlışlar listesinden sil
+            if(isMistakeMode && d.correct) {
+                let wrongs = getLocalData('kpss_wrongs');
+                wrongs = wrongs.filter(q => q.soru !== currentQuestionData.soru);
+                saveLocalData('kpss_wrongs', wrongs);
+            } 
+            // Normal modda yanlış yaparsak listeye ekle
+            else if (!d.correct && !isMistakeMode && d.selectedIndex !== -1) {
+                saveToHistory(currentQuestionData, 'kpss_wrongs');
+            }
         }
         if(d.points > 0) { document.getElementById('result-msg').innerText = `+${d.points} Puan!`; playSnd('snd-correct'); }
-        if(d.isBlank) { myButtons[d.correctIndex].classList.add('correct'); }
+        if(d.isBlank) { myButtons[d.correctIndex].classList.add('correct'); saveToHistory(currentQuestionData, 'kpss_blanks'); }
         else {
             const btn = myButtons[d.selectedIndex];
             if(d.correct) { btn.classList.add('correct'); }
@@ -288,6 +354,27 @@
         showScreen('screen-result');
         p.sort((a,b) => b.score - a.score);
         document.getElementById('result-board').innerHTML = p.map((x,i) => `<div class="player-card"><span>${i+1}. ${x.username}</span><span>${x.score} P</span></div>`).join('');
+        
+        // YENİ: BRANŞ BAŞARI ANALİZİ HESAPLAMA
+        const stats = {};
+        gameHistory.forEach(item => {
+            const ders = item.question.ders || "Genel";
+            if(!stats[ders]) stats[ders] = { dogru: 0, toplam: 0 };
+            stats[ders].toplam++;
+            if(item.isCorrect) stats[ders].dogru++;
+        });
+
+        let analysisHTML = "<h4 style='margin:0 0 10px 0; color:#1e3c72;'>📊 Branş Başarı Analizi</h4>";
+        if(Object.keys(stats).length === 0) analysisHTML += "<p>Analiz için veri yok.</p>";
+        else {
+            for(let ders in stats) {
+                const yuzde = Math.round((stats[ders].dogru / stats[ders].toplam) * 100);
+                const color = yuzde >= 70 ? "#27ae60" : (yuzde >= 40 ? "#e67e22" : "#c0392b");
+                analysisHTML += `<div class="analysis-item"><span>${ders}</span><span style="color:${color}; font-weight:bold;">%${yuzde} Başarı (${stats[ders].dogru}/${stats[ders].toplam})</span></div>`;
+            }
+        }
+        document.getElementById('branch-analysis').innerHTML = analysisHTML;
+
         confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
     });
     socket.on('errorMsg', m => alert(m));
