@@ -101,6 +101,11 @@
                 <div style="flex:1;"><span style="font-size:0.7rem; color:#666;">Süre (Saniye)</span><input type="number" id="set-duration" value="20"></div>
             </div>
             
+            <select id="set-deneme" style="border: 2px solid #e67e22; color: #e67e22; font-weight:bold;">
+                <option value="HEPSI">Karışık (Tüm Havuzdan)</option>
+                <option value="Çıkmış Deneme 1">2009 KPSS Çıkmış Sorular</option>
+            </select>
+            
             <select id="set-subject">
                 <option value="HEPSI">Tüm Dersler</option>
                 <option value="TARİH">Tarih</option>
@@ -114,6 +119,7 @@
                 <option value="KOLAY">Kolay</option>
                 <option value="ORTA">Orta</option>
                 <option value="ZOR">Zor</option>
+                <option value="ÇIKMIŞ">🔥 Sadece Çıkmış Sorular</option>
             </select>
 
             <select id="set-sik-sayisi" style="border: 2px solid #2980b9; color: #2980b9; font-weight:bold;">
@@ -214,7 +220,7 @@
     // HIZLI DENEME
     function startTrial() { const n = getUsername(); if(n) { localStorage.setItem('saved_username', n); isTrialMode=true; isMistakeMode=false; socket.emit('createRoom', n); } else alert("İsim giriniz!"); }
     
-    // YENİ: HATALARDAN SINAV YAP
+    // HATALARDAN SINAV YAP
     function startMistakesTrial() {
         const n = getUsername();
         const wrongs = getLocalData('kpss_wrongs');
@@ -230,7 +236,8 @@
     
     function startGame() { 
         let settings = { 
-            deneme: 'HEPSI', 
+            // YENİ: Deneme ayarı dropdown'dan alınıyor
+            deneme: document.getElementById('set-deneme').value, 
             count: document.getElementById('set-count').value, 
             duration: document.getElementById('set-duration').value, 
             subject: document.getElementById('set-subject').value, 
@@ -274,9 +281,12 @@
         document.getElementById('host-controls').style.display = 'block'; 
         if(isTrialMode) {
             document.getElementById('wait-msg').style.display = 'none';
-            // DİKKAT: Artık Hata Modunda filtreleri KİLİTLEMİYORUZ (Disabled kaldırıldı)
             document.getElementById('set-subject').disabled = false;
             document.getElementById('set-difficulty').disabled = false;
+            
+            // YENİ: Hata modundaysa deneme seçimini kapat
+            document.getElementById('set-deneme').disabled = isMistakeMode;
+
             if(isMistakeMode) {
                 document.getElementById('set-count').value = Math.min(10, getLocalData('kpss_wrongs').length);
             }
@@ -301,6 +311,7 @@
         document.getElementById('q-count').innerText = d.index + "/" + d.total;
         document.getElementById('q-text').innerText = d.soru;
         const img = document.getElementById('q-image');
+        // Resim yolu düzeltmesi: /img/ klasöründen çek
         if(d.resim) { img.src = d.resim.startsWith('http') ? d.resim : '/img/' + d.resim; img.style.display = 'block'; } else { img.style.display = 'none'; }
         const area = document.getElementById('opts-area'); area.innerHTML = ""; myButtons = [];
         d.siklar.forEach((s, i) => { 
@@ -342,7 +353,7 @@
         p.sort((a,b) => b.score - a.score);
         document.getElementById('result-board').innerHTML = p.map((x,i) => `<div class="player-card"><span>${i+1}. ${x.username}</span><span>${x.score} P</span></div>`).join('');
         
-        // YENİ: BRANŞ ANALİZİ HESAPLAMA
+        // BRANŞ ANALİZİ HESAPLAMA
         const stats = {};
         gameHistory.forEach(item => {
             const ders = item.question.ders || "Genel";
