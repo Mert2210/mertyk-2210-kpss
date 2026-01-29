@@ -35,7 +35,6 @@
         
         /* CANLI SKOR ALANI STİLİ */
         #live-scores-container { margin-top: 15px; border-top: 2px solid #eee; padding-top: 10px; }
-        
         #btn-sound-toggle { font-size: 0.8rem; padding: 5px; margin-top: 10px; }
         
         .review-card { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-bottom: 15px; text-align: left; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
@@ -51,6 +50,45 @@
         .analysis-card { background: #f8f9fa; border-radius: 8px; padding: 10px; margin-top: 10px; text-align: left; border: 1px solid #e9ecef; }
         .analysis-item { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px dashed #ddd; font-size: 0.85rem; }
         .analysis-item:last-child { border-bottom: none; }
+
+        /* --- YENİ EKLENENLER: NAVİGASYON --- */
+        #question-navigator {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr); /* Yan yana 5 kutu */
+            gap: 5px;
+            margin-top: 15px;
+            padding: 10px;
+            background: #f1f2f6;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        .nav-box {
+            width: 30px; height: 30px;
+            display: flex; justify-content: center; align-items: center;
+            background: #fff; border: 1px solid #ccc; border-radius: 4px;
+            cursor: pointer; font-size: 0.8rem; font-weight: bold; color: #555; transition: 0.2s;
+        }
+        .nav-box:hover { background: #e0e0e0; }
+        .nav-box.active { border: 2px solid #e67e22; transform: scale(1.1); box-shadow: 0 0 5px rgba(230, 126, 34, 0.5); }
+        .nav-box.answered { background: #3498db; color: white; border-color: #2980b9; }
+        .nav-box.correct { background: #27ae60; color: white; border-color: #2ecc71; }
+        .nav-box.wrong { background: #c0392b; color: white; border-color: #e74c3c; }
+
+        /* KİBAR BUTONLAR */
+        #nav-buttons { display: flex; justify-content: space-between; margin-top: 15px; gap: 15px; }
+        .nav-btn {
+            flex: 1; padding: 12px; border: none; border-radius: 12px;
+            font-size: 0.95rem; font-weight: 600; cursor: pointer;
+            transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .nav-btn.prev { background-color: #f8f9fa; color: #7f8c8d; border: 1px solid #eef2f3; }
+        .nav-btn.prev:hover { background-color: #ecf0f1; transform: translateY(-2px); color: #34495e; }
+        .nav-btn.next { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; box-shadow: 0 4px 15px rgba(30, 60, 114, 0.3); }
+        .nav-btn.next:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(30, 60, 114, 0.4); filter: brightness(1.1); }
+
+        .home-btn { background: none; border: none; font-size: 1.3rem; cursor: pointer; transition: 0.2s; padding: 5px; border-radius: 50%; }
+        .home-btn:hover { background-color: rgba(0,0,0,0.05); transform: scale(1.1); }
     </style>
 </head>
 <body>
@@ -96,9 +134,26 @@
         
         <div id="host-controls" style="display:none; margin-top:20px; background: #f9f9f9; padding: 15px; border-radius: 10px;">
             <h3 style="font-size: 1rem; margin-bottom: 10px;">Sınav Ayarları</h3>
-            <div style="display:flex; gap:5px;">
-                <div style="flex:1;"><span style="font-size:0.7rem; color:#666;">Soru Sayısı</span><input type="number" id="set-count" value="10"></div>
-                <div style="flex:1;"><span style="font-size:0.7rem; color:#666;">Süre (Saniye)</span><input type="number" id="set-duration" value="20"></div>
+            
+            <div style="display:flex; gap:5px; align-items: flex-end; margin-bottom: 8px;">
+                <div style="flex:1;">
+                    <span style="font-size:0.7rem; color:#666;">Süre Modu</span>
+                    <select id="set-timer-mode" onchange="toggleTimerInput()" style="font-size:0.8rem; padding:8px;">
+                        <option value="question">Soru Başına (Saniye)</option>
+                        <option value="general">Genel Sınav (Dakika)</option>
+                    </select>
+                </div>
+                <div style="flex:1;">
+                    <span id="label-duration" style="font-size:0.7rem; color:#666;">Süre (Sn)</span>
+                    <input type="number" id="set-duration" value="20" style="padding:8px;">
+                </div>
+            </div>
+
+            <div style="display:flex; gap:5px; align-items: flex-end; margin-bottom: 8px;">
+                <div style="flex:1;">
+                    <span style="font-size:0.7rem; color:#666;">Soru Sayısı</span>
+                    <input type="number" id="set-count" value="10" style="padding:8px;">
+                </div>
             </div>
             
             <select id="set-deneme" style="border: 2px solid #e67e22; color: #e67e22; font-weight:bold;">
@@ -134,9 +189,9 @@
     </div>
 
     <div id="screen-game" class="screen">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;">
             <div style="display: flex; align-items: center; gap: 8px;">
-                <button onclick="confirmExit()" class="outline" style="padding: 4px 8px; font-size: 1.2rem; border: none; cursor: pointer;">🏠</button>
+                <button onclick="finishExamEarly()" class="home-btn" title="Sınavı Bitir">🏁</button>
                 <span id="q-lesson" class="badge">DERS</span>
             </div>
             <div style="display: flex; align-items: center; gap: 5px;">
@@ -144,11 +199,29 @@
                 <span id="q-count" style="font-weight:bold;">1/10</span>
             </div>
         </div>
+        
+        <div id="question-navigator" style="display:none;"></div> 
+
         <img id="q-image" src="">
         <h3 id="q-text" style="font-size:1.1rem; margin:15px 0; text-align: left;">Soru...</h3>
         <div id="opts-area"></div>
-        <button id="btn-blank" onclick="submitBlank()" style="background:#95a5a6; margin-top:10px;">⚪ BOŞ BIRAK</button>
+        
+        <div id="nav-buttons" style="display:none;">
+            <button onclick="navigateQuestion(-1)" class="nav-btn prev">
+                <span>❮</span> Önceki
+            </button>
+            <button onclick="navigateQuestion(1)" class="nav-btn next">
+                Sonraki <span>❯</span>
+            </button>
+        </div>
+
+        <button id="btn-blank" onclick="submitBlank()" style="background:#95a5a6; margin-top:15px; width:100%; border-radius:8px;">⚪ BOŞ BIRAK</button>
+        
         <div id="timer-bar"></div>
+        <div id="general-timer-display" style="display:none; text-align:center; font-size:1.5rem; font-weight:bold; color:#1e3c72; margin-top:10px;">
+            ⏱️ <span id="gen-timer-val">00:00</span>
+        </div>
+
         <div id="result-msg" style="height: 20px; margin-top: 10px; font-weight: bold; color: #e67e22;"></div>
 
         <div id="live-scores-container">
@@ -179,6 +252,10 @@
     let myCode = "", myButtons = [], currentQuestionData = null, currentListType = "";
     let isSoundEnabled = localStorage.getItem('kpss_sound') !== 'false';
     let isTrialMode = false, isMistakeMode = false, gameHistory = [];
+    
+    // YENİ: Navigatör ve Süre Değişkenleri
+    let questionStatusList = []; 
+    let globalTimerInterval = null;
 
     function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
     function getUsername() { return document.getElementById('username').value || null; }
@@ -217,10 +294,8 @@
 
     function createRoom() { const n = getUsername(); if(n) { localStorage.setItem('saved_username', n); isTrialMode=false; isMistakeMode=false; socket.emit('createRoom', n); } else alert("İsim giriniz!"); }
     
-    // HIZLI DENEME
     function startTrial() { const n = getUsername(); if(n) { localStorage.setItem('saved_username', n); isTrialMode=true; isMistakeMode=false; socket.emit('createRoom', n); } else alert("İsim giriniz!"); }
     
-    // HATALARDAN SINAV YAP
     function startMistakesTrial() {
         const n = getUsername();
         const wrongs = getLocalData('kpss_wrongs');
@@ -234,11 +309,26 @@
 
     function joinRoom() { const n = getUsername(), c = document.getElementById('room-code-input').value; if(n && c) { localStorage.setItem('saved_username', n); isTrialMode=false; myCode = c; socket.emit('joinRoom', {username:n, roomCode:c}); } }
     
+    // SÜRE AYARLARI TOGGLE
+    function toggleTimerInput() {
+        const mode = document.getElementById('set-timer-mode').value;
+        const label = document.getElementById('label-duration');
+        const input = document.getElementById('set-duration');
+        
+        if(mode === 'general') {
+            label.innerText = "Toplam Süre (Dakika)";
+            input.value = "30"; 
+        } else {
+            label.innerText = "Soru Başına (Saniye)";
+            input.value = "20"; 
+        }
+    }
+
     function startGame() { 
         let settings = { 
-            // YENİ: Deneme ayarı dropdown'dan alınıyor
             deneme: document.getElementById('set-deneme').value, 
             count: document.getElementById('set-count').value, 
+            timerMode: document.getElementById('set-timer-mode').value, 
             duration: document.getElementById('set-duration').value, 
             subject: document.getElementById('set-subject').value, 
             difficulty: document.getElementById('set-difficulty').value,
@@ -253,7 +343,25 @@
         socket.emit('startGame', { roomCode: myCode, settings: settings }); 
     }
 
-    function confirmExit() { if(confirm("Yarışmadan çıkıp ana menüye dönmek istiyor musun?")) { socket.disconnect(); socket.connect(); showScreen('screen-login'); } }
+    // YENİ: Sınavı Erken Bitirme
+    function finishExamEarly() {
+        if(confirm("Sınavı bitirip sonuç ekranına gitmek istiyor musun?")) {
+            socket.disconnect(); 
+            socket.connect(); 
+            
+            let totalScore = 0;
+            gameHistory.forEach(g => {
+                if(g.earnedPoints) totalScore += g.earnedPoints;
+                else if(g.userAnswerIndex !== -1 && !g.isCorrect) totalScore -= 5;
+            });
+
+            renderResultScreen([{ 
+                username: getUsername() || "Ben", 
+                score: totalScore 
+            }]);
+        }
+    }
+
     function submitBlank() { socket.emit('submitAnswer', {roomCode: myCode, answerIndex: -1}); disableAllButtons(); }
     function disableAllButtons() { myButtons.forEach(x => x.disabled = true); document.getElementById('btn-blank').disabled = true; }
 
@@ -273,6 +381,87 @@
         showScreen('screen-review');
     }
 
+    // YENİ: Ortak Sonuç Ekranı
+    function renderResultScreen(playerList) {
+        showScreen('screen-result');
+        clearInterval(globalTimerInterval); // Sayacı durdur
+
+        playerList.sort((a,b) => b.score - a.score);
+        document.getElementById('result-board').innerHTML = playerList.map((x,i) => 
+            `<div class="player-card"><span>${i+1}. ${x.username}</span><span>${x.score} P</span></div>`
+        ).join('');
+        
+        const stats = {};
+        gameHistory.forEach(item => {
+            const ders = item.question.ders || "Genel";
+            if(!stats[ders]) stats[ders] = { dogru: 0, toplam: 0 };
+            stats[ders].toplam++;
+            if(item.isCorrect) stats[ders].dogru++;
+        });
+
+        let analysisHTML = "<h4 style='margin:0 0 10px 0; color:#1e3c72;'>📊 Branş Başarı Analizi</h4>";
+        if(Object.keys(stats).length === 0) analysisHTML += "<p>Veri yok.</p>";
+        else {
+            for(let ders in stats) {
+                const yuzde = Math.round((stats[ders].dogru / stats[ders].toplam) * 100);
+                const color = yuzde >= 70 ? "#27ae60" : (yuzde >= 40 ? "#e67e22" : "#c0392b");
+                analysisHTML += `<div class="analysis-item"><span>${ders}</span><span style="color:${color}; font-weight:bold;">%${yuzde} Başarı (${stats[ders].dogru}/${stats[ders].toplam})</span></div>`;
+            }
+        }
+        document.getElementById('branch-analysis').innerHTML = analysisHTML;
+        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+    }
+
+    // YENİ: Navigatör Çizme
+    function renderNavigator(total, currentIndex) {
+        const navDiv = document.getElementById('question-navigator');
+        navDiv.innerHTML = "";
+        
+        for(let i=0; i<total; i++) {
+            const box = document.createElement('div');
+            box.className = 'nav-box';
+            box.innerText = i + 1;
+            
+            if(i === currentIndex) box.classList.add('active');
+            
+            if(questionStatusList[i]) {
+                if(questionStatusList[i].result === 'correct') box.classList.add('correct');
+                else if(questionStatusList[i].result === 'wrong') box.classList.add('wrong');
+                else box.classList.add('answered');
+            }
+
+            box.onclick = () => {
+                if(isTrialMode) socket.emit('jumpToQuestion', { roomCode: myCode, index: i });
+            };
+            
+            navDiv.appendChild(box);
+        }
+    }
+
+    // YENİ: İleri Geri Fonksiyonu
+    function navigateQuestion(direction) {
+        if(!currentQuestionData) return;
+        const targetIndex = (currentQuestionData.index - 1) + direction;
+        socket.emit('jumpToQuestion', { roomCode: myCode, index: targetIndex });
+    }
+
+    // YENİ: Genel Geri Sayım
+    function startGlobalCountdown(seconds) {
+        clearInterval(globalTimerInterval);
+        let timeLeft = seconds;
+        function updateDisplay() {
+            let m = Math.floor(timeLeft / 60);
+            let s = timeLeft % 60;
+            document.getElementById('gen-timer-val').innerText = `${m}:${s < 10 ? '0'+s : s}`;
+        }
+        updateDisplay();
+        globalTimerInterval = setInterval(() => {
+            timeLeft--;
+            updateDisplay();
+            if(timeLeft <= 0) clearInterval(globalTimerInterval);
+        }, 1000);
+    }
+
     socket.on('roomCreated', c => { 
         myCode = c; 
         document.getElementById('display-room-code').innerText = isTrialMode ? (isMistakeMode ? "HATA ANALİZ" : "BİREYSEL DENEME") : c; 
@@ -281,12 +470,7 @@
         document.getElementById('host-controls').style.display = 'block'; 
         if(isTrialMode) {
             document.getElementById('wait-msg').style.display = 'none';
-            document.getElementById('set-subject').disabled = false;
-            document.getElementById('set-difficulty').disabled = false;
-            
-            // YENİ: Hata modundaysa deneme seçimini kapat
             document.getElementById('set-deneme').disabled = isMistakeMode;
-
             if(isMistakeMode) {
                 document.getElementById('set-count').value = Math.min(10, getLocalData('kpss_wrongs').length);
             }
@@ -302,33 +486,88 @@
     });
 
     socket.on('newQuestion', d => {
-        if (d.index === 1) gameHistory = []; 
+        if (d.index === 1) { 
+            gameHistory = []; 
+            questionStatusList = new Array(d.total).fill(null); 
+        } 
+        
         showScreen('screen-game');
         document.getElementById('result-msg').innerText = "";
         currentQuestionData = { ...d, dogru: null };
+        
+        // Deneme Modu Kontrolleri
+        if(isTrialMode) {
+            document.getElementById('question-navigator').style.display = 'grid'; 
+            document.getElementById('nav-buttons').style.display = 'flex'; 
+            document.getElementById('live-scores-container').style.display = 'none'; 
+            renderNavigator(d.total, d.index - 1);
+        } else {
+            document.getElementById('question-navigator').style.display = 'none';
+            document.getElementById('nav-buttons').style.display = 'none';
+            document.getElementById('live-scores-container').style.display = 'block';
+        }
+
         document.getElementById('star-btn').classList.toggle('starred', !!getLocalData('kpss_favs').find(q => q.soru === d.soru));
         document.getElementById('q-lesson').innerText = d.ders + (d.zorluk ? ` (${d.zorluk})` : "");
         document.getElementById('q-count').innerText = d.index + "/" + d.total;
         document.getElementById('q-text').innerText = d.soru;
         const img = document.getElementById('q-image');
-        // Resim yolu düzeltmesi: /img/ klasöründen çek
         if(d.resim) { img.src = d.resim.startsWith('http') ? d.resim : '/img/' + d.resim; img.style.display = 'block'; } else { img.style.display = 'none'; }
+        
         const area = document.getElementById('opts-area'); area.innerHTML = ""; myButtons = [];
         d.siklar.forEach((s, i) => { 
             const b = document.createElement('button'); b.className = 'opt-btn'; b.innerText = s; 
-            b.onclick = () => { socket.emit('submitAnswer', {roomCode: myCode, answerIndex: i}); disableAllButtons(); }; 
+            
+            // Eğer cevaplandıysa işaretle
+            const status = questionStatusList[d.index - 1];
+            if(status && i === status.selectedIndex) {
+                if(status.result === 'correct') b.classList.add('correct');
+                else b.classList.add('wrong');
+            }
+            
+            b.onclick = () => { 
+                if(questionStatusList[d.index - 1]) return; 
+                socket.emit('submitAnswer', {roomCode: myCode, answerIndex: i}); disableAllButtons(); 
+            }; 
             area.appendChild(b); myButtons.push(b); 
         });
-        document.getElementById('btn-blank').disabled = false;
-        const bar = document.getElementById('timer-bar'); bar.style.transition = 'none'; bar.style.width = '100%'; 
-        setTimeout(() => { bar.style.transition = `width ${d.duration}s linear`; bar.style.width = '0%'; }, 50);
+        
+        if(questionStatusList[d.index - 1]) disableAllButtons();
+        else document.getElementById('btn-blank').disabled = false;
+
+        // Süre Gösterimi
+        const timerBar = document.getElementById('timer-bar');
+        const genTimer = document.getElementById('general-timer-display');
+
+        if (d.timerMode === 'question') {
+            timerBar.style.display = 'block'; genTimer.style.display = 'none';
+            timerBar.style.transition = 'none'; timerBar.style.width = '100%'; 
+            setTimeout(() => { timerBar.style.transition = `width ${d.duration}s linear`; timerBar.style.width = '0%'; }, 50);
+        } else {
+            timerBar.style.display = 'none'; genTimer.style.display = 'block';
+            if (d.index === 1 && d.remainingTime) startGlobalCountdown(d.remainingTime);
+        }
     });
 
     socket.on('answerResult', d => {
+        if(currentQuestionData) {
+            questionStatusList[currentQuestionData.index - 1] = {
+                selectedIndex: d.selectedIndex,
+                result: d.correct ? 'correct' : (d.selectedIndex === -1 ? 'blank' : 'wrong')
+            };
+            if(isTrialMode) renderNavigator(currentQuestionData.total, currentQuestionData.index - 1);
+        }
+
         if (currentQuestionData) {
             currentQuestionData.dogru = d.correctIndex;
             saveToHistory(currentQuestionData, 'kpss_favs'); 
-            gameHistory.push({ question: currentQuestionData, userAnswerIndex: d.selectedIndex, isCorrect: d.correct, correctAnswerIndex: d.correctIndex });
+            gameHistory.push({ 
+                question: currentQuestionData, 
+                userAnswerIndex: d.selectedIndex, 
+                isCorrect: d.correct, 
+                correctAnswerIndex: d.correctIndex,
+                earnedPoints: d.points 
+            });
             
             if(isMistakeMode && d.correct) {
                 let wrongs = getLocalData('kpss_wrongs');
@@ -349,31 +588,7 @@
     });
 
     socket.on('gameOver', p => {
-        showScreen('screen-result');
-        p.sort((a,b) => b.score - a.score);
-        document.getElementById('result-board').innerHTML = p.map((x,i) => `<div class="player-card"><span>${i+1}. ${x.username}</span><span>${x.score} P</span></div>`).join('');
-        
-        // BRANŞ ANALİZİ HESAPLAMA
-        const stats = {};
-        gameHistory.forEach(item => {
-            const ders = item.question.ders || "Genel";
-            if(!stats[ders]) stats[ders] = { dogru: 0, toplam: 0 };
-            stats[ders].toplam++;
-            if(item.isCorrect) stats[ders].dogru++;
-        });
-
-        let analysisHTML = "<h4 style='margin:0 0 10px 0; color:#1e3c72;'>📊 Branş Başarı Analizi</h4>";
-        if(Object.keys(stats).length === 0) analysisHTML += "<p>Veri yok.</p>";
-        else {
-            for(let ders in stats) {
-                const yuzde = Math.round((stats[ders].dogru / stats[ders].toplam) * 100);
-                const color = yuzde >= 70 ? "#27ae60" : (yuzde >= 40 ? "#e67e22" : "#c0392b");
-                analysisHTML += `<div class="analysis-item"><span>${ders}</span><span style="color:${color}; font-weight:bold;">%${yuzde} Başarı (${stats[ders].dogru}/${stats[ders].toplam})</span></div>`;
-            }
-        }
-        document.getElementById('branch-analysis').innerHTML = analysisHTML;
-
-        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+        renderResultScreen(p);
     });
     socket.on('errorMsg', m => alert(m));
 </script>
