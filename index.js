@@ -11,6 +11,7 @@ const io = new Server(server, {
     transports: ["polling", "websocket"]
 });
 
+// Resim dosyaları için public klasörünü açıyoruz
 app.use(express.static(path.join(__dirname, "public")));
 
 // --- 🟢 UPTIME PING ---
@@ -100,7 +101,7 @@ io.on("connection", (socket) => {
         if (!room) return;
         
         let pool = [...tumSorular];
-        console.log(`Oyun Başlıyor: Oda ${roomCode}, Mod: ${settings.isMistakeMode ? "HATA" : "NORMAL"}`);
+        console.log(`Oyun Başlıyor: Oda ${roomCode}, Mod: ${settings.isMistakeMode ? "HATA" : "NORMAL"}, Deneme: ${settings.deneme}`);
 
         // 1. HATA ANALİZ MODU (HEM YANLIŞLAR HEM FİLTRELER)
         if (settings.isMistakeMode && settings.mistakeList && settings.mistakeList.length > 0) {
@@ -125,18 +126,25 @@ io.on("connection", (socket) => {
                                  .map(q => shuffleOptions(q));
         }
 
-        // 2. DENEME MODU (SIRALI)
+        // 2. DENEME MODU (SIRALI VE ÖZEL DERS SIRALAMASI)
         else if (settings.deneme && settings.deneme !== "HEPSI") {
+            // Sadece seçilen denemenin sorularını getir
             pool = pool.filter(q => q.deneme == settings.deneme);
             
+            // Ders Sıralaması: Tarih -> Coğrafya -> Vatandaşlık -> Güncel
             const dersSirasi = { "TARİH": 1, "COĞRAFYA": 2, "VATANDAŞLIK": 3, "GÜNCEL BİLGİLER": 4 };
+            
             pool.sort((a, b) => {
-                const siraA = dersSirasi[(a.ders || "").trim().toLocaleUpperCase('tr')] || 99;
-                const siraB = dersSirasi[(b.ders || "").trim().toLocaleUpperCase('tr')] || 99;
+                const dersA = (a.ders || "").trim().toLocaleUpperCase('tr');
+                const dersB = (b.ders || "").trim().toLocaleUpperCase('tr');
+                const siraA = dersSirasi[dersA] || 99;
+                const siraB = dersSirasi[dersB] || 99;
+                
                 return siraA - siraB;
             });
 
-            room.questions = pool.slice(0, settings.count || 60).map(q => shuffleOptions(q));
+            // Deneme modunda karıştırma yapmıyoruz (shuffle yok), tüm soruları soruyoruz.
+            room.questions = pool.map(q => shuffleOptions(q));
         }
 
         // 3. GENEL MOD (KARIŞIK VE FİLTRELİ)
@@ -145,6 +153,7 @@ io.on("connection", (socket) => {
                 const aranan = settings.subject.trim().toLocaleUpperCase('tr');
                 pool = pool.filter(q => (q.ders || "GENEL").trim().toLocaleUpperCase('tr') === aranan);
             }
+            // ZORLUK FİLTRESİ (Burada "ÇIKMIŞ" seçeneği de otomatik çalışır)
             if (settings.difficulty && settings.difficulty !== "HEPSI") {
                  pool = pool.filter(q => (q.zorluk || "ORTA") === settings.difficulty);
             }
@@ -152,6 +161,7 @@ io.on("connection", (socket) => {
                 pool = pool.filter(q => q.siklar && q.siklar.length == settings.sikSayisi);
             }
 
+            // Karışık modda soruları karıştırıyoruz
             room.questions = pool.sort(() => Math.random() - 0.5)
                                  .slice(0, settings.count || 20)
                                  .map(q => shuffleOptions(q));
@@ -240,7 +250,7 @@ function sendQuestionToRoom(roomCode) {
     
     io.to(roomCode).emit("newQuestion", {
         soru: q.soru, siklar: q.siklar, ders: q.ders, resim: q.resim, 
-        zorluk: q.zorluk, deneme: q.deneme, cozum: q.cozum,   
+        zorluk: q.zorluk, deneme: q.deneme, cozum: q.cozum,    
         index: room.currentQuestionIndex + 1, total: room.questions.length, duration: room.settings.duration
     });
     
@@ -254,4 +264,3 @@ function sendQuestionToRoom(roomCode) {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`🚀 Sunucu ${PORT} portunda tam güç çalışıyor.`));
-
