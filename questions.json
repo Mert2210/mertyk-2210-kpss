@@ -8015,8 +8015,486 @@
     "dogru": 0,
     "ders": "COĞRAFYA",
     "zorluk": "KOLAY"
+  },
+  {
+    "soru": "Göktürk Devleti'nde, Bilge Kağan'ın Budist tapınağı yaptırma isteğine Vezir Tonyukuk, Budizm'i benimsemenin Türklerin mücadeleci ruhunu kaybetmelerine neden olacağı düşüncesiyle karşı çıkmıştır. Yalnız bu bilgiyle; I. toplumun dinî arayış içerisinde olduğu, II. kağanın kararlarının sorgulanabildiği, III. din değiştirmenin yaşam biçimini etkilediği durumlarından hangilerine ulaşılabilir?",
+    "siklar": ["Yalnız I", "Yalnız II", "I ve II", "II ve III", "I, II ve III"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1"
+  },
+  {
+    "soru": "Türklerin İslamiyet'e geçmeleriyle aşağıdakilerden hangisi kültürel hayatlarında bir sanat kolu oluşturacak derecede önem kazanmıştır?",
+    "siklar": ["Hat", "Minyatür", "Heykel", "Fresko", "Dokuma"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1"
+  },
+  {
+    "soru": "Selçuklularda; I. hükümdarın Tanrı adına insanları yönetmekle görevli olması, II. ülkenin, hanedan üyelerinin ortak malı sayılması, III. din işlerinin halifeye, dünya işlerinin sultana ait olması durumlarından hangilerinin taht kavgalarına neden olduğu savunulabilir?",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "I ve II", "I, II ve III"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1"
+  },
+  {
+    "soru": "Orhan Bey zamanında; I. ilk Osmanlı medresesinin açılması, II. Rumeli'ye geçilmesi, III. yaya ve atlı düzenli bir ordunun kurulması gelişmelerinden hangileri Osmanlı Devleti'nin bu dönemde teşkilatlanmaya başladığının bir göstergesi olduğu savunulabilir?",
+    "siklar": ["Yalnız I", "Yalnız II", "I ve II", "I ve III", "I, II ve III"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1"
+  },
+  {
+    "soru": "XVII. yüzyılın başlarında Osmanlı Devleti'nin 32 eyaleti varken bu yüzyılın ortalarında 25'i timar sistemine dahil, 9'u sâlyâneli olmak üzere toplam eyalet sayısı 34'ü bulmuştur. Bu durumla ilgili olarak; I. İlk kez toprak kaybedilmiştir, II. Beylerbeyi sayısı artmıştır, III. Timar sistemi bozulmuştur yargılarından hangilerine ulaşılabilir?",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "I ve II", "II ve III"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1"
+  },
+  {
+    "soru": "Osmanlı Devleti'nde; I. Avrupa mallarının ülkeye girmesi, II. ticaret yollarının değişmesi, III. esnaf teşkilatının bozulması durumlarından hangilerinin ekonomiyi olumsuz yönde etkilediği savunulabilir?",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "I ve II", "I, II ve III"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1"
+  },
+  {
+    "soru": "XIX. yüzyılda Osmanlı Devleti'nde dağılmayı önlemek amacıyla birtakım düşünce akımları ortaya çıkmıştır. Bu düşünce akımlarından Osmanlıcılık düşüncesinin önemini kaybetmesinde; I. Avrupa'da ulus devletlerin ortaya çıkması, II. Meşrutiyet'in ilanına rağmen azınlıkların ayrılıkçı hareketlerini sürdürmesi, III. Yeniçeri Ocağı'nın kaldırılması durumlarından hangilerinin etkili olduğu savunulabilir?",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "I ve II", "II ve III"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1"
+  },
+  {
+    "soru": "Osmanlı Devleti'nde gerekli görüldüğünde herhangi bir yöneticinin mal varlığına el konulabilmesi (müsadere) usulü Tanzimat Fermanı'yla kaldırılmıştır. Bu usulün kaldırılmasıyla yöneticinin; I. Devlete olan güveni artmıştır, II. Özel mülkiyet hakkına güvence getirilmiştir, III. Yöneticilik yetkileri artırılmıştır yargılarından hangilerine ulaşılabilir?",
+    "siklar": ["Yalnız I", "Yalnız II", "I ve II", "I ve III", "II ve III"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1"
+  },
+  {
+    "soru": "Osmanlı Devleti'nde; I. Tanzimat'ın ilanı, II. Meşrutiyet'in ilanı, III. Islahat Fermanı'nın ilanı gelişmelerinin hangilerinde Avrupa'da görülen 1848 ihtilallerinin etkisi olduğu savunulabilir?",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "I ve II", "II ve III"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1"
+  },
+  {
+    "soru": "Kurtuluş Savaşı'nda, TBMM Hükümetinin yarı resmî yayın organı hâline gelen gazete aşağıdakilerden hangisidir?",
+    "siklar": ["Hakimiyet-i Milliye", "Peyam-ı Sabah", "İrade-i Milliye", "Yenigün", "İkdam"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1"
+  },
+  {
+    "soru": "Kurtuluş Savaşı'nda; Birinci İnönü Zaferi'nden sonra Anlaşma Devletlerinin Londra'da konferans düzenlemesi ve TBMM'yi davet etmesi, Sakarya Zaferi'nden sonra Fransa'nın TBMM'yle Ankara Antlaşması'nı yapması gelişmeleriyle aşağıdakilerden hangisine ulaşıldığı savunulabilir?",
+    "siklar": ["Anlaşma Devletlerinin TBMM'yi Sakarya Savaşı'ndan sonra tanıdığına", "İngiltere'nin savaşın sonuna kadar Yunanlıları desteklediğine", "Halkların dış politikada etkili olduğuna", "Uluslararası antlaşmaları uygulamak zorunluluğu olduğuna", "Askerî başarıların Anlaşma Devletlerini TBMM'yle antlaşma yapmaya zorladığına"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1"
+  },
+  {
+    "soru": "Türkiye Büyük Millet Meclisi, 11 Mayıs 1920 tarihinde Bekir Sami Bey'in başkanlığında bir heyeti, Moskova'ya Sovyetler Birliği'yle bağlantı kurmak ve dostluk antlaşması ortamı hazırlamak amacıyla göndermiştir. TBMM'nin, Sovyetler Birliği'yle antlaşma yapma gereği duymasındaki amacın aşağıdakilerden hangisi olduğu savunulabilir?",
+    "siklar": ["Londra Konferansı'nın yapılmasını geciktirmek", "Sovyetler Birliği'ndeki yeni rejimin ülkede yayılmasını önlemek", "Kafkasya Cumhuriyetlerinin kurulmasını engellemek", "Düşmanları aynı olan iki ülke arasında siyasi ve askerî güç birliği sağlamak", "Mecliste birlikte hareket edilmesini sağlayarak gruplaşmaları önlemek"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1"
+  },
+  {
+    "soru": "Kurtuluş Savaşı'nın bütün şiddetiyle devam ettiği bir ortamda ara seçimlere gidilerek TBMM'nin çalışmalarını sürdürmesi sağlanmıştır. Bu bilgiyle aşağıdakilerden hangisine ulaşılabilir?",
+    "siklar": ["Halk egemenliğinin sürekliliğine önem verildiğine", "TBMM Hükümetiyle İstanbul Hükümeti arasında görüş ayrılığı olduğuna", "TBMM'ye Mebuslar Meclisinden katılım olduğuna", "Ulusal güçlerin birleştirilmek istendiğine", "Mecliste görüş ayrılıklarının olduğuna"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1"
+  },
+  {
+    "soru": "Türkiye, Musul'un Misakımilli sınırları içinde olduğuna aşağıdakilerden hangisini gerekçe olarak göstermiştir?",
+    "siklar": ["Türklerden başka ulusların da yaşamasını", "Sykes-Picot Anlaşması'na göre Fransızlara verilmiş olmasını", "Mondros Mütarekesi'nin imzalandığı tarihte Osmanlı sınırları içinde olmasını", "Petrol bakımından zengin olmasını", "İngiltere'nin mandası olmasını"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1"
+  },
+  {
+    "soru": "Lozan Antlaşması'yla; I. Boğazlar Komisyonunun kurulması, II. İstanbul'daki Rumlarla Batı Trakya'daki Türklerin mübadele dışında bırakılması, III. Yunanistan'ın savaş tazminatı karşılığı Karaağaç'ı, Türkiye'ye vermesi konularından hangileri Türk-Yunan ilişkilerinde uygulamalardan kaynaklanan sorunlara neden olmuştur?",
+    "siklar": ["Yalnız I", "Yalnız II", "I ve II", "II ve III", "I, II ve III"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1"
+  },
+  {
+    "soru": "Türkiye'de kadınlar siyasi hak olarak; I. mirastan aynı oranda yararlanma, II. milletvekili seçme ve seçilme, III. belediye seçimlerine katılma haklarını kazanmıştır. Bu kazanımların kronolojik sıralaması aşağıdakilerden hangisidir?",
+    "siklar": ["I, II, III", "I, III, II", "II, I, III", "II, III, I", "III, I, II"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1"
+  },
+  {
+    "soru": "Kapitülasyonların kaldırılması ve Kabotaj Kanunu'nun çıkarılması gelişmelerinde aşağıdaki ilkelerden hangisinin temel alındığı savunulabilir?",
+    "siklar": ["Bağımsızlık", "Laiklik", "Halkçılık", "Devletçilik", "İnkılapçılık"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1"
+  },
+  {
+    "soru": "Atatürk'ün milliyetçilik anlayışının ırk, mezhep ve sınıf ayrılıklarına karşı olması; I. milli birlik ve beraberlik, II. kültürel birlik, III. sosyal dayanışma durumlarından hangilerini desteklediğini gösterir?",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "I ve II", "I, II ve III"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1"
+  },
+  {
+    "soru": "Atatürk, 'Ülkeler çeşitlidir, fakat uygarlık birdir ve bir milletin kalkınması için de bu tek uygarlığa katılması gerekir. Osmanlı Devleti'nin düşüşü Batı'ya karşı elde ettiği başarılardan çok, mağrur olarak kendisini Avrupa milletlerine bağlayan ilişkileri kestiği gün başlamıştır.' demiştir. Atatürk'ün bu anlatımıyla aşağıdakilerden hangisine vurgu yaptığı söylenebilir?",
+    "siklar": ["Eski bir tarih mirasına sahip olunduğuna", "Batı'nın yayılmacı siyaset izlediğine", "Çağdaşlaşmanın gereğine", "İmparatorlukların siyasi varlıklarını korumalarının güçlüğüne", "Batı uygarlığının kendisinden önceki uygarlıklardan yararlandığına"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1"
+  },
+  {
+    "soru": "1924 yılında; I. Hilafet, II. Şeriye ve Evkâf Bakanlığı, III. Erkânı Harbiye Bakanlığı kurumlarından hangilerinin yönetim birliğini güçlendirmek amacıyla kaldırıldığı savunulabilir?",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "I ve II", "I, II ve III"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1"
+  },
+  {
+    "soru": "Osmanlı Döneminde XIX. yüzyılın ilk yarısında sarık ve kavuk yerine fesin giyilmesine, Cumhuriyet Döneminin ilk yıllarında ise fesin yerine şapkanın giyilmesine karşı çıkılmıştır. Bu iki duruma göre; I. Yenilikler anlayış değişikliğinin sonucudur, II. Yenilikler tepkiyle karşılanmıştır, III. Yeniliklerin benimsenmesi belli bir süreci gerektirmiştir yargılarından hangilerine ulaşılabilir?",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "II ve III", "I, II ve III"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi, cumhuriyetin ilanının doğurduğu sonuçlardan biri değildir?",
+    "siklar": ["Hükümet kurmanın yeni yönteme bağlanması", "Devletin rejiminin adının konması", "İstiklal Marşı'nın kabul edilmesi", "Devletin başkanının belirlenmesi", "Halifeliğin kaldırılması"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1"
+  },
+  {
+    "soru": "TBMM, aşağıdakilerden hangisiyle padişah ve halifenin siyasi ve hukuki yetkilerini üstlenmiştir?",
+    "siklar": ["Teşkilat-ı Esâsiye Kanunu'nun kabul edilmesi", "Tekâlif-i Milliye Buyrukları'nın çıkarılması", "İstanbul'un resmen işgal edilmesi", "Lozan Antlaşması'nın imzalanması", "Hıyanet-i Vataniye Kanunu'nun çıkarılması"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi demokratik devlet anlayışıyla bağdaşmaz?",
+    "siklar": ["Seçimlerin düzenli aralıklarla tekrarlanması", "Gelir ve servet ediniminin kısıtlanması", "Etkin siyasi makama seçimle gelinmesi", "Siyasi partilerin serbestçe kurulması", "İktidarın el değiştirebilmesi"],
+    "dogru": 1,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1"
+  },
+  {
+    "soru": "Atatürk Dönemi ekonomisinde; I. Türkiye'nin ulusal çıkarlarına aykırı olmayan yabancı sermayeden yararlanma, II. aşar vergisini kaldırma, III. ekonomik politikaların uygulanmasında bilim ve teknolojiyi temel alma durumlarından hangileriyle üretimi artırmanın amaçlandığı savunulabilir?",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "I ve II", "I, II ve III"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1"
+  },
+  {
+    "soru": "1929'da başlayan dünya ekonomik bunalımıyla dünya ticaretinde bir düşüş olmuştur. Aşağıdakilerden hangisi bu durumla ortaya çıkan sonuçlardan biri değildir?",
+    "siklar": ["Yaşamsal ham madde ihtiyacının artması", "Sömürge edinme yarışının başlaması", "Halkın alım gücünün azalması", "Para değerlerinin düşmesi", "İşsizliğin artması"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1"
+  },
+  {
+    "soru": "Ülkedeki tüm siyasi görüşlerin yönetime yansıtılması amacıyla; I. Terakkiperver Cumhuriyet Partisinin kurulması, II. Serbest Cumhuriyet Partisinin kurulması, III. Demokrat Partinin kurulması gelişmelerinden hangileri Atatürk Döneminde gerçekleşmiştir?",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "I ve II", "I, II ve III"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1"
+  },
+  {
+    "soru": "I. Atatürk ilkelerinin Türkiye Devleti'nin temel nitelikleri olarak kabul edilmesi, II. Milletvekili yeminlerinin 'Vallahi' yerine 'Namusum üzerine söz veriyorum' şeklinde değiştirilmesi, III. Anayasa Mahkemesinin kurulması. Yukarıdakilerden hangileri Atatürk Dönemi gelişmeleri arasındadır?",
+    "siklar": ["Yalnız I", "Yalnız II", "I ve II", "II ve III", "I, II ve III"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1"
+  },
+  {
+    "soru": "Balkan Devletleri arasında yakınlaşma başlaması ve Balkan Paktı'nın kurulmasında aşağıdakilerden hangisinin etkisi olduğu savunulamaz?",
+    "siklar": ["Birleşmiş Milletler Teşkilatının kurulmuş olması", "İtalya'nın Doğu Akdeniz'e egemen olmak istemesi", "Almanya'da Nazi Partisinin iktidara gelmesi", "Silahlanma yarışının hızlanması", "İtalya'da faşizmin güçlenmesi"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1"
+  },
+  {
+    "soru": "Bir Türkiye fiziki haritasında kahverengi tonlarının fazla olduğu yerlerle ilgili olarak aşağıdakilerden hangisi söylenemez?",
+    "siklar": ["Karın yerde kalma süresinin uzun olduğu", "Yıllık sıcaklık farkının az olduğu", "Gerçek alanla iz düşümsel alan arasındaki farkın fazla olduğu", "Akarsuların çağlayanlar oluşturduğu", "Ulaşımda güçlüklerle karşılaşıldığı"],
+    "dogru": 1,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisinin Akdeniz Bölgesi'yle Karadeniz Bölgesi arasında farklılık göstermesi enlem etkisine bağlanamaz?",
+    "siklar": ["Orman üst sınırı", "Deniz turizmine uygun sürenin uzunluğu", "Yağışın mevsimlere göre dağılışı", "Tarım ürünlerinin olgunlaşma süresi", "Gündüz süresinin uzunluğu"],
+    "dogru": 2,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1"
+  },
+  {
+    "soru": "Yukarıdaki Türkiye haritasındaki taralı alanda yıl içinde çığ olasılığının fazla olmasında; I. mutlak nem oranının az olması, II. arazinin eğimli olması, III. ortalama yükseltinin fazla olması, IV. kar yağışının fazla olması etmenlerinden hangileri etkilidir?",
+    "siklar": ["I ve II", "I ve III", "II ve III", "II ve IV", "III ve IV"],
+    "dogru": 4,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1",
+    "resim": "2009_gk_33.jpg"
+  },
+  {
+    "soru": "Aşağıdaki tabloda 1950 ve 2000 yıllarında Türkiye'nin aritmetik, fizyolojik ve tarımsal nüfus yoğunlukları verilmiştir. Bu tablodaki bilgiler; I. 2000 yılında kırsal kesimde yaşayan insan sayısı 1950 yılındakinden azdır, II. 1950-2000 yılları arasında Türkiye'nin nüfusu üç kattan fazla artmıştır, III. 2000 yılında tarım alanlarının toplam yüz ölçümü, 1950 yılındakinden daha azdır, yargılarından hangilerine ulaşmak için yeterlidir?",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "I ve II", "II ve III"],
+    "dogru": 1,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1",
+    "resim": "2009_gk_34.jpg"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi, Güneydoğu Anadolu Bölgesi'nde nüfusun yoğun olduğu alanlar arasında yer almaz?",
+    "siklar": ["Su kaynaklarına yakın alanlar", "Sulama olanakları iyileşen ovalar", "Ulaşım açısından önemli kavşaklar", "Endüstrinin yoğun olduğu yerler", "Hidroelektrik enerjinin üretildiği yerler"],
+    "dogru": 4,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1"
+  },
+  {
+    "soru": "Türkiye'de, çalışan nüfus içinde tarım sektörünün oranı 1980 yılında % 60 iken, bu oran 2000 yılında % 48'e düşmüştür. Aşağıdakilerden hangisinin bu azalmaya neden olduğu söylenebilir?",
+    "siklar": ["Dış satımda tarım ürünleri payının azalması", "Tarımda makineleşmenin artması", "Kent sayısının artması", "Ulaşım olanaklarının artması", "Yetiştirilen tarım ürünü çeşidinin artması"],
+    "dogru": 1,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1"
+  },
+  {
+    "soru": "Aşağıdaki tabloda dört bölgede yetiştirilen dört farklı tarım ürününün, Türkiye üretimindeki payları verilmiştir. Bu bilgilere göre tabloda, aşağıdaki ürünlerden hangisine yer verilmemiştir?",
+    "siklar": ["Tütün", "Kırmızı mercimek", "Muz", "Ayçiçeği", "Kayısı"],
+    "dogru": 0,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1",
+    "resim": "2009_gk_37.jpg"
+  },
+  {
+    "soru": "Türkiye'nin tarım politikalarıyla ilgili önemli uygulamalarından biri de destekleme alımlarıdır. Buna göre, aşağıdakilerden hangisi destekleme alımlarının amaçlarından biri değildir?",
+    "siklar": ["Üreticinin ürettiği ürünlerin elde kalmasını engellemesi", "Üreticinin fiyatlardaki ani iniş ve çıkışlardan zarar görmesini engellemesi", "Ürünlerin uygun fiyatlarla piyasaya sunulması", "Aynı tarım ürününün tüm bölgelerde aynı fiyatla satılmasını sağlaması", "Üretimin devamlılığını sağlaması"],
+    "dogru": 4,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1"
+  },
+  {
+    "soru": "Türkiye'nin büyükbaş hayvancılığıyla ilgili olarak aşağıdaki bilgilerden hangisi doğrudur?",
+    "siklar": ["Et ve süt verimleri yüksek olan ırklar çoğunluktadır.", "Büyükbaş hayvancılık için uygun otlaklar giderek artmaktadır.", "Küçükbaş hayvancılığa göre daha yaygın bir etkinliktir.", "Besicilik ve ahır hayvancılığı, kentlerin yakın çevresinde gelişmiştir.", "Dış satımda canlı büyükbaş hayvanların payı fazladır."],
+    "dogru": 3,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1"
+  },
+  {
+    "soru": "Akdeniz Bölgesi'nin ekonomik bakımdan gelişmesinde aşağıdakilerden hangisinin etkisi diğerlerinden daha azdır?",
+    "siklar": ["Kıyı balıkçılığının yapılması", "Tarıma dayalı endüstri kuruluşlarının bulunması", "Turfanda meyve ve sebze üretiminin fazla olması", "Turizm etkinliği ve potansiyeli bakımından zengin olması", "Dış ticarette önemli yeri olan büyük limanlara sahip olması"],
+    "dogru": 0,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1"
+  },
+  {
+    "soru": "Türkiye'de aşağıdakilerden hangisinin ormana verdiği zararın diğerlerinden daha az olduğu söylenebilir?",
+    "siklar": ["Tarım alanı açma", "Keçi otlatma", "Yangınlar", "Heyelan", "Kaçak kesim"],
+    "dogru": 4,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1"
+  },
+  {
+    "soru": "Doğu Karadeniz ve Hakkâri bölümlerinde; I. akarsuların akış hızının yüksek olması, II. tarımsal ürün çeşidinin az olması, III. yayla ve dağ turizminin gelişmiş olması, IV. bölüm dışına göçün fazla olması özelliklerinden hangileri ortaktır?",
+    "siklar": ["I ve II", "I ve III", "II ve III", "II ve IV", "III ve IV"],
+    "dogru": 2,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1"
+  },
+  {
+    "soru": "Türkiye'de tarımsal etkinliklerin zorlaşmasında; I. eğimin fazla olması, II. ortalama yükseltinin fazla olması, III. şiddetli yaz kuraklığı yaşanması etkili olmaktadır. Buna göre, I, II ve III numaralı etmenlerin daha çok etkili olduğu iller aşağıdakilerin hangisinde verilmiştir?",
+    "siklar": ["Rize, Kars, Konya", "Konya, Rize, Kars", "Rize, Kars, Konya", "Kars, Rize, Konya", "Rize, Konya, Kars"],
+    "dogru": 2,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1"
+  },
+  {
+    "soru": "I. Afyonkarahisar - Et ve süt ürünleri, II. Kırıkkale - Petrokimya, III. Zonguldak - Orman ürünleri, IV. İstanbul - Pamuklu dokuma. Yukarıdaki illerden hangileri, birlikte verilen endüstri kolu için gerekli ham madde bakımından zengindir?",
+    "siklar": ["I ve II", "I ve III", "I ve IV", "II ve III", "III ve IV"],
+    "dogru": 1,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1"
+  },
+  {
+    "soru": "Türkiye'nin ekonomik etkinliklerine ait aşağıdaki bilgilerden hangisi doğrudur?",
+    "siklar": ["Elektrik enerjisinin büyük bir kısmı yenilenebilir enerji kaynaklarından elde edilir.", "Kırsal kesimde en yaygın hayvancılık etkinliği arıcılık ve balıkçılıktır.", "Tarım sektörünün milli gelirdeki payı diğer sektörlerden fazladır.", "Dış ticarette ilk sırada yer alan ülke Amerika Birleşik Devletleri'dir.", "Gıda endüstrisinde ham maddenin büyük bir kısmı ülke içinden karşılanmaktadır."],
+    "dogru": 4,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1"
+  },
+  {
+    "soru": "Aşağıdaki grafikte Türkiye'de 1975-2000 yılları arasındaki taş kömürü üretim ve tüketim miktarları gösterilmiştir. Yalnızca grafikten yararlanılarak aşağıdaki sonuçlardan hangisine ulaşılabilir?",
+    "siklar": ["Taş kömürü rezervinde azalma olmuştur.", "Taş kömürü üretim teknolojisinde değişme olmuştur.", "Tüketimde diğer kömür türlerinin payı artmıştır.", "Üretimin tüketimi karşılama oranı düşmüştür.", "Taş kömürünün kullanım alanları artmıştır."],
+    "dogru": 3,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1",
+    "resim": "2009_gk_46.jpg"
+  },
+  {
+    "soru": "Aşağıdaki haritada, Selçuklu Döneminde Anadolu'daki kervan ticaretinin yapıldığı yollar gösterilmiştir. Bu haritadaki yollar dikkate alındığında, Anadolu'daki ulaşımla ilgili aşağıdaki sonuçlardan hangisine ulaşılabilir?",
+    "siklar": ["Akdeniz kıyılarına ulaşmada Toroslar üzerindeki doğal geçitlerin kullanıldığı", "Kıtalar arasında ulaşımın gelişmiş olduğu", "Deniz taşımacılığında Ege limanlarının kullanıldığı", "Kıyı boyunca ulaşımın gelişmiş olduğu", "Tüm yolların akarsu vadilerini izlediği"],
+    "dogru": 0,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1",
+    "resim": "2009_gk_47.jpg"
+  },
+  {
+    "soru": "Menteşe Yöresi'nin turizm merkezlerinde, aşağıdakilerden hangisinde yıl içerisinde diğerlerinden daha büyük oranda değişiklik görülür?",
+    "siklar": ["Yaz aylarının sıcaklık değerlerinde", "Deniz suyu sıcaklığında", "Aritmetik nüfus yoğunluğunda", "Tarımsal etkinliklerde", "Kültür balıkçılığında"],
+    "dogru": 2,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi sosyal hayatı düzenleyen kurallardan biri değildir?",
+    "siklar": ["Din kuralları", "Fizik kuralları", "Görgü kuralları", "Ahlak kuralları", "Hukuk kuralları"],
+    "dogru": 1,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1"
+  },
+  {
+    "soru": "Kullanıldıkları zaman mevcut bir hukuki durumu tamamen ortadan kaldıran haklara ne ad verilir?",
+    "siklar": ["Kişilik hakları", "Kurucu yenilik doğuran haklar", "Alelade haklar", "Bozucu yenilik doğuran haklar", "Değiştirici yenilik doğuran haklar"],
+    "dogru": 3,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi borçlar hukukuna hakim olan ilkelerden biri değildir?",
+    "siklar": ["Sözleşme özgürlüğü ilkesi", "Eşitlik ilkesi", "Zaman aşımı ve hak düşürücü süreye uğramama ilkesi", "Nispilik ilkesi", "Üçüncü kişi aleyhine borç kurulamaması ilkesi"],
+    "dogru": 2,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1"
+  },
+  {
+    "soru": "1982 Anayasası'na göre, TBMM'nin seçim dönemi ile ilgili aşağıdaki ifadelerden hangisi doğrudur?",
+    "siklar": ["Seçimler 5 yılda bir yapılır.", "Meclis salt çoğunlukla erken seçim kararı alabilir.", "Erken seçim kararı üzerine yapılan seçime ara seçim denir.", "Cumhurbaşkanı her bunalımda seçimi yenileyebilir.", "Yenilenmesine karar verilen Meclisin yetkileri, yeni Meclis seçilene kadar sürer."],
+    "dogru": 4,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1"
+  },
+  {
+    "soru": "Türkiye'de Anayasa Mahkemesi ilk kez hangi anayasal düzenlemede yer almıştır?",
+    "siklar": ["1921 Anayasası değişikliğiyle", "1924 Anayasası değişikliğiyle", "1961 Anayasası'nda", "1961 Anayasası 1971 değişikliğiyle", "1982 Anayasası'nda"],
+    "dogru": 2,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1"
+  },
+  {
+    "soru": "1982 Anayasası'nın değiştirilmesi ile ilgili aşağıdaki ifadelerden hangisi yanlıştır?",
+    "siklar": ["En az üçte bir teklif edebilir.", "Tekliflerin kabulü sırasında ayrı ayrı oylanacağı karara bağlanabilir.", "Kabul için beşte üç çoğunluk gerekir.", "Cumhurbaşkanı değişiklikleri halkoyuna sunabilir.", "Acil hallerde değişikliklerin bir kez oylanmasına karar verilebilir."],
+    "dogru": 4,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi idari yargı kuruluşları arasında yer alır?",
+    "siklar": ["Vergi mahkemeleri", "Yargıtay", "Anayasa Mahkemesi", "Sulh hukuk mahkemeleri", "Asliye ceza mahkemeleri"],
+    "dogru": 0,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1"
+  },
+  {
+    "soru": "I. Başarılı Sporculara Aylık Bağlanması... II. Sakarya İlinde Büyükşehir Belediyesi Kurulması... III. Tapu Planları Tüzüğü. Yukarıdakilerden hangileri Bakanlar Kurulu tarafından yapılan işlemlerden biridir?",
+    "siklar": ["Yalnız II", "Yalnız III", "I ve II", "II ve III", "I, II ve III"],
+    "dogru": 3,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi yerel yönetimler arasında yer almaz?",
+    "siklar": ["Ankara Büyükşehir Belediyesi", "İzmir İl Özel İdaresi", "İstanbul Ticaret Odası", "Bandırma Belediyesi", "Kozaklı Köyü"],
+    "dogru": 2,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1"
+  },
+  {
+    "soru": "2008 yılında dünya ekonomisindeki toplam dış borcun yaklaşık % 60'ı aşağıdaki ülke gruplarından hangisine aittir?",
+    "siklar": ["Çin, Japonya, Rusya", "Kanada, Brezilya, Arjantin", "Türkiye, Brezilya, İspanya, Endonezya", "İngiltere, Fransa, Kanada, İtalya", "ABD, İngiltere, Fransa, Almanya"],
+    "dogru": 4,
+    "ders": "GÜNCEL BİLGİLER",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1"
+  },
+  {
+    "soru": "Dünyada Türkiye'nin de dahil olduğu gelişmiş ve gelişmekte olan 20 ülkenin oluşturduğu G-20 toplantısı, 2009 yılı Nisan ayında hangi şehirde yapılmıştır?",
+    "siklar": ["Londra", "Paris", "Berlin", "Strasbourg", "Roma"],
+    "dogru": 0,
+    "ders": "GÜNCEL BİLGİLER",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1"
+  },
+  {
+    "soru": "Dünya Ticaret Örgütünün 2008 Dünya Ticareti Raporu'na göre en çok ithalat ve ihracat yapan 30 ülke listesinde Türkiye'nin sıralamadaki yeriyle ilgili aşağıdaki bilgilerden hangisi doğrudur?",
+    "siklar": ["İthalatta 25. sırada, İhracatta 25. sırada", "İthalatta 20. sırada, İhracatta ilk 30'a giremedi", "İthalatta ilk 30'a giremedi, İhracatta 10. sırada", "İthalatta 20. sırada, İhracatta 20. sırada", "İthalatta 10. sırada, İhracatta 10. sırada"],
+    "dogru": 0,
+    "ders": "GÜNCEL BİLGİLER",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "Çıkmış Deneme 1"
   }
   ]
+
 
 
 
