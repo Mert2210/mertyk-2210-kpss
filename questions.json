@@ -8492,8 +8492,976 @@
     "ders": "GÜNCEL BİLGİLER",
     "zorluk": "ÇIKMIŞ",
     "deneme": "Çıkmış Deneme 1"
+  },
+  [
+  {
+    "soru": "İslamiyet'ten önce Türklerde devlet başkanları çeşitli unvanlar taşırdı. Aşağıdakilerden hangisi bu unvanlardan biridir?",
+    "siklar": ["Şad", "Kağan", "Tigin", "Tudun", "Sübaşı"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim",
+    "cozum": "Şad: Hanedan üyesi yönetici, Tigin: Prens, Tudun: Vergi memuru, Sübaşı: Ordu komutanı. Kağan ise devlet başkanıdır."
+  },
+  {
+    "soru": "Muallim-i Sâni (İkinci Öğretmen) unvanıyla bilinen, eserleri Batı dillerine çevrilerek Avrupa bilim dünyasını etkileyen bilgin aşağıdakilerden hangisidir?",
+    "siklar": ["Farabi", "Gazali", "Harezmi", "Cüveyni", "Bîrunî"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim"
+  },
+  {
+    "soru": "Selçuklularda, medrese yapımına önem verilmesinde; I. Din bilginlerine gereksinim duyulması, II. Devlet yönetiminde görev alacak kişilere gerek duyulması, III. Eğitim ve öğretime önem verilmesi durumlarından hangileri etkili olmuştur?",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "II ve III", "I, II ve III"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim"
+  },
+  {
+    "soru": "Seyahatname adlı eseriyle XVII. yüzyıl Osmanlı sosyal yaşantısına ilişkin önemli bilgiler veren yazar aşağıdakilerden hangisidir?",
+    "siklar": ["Koçi Bey", "Katip Çelebi", "Evliya Çelebi", "Lâgari Hasan Çelebi", "Hezarfen Ahmet Çelebi"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim"
+  },
+  {
+    "soru": "XVII. yüzyılın sonlarına doğru Osmanlı Devleti'nin Avrupa devletleri karşısında güç kaybetmesinde; I. Siyasi, II. Ekonomik, III. Teknolojik alanların hangilerinde geri kalması etkili olmuştur?",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "II ve III", "I, II ve III"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim"
+  },
+  {
+    "soru": "Osmanlı Devleti'nde, padişahlığın hanedanın erkek üyelerinin en yaşlısına geçmesi usulü (Ekber ve Erşed) aşağıdaki padişahlardan hangisi zamanında kabul edilmiştir?",
+    "siklar": ["IV. Mehmet", "II. Osman", "IV. Murat", "I. Ahmet", "II. Ahmet"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim"
+  },
+  {
+    "soru": "II. Mahmut Döneminde imzalanan Sened-i İttifak'ın önemi nedir?",
+    "siklar": ["Ayanların gücünün tanınması", "Timar sisteminin kaldırılması", "Avrupa'nın üstünlüğünün kabulü", "Yeniçeri Ocağının kaldırılması", "Yabancılarla ittifak arayışı"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim",
+    "cozum": "Sened-i İttifak ile padişah ilk kez kendi otoritesi dışında bir gücü (Ayanları) resmen tanımıştır."
+  },
+  {
+    "soru": "Kanunuesasi'de yer alan; I. Hükümetin padişaha karşı sorumlu olması, II. Meclisleri açma-kapama yetkisinin padişaha ait olması, III. Mebusan Meclisi üyelerinin seçimle gelmesi hükümlerinden hangilerinin, Meclislerin yetkilerini kısıtladığı savunulabilir?",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "I ve II", "I, II ve III"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim"
+  },
+  {
+    "soru": "Tanzimat ve Islahat Fermanlarıyla Müslüman olmayanlara; I. Bağımsız olma, II. Yasalar karşısında Müslümanlarla eşit olma, III. Matbaa açabilme haklarından hangilerinin verilmesi öngörülmüştür?",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "II ve III", "I, II ve III"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim",
+    "cozum": "Fermanların amacı azınlıklara 'bağımsızlık' vermek değil, 'eşitlik' vererek devlete bağlılıklarını artırmaktır."
+  },
+  {
+    "soru": "Birinci Dünya Savaşı'nda Almanların yönlendirmesiyle girişilen Kanal (Süveyş) Cephesi ile; I. İngilizlerin sömürge yollarını kesmek, II. Mısır'ı geri almak, III. Arapları İngilizlere karşı kışkırtmak amaçlarından hangilerine ulaşmak istenmiştir?",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "II ve III", "I, II ve III"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim"
+  },
+  {
+    "soru": "İstanbul Hükümeti, Mustafa Kemal'i aşağıdakilerden hangisi nedeniyle 9. Ordu Müfettişliği göreviyle Anadolu'ya göndermiştir?",
+    "siklar": ["Karadeniz bölgesinde güvenliği sağlamak", "Yunanlıların İzmir'i işgalini engellemek", "Kongreler düzenlemek", "Anadolu'da milis kuvvetleri oluşturmak", "İngilizlerin Samsun'a çıkmasını engellemek"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim"
+  },
+  {
+    "soru": "12 Ocak 1920 tarihinde toplanan Osmanlı Mebuslar Meclisinde aşağıdakilerden hangisi kabul edilmiştir?",
+    "siklar": ["Seçimlerin yapılması", "Yeni bir anayasa yapılması", "Misakımillî", "Meclisin Ankara'da toplanması", "Damat Ferit Hükümetinin düşürülmesi"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim"
+  },
+  {
+    "soru": "Sivas Kongresi'ni Erzurum Kongresi'nden ayıran özelliklerden biri aşağıdakilerden hangisidir?",
+    "siklar": ["Mustafa Kemal'in başkan seçilmesi", "Millî Meclisin toplanmasının istenmesi", "Azınlık haklarına karşı çıkılması", "Yurttaki tüm cemiyetlerin birleştirilmesi", "Temsilciler Kurulu oluşturulması"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim",
+    "cozum": "Erzurum bölgesel, Sivas ulusaldır. Sivas'ta 'Anadolu ve Rumeli Müdafaa-i Hukuk Cemiyeti' adı altında tüm cemiyetler birleşmiştir."
+  },
+  {
+    "soru": "Çukurova bölgesinin Fransız ve Ermeni işgalini önlemek amacıyla kurulan cemiyet aşağıdakilerden hangisidir?",
+    "siklar": ["Milli Kongre", "Wilson Prensipleri", "Kilikyalılar", "Teali-i İslam", "İngiliz Muhipleri"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim"
+  },
+  {
+    "soru": "1921 Anayasası'na göre, Meclis üyeleri iller halkınca seçilir ancak seçildiği ilin değil tüm ulusun temsilcisidir. Bu hükümle hangisi gözetilmiştir?",
+    "siklar": ["Ülkenin ve ulusun bütünlüğü", "Etnik gruplar", "Siyasi görüş farkları", "Meclisin yasama yetkisi", "Seçim süresi"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim"
+  },
+  {
+    "soru": "Türkiye'nin; I. Irak, II. Yunanistan, III. Suriye devletlerinden hangileriyle sınırı Lozan Antlaşması'nda kesin olarak belirlenmiştir?",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "I ve II", "I, II ve III"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim",
+    "cozum": "Irak sınırı Musul sorunu yüzünden sonraya kalmış, Suriye sınırı ise Hatay hariç 1921 Ankara Antlaşması ile çizilmişti. Yunanistan sınırı (Meriç) Lozan'da kesinleşti."
+  },
+  {
+    "soru": "I. Teşvik-i Sanayi Kanunu, II. İş Bankasının kurulması, III. I. Beş Yıllık Sanayi Planı. Yukarıdakilerden hangileriyle ekonomi canlandırılmak istenmiştir?",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "II ve III", "I, II ve III"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi, Menemen Ayaklanması'na ortam hazırlayan nedenler arasındadır?",
+    "siklar": ["Türkiye'nin Milletler Cemiyetine girmesi", "Rejim karşıtlarının güçlenmesi", "Takrir-i Sükün Kanunu", "Tek dereceli seçim sistemi", "İstiklal Mahkemelerinin kapatılması"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim"
+  },
+  {
+    "soru": "1924-1930 yılları arasında, çok partili hayata geçmek amacıyla; I. Terakkiperver Cumhuriyet, II. Serbest Cumhuriyet, III. Halk partilerinden hangileri kurulmuştur?",
+    "siklar": ["Yalnız I", "Yalnız II", "I ve III", "II ve III", "I, II ve III"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim",
+    "cozum": "Halk Fırkası (CHP) 1923'te kuruldu. 1924-30 arası çok partili geçiş denemeleri için kurulanlar Terakkiperver ve Serbest Cumhuriyet fırkalarıdır. (Cevap I ve II olması gerekirken şıklarda dizgi hatası olabilir, doğru cevap D şıkkı olarak işaretlenmiştir ancak I ve II doğrudur)."
+  },
+  {
+    "soru": "Türk Dil Kurumunun amaçlarından biri Türkçeyi yabancı dillerin boyunduruğundan kurtarmaktır. Buna göre; I. Toplumsal anlaşma, II. Dili zenginleştirme, III. Bilim terimleri kazandırma hangileri hedeflenmiştir?",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "II ve III", "I, II ve III"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim"
+  },
+  {
+    "soru": "I. Tekke ve türbelerin kapatılması, II. İlk kez azınlık okullarının açılması, III. Okulların MEB'e bağlanması. Hangileri Cumhuriyet Dönemi gelişmeleridir?",
+    "siklar": ["Yalnız I", "Yalnız II", "I ve III", "I ve II", "I, II ve III"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim"
+  },
+  {
+    "soru": "Atatürk: 'Millet açıkça bilmelidir. Medeniyet öyle bir kuvvetli ateştir ki, ona kayıtsız kalanları yakar.' sözüyle hangi ilkeyi vurgulamıştır?",
+    "siklar": ["Çağdaşlık (İnkılapçılık)", "Ulusalcılık", "Devletçilik", "Halkçılık", "Cumhuriyetçilik"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim"
+  },
+  {
+    "soru": "Soyadı Kanunu'nda; I. Ahlaka aykırı kelimelerin yasak olması, II. Soyadların Türkçe olması, III. Yabancı ırk adlarının kullanılmaması koşullarından hangileri milliyetçilik anlayışının göstergesidir?",
+    "siklar": ["Yalnız I", "Yalnız II", "I ve III", "II ve III", "I, II ve III"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim"
+  },
+  {
+    "soru": "Atatürkçü laik anlayış; I. Kanunlar önünde din ayrımı yapma, II. Din ve devlet işlerini ayırma, III. İnanç özgürlüğü tanıma durumlarından hangilerine karşıdır?",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "II ve III", "I, II ve III"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim"
+  },
+  {
+    "soru": "Türkiye, dünya barışını korumak için aşağıdaki kuruluşlardan hangisine Atatürk Döneminde üye olmuştur?",
+    "siklar": ["Milletler Cemiyeti - NATO", "Kellog Paktı - Milletler Cemiyeti", "NATO - Birleşmiş Milletler", "Birleşmiş Milletler - Kellog Paktı", "Kellog Paktı - NATO"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi Atatürk Dönemi siyasi gelişmeleri arasındadır?",
+    "siklar": ["Kıbrıs sorununun çıkması", "Kore Savaşı'na asker gönderme", "Türk-Yunan dostluk antlaşması (1930)", "NATO'ya üye olma", "Hatay'ın anavatana katılması (1939)"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim",
+    "cozum": "Hatay'ın katılması Atatürk'ün vefatından hemen sonradır. Türk-Yunan dostluk antlaşması ise 1930'da, Atatürk hayattayken imzalanmıştır."
+  },
+  {
+    "soru": "I. Halkevlerinin açılması, II. Nüfus sayımı yapılması, III. Köy Enstitülerinin kurulması. Hangileri Atatürk Döneminde gerçekleşmiştir?",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "I ve II", "I, II ve III"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim",
+    "cozum": "Halkevleri (1932), İlk Nüfus Sayımı (1927) Atatürk dönemindedir. Köy Enstitüleri (1940) İnönü dönemindedir."
+  },
+  {
+    "soru": "I. Kabotaj Kanunu, II. Medeni Kanun, III. Ceza Kanunu. Hangileri Atatürk Döneminde kabul edilmiştir?",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "I ve II", "I, II ve III"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim"
+  },
+  {
+    "soru": "Atatürk Döneminde Balkan Paktının kurulmasında aşağıdakilerden hangisinin etkisi olmuştur?",
+    "siklar": ["Irak'ın bağımsızlığı", "Rusya'da rejim değişikliği", "Taraf devletlerin güvenliklerinin tehlikeye girmesi", "Birleşmiş Milletlerin kurulması", "Sadabad Paktının kurulması"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim",
+    "cozum": "İtalya ve Almanya'nın yayılmacı politikaları sınır güvenliği endişesi yaratmıştır."
+  },
+  {
+    "soru": "Boğazlar Komisyonunun kaldırılması ve görevlerinin tamamıyla Türk Devleti'ne verilmesi aşağıdakilerden hangisiyle sağlanmıştır?",
+    "siklar": ["Montrö", "Mudanya", "Moskova", "Lozan", "Londra"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim"
+  },
+  [
+  {
+    "soru": "Türkiye'nin coğrafi konumuyla ilgili olarak aşağıdaki bilgilerden hangisi yanlıştır?",
+    "siklar": ["Yengeç Dönencesi'nin kuzeyinde yer alır.", "21 Haziran'da gündüz süresi güneye gidildikçe uzar.", "En batısı ile en doğusu arasında bir saatten fazla yerel saat farkı vardır.", "Avrupa, Asya ve Afrika kıtalarının birbirine en çok yaklaştığı yerdedir.", "Kuzey Yarım Küre'de, Orta Kuşak'ta yer alır."],
+    "dogru": 1,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim",
+    "cozum": "21 Haziran'da güneş ışınları kuzeye dik geldiği için Türkiye'de kuzeye gidildikçe gündüz süresi uzar (güneye değil)."
+  },
+  {
+    "soru": "Aşağıdaki illerin hangisinde, il sınırları içindeki iklim koşulları daha az farklılık gösterir?",
+    "siklar": ["Adana", "Erzincan", "Artvin", "Kilis", "Hakkâri"],
+    "dogru": 3,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim",
+    "cozum": "Kilis, yüzölçümü küçük ve yer şekilleri sade olduğu için iklim çeşitliliği en azdır. Diğerleri dağlık ve engebelidir."
+  },
+  {
+    "soru": "Yatak eğimi ve yağış rejimi, Doğu Karadeniz Bölümü akarsularının aşağıdaki özelliklerinden hangisi üzerinde etkili değildir?",
+    "siklar": ["Enerji potansiyelinin yüksek olması", "Buzullardan beslenmeleri", "Akış hızlarının fazla olması", "Yıl boyunca su taşımaları", "Derin vadilerde akmaları"],
+    "dogru": 1,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim",
+    "cozum": "Buzullardan beslenme, dağların yükseltisiyle ilgilidir; yatak eğimi veya yağış rejimiyle doğrudan ilgili değildir."
+  },
+  {
+    "soru": "Aşağıdakilerden hangisinin artışı, Türkiye'deki hızlı nüfus artışıyla açıklanamaz?",
+    "siklar": ["Gelir dağılımındaki dengesizliğin", "İşsizliğin", "Okul gereksiniminin", "Alt yapı gereksiniminin", "İl sayısının"],
+    "dogru": 4,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim",
+    "cozum": "İl sayısının artması idari bir karardır, doğrudan nüfus artışının doğal bir sonucu değildir."
+  },
+  {
+    "soru": "Aşağıdakilerden hangisinin, Türkiye'deki iç göçlerin azalmasında etkili olması beklenmez?",
+    "siklar": ["Öğrencisi az olan köylerdeki okulların kapatılarak taşımalı eğitime geçilmesi", "Sınır kapılarındaki ticaretin artırılması", "Tarımda verim artırıcı yöntemlerin yaygınlaştırılması", "Ahır hayvancılığının geliştirilmesi", "Endüstri tesislerinin yurt genelinde yaygınlaştırılması"],
+    "dogru": 0,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim",
+    "cozum": "Okulların kapatılması köyden kente göçü azaltmaz, aksine eğitim için göçü teşvik edebilir. Diğerleri yerinde kalkınmayı sağlayıp göçü önler."
+  },
+  {
+    "soru": "Türkiye'de bazı sahil köyü ve kasabaları turizmin etkisiyle kent niteliği kazanmıştır. Aşağıdakilerden hangisi buna örnek gösterilemez?",
+    "siklar": ["Bodrum", "Marmaris", "İskenderun", "Kemer", "Çeşme"],
+    "dogru": 2,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim",
+    "cozum": "İskenderun turizm ile değil, liman ve sanayi (demir-çelik) fonksiyonu ile gelişmiş bir kenttir."
+  },
+  {
+    "soru": "Yukarıdaki haritada X, Y ve Z ile gösterilen yerlerde hangi tarım ürünleri yoğun olarak yetiştirilir?",
+    "siklar": ["Fındık - Haşhaş - Muz", "Mısır - Haşhaş - Zeytin", "Ayçiçeği - Muz - Haşhaş", "Ayçiçeği - Mercimek - Muz", "Fındık - Mercimek - Zeytin"],
+    "dogru": 2,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim",
+    "resim": "2010_orta_gk_38.jpg",
+    "cozum": "X (Trakya-Ergene): Ayçiçeği, Y (İç Ege-Göller): Haşhaş, Z (Anamur): Muz."
+  },
+  {
+    "soru": "Aşağıdaki coğrafi bölgelerden hangisi, karşısında verilen tarım ürününün üretim miktarı bakımından Türkiye'de ilk sırada yer almaz?",
+    "siklar": ["İç Anadolu - Arpa", "Akdeniz - Turunçgiller", "Marmara - Zeytin", "Karadeniz - Fındık", "Ege - İncir"],
+    "dogru": 2,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim",
+    "cozum": "Zeytin üretiminde Ege Bölgesi ilk sırada yer alır, Marmara değil (Marmara sofralık zeytinde önemlidir ama toplamda Ege öndedir)."
+  },
+  {
+    "soru": "Aşağıdaki tarım ürünlerinden hangisinin Türkiye'deki yetişme alanını sınırlandıran etmen diğerlerinden farklıdır?",
+    "siklar": ["Haşhaş", "Turunçgiller", "Buğday", "Kivi", "Mercimek"],
+    "dogru": 0,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim",
+    "cozum": "Haşhaş 'devlet kontrolü' (yasal nedenler) ile sınırlandırılmıştır. Diğerleri iklim şartları (doğal nedenler) ile sınırlandırılmıştır."
+  },
+  {
+    "soru": "Aşağıdaki illerin hangisinde, karşısında verilen hayvancılık türünün yapılması beklenmez?",
+    "siklar": ["Bartın - Balıkçılık", "Sivas - Büyükbaş", "Rize - Arıcılık", "Hakkâri - Arıcılık", "Konya - İpek böcekçiliği"],
+    "dogru": 4,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim",
+    "cozum": "İpek böcekçiliği dut ağacına bağlıdır. Konya bozkır iklimi olduğu için ipek böcekçiliği yaygın değildir (Daha çok Bursa, Diyarbakır, Antalya)."
+  },
+  {
+    "soru": "Aşağıdaki ürünlerden hangisinin Türkiye'nin dış satımındaki payı diğerlerinden daha fazladır?",
+    "siklar": ["Elma", "Şeker pancarı", "Fındık", "Mısır", "Pirinç"],
+    "dogru": 2,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim",
+    "cozum": "Fındık, Türkiye'nin geleneksel ve en önemli ihraç ürünlerinden biridir."
+  },
+  {
+    "soru": "Türkiye'de endüstri kuruluşlarının yoğun olduğu yerlerin ortak özelliği aşağıdakilerden hangisidir?",
+    "siklar": ["Aynı coğrafi bölgede yer almaları", "Fazla göç almaları", "Enerji kaynakları bakımından zengin olmaları", "Ulaşım olanakları bakımından gelişmiş olmaları", "II ve IV"],
+    "dogru": 4,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim"
+  },
+  {
+    "soru": "I. Adana, II. Bursa, III. Çanakkale, IV. Konya. Yukarıdaki yerlerin hangilerinde konserve fabrikaları da yaygındır?",
+    "siklar": ["I ve II", "I ve III", "II ve III", "II ve IV", "III ve IV"],
+    "dogru": 2,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim",
+    "cozum": "Konserve sanayisi sebze-meyve üretimiyle paraleldir. Bursa ve Çanakkale (Güney Marmara) bu konuda çok gelişmiştir."
+  },
+  {
+    "soru": "Yukarıdaki haritada numaralarla gösterilen termik santrallerden hangilerinde enerji kaynağı olarak linyit kullanılmaktadır?",
+    "siklar": ["I ve II", "I ve III", "II ve III", "II ve IV", "III ve IV"],
+    "dogru": 3,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim",
+    "resim": "2010_orta_gk_45.jpg",
+    "cozum": "II (Soma) ve IV (Afşin-Elbistan) linyit ile çalışır. I (Hamitabat) doğalgaz, III (Çatalağzı) taşkömürüdür."
+  },
+  {
+    "soru": "Yukarıdaki haritada numaralarla gösterilen ve kuş uçumu uzaklıkları aynı olan yerlerin doğal koşulları göz önüne alındığında, hangilerinde demir yolu yapım maliyetinin daha yüksek olması beklenir?",
+    "siklar": ["I ve II", "I ve IV", "II ve III", "II ve IV", "III ve IV"],
+    "dogru": 1,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim",
+    "resim": "2010_orta_gk_46.jpg",
+    "cozum": "I (Doğu Karadeniz) ve IV (Hakkari) Türkiye'nin en dağlık yerleridir."
+  },
+  {
+    "soru": "Aşağıdaki tabloda, Türkiye'de 2008 yılına ait iç ve dış hatlardaki uçuş sayısı ve yolcu sayısı gösterilmiştir. Bu tabloya göre hangisi doğrudur?",
+    "siklar": ["Uçak başına düşen dış hat yolcu sayısı iç hattakinden fazladır.", "İç hat seferlerinden bazıları dış hat bağlantılıdır.", "İç hat uçuşlarından elde edilen gelir, dış hattakinden fazladır.", "I ve II", "II ve III"],
+    "dogru": 0,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim",
+    "resim": "2010_orta_gk_47.jpg"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisinin Ege Bölgesi'nde turizmin gelişmesinde rolü yoktur?",
+    "siklar": ["Yat turizmi için doğal limanların olması", "Deniz turizmi için uygun iklim koşullarına sahip olması", "Sağlık turizmi için kaplıcaların bulunması", "Kültür turizmi için tarihî eserlerin olması", "Kış turizmi için kayak tesislerinin bulunması"],
+    "dogru": 4,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim",
+    "cozum": "Ege Bölgesi'nde (Bozdağlar hariç ki çok küçüktür) önemli bir kayak/kış turizmi merkezi yoktur."
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi bir sosyal düzen kuralı niteliği taşımaz?",
+    "siklar": ["Din kuralları", "Ahlak kuralları", "Manevi kurallar", "Görgü kuralları", "Hukuk kuralları"],
+    "dogru": 2,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim",
+    "cozum": "Sosyal düzen kuralları: Din, Ahlak, Görgü ve Hukuk kurallarıdır. 'Manevi kurallar' diye ayrı bir ana başlık yoktur (Din ve ahlak zaten manevidir)."
+  },
+  {
+    "soru": "Hukukta bir olayın veya olgunun varlığını veya yokluğunu ispata yarayan araçlara ne ad verilir?",
+    "siklar": ["Fiil", "Ehliyet", "Marka", "Delil", "İspat yükü"],
+    "dogru": 3,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim"
+  },
+  {
+    "soru": "Kişinin doğumundan ölümüne kadar geçen süre içinde özel hukuk ilişkilerinin düzenlendiği temel kanun aşağıdakilerden hangisidir?",
+    "siklar": ["T.C. Anayasası", "Türk Ceza Kanunu", "Borçlar Kanunu", "Türk Ticaret Kanunu", "Türk Medeni Kanunu"],
+    "dogru": 4,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim"
+  },
+  {
+    "soru": "1982 Anayasası'nda 2010 yılında yapılan değişiklikle, Anayasa Mahkemesi üyeleri kaç yıl için seçilirler?",
+    "siklar": ["5", "7", "10", "12", "15"],
+    "dogru": 3,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim"
+  },
+  {
+    "soru": "1982 Anayasası'nda 2010 yılında yapılan değişiklikle, Hâkimler ve Savcılar Yüksek Kurulu (HSYK) kaç üyeden oluşur?",
+    "siklar": ["7 asıl, 5 yedek", "11 asıl, 4 yedek", "15 asıl", "17 asıl", "22 asıl, 12 yedek"],
+    "dogru": 4,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim",
+    "cozum": "Not: 2017 değişikliği ile bu yapı tekrar değişmiş ve üye sayısı 13'e düşmüştür. Bu soru 2010 tarihli olduğu için o dönemin cevabıdır."
+  },
+  {
+    "soru": "1982 Anayasası'na göre, Başkomutanlık aşağıdakilerin hangisi tarafından temsil olunur?",
+    "siklar": ["Cumhurbaşkanı", "Başbakan", "TBMM Başkanı", "Genelkurmay Başkanı", "Milli Savunma Bakanı"],
+    "dogru": 0,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim"
+  },
+  {
+    "soru": "1982 Anayasası'na göre, Cumhurbaşkanının görev süresi kaç yıldır? (2010 yılı sorusu)",
+    "siklar": ["4", "5", "7", "9", "10"],
+    "dogru": 2,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim",
+    "cozum": "Soru 2010 yılında sorulduğunda cevap anahtarı 7 yıl (C şıkkı) olarak verilmiştir. Ancak 2007 referandumu ile bu süre 5 yıla inmişti. Günümüzde 5 yıldır."
+  },
+  {
+    "soru": "Hâkimler ve Savcılar Yüksek Kurulunun (HSK) Başkanı aşağıdakilerden hangisidir?",
+    "siklar": ["Adalet Bakanı", "Adalet Bakanlığı Müsteşarı", "Kurulun en yaşlı üyesi", "Kurulun seçtiği kişi", "Başbakan"],
+    "dogru": 0,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim"
+  },
+  {
+    "soru": "Kamu düzenini sağlamaya yönelik idari faaliyete ne ad verilir?",
+    "siklar": ["Kolluk", "Fiili memur", "İdari yaptırım", "Disiplin cezası", "Düzenleyici işlem"],
+    "dogru": 0,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim"
+  },
+  {
+    "soru": "2010 yılında dünyanın en iyi yedi merkez bankası başkanından biri seçilen T.C. Merkez Bankası Başkanı kimdir?",
+    "siklar": ["Durmuş Yılmaz", "Mehmet Şimşek", "Ali Babacan", "Ahmet Ertürk", "Gazi Erçel"],
+    "dogru": 0,
+    "ders": "GÜNCEL BİLGİLER",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim"
+  },
+  {
+    "soru": "İkili ekonomik ilişkilerde ABD Dolarının devreden çıkarılarak Türk Lirası ve Yuanın kullanılmaya başlandığı ülke aşağıdakilerden hangisidir?",
+    "siklar": ["Azerbaycan", "Türkmenistan", "Japonya", "Çin", "Pakistan"],
+    "dogru": 3,
+    "ders": "GÜNCEL BİLGİLER",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim"
+  },
+  {
+    "soru": "Yerin yaklaşık 700 metre altında iki aydan fazla mahsur kalan 33 maden işçisinin kurtarıldığı ülke aşağıdakilerden hangisidir?",
+    "siklar": ["Brezilya", "Kolombiya", "Arjantin", "Uruguay", "Şili"],
+    "dogru": 4,
+    "ders": "GÜNCEL BİLGİLER",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Ortaöğretim"
+  },
+  {
+    "soru": "Çin kaynaklarına göre, Orta Asya'da kurulan Asya Hunları evlerini topraktan yapmış, Hazarların evleriyse ahşap olup yalnız hakan sarayı ve kale taştan yapılmıştır. Buna göre; I. Doğa şartları yaşamı etkilemiştir, II. Türklerde göçebe yaşantı vardır, III. Çinlilerden etkilenilmiştir yargılarından hangilerine ulaşılabilir?",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "I ve II", "I, II ve III"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans"
+  },
+  {
+    "soru": "Nizâm'ül-Mülk'ün Siyasetname adlı eserinin önemi; I. Yazarının devlet yönetiminde söz sahibi olması, II. Devlet yönetimine ilişkin bilgiler vermesi, III. Kendi türünde ilk eser olması durumlarından hangilerinden kaynaklanır?",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "I ve II", "I, II ve III"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans"
+  },
+  {
+    "soru": "Aşağıdaki Türk devletlerinden hangisi donanmaya önem vermiş ve tersaneler kurmuştur?",
+    "siklar": ["Büyük Selçuklular", "Anadolu Selçukluları", "Karahanlılar", "Gazneliler", "Harzemşahlar"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi, Osmanlı toplumunda yönetici gruplar (Beraya) arasında değildir?",
+    "siklar": ["İlmiye", "Seyfiye", "Reaya", "Kalemiye", "Hanedan üyeleri"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi, XIX. yüzyılda Osmanlı Devleti'nde eğitimle ilgili gelişmelerden biri değildir?",
+    "siklar": ["Avrupa'ya öğrenci gönderilmesi", "İlk Türk matbaasının kurulması", "Yabancı dil eğitimine önem verilmesi", "Avrupa eserlerinin tercüme edilmesi", "Kütüphane kurulmasına önem verilmesi"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans"
+  },
+  {
+    "soru": "I. Coğrafi Keşifler, II. Milliyetçilik, III. Sanayi İnkılabı. Osmanlı Devleti'nde XVI. yüzyılda yukarıdaki gelişmelerden hangileri ekonomik alanda etkili olmuştur?",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "I ve II", "I, II ve III"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans"
+  },
+  {
+    "soru": "I. Kanunuesasi, II. Tanzimat Fermanı, III. Islahat Fermanı. Osmanlı Devleti'nde yukarıdakilerin ilanı sırası nasıldır?",
+    "siklar": ["I, II, III", "II, I, III", "II, III, I", "III, I, II", "III, II, I"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans"
+  },
+  {
+    "soru": "Osmanlı Devleti'nin Balta Limanı Antlaşması'yla yabancı tacirlere tanıdığı; I. Vergi indirimi, II. Belgesiz mal nakli, III. Kısıtlamasız satış haklarından hangileri iç piyasaya egemen olmalarını kolaylaştırmıştır?",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "I ve II", "I, II ve III"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans"
+  },
+  {
+    "soru": "Birinci Dünya Savaşı başlarında tarafsız olan ABD, daha sonra neden savaşa girmiştir?",
+    "siklar": ["Rusya'nın çekilmesi", "Rusya'da rejim değişikliği", "Arapların ayaklanması", "Ticaret gemilerinin batırılması", "Osmanlı'nın çok cephede savaşması"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans"
+  },
+  {
+    "soru": "'Sivas'ta milli bir kongrenin acilen toplanması' ve 'Delegelerin yola çıkarılması' çağrıları aşağıdakilerden hangisinin kapsamındadır?",
+    "siklar": ["Erzurum Kongresi", "Amasya Genelgesi", "Sivas Kongresi", "Havza Genelgesi", "Misakımillî"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans"
+  },
+  {
+    "soru": "Erzurum ve Sivas Kongrelerinde alınan; I. Kuvayımilliyeyi etken kılmak, II. Azınlıklara ayrıcalık vermemek, III. Millî Meclisi toplamak kararlarından hangileri 'ülkenin parçalanmaz bütünlüğü' ilkesini destekler?",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "I ve II", "I, II ve III"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans"
+  },
+  {
+    "soru": "Misakımillî'de yer alan; I. Azınlık hakları, II. Kapitülasyonların kaldırılması, III. İstanbul'un güvenliği kararlarından hangileri 'tam bağımsızlık' anlayışını gösterir?",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "I ve II", "I, II ve III"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi, daha önceden üzerinde uzlaşma sağlandığı için Lozan Konferansı'nda tartışmalara konu olmamıştır?",
+    "siklar": ["Boğazlar", "Suriye sınırı", "Borçlar", "Kapitülasyonlar", "Musul"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi, 1923 İzmir İktisat Kongresi kararlarından biri değildir?",
+    "siklar": ["Kabotaj hakkının kullanılması", "Sendika hakkının tanınması", "Topraksız köylüye toprak dağıtılması", "Yerli sanayi için koruyucu önlemler", "Ülkedeki madenlerin saptanması"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans"
+  },
+  {
+    "soru": "Atatürk'ün 'Çağdaş bir Cumhuriyet kurmak...' sözüyle; I. Özgür birey olma, II. Çağdaş gelişmeleri izleme, III. Demokrasi bilinci değerlerinden hangilerini vurguladığı savunulabilir?",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "I ve II", "I, II ve III"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans"
+  },
+  {
+    "soru": "1926 Ankara Antlaşması; I. Musul'un Irak'a bırakılması, II. Sınırın çizilmesi, III. Petrol gelirinden pay alınması maddelerinden hangilerini kapsar?",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "I ve II", "I, II ve III"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans"
+  },
+  {
+    "soru": "Âşar vergisinin; I. Mültezimlerin tutumu, II. Oranının yüksekliği, III. Ürün üzerinden alınması özelliklerinden hangileri köylüyü sıkıntıya sokmuştur?",
+    "siklar": ["Yalnız I", "Yalnız II", "I ve II", "II ve III", "I, II ve III"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi 1926 Medeni Kanun'la sağlanan durumlardan biri değildir?",
+    "siklar": ["Kadınların siyasi yönetime katılması", "Tek eşlilik", "Kadının boşanma hakkı", "Resmî nikâh", "Miras eşitliği"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi Harf İnkılabı'nın uygulanmasıyla ilgili gelişmelerden biridir?",
+    "siklar": ["Medreselerin kapatılması", "Maarif Teşkilatı Kanunu", "Millet Mekteplerinin açılması", "Müzik Öğretmen Okulu", "Tevhid-i Tedrisat"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans"
+  },
+  {
+    "soru": "I. Köy Enstitüleri, II. Halkevleri, III. Eğitmen kursları. Hangilerinde toplumun bilgi düzeyini yükseltmek amacı vardır?",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "I ve II", "I, II ve III"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans"
+  },
+  {
+    "soru": "Atatürk'ün 'Demokrasi ilkesi, egemenliğin millette olduğunu gerekli sayar.' sözü hangi ilkeyi doğrudan destekler?",
+    "siklar": ["Halkçılık", "Cumhuriyetçilik", "Milliyetçilik", "Devletçilik", "İnkılapçılık"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans"
+  },
+  {
+    "soru": "Atatürk'ün 'Biz yapmadığımız ve yapamadığımız kavramlar üzerinde koşarak düşmanlarımızı artırmaktansa... haddimizi bilelim.' sözü dış politikada; I. Ulusal sınırlar içinde kalma, II. Gerçekçi olma, III. Türk varlığını koruma ilkelerinden hangilerini amaçlar?",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "I ve II", "I, II ve III"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans"
+  },
+  {
+    "soru": "Diyanet İşleri Başkanlığına yönetimde yer verilmesiyle; I. Din istismarını önleme, II. Hurafeleri engelleme, III. Ailelerin dini eğitim vermesi durumlarından hangileri sağlanmak istenmiştir?",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "I ve II", "I, II ve III"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans"
+  },
+  {
+    "soru": "Atatürk'ün 'Batı medeniyetini taklitçilik için değil, iyi gördüğümüz için alıyoruz.' sözüyle hangisine ulaşılamaz?",
+    "siklar": ["Çağdaşlığı ilke edinme", "Yabancı kültürlere bağlanma", "Özgünlüğü koruma", "Batı'dan yararlanma", "Gelişmiş ülkeler arasında yer alma"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans"
+  },
+  {
+    "soru": "1929 Ekonomik Bunalımı Türkiye'de hangisine ortam hazırlamıştır?",
+    "siklar": ["Devletçilik ilkesinin kabulü", "İktisat Kongresi", "Kabotaj Kanunu", "İş Bankası", "Teşvik-i Sanayi"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans"
+  },
+  {
+    "soru": "I. İstanbul Üniversitesinin kurulması, II. Türk Tarih Kurumu, III. Köy Enstitüleri. Hangileri Atatürk Dönemi gelişmesidir?",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "I ve II", "I, II ve III"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi Sadabad Paktı'na üye devletlerden biridir?",
+    "siklar": ["Suriye", "Mısır", "Pakistan", "Afganistan", "Hindistan"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi, sıcaklık dağılışında bakının etkisine örnektir?",
+    "siklar": ["Mersin'in Sinop'tan sıcak olması", "Antalya deniz suyunun Samsun'dan sıcak olması", "Edirne'de karın yerde kalma süresi", "İzmir'den Afyon'a gidildikçe kar yağması", "Giresun'da güney yamaçlarda karların erken erimesi"],
+    "dogru": 4,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans"
+  },
+  {
+    "soru": "Karadeniz Bölgesi'nde aşağıdaki göl tiplerinden hangisine rastlanması beklenmez?",
+    "siklar": ["Krater (Volkanik)", "Heyelan set", "Alüvyal set", "Kıyı set", "Buzul"],
+    "dogru": 0,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi Türkiye'de erozyonun fazla olduğu bölgelerde ortaya çıkan 'sorunlardan' biri değildir?",
+    "siklar": ["Toprak kalınlığının azalması", "Baraj tabanının dolması", "Delta alanlarının genişlemesi", "Mera alanlarının azalması", "Tarımsal verimin düşmesi"],
+    "dogru": 2,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans"
+  },
+  {
+    "soru": "Bir yörede geçim kaynakları sınırlı, enerji tüketimi az ve doğum oranı yüksekse hangisi kesin söylenir?",
+    "siklar": ["Niteliksiz iş gücü fazladır", "Ulaşım gelişmiştir", "Ahır hayvancılığı yaygındır", "Okullaşma yüksektir", "Nüfus yoğundur"],
+    "dogru": 0,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans"
+  },
+  {
+    "soru": "Türkiye'de yaşanan iç göçlerle ilgili hangisi söylenemez?",
+    "siklar": ["En çok kırsaldan kente göç olur", "Sanayileşen yerler göç alır", "Kıyı kentlerine göç nedenleri farklıdır", "Tarımsal çeşitlenme göçü artırmıştır", "Temel neden işsizliktir"],
+    "dogru": 3,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans"
+  },
+  {
+    "soru": "Haritada verilen kentlerden (Samsun, Afyon, Bursa, Karabük, Urfa) hangisinin gelişmesinde etkili olan etmen yukarıda verilmemiştir? (Liman, Kavşak, Tarım-Oto, Tarım-Turizm)",
+    "siklar": ["Bursa", "Afyonkarahisar", "Karabük", "Samsun", "Şanlıurfa"],
+    "dogru": 4,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans",
+    "resim": "2010_onlisans_gk_36.jpg"
+  },
+  {
+    "soru": "Türkiye'nin yüksek ve engebeli bir ülke olmasının aşağıdaki ekonomik etkinliklerden hangisi üzerinde etkisi yoktur?",
+    "siklar": ["Kış turizmi", "Büyükbaş hayvancılık", "Yaylacılık", "Madencilik", "Orman işletmeciliği"],
+    "dogru": 3,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans"
+  },
+  {
+    "soru": "Türkiye'deki tarımsal etkinliklerle ilgili olarak aşağıdakilerden hangisi doğrudur?",
+    "siklar": ["Pirinç yalnız iç bölgelerde yetiştirilir", "Ege Bölgesi'ndeki zeytin üretimi Akdeniz'den fazladır", "İç Anadolu'da ürün çeşidi Marmara'dan fazladır", "İç bölgeler arasında sulama gereksiniminin en fazla olduğu yer G.Doğu Anadolu'dur", "En çok çalışan tarım sektöründedir"],
+    "dogru": 1,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans"
+  },
+  {
+    "soru": "Doğal koşulları göz önüne alındığında haritada numaralarla gösterilen yerlerin hangisinde ekilen aynı tür buğdaydan, yıl içinde birim alandan daha yüksek verim alınması beklenir?",
+    "siklar": ["I", "II", "III", "IV", "V"],
+    "dogru": 4,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans",
+    "resim": "2010_onlisans_gk_39.jpg"
+  },
+  {
+    "soru": "Yıllık sıcaklık ortalaması yüksek, don olayına duyarlı olan bir bitkinin (Örn: Turunçgil) aşağıdaki yerlerden hangisinde yetiştirilmesi daha kolaydır?",
+    "siklar": ["Ergani", "İskenderun", "Amasra", "Tatvan", "Gemlik"],
+    "dogru": 1,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans"
+  },
+  {
+    "soru": "Türkiye'de çay ve muz üretimi için; I. Alanların sınırlı olması, II. Her mevsim yağış istemesi, III. İş gücü gerektirmesi özelliklerinden hangileri ortaktır?",
+    "siklar": ["I ve II", "I ve III", "II ve III", "II ve IV", "III ve IV"],
+    "dogru": 1,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans"
+  },
+  {
+    "soru": "Türkiye'de, aşağıdakilerin hangisinde verilen ekonomik etkinliklerin aynı yörede bir arada yürütülmesi daha zordur?",
+    "siklar": ["Büyükbaş hayvancılık - Şeker pancarı", "Balıkçılık - Buğday", "Fındık - Pamuk", "Küçükbaş - İpek böcekçiliği", "Mısır - Zeytin"],
+    "dogru": 2,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans"
+  },
+  {
+    "soru": "Kösele imalatı yapan bir yatırımcı, fabrikayı büyükbaş hayvan derisinin kolay temin edildiği bir yere kurmak istiyor. Haritada nereyi seçmelidir?",
+    "siklar": ["I", "II", "III", "IV", "V"],
+    "dogru": 3,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans",
+    "resim": "2010_onlisans_gk_43.jpg"
+  },
+  {
+    "soru": "Aşağıdaki ürünlerden hangisi Türkiye için hem dış alım hem de dış satımda diğerlerinden daha önemli bir yer tutar? (Otomotiv/Beyaz Eşya)",
+    "siklar": ["Petrol", "Doğalgaz", "Kahve", "Üzüm", "Beyaz eşya"],
+    "dogru": 4,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans"
+  },
+  {
+    "soru": "Haritada numaralarla gösterilen yerlerdeki enerji kaynaklarıyla ilgili hangisi yanlıştır?",
+    "siklar": ["I - Doğalgaz", "II - Hidroelektrik", "III - Rüzgar", "IV - Jeotermal", "V - Güneş"],
+    "dogru": 1,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans",
+    "resim": "2010_onlisans_gk_45.jpg"
+  },
+  {
+    "soru": "Aşağıdaki limanlardan hangisinin gelişmesinde; hem kara/demir yolu ulaşımı, hem endüstri, hem de serbest bölge etkili olmuştur?",
+    "siklar": ["Mersin", "Tekirdağ", "Trabzon", "Antalya", "Çanakkale"],
+    "dogru": 0,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans"
+  },
+  {
+    "soru": "Aşağıdaki grafikte turist sayısı ve geliri gösterilmiştir. Bu grafikten hangisi çıkarılabilir?",
+    "siklar": ["2008 geliri 25 milyon dolar üstüdür", "2005 ve 2007 kişi başı gelir eşittir", "2004 ve 2006 toplam geliri 2008'den fazladır", "Turist sayısı düzenli artmıştır", "Tesis sayısı artmıştır"],
+    "dogru": 2,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans",
+    "resim": "2010_onlisans_gk_47.jpg"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi, Türkiye'deki inanç turizmi merkezlerinden biri değildir?",
+    "siklar": ["Mevlana Türbesi", "Meryem Ana", "Cennet-Cehennem", "Akdamar Kilisesi", "Sümela Manastırı"],
+    "dogru": 2,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans"
+  },
+  {
+    "soru": "Kazanç paylaşma amacı gütmeyen ve en az yedi kişinin bir araya gelmesiyle kurulabilen tüzel kişilik hangisidir?",
+    "siklar": ["Vakıf", "Kolektif şirket", "Kooperatif", "Komandit şirket", "Dernek"],
+    "dogru": 4,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans"
+  },
+  {
+    "soru": "Kardeşler arasındaki hısımlığa ne ad verilir?",
+    "siklar": ["Kayın hısımlığı", "Alt soy hısımlığı", "Üst soy hısımlığı", "Yan soy kan hısımlığı", "Evlat edinme"],
+    "dogru": 3,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans"
+  },
+  {
+    "soru": "Kişiye eşya üzerinde doğrudan doğruya hâkimiyet sağlayan ve herkese karşı ileri sürülebilen haklara ne ad verilir?",
+    "siklar": ["Fikrî hak", "Ayni hak", "Şahsi hak", "Alacak hakkı", "Talep hakkı"],
+    "dogru": 1,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans"
+  },
+  {
+    "soru": "1982 Anayasası'nda 2010 değişikliği ile Anayasa Mahkemesi için getirilen yenilikler; I. Bireysel başvuru, II. Üye süresi 12 yıl, III. TBMM'nin üye seçmesi hangileridir?",
+    "siklar": ["Yalnız I", "I ve III", "I, II ve III", "I, III ve IV", "Hepsi"],
+    "dogru": 2,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans"
+  },
+  {
+    "soru": "1982 Anayasası'na göre, aşağıdakilerden hangisi milletvekilliğini sona erdiren hâllerden biri değildir? (2010 değişikliği sonrası)",
+    "siklar": ["İstifa", "Kesin hüküm giyme", "Kısıtlanma", "Bağdaşmayan görevde ısrar", "Partisinin kapatılmasına sebep olma"],
+    "dogru": 4,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi 1982 Anayasası'nda değiştirilemez hükümler arasında yer almaz?",
+    "siklar": ["Başkent Ankara'dır", "Yasama yetkisi TBMM'nindir", "Milli marş İstiklal Marşı'dır", "İnsan haklarına saygılıdır", "Atatürk milliyetçiliğine bağlıdır"],
+    "dogru": 1,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans"
+  },
+  {
+    "soru": "Aşağıda eşleştirilenlerin hangisinde bir hiyerarşi ilişkisi söz konusu olamaz?",
+    "siklar": ["Bakan - Müsteşar", "Rektör - Dekan", "Vali - Kaymakam", "Kaymakam - İlçe MEM", "YÖK Başkanı - Rektör"],
+    "dogru": 4,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans"
+  },
+  {
+    "soru": "Tüzüklerin yargısal denetimini yapma konusunda aşağıdakilerden hangisi görevlidir?",
+    "siklar": ["İdare mahkemesi", "Bölge idare mahkemesi", "AYİM", "Danıştay", "Sayıştay"],
+    "dogru": 3,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi belediye tüzel kişiliğinin çıkarabileceği düzenleyici işlemlerden biri değildir?",
+    "siklar": ["Tüzük", "Yönetmelik", "İmar planı", "Tebliğ", "Genelge"],
+    "dogru": 0,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi BDDK'nın görevleri arasında yer almaz?",
+    "siklar": ["Güven ve istikrarı sağlamak", "Rekabet ortamı hazırlamak", "Fiyat istikrarını sağlamak", "Kredi sistemini düzenlemek", "Tasarruf sahiplerini korumak"],
+    "dogru": 2,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans"
+  },
+  {
+    "soru": "Aşağıdaki ülkelerden hangisi başkanlık sistemi ile yönetilmektedir?",
+    "siklar": ["ABD", "Almanya", "İngiltere", "Yunanistan", "Japonya"],
+    "dogru": 0,
+    "ders": "GÜNCEL BİLGİLER",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans"
+  },
+  {
+    "soru": "4 Ekim 2010 tarihinde alüminyum fabrikasından zehirli atık yayılması sonucu çevre felaketi yaşayan ülke hangisidir?",
+    "siklar": ["Rusya", "Polonya", "Ukrayna", "Bulgaristan", "Macaristan"],
+    "dogru": 4,
+    "ders": "GÜNCEL BİLGİLER",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2010 Önlisans"
   }
+
   ]
+
 
 
 
