@@ -73,6 +73,17 @@ function shuffleOptions(q) {
 }
 
 io.on("connection", (socket) => {
+    
+    // --- YENİ EKLENEN KISIM: OTOMATİK DENEME LİSTESİ GÖNDERME ---
+    // 1. Tüm soruların içinden "deneme" isimlerini çek
+    // 2. Tekrar edenleri temizle (Set kullanarak)
+    // 3. Alfabetik sırala
+    const mevcutDenemeler = [...new Set(tumSorular.map(q => q.deneme).filter(x => x))].sort();
+    
+    // Kullanıcıya bu listeyi gönder (İstemci bunu yakalayıp menüyü dolduracak)
+    socket.emit('updateDenemeList', mevcutDenemeler);
+    // -------------------------------------------------------------
+
     // ODA YÖNETİMİ
     socket.on("createRoom", (username) => {
         const roomCode = Math.floor(1000 + Math.random() * 9000).toString();
@@ -312,3 +323,4 @@ function sendQuestionToRoom(roomCode) {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`🚀 Sunucu ${PORT} portunda tam güç çalışıyor.`));
+
