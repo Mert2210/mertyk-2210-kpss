@@ -143,8 +143,13 @@ io.on("connection", (socket) => {
                 return siraA - siraB;
             });
 
-            // Deneme modunda karıştırma yapmıyoruz (shuffle yok), tüm soruları soruyoruz.
-            room.questions = pool.map(q => shuffleOptions(q));
+            // --- DEĞİŞİKLİK BURADA ---
+            // Soru sayısını (count) dikkate al, yoksa hepsini getir.
+            const limit = parseInt(settings.count) || pool.length;
+
+            // Soruları limitle (Örn: 10 seçtiysen sadece ilk 10 Tarih sorusu gelir)
+            // Deneme modunda SORULARI karıştırma yapmıyoruz, sadece cevap şıklarını karıştırıyoruz.
+            room.questions = pool.slice(0, limit).map(q => shuffleOptions(q));
         }
 
         // 3. GENEL MOD (KARIŞIK VE FİLTRELİ)
