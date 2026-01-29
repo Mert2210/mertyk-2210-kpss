@@ -49,22 +49,9 @@
         .analysis-item { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px dashed #ddd; font-size: 0.85rem; }
         .analysis-item:last-child { border-bottom: none; }
 
-        #question-navigator {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr); 
-            gap: 5px;
-            margin-top: 15px;
-            padding: 10px;
-            background: #f1f2f6;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-        }
-        .nav-box {
-            width: 30px; height: 30px;
-            display: flex; justify-content: center; align-items: center;
-            background: #fff; border: 1px solid #ccc; border-radius: 4px;
-            cursor: pointer; font-size: 0.8rem; font-weight: bold; color: #555; transition: 0.2s;
-        }
+        /* NAVİGASYON */
+        #question-navigator { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; margin-top: 15px; padding: 10px; background: #f1f2f6; border-radius: 8px; border: 1px solid #ddd; }
+        .nav-box { width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; background: #fff; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; font-size: 0.8rem; font-weight: bold; color: #555; transition: 0.2s; }
         .nav-box:hover { background: #e0e0e0; }
         .nav-box.active { border: 2px solid #e67e22; transform: scale(1.1); box-shadow: 0 0 5px rgba(230, 126, 34, 0.5); }
         .nav-box.answered { background: #3498db; color: white; border-color: #2980b9; }
@@ -72,12 +59,7 @@
         .nav-box.wrong { background: #c0392b; color: white; border-color: #e74c3c; }
 
         #nav-buttons { display: flex; justify-content: space-between; margin-top: 15px; gap: 15px; }
-        .nav-btn {
-            flex: 1; padding: 12px; border: none; border-radius: 12px;
-            font-size: 0.95rem; font-weight: 600; cursor: pointer;
-            transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        }
+        .nav-btn { flex: 1; padding: 12px; border: none; border-radius: 12px; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         .nav-btn.prev { background-color: #f8f9fa; color: #7f8c8d; border: 1px solid #eef2f3; }
         .nav-btn.prev:hover { background-color: #ecf0f1; transform: translateY(-2px); color: #34495e; }
         .nav-btn.next { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; box-shadow: 0 4px 15px rgba(30, 60, 114, 0.3); }
@@ -89,26 +71,25 @@
         #report-btn { font-size: 1.2rem; background: none; border: none; cursor: pointer; padding: 0; line-height: 1; margin-left: 5px; }
         #report-btn:hover { transform: scale(1.1); }
 
-        /* CHECKBOX LİSTESİ TASARIMI */
-        .checkbox-container {
-            max-height: 150px;
-            overflow-y: auto;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            padding: 8px;
-            background: #fff;
-            text-align: left;
-            margin-bottom: 8px;
-        }
-        .checkbox-item {
-            display: flex;
-            align-items: center;
-            padding: 4px 0;
-            border-bottom: 1px solid #eee;
-        }
+        /* AÇILIR KAPANIR MENÜ (DROPDOWN) */
+        .dropdown-wrapper { position: relative; margin-bottom: 8px; width: 100%; }
+        .dropdown-trigger { background-color: #fff; color: #333; border: 2px solid #e67e22; padding: 12px; width: 100%; text-align: left; border-radius: 8px; cursor: pointer; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
+        .dropdown-trigger::after { content: '▼'; font-size: 0.8rem; }
+        .dropdown-trigger.open::after { content: '▲'; }
+        .dropdown-trigger.subject-trigger { border-color: #2980b9; }
+
+        .dropdown-content { display: none; position: absolute; background-color: #fff; width: 100%; border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 8px 16px rgba(0,0,0,0.2); z-index: 100; max-height: 200px; overflow-y: auto; left: 0; }
+        .dropdown-content.down { top: 100%; margin-top: 5px; }
+        .dropdown-content.up { bottom: 100%; margin-bottom: 5px; top: auto; }
+        .dropdown-content.show { display: block; }
+
+        .checkbox-item { display: flex; align-items: center; padding: 10px; border-bottom: 1px solid #f0f0f0; cursor: pointer; }
         .checkbox-item:last-child { border-bottom: none; }
-        .checkbox-item input { width: auto; margin-right: 8px; margin-bottom: 0; cursor: pointer; }
-        .checkbox-item label { cursor: pointer; font-size: 0.9rem; flex: 1; color: #333; }
+        .checkbox-item:hover { background-color: #f9f9f9; }
+        .checkbox-item input { width: auto; margin: 0 10px 0 0; cursor: pointer; transform: scale(1.2); }
+        .checkbox-item label { cursor: pointer; font-size: 0.9rem; flex: 1; text-align: left; color: #333; margin: 0; }
+        
+        .selection-label { font-size:0.7rem; color:#666; display:block; margin-bottom:2px; text-align:left; }
     </style>
 </head>
 <body>
@@ -176,18 +157,20 @@
                 </div>
             </div>
             
-            <span style="font-size:0.7rem; color:#666; display:block; margin-bottom:2px;">Çözülecek Denemeleri Seçin:</span>
-            <div id="deneme-list-container" class="checkbox-container">
-                <div style="padding:10px; color:#999;">Yükleniyor...</div>
+            <span class="selection-label">Soru Kaynağı Seçimi:</span>
+            <div class="dropdown-wrapper">
+                <div class="dropdown-trigger" onclick="toggleDropdown('deneme-content', this)">Tüm Kaynaklar (Seçili)</div>
+                <div id="deneme-content" class="dropdown-content down">
+                    <div style="padding:10px; color:#999;">Yükleniyor...</div>
+                </div>
             </div>
             
-            <span style="font-size:0.7rem; color:#666; display:block; margin-bottom:2px;">Dersleri Seçin:</span>
-            <div id="subject-list-container" class="checkbox-container">
-                <div class="checkbox-item"><input type="checkbox" id="sub-all" onchange="toggleAllSubjects(this)"><label for="sub-all"><strong>TÜMÜNÜ SEÇ / KALDIR</strong></label></div>
-                <div class="checkbox-item"><input type="checkbox" name="subject-secim" value="TARİH" id="sub-1"><label for="sub-1">Tarih</label></div>
-                <div class="checkbox-item"><input type="checkbox" name="subject-secim" value="COĞRAFYA" id="sub-2"><label for="sub-2">Coğrafya</label></div>
-                <div class="checkbox-item"><input type="checkbox" name="subject-secim" value="VATANDAŞLIK" id="sub-3"><label for="sub-3">Vatandaşlık</label></div>
-                <div class="checkbox-item"><input type="checkbox" name="subject-secim" value="GÜNCEL BİLGİLER" id="sub-4"><label for="sub-4">Güncel Bilgiler</label></div>
+            <span class="selection-label">Dersler:</span>
+            <div class="dropdown-wrapper">
+                <div class="dropdown-trigger subject-trigger" onclick="toggleDropdown('subject-content', this)">Tüm Dersler (Seçili)</div>
+                <div id="subject-content" class="dropdown-content up">
+                    <div style="padding:10px; color:#999;">Yükleniyor...</div>
+                </div>
             </div>
             
             <select id="set-difficulty">
@@ -303,7 +286,6 @@
 
     function toggleStar() { if (!currentQuestionData) return; const btn = document.getElementById('star-btn'); let favs = getLocalData('kpss_favs'); const idx = favs.findIndex(q => q.soru === currentQuestionData.soru); if (idx > -1) { favs.splice(idx, 1); btn.classList.remove('starred'); } else { favs.push({...currentQuestionData}); btn.classList.add('starred'); } saveLocalData('kpss_favs', favs); }
 
-    // Hata Bildirme Fonksiyonu
     function reportCurrentQuestion() {
         if (!currentQuestionData) return;
         const reason = prompt("Bu sorudaki hata nedir? (Örn: Cevap anahtarı yanlış, Yazım hatası vb.)");
@@ -359,13 +341,32 @@
         }
     }
 
+    // --- MENÜ YÖNETİMİ ---
+    function toggleDropdown(id, trigger) {
+        document.querySelectorAll('.dropdown-content').forEach(el => {
+            if(el.id !== id) el.classList.remove('show');
+        });
+        document.querySelectorAll('.dropdown-trigger').forEach(el => {
+            if(el !== trigger) el.classList.remove('open');
+        });
+
+        const content = document.getElementById(id);
+        content.classList.toggle('show');
+        trigger.classList.toggle('open');
+    }
+
+    window.onclick = function(event) {
+        if (!event.target.matches('.dropdown-trigger') && !event.target.closest('.dropdown-content')) {
+            document.querySelectorAll('.dropdown-content').forEach(el => el.classList.remove('show'));
+            document.querySelectorAll('.dropdown-trigger').forEach(el => el.classList.remove('open'));
+        }
+    }
+
     function startGame() { 
-        // Seçili Denemeleri Topla
         const secilenDenemeler = [];
         document.querySelectorAll('input[name="deneme-secim"]:checked').forEach(cb => secilenDenemeler.push(cb.value));
         const denemeValue = secilenDenemeler.length > 0 ? secilenDenemeler : "HEPSI";
 
-        // Seçili Dersleri Topla
         const secilenDersler = [];
         document.querySelectorAll('input[name="subject-secim"]:checked').forEach(cb => secilenDersler.push(cb.value));
         const dersValue = secilenDersler.length > 0 ? secilenDersler : "HEPSI";
@@ -516,20 +517,40 @@
         }
     });
     
+    // OTOMATİK DENEME LİSTESİ (VARSAYILAN SEÇİLİ)
     socket.on('updateDenemeList', (liste) => {
-        const container = document.getElementById('deneme-list-container');
+        const container = document.getElementById('deneme-content');
         container.innerHTML = '';
         
         const allDiv = document.createElement('div');
         allDiv.className = 'checkbox-item';
         allDiv.style.backgroundColor = '#f0f8ff';
-        allDiv.innerHTML = `<input type="checkbox" id="cb-all" onchange="toggleAllDeneme(this)"><label for="cb-all"><strong>TÜMÜNÜ SEÇ / KALDIR</strong></label>`;
+        allDiv.innerHTML = `<input type="checkbox" id="cb-all" checked onchange="toggleAllDeneme(this)"><label for="cb-all"><strong>TÜMÜNÜ SEÇ / KALDIR</strong></label>`;
         container.appendChild(allDiv);
 
         liste.forEach((denemeAdi, index) => {
             const div = document.createElement('div');
             div.className = 'checkbox-item';
-            div.innerHTML = `<input type="checkbox" name="deneme-secim" id="cb-${index}" value="${denemeAdi}"><label for="cb-${index}">${denemeAdi}</label>`;
+            div.innerHTML = `<input type="checkbox" name="deneme-secim" id="cb-${index}" value="${denemeAdi}" checked><label for="cb-${index}">${denemeAdi}</label>`;
+            container.appendChild(div);
+        });
+    });
+
+    // OTOMATİK DERS LİSTESİ (VARSAYILAN SEÇİLİ)
+    socket.on('updateSubjectList', (liste) => {
+        const container = document.getElementById('subject-content');
+        container.innerHTML = '';
+        
+        const allDiv = document.createElement('div');
+        allDiv.className = 'checkbox-item';
+        allDiv.style.backgroundColor = '#f0f8ff';
+        allDiv.innerHTML = `<input type="checkbox" id="sub-all" checked onchange="toggleAllSubjects(this)"><label for="sub-all"><strong>TÜMÜNÜ SEÇ / KALDIR</strong></label>`;
+        container.appendChild(allDiv);
+
+        liste.forEach((dersAdi, index) => {
+            const div = document.createElement('div');
+            div.className = 'checkbox-item';
+            div.innerHTML = `<input type="checkbox" name="subject-secim" id="sub-${index}" value="${dersAdi}" checked><label for="sub-${index}">${dersAdi}</label>`;
             container.appendChild(div);
         });
     });
@@ -654,7 +675,7 @@
 
     socket.on('gameOver', p => {
         renderResultScreen(p);
-        questionStatusList = []; // Oyun bitince listeyi temizle
+        questionStatusList = []; 
     });
     socket.on('errorMsg', m => alert(m));
 </script>
