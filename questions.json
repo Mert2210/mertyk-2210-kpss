@@ -11937,9 +11937,494 @@
     "ders": "GÜNCEL BİLGİLER",
     "zorluk": "ÇIKMIŞ",
     "deneme": "2012 KPSS Lisans"
+  },
+  {
+    "soru": "Orta Asya'da kurulan ilk Türk devletleriyle ilgili; I. Ülke töre adı verilen yazılı olmayan kurallara göre yönetilmiştir, II. Toprak 'yurt' olarak adlandırılmıştır, III. Hükümdara yardımcı olmak üzere danışma meclisleri kurulmuştur. Yargılarından hangileri doğrudur?",
+    "siklar": ["Yalnız I", "Yalnız III", "I ve II", "II ve III", "I, II ve III"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "Kayseri'deki Gevher Nesibe Hatun, Aksaray'daki Alaeddin Keykubat ve Divriği'deki Turan Melek adlı Türkiye Selçukluları Dönemi'ne ait eserler aşağıdaki yapı türlerinden hangisine girer?",
+    "siklar": ["Kervansaray", "İmarethane", "Darüşşifa", "Medrese", "Külliye"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "Anadolu'da kurulan ilk beyliklerden biri olan (1072-1202), Erzurum çevresinde hüküm süren, Üç Kümbetler ve Mama Hatun Türbesi gibi eserleri bırakan beylik hangisidir?",
+    "siklar": ["Danişmentliler", "Saltuklular", "Artuklular", "Mengücekler", "Sökmenliler"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "Osmanlı Beyliği'nin Rumeli'ye geçişinde aşağıdakilerden hangisi etkili olmamıştır?",
+    "siklar": ["Bizans'taki taht mücadeleleri", "Karesioğulları Beyliği'nin egemenliğe geçmesi", "Karamanoğulları Beyliği'nin desteği", "Gaza düşüncesi", "Uçlarda Bizans'a en yakın bölgede bulunulması"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans",
+    "cozum": "Karamanoğulları Osmanlı'nın rakibidir, Rumeli'ye geçişte destek değil engel olmuşlardır."
+  },
+  {
+    "soru": "Osmanlı Devleti'nin kuruluş ve yükseliş döneminde oluşturduğu kültürde hangilerinin etkili olduğu savunulabilir? I. Orta Asya Türklerinin, II. Müslümanların, III. Fethedilen yerlerin ahalisinin.",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "I ve II", "I, II ve III"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "Osmanlı Devleti'nde Divanıhümayun'un üyelerinden reisülküttap, zamanla aşağıdakilerden hangisine dönüşmüştür?",
+    "siklar": ["Hariciye nazırı", "Maarif nazırı", "Maliye nazırı", "Serasker", "Dahiliye nazırı"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "Osmanlı Devleti'nde esnaf teşkilatının usta sayısını sınırlı tutmasının nedeni aşağıdakilerden hangisidir?",
+    "siklar": ["İhracatın teşvik edilmesi", "Ürün arzının talebe göre ayarlanması", "Para ekonomisine geçilmek istenmesi", "Tarım ürünlerinin ön plana çıkarılması", "Askerlik hizmetinin gözetilmesi"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "Ermeni toplumunun isteklerinin zamanla bir soruna dönüşmesinde aşağıdakilerden hangisinin etkili olduğu savunulamaz?",
+    "siklar": ["Avrupa devletlerinin kışkırtmacı politikası", "Fransız ihtilalıyla gelişen milliyetçilik düşüncesi", "Balkan topluluklarının bağımsızlıklarını kazanması", "Rusya ve İngiltere'nin Ermenilerle ilgili baskı yapması", "Osmanlı Devleti'nin Osmanlıcılık fikrini uygulamaya koyması"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "Aşağıdaki padişah ve yenilik eşleştirmelerinden hangisi yanlıştır?",
+    "siklar": ["III. Selim - Nizam-ı Cedid", "II. Mahmut - Sened-i İttifak", "Abdülmecit - Tanzimat Fermanı", "Abdülaziz - Islahat Fermanı", "II. Abdülhamit - Kanunuesasi"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans",
+    "cozum": "Islahat Fermanı (1856) Abdülmecit dönemindedir."
+  },
+  {
+    "soru": "II. Mahmut Dönemi'nde eğitim alanında medreselerin yanında modern askerî ve sivil okullar açılması ve ilköğretimin zorunlu olması hangisine kanıt değildir?",
+    "siklar": ["Okuryazarlık oranında artış", "Eğitimde ikilik ortaya çıkması", "Karma eğitime geçilmesi", "Batıdan yeni kurumlar alınması", "Orduda yenileşme sürecinin hızlanması"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "Osmanlı Devleti'nde XIX. yüzyılda savunulan İslamcılık fikriyle ilgili hangisi söylenemez?",
+    "siklar": ["Bütünlüğün dinî esaslarla sağlanacağını savunmuştur", "Halifelik makamı ön plana çıkarılmıştır", "Osmanlıcılık fikrinin uygulanamayacağı düşüncesiyle doğmuştur", "II. Abdülhamit Dönemi'nde devlet politikası olmuştur", "I. Meşrutiyet'in ilanı ile etkisini yitirmiştir"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "Osmanlı Devleti XX. yüzyıl başındaki olayların kronolojik sıralaması hangisidir? I. II. Meşrutiyet, II. Babıali Baskını, III. 31 Mart Vakası.",
+    "siklar": ["I, II, III", "I, III, II", "II, I, III", "III, I, II", "III, II, I"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "Mondros Ateşkesi'nin 7. maddesine işlerlik kazandırmak amacıyla fiili hareketlerde bulunan cemiyetler hangileridir? I. Mavri Mira, II. Pontus Rum, III. Hürriyet ve İtilaf, IV. İngiliz Muhipleri.",
+    "siklar": ["I ve II", "II ve IV", "III ve IV", "I, II ve III", "II, III ve IV"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "Damat Ferit Hükümeti; Ali Galip'in görevlendirilmesi ve Ankara Valisi Muhittin Paşa'nın tutuklama emri gibi önlemleri hangi kongreyi engellemek için almıştır?",
+    "siklar": ["Erzurum", "Pozantı", "Alaşehir", "Balıkesir", "Sivas"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "İzmir'in Yunan askerleri tarafından işgal edilmesinin öncelikle aşağıdakilerden hangisine neden olduğu savunulabilir?",
+    "siklar": ["Cemiyetlerin birleştirilmesine", "İsmet Paşa'nın komutanlığa atanmasına", "Redd-i İlhak Cemiyeti'nin kurulmasına", "Tekâlif-i Milliye Emirlerine", "Hıyanet-i Vataniye Kanunu'na"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "I. Dönem TBMM milletvekillerinin bütçe açığını kapatmak için maaşlarının bir kısmını iade etmeleri hangisini gösterir?",
+    "siklar": ["Ülke çıkarlarını her şeyin üstünde gördüklerini", "Farklı düşüncedeki kişilerden oluştuklarını", "Kişisel çıkar ve ideolojilerin ön planda olduğunu", "TBMM'nin üstünde bir gücün tanınmadığını", "Anayasal düzenin uygulanmaya başladığını"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi, Yeni Türk Devleti'nin kuruluşuna işaret eden gelişme olarak kabul edilebilir?",
+    "siklar": ["Takrir-i Sükûn Kanunu", "Halifeliğin kaldırılması", "Başkomutanlık Kanunu", "TBMM'nin açılması", "Tevhid-i Tedrisat Kanunu"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "24 Temmuz 1923'te imzalanan Lozan Barış Antlaşması'nda Türkiye'yi temsil eden delegasyonda yer alan kişiler hangileridir?",
+    "siklar": ["Kâzım Karabekir, Refet Bey, İsmet Paşa", "Fevzi Paşa, Rauf Bey, Rıza Nur", "İsmet Paşa, Rıza Nur, Hasan Saka", "Rıza Nur, Bekir Sami, Yusuf Hikmet", "İsmet Paşa, Fevzi Paşa, Rauf Bey"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "Türkiye Cumhuriyeti'nde azınlıkların özel hukuk alanına ilişkin farklı durumlarını sona erdiren yasal düzenleme hangisidir?",
+    "siklar": ["Tevhid-i Tedrisat Kanunu", "Takrir-i Sükûn Kanunu", "Türk Medeni Kanunu", "Türk Ceza Kanunu", "Hıyanet-i Vataniye Kanunu"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisiyle Türkiye Cumhuriyeti'nin, ekonomik bağımsızlığını sınırlandıran engellerden kurtulduğu savunulamaz?",
+    "siklar": ["Merkez Bankasının kurulması", "Tekâlif-i Milliye Emirlerinin yayımlanması", "Kapitülasyonların kaldırılması", "Düyun-ı Umumiye yetkisinin sınırlandırılması", "Kabotaj Kanunu'nun kabul edilmesi"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "Atatürk'ün vasiyetinde İş Bankası hisse gelirlerini TDK ve TTK'ya bırakmasıyla hangisini amaçladığı savunulamaz?",
+    "siklar": ["Maddi bağımsızlığı garanti altına alma", "Bilimsel çalışmalar yapılmasını sağlama", "Kurumların varlıklarını uzun süre koruma", "Milli bilinç oluşumunu destekleme", "Kurumları siyasi iktidarın bir parçası hâline getirme"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "Atatürk'ün kuruluşunda doğrudan rolü ve katkısı olduğu partiler hangileridir? I. CHP, II. Terakkiperver CP, III. Serbest CP.",
+    "siklar": ["Yalnız I", "Yalnız II", "I ve II", "I ve III", "I, II ve III"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "1929 yılından itibaren Türk-İngiliz ilişkileri hangi devletlerin Orta Doğu'daki nüfuz artırma çabalarının etkisi altında gelişmiştir?",
+    "siklar": ["Yalnız I (Almanya)", "Yalnız II (İtalya)", "Yalnız III", "I ve II", "II ve III"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi, Mustafa Kemal Atatürk'ün hayatını anlatan biyografik bir eserdir?",
+    "siklar": ["Ankara", "Tek Adam", "Üç Devirde Bir Adam", "Onlar da Çocuktu", "Türk'ün Ateşle İmtihanı"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi, Demokrat Parti Dönemi'nde Atatürk ile ilgili olarak yapılan çalışmalardan biri değildir?",
+    "siklar": ["AOÇ arazisinin parçalanmasını yasayla önlemek", "Atatürk aleyhine işlenen suçlar yasası", "Anıtkabir'in tamamlanması", "Devlet dairelerine yalnızca Atatürk resmi asılması genelgesi", "Atatürk Üniversitesi'ni Erzurum'da kurmak"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "İkinci Dünya Savaşı'nın ardından topraklarında farklı rejimlerle yönetilen iki ayrı devlet kurulan ülkeler hangileridir? I. Almanya, II. Kore, III. Japonya.",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "I ve II", "II ve III"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "1950'li yılların başlarında Kıbrıs'ın Yunanistan'a bağlanması amacı ile Yorgo Grivas liderliğinde kurulmuş Rum örgütü hangisidir?",
+    "siklar": ["EOKA", "IMRO", "Mavri Mira", "Etniki Eterya", "Pontus"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "Batı ve Orta Torosların güneyinden doğan akarsuların Akdeniz'e döküldüğü yerlerde büyük deltalar oluşmamasının nedeni nedir?",
+    "siklar": ["Yatak eğimlerinin fazla olması", "Rejimlerinin düzenli olması", "Bitki örtüsü tahribi", "Kayaçların litolojik (karstik) özellikleri", "Kıyı derinliğinin fazla olması"],
+    "dogru": 3,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "Türkiye'de farklı toprak türlerinin görülmesinde hangileri etkilidir? I. İklim çeşitliliği, II. Farklı kayaçlar, III. İki kıtada arazisi bulunması, IV. Akarsu ağı.",
+    "siklar": ["I ve II", "I ve III", "II ve III", "II ve IV", "III ve IV"],
+    "dogru": 0,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "Türkiye'de Doğu Karadeniz kıyı kesimine ait hangi özellikte yer şekillerinin etkisi yoktur?",
+    "siklar": ["Hayvancılığa yönelme", "Kıyı-iç kesim ulaşım zorluğu", "Nüfusun kıyıda yoğunlaşması", "Tarım alanlarının az olması", "Yer altı kaynaklarının dağılışı"],
+    "dogru": 4,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "Son yıllarda, Konya Ovası'ndaki hatalı arazi kullanımından kaynaklanan çevresel sorunlardan biri değildir?",
+    "siklar": ["Bataklık alanların artması", "Obrukların oluşması", "Toprağın tuzlanması", "Erozyonun artması", "Yer altı su seviyesinin düşmesi"],
+    "dogru": 0,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "Bir Türkiye fiziki haritasında, yaklaşık aynı boylam üzerinde olan iki ovanın farklı renklerle gösterilmesi neye bağlanabilir?",
+    "siklar": ["Eğim değerleri", "Yüz ölçümleri", "Yükseklik farkı", "Enlem derecesi", "Bitki örtüsü"],
+    "dogru": 2,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "Türkiye'de teknolojinin gelişmesiyle doğal çevreye olan bağımlılığın azaldığına örnek hangisidir?",
+    "siklar": ["Yükseklerde yaylacılık yapılması", "Seracılığın iç kesimlere yaygınlaşması", "Toprakların nadasa bırakılması", "Yamaçların eğriye paralel sürülmesi", "Doğal gübre kullanılması"],
+    "dogru": 1,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "Haritadaki Karabük'ten Konya'ya çizilen hat boyunca sırasıyla hangileri görülür?",
+    "siklar": ["Küre Dağları - Cihanbeyli - Sultan Dağları", "Köroğlu Dağları - Haymana - Cihanbeyli", "Köroğlu Dağları - Haymana - Sultan Dağları", "Küre Dağları - Haymana - Cihanbeyli", "Köroğlu Dağları - Cihanbeyli - Sultan Dağları"],
+    "dogru": 1,
+    "ders": "COĞRAFYA",
+    "resim": "2013_lisans_gk_34.jpg",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "Türkiye'nin kıyı bölgelerinde nüfus yoğunluğunun iç bölgelere göre fazla olmasında hangisinin etkisi en azdır?",
+    "siklar": ["Su kaynaklarının bolluğu", "İklim şartları", "Tarımsal üretim ve gelir", "Ulaşım imkânları", "Turizmin gelişmiş olması"],
+    "dogru": 0,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "Ekranda verilen 2012-2025 nüfus projeksiyon tablosuna göre hangisi yanlıştır?",
+    "siklar": ["2025'te çocuk nüfus oranı %3,3 düşecek", "2012 çocuk oranı 2025 yaşlı oranından yüksektir", "2025'te iş gücü dışı oran %31,8 olacak", "2012 çalışma çağı oranı 2025'ten %0,5 azdır", "2025'te yaşam süresi artışı öngörülmektedir"],
+    "dogru": 3,
+    "ders": "COĞRAFYA",
+    "resim": "2013_lisans_gk_36.jpg",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "Türkiye'de yaşanan göçlerden hangisi, bireylerin istekleri dışında gerçekleşen (zorunlu) göçlere örnektir?",
+    "siklar": ["Avrupa'ya işçi göçleri", "Batı Trakya'dan toplu göçler", "Çukurova'ya mevsimlik tarım göçleri", "Nitelikli beyin göçü", "Eğitim amaçlı göçler"],
+    "dogru": 1,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "İç kesimlerde son yıllarda ürün çeşitliliğinin artmasında hangisinin etkisi olduğu söylenemez?",
+    "siklar": ["Yeni tarım alanlarının açılması", "Sulama imkânları", "Makineleşme", "Kimyasal gübre", "Bilinçlenme"],
+    "dogru": 0,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "Türkiye'de hayvancılığın gelişmesi için alınacak önlemlerden biri değildir?",
+    "siklar": ["Besi ve ahır hayvancılığına geçmek", "Proteinli yemler vermek", "Erken otlatma yapmamak", "Sürekli otlatmaya geçmek", "Islah ve eğitim yapmak"],
+    "dogru": 3,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "Hangi enerji santrallerinin yıllık üretim miktarları üzerinde iklim koşullarının etkili olduğu söylenebilir?",
+    "siklar": ["Tunçbilek - Seyitömer", "Afşin - Elbistan", "Karakaya - Demirköprü", "Sarayköy - Alaçatı", "Çatalağzı - Soma"],
+    "dogru": 2,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "Enerji santrali ve yakıt türü eşleşmelerinden hangileri yanlıştır? I. Hamitabat-Doğal gaz, II. İzmir-Doğal gaz, III. Ovaakça-Linyit, IV. Bandırma-Linyit.",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "II ve III", "III ve IV"],
+    "dogru": 4,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "Aşağıdakilerin hangisinin kuruluşunda ham maddeye yakınlık göz önüne alınmamıştır?",
+    "siklar": ["Yatağan'da termik santral", "Bursa'da otomotiv endüstrisi", "Giresun'da kâğıt endüstrisi", "Keçiborlu'da kükürt işletmesi", "Afyon'da mermer işletmeciliği"],
+    "dogru": 1,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "Trabzon ve Samsun'un etki alanlarının geniş olmasında hangileri daha etkilidir? I. İklim, II. Nüfus, III. Fonksiyonel özellikler, IV. Yüz ölçümü.",
+    "siklar": ["I ve II", "I ve III", "II ve III", "II ve IV", "III ve IV"],
+    "dogru": 2,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "Türkiye'de dış ticaret açığının azaltılmasına yönelik önlemler arasında yer almaz?",
+    "siklar": ["AR-GE çalışmalarının artırılması", "Sanayi üretim payının artırılması", "Dış pazar ihtiyacına yönelik üretim", "Ticaret anlaşmalarının artırılması", "Millî gelirin yükseltilmesi"],
+    "dogru": 4,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "UNESCO Dünya Miras Listesi'ndeki hangi yerler 'Karma Tip' (Doğal ve Kültürel) alanlardandır? I. Xantos, II. Pamukkale, III. Nemrut, IV. Göreme.",
+    "siklar": ["Yalnız I", "Yalnız II", "II ve III", "II ve IV", "III ve IV"],
+    "dogru": 3,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "1982 Anayasası'na göre TBMM seçimleri ile ilgili hangisi yanlıştır?",
+    "siklar": ["Dört yılda bir yapılır", "Savaş sebebiyle bir yıl ertelenebilir", "Üç dönemden fazla seçilemez", "Cumhurbaşkanı kararı ile yenilenebilir", "Eski Meclis yenisi seçilene dek sürer"],
+    "dogru": 2,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "1982 Anayasası'na göre TBMM'nin görevlerinden biri değildir?",
+    "siklar": ["Antlaşmaları uygun bulmak", "Özel af kararı", "Para basımı kararı", "Bakanları denetlemek", "Kanun hükmünde kararname çıkarmak"],
+    "dogru": 4,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "1982 Anayasası'na göre suç ve cezalarla ilgili hangisi yanlıştır?",
+    "siklar": ["Yürürlükteki kanun suç saymadıkça ceza verilmez", "Ceza yönetmelikle düzenlenebilir", "Sorumluluk şahsidir", "Sözleşme borcu için özgürlük kısıtlanamaz", "Hüküm sabitlenene dek suçsuzluk esastır"],
+    "dogru": 1,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "Ahmet ile anne bir kız kardeşi Ayşe'nin oğlu Mehmet arasındaki hısımlığın türü ve derecesi nedir?",
+    "siklar": ["Üçüncü derece yarım kan yan soy", "Üçüncü derece tam kan yan soy", "Dördüncü derece tam kan", "Dördüncü derece yarım kan", "Hısımlık yoktur"],
+    "dogru": 0,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "Kanunda hüküm olması gerekirken hiçbir hüküm öngörülmemiş olmasının hukuki niteliği nedir?",
+    "siklar": ["Gerçek hukuk boşluğu", "Bilinçli hukuk boşluğu", "Gerçek olmayan hukuk boşluğu", "Gerçek olmayan kanun boşluğu", "Gerçek kanun boşluğu"],
+    "dogru": 4,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi hukukun görevlerinden biri değildir?",
+    "siklar": ["Barışı sağlamak", "Mutlak eşitliği sağlamak", "Hukuki güvenliği sağlamak", "Adaleti sağlamak", "Gelişimlere cevap vermek"],
+    "dogru": 1,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi devlet memurlarının ödevlerinden biri değildir?",
+    "siklar": ["Sadakat", "Amir emrine uyma", "Mal bildirimi", "Askerlik hizmetini yapma", "Bizzat işbaşında bulunma"],
+    "dogru": 3,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "İdare hukukunda, memur veya öğrencilerin durumlarının genel, sürekli ve kişilik dışı kurallarla düzenlenmesi hangi özelliğidir?",
+    "siklar": ["Yeni dal olma", "Bağımsızlık", "Pozitiflik", "Statü hukuku olma", "İçtihadi olma"],
+    "dogru": 3,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "Belediye organlarını görevden uzaklaştırma yetkisi kime aittir?",
+    "siklar": ["Bakanlar Kurulu", "Başbakan", "İçişleri Bakanı", "Adalet Bakanı", "Vali"],
+    "dogru": 2,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "Orhan Pamuk'un 2006 Nobel konuşmasının adı nedir?",
+    "siklar": ["Kara Kitap", "Yeni Hayat", "Babamın Bavulu", "Masumiyet Müzesi", "İma Edilen Yazar"],
+    "dogru": 2,
+    "ders": "GÜNCEL BİLGİLER",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "85. Oscar Ödülleri'nde En İyi Yabancı Film seçilen 'Amour'un yönetmeni kimdir?",
+    "siklar": ["Amat Escalante", "Ken Loach", "Wes Anderson", "Ang Lee", "Michael Haneke"],
+    "dogru": 4,
+    "ders": "GÜNCEL BİLGİLER",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "TÜİK 2012 verilerine göre mezunların işsizlik oranları sıralaması (Büyükten küçüğe)? I. Hukuk, II. Sanat, III. Mimarlık.",
+    "siklar": ["I, II, III", "I, III, II", "II, I, III", "II, III, I", "III, I, II"],
+    "dogru": 3,
+    "ders": "GÜNCEL BİLGİLER",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "Güneş sisteminin en büyük gezegeni hangisidir?",
+    "siklar": ["Jüpiter", "Satürn", "Uranüs", "Neptün", "Mars"],
+    "dogru": 0,
+    "ders": "GÜNCEL BİLGİLER",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "Şubat 2013'te istifa eden, 600 yıldan bu yana istifa eden ilk papa kimdir?",
+    "siklar": ["16. Benediktus", "2. İoannes Paulus", "11. Pius", "13. Leo", "16. Gregorius"],
+    "dogru": 0,
+    "ders": "GÜNCEL BİLGİLER",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
+  },
+  {
+    "soru": "II. Dünya Savaşı sonrası kurulan 'Bretton Woods İkizleri' hangileridir?",
+    "siklar": ["MC - BM", "Dünya Bankası - IMF", "GATT - WTO", "OECD - G20", "AET - AB"],
+    "dogru": 1,
+    "ders": "GÜNCEL BİLGİLER",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2013 KPSS Lisans"
   }
 
   ]
+
 
 
 
