@@ -10943,9 +10943,1004 @@
     "zorluk": "ÇIKMIŞ",
     "deneme": "2012 KPSS Ortaöğretim",
     "cozum": "TL simgesi Merkez Bankası tarafından koruma altına alınmıştır."
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi Orhun Yazıtları'nda adı geçen devlet adamlarından biridir?",
+    "siklar": ["Bilge Kağan", "Tonyukuk", "Bumin Kağan", "Kültigin", "Mete Han"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Yusuf Has Hacip Kutadgu Bilig adlı eserini hangi Türk devleti döneminde, kime takdim etmiştir?",
+    "siklar": ["Hun Devleti - Attila", "Karahanlı Devleti - Uluğ Kara Buğra Han", "Gazneli Devleti - Sultan Mahmut", "Gazneli Devleti - Sultan Mesut", "Karahanlı Devleti - Satuk Buğra Han"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "2012 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Aşağıdaki devletlerden hangisi, Anadolu Selçuklu Devleti ile ilişki kurmuş olamaz?",
+    "siklar": ["İhşidiler", "Doğu Roma İmparatorluğu", "Harzemşahlar", "Memlûklar", "Eyyübiler"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "2012 KPSS Ön Lisans",
+    "cozum": "İhşidiler (935-969) Mısır'da kurulmuştur. Anadolu Selçuklu Devleti (1077-1308) kurulduğunda İhşidiler yıkılmıştı."
+  },
+  {
+    "soru": "Erken Osmanlı Dönemi'nde Ahi Teşkilatı'nın görevleri hangileridir? I. Esnaf dayanışması, II. Kaliteli üretim, III. Eğitim öğretim.",
+    "siklar": ["Yalnız I", "Yalnız II", "I ve II", "II ve III", "I, II ve III"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Osmanlı Devleti'nde hangisi Kapıkulu Ocaklarından biri değildir?",
+    "siklar": ["Yeniçeriler", "Cebeciler", "Topçular", "Silahtarlar", "Müsellemler"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "2012 KPSS Ön Lisans",
+    "cozum": "Müsellemler, Kapıkulu (merkez) askeri değil, tımarlı sipahi (eyalet) askerleridir."
+  },
+  {
+    "soru": "XVIII. yüzyılda güçlenip siyasi alanda söz sahibi olan, vergilerin toplanmasında görevlilere yardımcı olan yerel güçler kimlerdir?",
+    "siklar": ["Reaya", "Tımarlı sipahi", "Âyan", "Yeniçeri", "Esnaf"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "2012 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Düyun-ı Umumiye İdaresi hangi padişah döneminde kurulmuştur?",
+    "siklar": ["II. Abdülhamit", "Abdülaziz", "Abdülmecit", "II. Mahmut", "Vahdettin"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Osmanlı Devleti'nde XIX. yüzyılda Divanıhümayunun yerine oluşturulan yönetim organı hangisidir?",
+    "siklar": ["Meclis-i Mebusan", "Meclis-i Vükela", "Meclis-i Âyan", "Meclis-i Ahkâm-ı Adliye", "Meclis-i Tanzimat"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "2012 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Osmanlı Devleti ile ilgili hangi eşleştirme arasında ilişki kurulamaz?",
+    "siklar": ["Fransız İhtilali - Sırp İsyanları", "Lale Devri - Patrona Halil İsyanı", "Nizam-ı Cedit - Kabakçı Mustafa İsyanı", "Fetret Devri - Şeyh Bedrettin İsyanı", "Balkan Savaşı - 31 Mart Olayı"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "2012 KPSS Ön Lisans",
+    "cozum": "31 Mart Olayı (1909), Balkan Savaşları'ndan (1912) önce gerçekleşmiştir."
+  },
+  {
+    "soru": "Milli Mücadele hareketinin oluşmasında hangisinin etkili olduğu söylenemez?",
+    "siklar": ["İzmir'in işgali", "Ermenistan kurma söylentileri", "Trablusgarp ve Bingazi'nin elden çıkması", "Pontus Rum devleti çabaları", "Antep, Maraş, Urfa işgali"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Ön Lisans",
+    "cozum": "Trablusgarp Savaşı (1911), Milli Mücadele'den çok öncedir."
+  },
+  {
+    "soru": "Adana ve çevresini savunmak amacıyla kurulan yararlı cemiyet hangisidir?",
+    "siklar": ["Millî Kongre", "Vilâyât-ı Şarkiye", "Redd-i İlhak", "Kilikyalılar", "Vahdet-i Milliye"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Milli Mücadele hareketi içinde hangisi yer almaz?",
+    "siklar": ["Erzurum Kongresi", "Saltanat Şurası", "Sivas Kongresi", "TBMM'nin açılması", "Alaşehir Kongresi"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "2012 KPSS Ön Lisans",
+    "cozum": "Saltanat Şurası, Sevr Antlaşması'nı imzalayan, İstanbul Hükümeti'ne bağlı bir kuruldur."
+  },
+  {
+    "soru": "Ali Fuat Cebesoy'un Temsilciler Kurulu tarafından atanması, kurulun hangi yetkiyi kullandığını gösterir?",
+    "siklar": ["Yürütme", "Yasama", "Yargı", "Yasama ve Yürütme", "Yargı ve Yürütme"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Milli Mücadele'de askeri başarılardan sonra yapılan antlaşmalardan biri değildir?",
+    "siklar": ["Ankara", "Moskova", "Brest-Litowsk", "Gümrü", "Kars"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "2012 KPSS Ön Lisans",
+    "cozum": "Brest-Litowsk Antlaşması (1918), I. Dünya Savaşı sürerken imzalanmıştır."
+  },
+  {
+    "soru": "Milli Mücadele yıllarında 'milli birlik ve beraberlik ilkesine' aykırı durum hangisidir?",
+    "siklar": ["TBMM'nin kurulması", "Direniş cemiyetleri", "Kuvayımilliye", "Kongreler", "İç ayaklanmalar"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Yeni Türk Devleti'ndeki gelişmelerin kronolojik sırası? I. Ankara'nın başkent olması, II. Halifeliğin kaldırılması, III. Saltanatın kaldırılması.",
+    "siklar": ["I-II-III", "I-III-II", "II-III-I", "III-I-II", "III-II-I"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "2012 KPSS Ön Lisans",
+    "cozum": "Saltanat (1922) -> Ankara Başkent (Ekim 1923) -> Halifelik (1924)."
+  },
+  {
+    "soru": "Halifeliğin kaldırılmasında hangisinin etkili olduğu savunulamaz?",
+    "siklar": ["Laik devlet anlayışı", "Çok partili hayata geçiş", "Siyasal bölünmenin önlenmesi", "Milli egemenliğin güçlenmesi", "Dış politikada serbestlik"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "zorluk": "ZOR",
+    "deneme": "2012 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Hangisi 1926 yılında kabul edilen kanunlardan biri değildir?",
+    "siklar": ["Medeni Kanun", "Kabotaj Kanunu", "Takrir-i Sükûn Kanunu", "Ceza Kanunu", "Borçlar Kanunu"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "2012 KPSS Ön Lisans",
+    "cozum": "Takrir-i Sükûn Kanunu 1925 yılında çıkarılmıştır."
+  },
+  {
+    "soru": "Birinci Beş Yıllık Sanayi Planı'ndan sonraki girişimlerden biridir?",
+    "siklar": ["Sanayi ve Maadin Bankası", "Ticaret Odaları Kanunu", "Teşvik-i Sanayi Kanunu", "Sanayi Kongresi", "Maden Tetkik ve Arama Enstitüsü (MTA)"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "ZOR",
+    "deneme": "2012 KPSS Ön Lisans",
+    "cozum": "MTA 1935'te kurulmuştur. Diğerleri daha öncedir."
+  },
+  {
+    "soru": "Halkın sınıflara ayrılmaması ve kanun önünde eşitlik hangi ilkedir?",
+    "siklar": ["Halkçılık", "İnkılapçılık", "Devletçilik", "Laiklik", "Milliyetçilik"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Milli iradenin tek şahısta değil millette olması hangi ilkedir?",
+    "siklar": ["Halkçılık", "Milliyetçilik", "Laiklik", "Cumhuriyetçilik", "Devletçilik"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Ön Lisans"
+  },
+  {
+    "soru": "1928'de yemin metninden dini ifadelerin çıkarılması hangi ilkeyi pekiştirir?",
+    "siklar": ["Halkçılık", "Laiklik", "Milliyetçilik", "Devletçilik", "İnkılapçılık"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Ön Lisans"
+  },
+  {
+    "soru": "1930'da Yerli Malı Haftası ilan edilmesinin nedeni olamaz?",
+    "siklar": ["Yerli üretimin teşviki", "1929 Krizinden kurtulma", "Milli iktisat politikası", "Girişimci yetiştirme", "İthalata öncelik verilmesi"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Ön Lisans"
+  },
+  {
+    "soru": "29 Ekim'in Cumhuriyet Bayramı olması ne zaman yasalaşmıştır?",
+    "siklar": ["1923", "1924", "1925", "1927", "1929"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "ZOR",
+    "deneme": "2012 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Türkiye'nin yaşadığı sorunlardan hangisinde Fransa doğrudan taraf olmamıştır?",
+    "siklar": ["Musul", "Hatay", "Suriye sınırı", "Dış borçlar", "Yabancı okullar"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Ön Lisans",
+    "cozum": "Musul sorunu İngiltere ile yaşanmıştır."
+  },
+  {
+    "soru": "Sanayi-i Nefise Mektebi, Atatürk döneminde neye dönüştürülmüştür?",
+    "siklar": ["Güzel Sanatlar Akademisi", "İstanbul Konservatuvarı", "Millî Musiki Akademisi", "Musiki Muallim Mektebi", "Ankara Konservatuvarı"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Balkan Antantı ve Sadabat Paktı'nın ortak amacı nedir?",
+    "siklar": ["Petrol kaynakları", "Ortak gümrük", "Enerji geçişi", "Demokrasi", "İtalyan ve Alman yayılmacılığına tedbir"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Dünyanın ilk kadın savaş pilotu kimdir?",
+    "siklar": ["Pakize İzzet Tarzi", "Sabiha Gökçen", "Sabiha Güreyman", "Halide Edip Adıvar", "Afet İnan"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Türkiye'nin çağdaş dünya ile bütünleşmesini amaçlayan inkılaplar? I. Medeni Kanun, II. Miladi Takvim, III. Takrir-i Sükûn.",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "I ve II", "II ve III"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "2012 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Terakkiperver Cumhuriyet Partisinin programının özelliği nedir?",
+    "siklar": ["Cumhuriyetçi - Liberal", "Devletçi - Milliyetçi", "Otoriter - Liberal", "Hürriyetçi - Devletçi", "Otoriter - Devletçi"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "2012 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Karadeniz'den Akdeniz'e kıyı şeridini inceleyen biri hangisinin ortak olduğunu gözlemler?",
+    "siklar": ["Dağların kıyıya paralel uzandığı", "Tüm akarsuların delta oluşturduğu", "Güneşlenme süresinin aynı olduğu", "Sıcaklık farkının az olduğu (Nemlilik)", "Kumsalların geniş olduğu"],
+    "dogru": 3,
+    "ders": "COĞRAFYA",
+    "zorluk": "ORTA",
+    "deneme": "2012 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Çığ olaylarının dağların kuzey ve güney yamaçlarında farklı olmasının temel nedeni?",
+    "siklar": ["Bitki örtüsü", "Toprak kalınlığı", "Rüzgâr yönü", "Yer şekilleri", "Donma erime sıklığı"],
+    "dogru": 4,
+    "ders": "COĞRAFYA",
+    "zorluk": "ZOR",
+    "deneme": "2012 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Ormanın kendini yenileme süresinin en kısa olduğu yer?",
+    "siklar": ["Göller Yöresi", "Ergene Havzası", "Gaziantep Platosu", "Menteşe Yöresi", "Konya Ovası"],
+    "dogru": 3,
+    "ders": "COĞRAFYA",
+    "zorluk": "ORTA",
+    "deneme": "2012 KPSS Ön Lisans",
+    "cozum": "Menteşe Yöresi (Muğla) yağışlı ve nemli olduğu için orman kendini hızlı yeniler."
+  },
+  {
+    "soru": "Türkiye nüfusuyla ilgili yanlış bilgi hangisidir?",
+    "siklar": ["Kıyı-iç kesim yoğunluğu farklıdır", "İklim ve yer şekilleri etkilidir", "Ilık ve yağışlı yerler yoğundur", "Sanayi kentlerinde mevsimlik nüfus değişir", "Yüz ölçümü büyük iller daha yoğundur"],
+    "dogru": 4,
+    "ders": "COĞRAFYA",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Nüfusun sosyal ve ekonomik özellikleri arasında gösterilemez?",
+    "siklar": ["Sektörel dağılım", "Nüfusun dağılışı", "Ortalama yaşam süresi", "Kır-kent oranı", "Eğitim durumu"],
+    "dogru": 1,
+    "ders": "COĞRAFYA",
+    "zorluk": "ORTA",
+    "deneme": "2012 KPSS Ön Lisans",
+    "cozum": "Nüfusun dağılışı (km²'ye düşen kişi) fiziksel/mekansal bir özelliktir, nitelik değildir."
+  },
+  {
+    "soru": "Karadeniz'de 'serender' adı verilen yapıların kurulma nedeni?",
+    "siklar": ["Ürünü nemden koruma", "Rüzgârdan korunma", "Sıcaktan korunma", "Hayvan barınağı", "Konut yetersizliği"],
+    "dogru": 0,
+    "ders": "COĞRAFYA",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Topoğrafik (yer şekli) koşullara bağlı gelişmeyen ekonomik etkinlik?",
+    "siklar": ["Yaylacılık", "Kıyı ovası tarımı", "Kış turizmi (Palandöken)", "Hidroelektrik santralleri", "Çatalca-Kocaeli'de endüstri"],
+    "dogru": 4,
+    "ders": "COĞRAFYA",
+    "zorluk": "ORTA",
+    "deneme": "2012 KPSS Ön Lisans",
+    "cozum": "Çatalca-Kocaeli'de sanayinin gelişmesi yer şekillerinden çok ulaşım, sermaye ve pazarla ilgilidir."
+  },
+  {
+    "soru": "Yukarıdaki haritada, Türkiye'de endüstriyel etkinliklerin yoğun olduğu bazı il merkezleri (İstanbul, İzmir, İzmit, Adana) gösterilmiştir. Buna göre; I. ulaşım, II. liman, III. ham madde özelliklerinden hangileri verilen bütün iller için ortaktır?",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "I ve II", "I, II ve III"],
+    "dogru": 4,
+    "ders": "COĞRAFYA",
+    "zorluk": "ORTA",
+    "deneme": "2012 KPSS Ön Lisans",
+    "resim": "2012_onlisans_gk_38.jpg"
+  },
+  {
+    "soru": "Kıyı Ege'de gelişen endüstri kollarının ortak özelliği?",
+    "siklar": ["Maden işletmeciliği", "Otomotiv", "Tarımsal ham madde ağırlıklı olması", "Dışa bağımlılık", "Büyük ölçekli olması"],
+    "dogru": 2,
+    "ders": "COĞRAFYA",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Ön Lisans",
+    "cozum": "Kıyı Ege'de zeytinyağı, dokuma, gıda gibi tarıma dayalı sanayi yoğundur."
+  },
+  {
+    "soru": "Pamuk, sıcak iklimin egemen olduğu alanlarda yetişir. Buna göre, yukarıdaki haritada numaralarla gösterilen yerlerden hangileri pamuk tarımı için uygun değildir?",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "I ve II", "II ve III"],
+    "dogru": 2,
+    "ders": "COĞRAFYA",
+    "zorluk": "ZOR",
+    "deneme": "2012 KPSS Ön Lisans",
+    "resim": "2012_onlisans_gk_40.jpg",
+    "cozum": "II (Karadeniz) ve III (Doğu Anadolu) pamuk için uygun değildir."
+  },
+  {
+    "soru": "Türkiye'de çeltik tarımı yapılan yerlerin ortak özelliği?",
+    "siklar": ["Düzenli yağış", "Akarsu boylarında olması", "Don olmaması", "Birden çok ürün alınması", "Aynı iklimde olması"],
+    "dogru": 1,
+    "ders": "COĞRAFYA",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Koyun yetiştiriciliğinin yaygın olmasının nedenleri? I. Bozkır, II. Yaz kuraklığı, III. Yükselti, IV. Aile işletmeciliği.",
+    "siklar": ["Yalnız I", "Yalnız II", "I ve II", "III ve IV", "II, III ve IV"],
+    "dogru": 2,
+    "ders": "COĞRAFYA",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Boğazların balıkçılıkta önemli olmasının nedenleri? I. Akıntılar (Besin), II. Göç yolu, III. Kıyı kullanımı, IV. Derinlik.",
+    "siklar": ["I ve II", "I ve III", "II ve III", "I, II ve IV", "II, III ve IV"],
+    "dogru": 0,
+    "ders": "COĞRAFYA",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Arıcılığın 'herkes için potansiyel gelir kaynağı' olmasının gerekçesi?",
+    "siklar": ["Düşük maliyetli ve arazi gerektirmemesi", "Bozulmayan ürün olması", "Ekonomik değer", "Çiçeklenme dönemi", "Pazar alanı"],
+    "dogru": 0,
+    "ders": "COĞRAFYA",
+    "zorluk": "ORTA",
+    "deneme": "2012 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Mersin Akkuyu'nun nükleer santral için seçilme nedeni? I. Sıcaklık, II. Ham madde, III. Topoğrafya (Deprem riski az), IV. Deniz (Su).",
+    "siklar": ["Yalnız I", "Yalnız II", "I ve II", "III ve IV", "I, III ve IV"],
+    "dogru": 3,
+    "ders": "COĞRAFYA",
+    "zorluk": "ORTA",
+    "deneme": "2012 KPSS Ön Lisans",
+    "cozum": "Deprem riskinin az olması (sağlam zemin) ve soğutma suyu (deniz) en önemli etkenlerdir."
+  },
+  {
+    "soru": "Türkiye'de ulaşım alanındaki gelişmelerin en önemli nedeni?",
+    "siklar": ["Tarım nüfusunun azalması", "Yüz ölçümü", "Kentleşme", "Coğrafi konum", "Teknolojik gelişme ve ekonomik kalkınma"],
+    "dogru": 4,
+    "ders": "COĞRAFYA",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Demokrasinin olmazsa olmaz unsurlarından biri değildir?",
+    "siklar": ["Üniter devlet", "Özgür seçimler", "Temel haklar", "Çok partili hayat", "Seçilmişlerin üstünlüğü"],
+    "dogru": 0,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ORTA",
+    "deneme": "2012 KPSS Ön Lisans",
+    "cozum": "Demokrasi federal devletlerde de (ABD, Almanya) uygulanabilir. Üniter yapı şart değildir."
+  },
+  {
+    "soru": "Yasama dokunulmazlığının kaldırılmasının yargısal denetimini kim yapar?",
+    "siklar": ["Yargıtay", "Anayasa Mahkemesi", "Danıştay", "Yüce Divan", "TBMM Genel Kurulu"],
+    "dogru": 1,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Olağanüstü hâl (OHAL) ilan etme yetkisi kime aittir? (2012 sorusu - Eski sistem)",
+    "siklar": ["Cumhurbaşkanı", "Başbakan", "İçişleri Bakanı", "TBMM", "Cumhurbaşkanı başkanlığında toplanan Bakanlar Kurulu"],
+    "dogru": 4,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2012 KPSS Ön Lisans",
+    "cozum": "2017 değişikliği ile bu yetki doğrudan Cumhurbaşkanı'na verilmiştir."
+  },
+  {
+    "soru": "Belediye başkanını geçici olarak görevden uzaklaştırma yetkisi kime aittir?",
+    "siklar": ["Bakanlar Kurulu", "Başbakan", "İçişleri Bakanı", "Adalet Bakanı", "Vali"],
+    "dogru": 2,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Devlet memurları mal bildirimini kaç yılda bir yapar?",
+    "siklar": ["1", "2", "3", "4", "5"],
+    "dogru": 4,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Hangisi memurluğun sona erme hâllerinden biri değildir?",
+    "siklar": ["Çıkarılma", "Çekilme", "Şart kaybı", "Yaşlanma", "Ölüm"],
+    "dogru": 3,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Ön Lisans",
+    "cozum": "'Yaşlanma' diye bir sona erme hali yoktur, 'Emeklilik' (Yaş haddi) vardır."
+  },
+  {
+    "soru": "Geliri çok olandan çok vergi alınması hangi adalet türüdür?",
+    "siklar": ["Görgü", "Denkleştirici", "Paylaştırıcı (Dağıtıcı)", "Etik", "Örf"],
+    "dogru": 2,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ORTA",
+    "deneme": "2012 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Tarafların iradeleriyle değiştiremeyecekleri kurallara ne denir?",
+    "siklar": ["Yedek", "Emredici", "Yorumlayıcı", "Tamamlayıcı", "Tanımlayıcı"],
+    "dogru": 1,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Yabancı unsur taşıyan hukuki ilişkileri inceleyen hukuk dalı?",
+    "siklar": ["Devletler özel hukuku", "İdare hukuku", "Medeni hukuk", "Medeni usul", "İş hukuku"],
+    "dogru": 0,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Ön Lisans"
+  },
+  {
+    "soru": "AB'ye katılım sürecinde yapılan reformlardan biri değildir?",
+    "siklar": ["DGM'lerin kapatılması", "Ölüm cezasının kalkması", "AYM bireysel başvuru", "Askerlik süresinin kısaltılması", "Kişisel verilerin korunması"],
+    "dogru": 3,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ORTA",
+    "deneme": "2012 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Zorunlu deprem sigortası (DASK) kapsamında olan binalar?",
+    "siklar": ["Kamu binaları", "Köy binaları", "Ticari iş hanları", "İnşaat halindeki binalar", "Tapuya kayıtlı meskenler"],
+    "dogru": 4,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ORTA",
+    "deneme": "2012 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Para Politikası Kurulu hangisinin organıdır?",
+    "siklar": ["Merkez Bankası", "BDDK", "Ekonomi Bakanlığı", "SPK", "Maliye Bakanlığı"],
+    "dogru": 0,
+    "ders": "GÜNCEL BİLGİLER",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Eski Türk devletlerinde hükümdara, yönetme yetkisinin Tanrı tarafından verildiğine inanılmıştır. Aşağıdakilerden hangisi, İslamiyet'ten önce kurulan Türk devletlerinde bu yetkiye verilen addır?",
+    "siklar": ["Şad", "Kut", "Tekin", "Toy", "Balbal"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Lisans"
+  },
+  {
+    "soru": "Satuk Buğra Han, amcası Oğulcak Kadır Han devletin başındayken İslamiyet'i benimsemiş, amcasından sonra hükümdar olunca da İslamiyet'i resmî din olarak kabul etmiştir. Bu bilgiyle Karahanlılarda hangisine ulaşılabilir?",
+    "siklar": ["Yalnız I (Devleti yönetme yetkisi hanedanındır)", "Yalnız II", "Yalnız III", "I ve II", "I, II ve III"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "2012 KPSS Lisans",
+    "cozum": "Satuk Buğra Han'ın hükümdar olması, yönetme yetkisinin hanedan üyelerinde olduğunu (kut anlayışının devam ettiğini) gösterir."
+  },
+  {
+    "soru": "Batman'daki Malabadi Köprüsü ve Mardin'deki Hatuniye Medresesi, aşağıdaki Türk devletlerinden hangisinin egemenliği dönemine aittir?",
+    "siklar": ["Artuklular", "Mengücekliler", "Danişmentliler", "Saltuklular", "Anadolu Selçukluları"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Lisans"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisinin, Osmanlı Devleti'nde ticareti geliştirmek ve ticaret yollarında güvenliği sağlamak amacıyla yapıldığı savunulamaz?",
+    "siklar": ["Menziller", "Derbentler", "Dârülkuralar", "Bedestenler", "Kervansaraylar"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "2012 KPSS Lisans",
+    "cozum": "Dârülkura, Kuran-ı Kerim okuma eğitiminin verildiği yerdir; ticaretle ilgisi yoktur."
+  },
+  {
+    "soru": "Osmanlı Devleti'nin hukuk sisteminde hangileri etkin olmuştur? I. Şer'i hukuk, II. Eski Türk gelenekleri, III. Fethedilen bölgelerdeki uygulamalar.",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "I ve II", "I, II ve III"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "2012 KPSS Lisans"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi, Osmanlı tımar sistemine göre dirlik sahibinin görevlerinden biri değildir?",
+    "siklar": ["Kapıkulu askerlerine ulufe dağıtmak", "Dirliğindeki vergileri toplamak", "Bölgenin güvenliğini sağlamak", "Üretimi artıracak tedbirler almak", "Cebelü askerleriyle orduya katılmak"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Lisans",
+    "cozum": "Ulufe, Kapıkulu askerlerine devlet hazinesinden ödenen maaştır; dirlik sahibi ödemez."
+  },
+  {
+    "soru": "Osmanlı Devleti'nde; I. Askeri eğitimde yenileşme, II. Bürokraside düzenleme, III. Enderun mektebinin kurulması uygulamalarından hangilerinin modernleşmeye yönelik olduğu savunulabilir?",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "I ve II", "I, II ve III"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "2012 KPSS Lisans",
+    "cozum": "Enderun Mektebi (III) klasik dönem kurumudur, modernleşme hareketi değildir."
+  },
+  {
+    "soru": "Osmanlı Devleti'nde 1876'da Kanunuesasi'nin ilan edilmesiyle başlayan dönemle ilgili hangisi söylenemez?",
+    "siklar": ["Padişaha karşı sorumlu hükümetin kurulduğu", "Anayasal düzene geçildiği", "Parlamentolu siyasi hayatın başladığı", "Halkın yönetime kısıtlı katıldığı", "Devletin teokratik yapısının sona erdiği"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "2012 KPSS Lisans",
+    "cozum": "Kanunuesasi'de 'Devletin dini İslam'dır' maddesi yer alır, teokratik yapı devam etmiştir."
+  },
+  {
+    "soru": "İttihat ve Terakki Partisinin milli ekonomi oluşturma çabaları arasında gösterilemez?",
+    "siklar": ["Kapitülasyonları kaldırma girişimi", "Ziraat Bankasının kurulması", "Yabancı şirketlere Türk çalıştırma zorunluluğu", "Yerli malı teşviki", "Gümrük tarifelerinin yükseltilmesi"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "zorluk": "ZOR",
+    "deneme": "2012 KPSS Lisans",
+    "cozum": "Ziraat Bankası (1888), İttihat ve Terakki iktidarından çok önce II. Abdülhamit döneminde kurulmuştur."
+  },
+  {
+    "soru": "Mustafa Kemal Paşa'nın Mondros'tan sonra İstanbul'da Fethi (Okyar) Bey'le çıkardığı gazete hangisidir?",
+    "siklar": ["Tasvir-i Efkâr", "Yenigün", "Minber", "İkdam", "Hakimiyet-i Milliye"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Lisans"
+  },
+  {
+    "soru": "Kuvayımilliye birlikleriyle ilgili olarak aşağıdakilerden hangisi söylenemez?",
+    "siklar": ["Bazı yerel isyanları bastırdığı", "Halkın tepkisi sonucu oluştuğu", "Düşman ilerleyişini yavaşlattığı", "Doğu cephesinde etkin rol oynadığı", "Bölgesel mahiyette olduğu"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "2012 KPSS Lisans",
+    "cozum": "Doğu Cephesi'nde Kuvayımilliye değil, Kazım Karabekir komutasındaki 15. Kolordu (düzenli ordu) savaşmıştır."
+  },
+  {
+    "soru": "Erzurum Kongresi'nin toplanmasının nedenlerinden biri değildir?",
+    "siklar": ["İstanbul'un resmen işgal edilmesi", "Doğu'da Ermenistan kurulma olasılığı", "Pontus Rum Devleti çabaları", "Bölgesel işgaller", "Cemiyetlerin birleştirilmek istenmesi"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Lisans",
+    "cozum": "İstanbul'un resmen işgali (16 Mart 1920), Erzurum Kongresi'nden (1919) sonradır."
+  },
+  {
+    "soru": "Mustafa Kemal ve Temsilciler Kurulunun, Sivas Kongresi'nden sonra İstanbul Hükümetine karşı kazandığı ilk siyasi başarı hangisidir?",
+    "siklar": ["Amasya Genelgesi", "Amasya Görüşmeleri", "Mebusan Meclisinin açılması", "Misakımillî'nin ilanı", "Saltanat Şûrası"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Lisans",
+    "cozum": "Damat Ferit'in istifası ve yerine gelen Ali Rıza Paşa hükümetinin temsilcilerle görüşmeyi kabul etmesi (Amasya Görüşmeleri) ilk siyasi başarıdır."
+  },
+  {
+    "soru": "Mustafa Kemal Paşa, askerlikten istifa ettikten sonra hangi savaştan önce yeniden askerî görev üstlenmiştir?",
+    "siklar": ["Birinci İnönü", "İkinci İnönü", "Kütahya - Eskişehir", "Sakarya", "Büyük Taarruz"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Lisans",
+    "cozum": "Kütahya-Eskişehir savaşlarındaki yenilgiden sonra 'Başkomutan' olarak Sakarya Savaşı öncesi orduya dönmüştür."
+  },
+  {
+    "soru": "Sovyet Rusya'nın Türkiye'ye yardımının 1921 yılında artmasında hangisinin etkili olduğu savunulabilir?",
+    "siklar": ["TBMM'nin açılması", "Kuvayımilliye'nin oluşması", "TBMM ordusunun askerî başarıları", "Cemiyetlerin birleşmesi", "Misakımilli'nin kabulü"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "2012 KPSS Lisans",
+    "cozum": "I. İnönü Zaferi sonrası imzalanan Moskova Antlaşması ile yardımlar artmıştır."
+  },
+  {
+    "soru": "TBMM'nin Saltanatı kaldırması, aşağıdakilerden hangisine kanıt olarak gösterilemez?",
+    "siklar": ["Millî egemenliğin güçlendirildiğine", "Demokrasiye geçiş adımı olduğuna", "Kişisel egemenliğin sona erdiğine", "Tüm yetkilerin TBMM'de toplandığına", "Devlet rejiminin adının konulduğuna"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Lisans",
+    "cozum": "Rejimin adının (Cumhuriyet) konulması 1923'tedir. Saltanat 1922'de kaldırılmıştır."
+  },
+  {
+    "soru": "1921 tarihli Teşkilat-ı Esasiye Kanunu'nda yapılan ilk değişiklikle hangisi gerçekleştirilmiştir?",
+    "siklar": ["Saltanatın kaldırılması", "Cumhuriyetin ilanı", "İstiklal Marşı'nın kabulü", "Halifeliğin kaldırılması", "Lozan'ın onayı"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "2012 KPSS Lisans",
+    "cozum": "1923 değişikliği ile 'Devletin rejimi Cumhuriyettir' maddesi eklenmiştir."
+  },
+  {
+    "soru": "3 Mart 1924 günü TBMM'de kabul edilen kanunlar kapsamında değildir?",
+    "siklar": ["Şeyhülislamlığın lağvedilmesi", "Hanedan üyelerinin sürgünü", "Şer'iye ve Evkâf'ın kaldırılması", "Halifeliğin kaldırılması", "Tekke ve türbelerin kapatılması"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "2012 KPSS Lisans",
+    "cozum": "Tekke, zaviye ve türbelerin kapatılması 1925 yılındadır."
+  },
+  {
+    "soru": "Yeni Türk alfabesinin kabulünden sonra okuryazar oranını artırmaya yönelik açılan kurum?",
+    "siklar": ["Millet Mektepleri", "Ankara Hukuk Mektebi", "Öğretimin Birleştirilmesi", "Türk Ocakları", "Azınlık okulları denetimi"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Lisans"
+  },
+  {
+    "soru": "Atatürk'ün 'Bir toplum kadın ve erkekle beraber yürümezse ilerleyemez' sözü doğrultusunda yapılan inkılap?",
+    "siklar": ["Saltanatın kaldırılması", "Şapka Kanunu", "Soyadı Kanunu", "Medeni Kanun'un kabulü", "Halifeliğin kaldırılması"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Lisans"
+  },
+  {
+    "soru": "Ekonomik ilişkilerdeki karışıklıkları önlemek amacıyla yapıldığı savunulamaz?",
+    "siklar": ["Miladi takvim", "Soyadı Kanunu", "Kılık kıyafet düzenlemesi", "Hafta tatilinin pazara alınması", "Ölçü sisteminin değişmesi"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "2012 KPSS Lisans",
+    "cozum": "Kılık kıyafet düzenlemesi sosyal alandadır, doğrudan ekonomik ölçü birimi değildir."
+  },
+  {
+    "soru": "Birinci Beş Yıllık Sanayi Planı'nın hazırlanmasında teknik ve ekonomik destek alınan devlet?",
+    "siklar": ["Sovyetler Birliği", "ABD", "İngiltere", "Fransa", "İtalya"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "2012 KPSS Lisans"
+  },
+  {
+    "soru": "1924 Anayasası'ndaki 'Vatandaşlık bakımından herkese Türk denir' maddesi hangi ilkelerle ilişkilidir? I. Milliyetçilik, II. Laiklik, III. Halkçılık.",
+    "siklar": ["Yalnız I", "I ve II", "I ve III", "II ve III", "I, II ve III"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "2012 KPSS Lisans"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisinin dilde sadeleştirmeye etkisi olduğu savunulamaz?",
+    "siklar": ["İktisadi Müesseselerde Türkçe Kullanılması Kanunu", "Türk Ceza Kanunu'nun çıkarılması", "Türkçe bilim terimleri", "Türk Dil Kurumu", "Harf İnkılabı"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Lisans",
+    "cozum": "Türk Ceza Kanunu hukuksal bir düzenlemedir, dille ilgili değildir."
+  },
+  {
+    "soru": "Nutuk'ta hangileri yer alır? I. TBMM'nin açılması, II. Halifeliğin kaldırılması, III. Serbest Cumhuriyet Partisi.",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "I ve II", "I, II ve III"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "2012 KPSS Lisans",
+    "cozum": "Nutuk 1919-1927 yıllarını kapsar. Serbest Cumhuriyet Partisi 1930'da kurulmuştur."
+  },
+  {
+    "soru": "Atatürk Dönemi'nde Türkiye-İngiltere ilişkilerinin gelişmesine katkısı olmayan?",
+    "siklar": ["Briand-Kellogg Paktı", "Musul sorununun çözümü", "Almanya'nın yayılmacılığı", "Milletler Cemiyeti üyeliği", "Sadabat Paktı"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "ZOR",
+    "deneme": "2012 KPSS Lisans",
+    "cozum": "Sadabat Paktı (1937) doğu sınırlarıyla ilgilidir, İngiltere ile ilişkileri doğrudan etkileyen bir faktör değildir (Diğer şıklar daha doğrudan etkilidir)."
+  },
+  {
+    "soru": "1923-1930 yılları arasında Türk dış politikasının başlıca faaliyet alanı?",
+    "siklar": ["Bölgesel paktlar", "Boğazlar", "Milletler Cemiyeti", "Hatay", "Lozan'dan kalan sorunlar"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Lisans"
+  },
+  {
+    "soru": "Atatürk Dönemi'nin son başbakanı kimdir?",
+    "siklar": ["İsmet İnönü", "Fethi Okyar", "Şükrü Saraçoğlu", "Celâl Bayar", "Rauf Orbay"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Lisans"
+  },
+  {
+    "soru": "Boğazlar sorununun gündeme gelmesine neden olan yayılmacı devletler? I. İtalya, II. Fransa, III. Avusturya.",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "I ve II", "I, II ve III"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "2012 KPSS Lisans",
+    "cozum": "İtalya'nın Akdeniz'deki tehdidi Montrö sürecini başlatmıştır."
+  },
+  {
+    "soru": "Hangi sorunun çözümünde Milletler Cemiyeti devreye girmemiştir?",
+    "siklar": ["Musul", "Bozkurt-Lotus", "Yabancı okullar", "Hatay", "Etabli (Nüfus mübadelesi)"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "ORTA",
+    "deneme": "2012 KPSS Lisans",
+    "cozum": "Türkiye, Yabancı Okullar meselesini 'iç sorun' sayarak uluslararası platforma taşımamıştır."
+  },
+  {
+    "soru": "Türkiye'nin jeopolitik önemi üzerinde hangisinin etkisi daha azdır?",
+    "siklar": ["Merkezi konum", "AB komşuluğu", "Dört mevsimin yaşanması", "Petrol ülkeleri komşuluğu", "Deniz ulaşımı"],
+    "dogru": 2,
+    "ders": "COĞRAFYA",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Lisans"
+  },
+  {
+    "soru": "Türkiye'nin dağlarıyla ilgili doğru bilgi hangisidir?",
+    "siklar": ["Kıyı dağları kırılmayla oluşmuştur", "Buzullar doğudaki dağlardadır", "Batıda volkanik dağ çoktur", "Yükselti batıya doğru artar", "En yüksek zirve kıvrımlı dağdadır"],
+    "dogru": 1,
+    "ders": "COĞRAFYA",
+    "zorluk": "ORTA",
+    "deneme": "2012 KPSS Lisans",
+    "cozum": "Ağrı Dağı (en yüksek zirve) volkaniktir. Güncel buzullar Cilo, Ağrı gibi doğu dağlarındadır."
+  },
+  {
+    "soru": "Türkiye'nin farklı yörelerinde değişik yönlerden esen meltem rüzgârlarının görülmesi hangilerine bağlanabilir? I. Gece-gündüz, II. Yarımada, III. Yer şekilleri.",
+    "siklar": ["I ve II", "I ve III", "II ve III", "II ve IV", "III ve IV"],
+    "dogru": 2,
+    "ders": "COĞRAFYA",
+    "zorluk": "ZOR",
+    "deneme": "2012 KPSS Lisans",
+    "cozum": "Meltem rüzgarları kara-deniz (yarımada) ve dağ-vadi (yer şekilleri) ısınma farkından oluşur."
+  },
+  {
+    "soru": "Türkiye'de nüfusun tarihsel gelişimiyle ilgili yanlış bilgi?",
+    "siklar": ["En fazla artış 1955-60 arası", "En düşük artış 1940-45 arası", "İlk sayım 1927", "Tarım sektörü azalmıştır", "Kentsel nüfus daima kırsaldan fazladır"],
+    "dogru": 4,
+    "ders": "COĞRAFYA",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Lisans",
+    "cozum": "Kentsel nüfus 1980'lerden sonra kırsalı geçmiştir."
+  },
+  {
+    "soru": "Haritada gösterilen liman kentleri (İstanbul, Samsun, İzmir, Mersin) için ortak özellik değildir?",
+    "siklar": ["Nüfus yoğunluğu fazla", "Turistik yolcu taşımacılığı", "Üçüncül etkinlikler gelişmiş", "Nitelikli iş gücü", "Kara yolu ağı gelişmiş"],
+    "dogru": 1,
+    "ders": "COĞRAFYA",
+    "zorluk": "ORTA",
+    "deneme": "2012 KPSS Lisans",
+    "resim": "2012_lisans_gk_35.jpg",
+    "cozum": "Samsun ve Mersin limanları kruvaziyer (turistik) turizmde öne çıkmaz."
+  },
+  {
+    "soru": "Bursa'nın nüfusunun fazla olmasında etkisi en az olan?",
+    "siklar": ["Yer altı kaynakları", "İklim", "Tarım", "Endüstri", "Turizm"],
+    "dogru": 0,
+    "ders": "COĞRAFYA",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Lisans"
+  },
+  {
+    "soru": "Arazi toplulaştırmasıyla birlikte hangisinin ortaya çıkması beklenmez?",
+    "siklar": ["Üretim artışı", "Zaman kaybı azalması", "Teknoloji artışı", "Mülkiyet yapısı değişimi", "İşletme sayısının artması"],
+    "dogru": 4,
+    "ders": "COĞRAFYA",
+    "zorluk": "ZOR",
+    "deneme": "2012 KPSS Lisans"
+  },
+  {
+    "soru": "Kıyı ovalarında ürün çeşidinin iç kesimlere göre fazla olmasının nedeni?",
+    "siklar": ["Toprak", "İklim koşulları", "Modern tarım", "Ulaşım", "Pazarlama"],
+    "dogru": 1,
+    "ders": "COĞRAFYA",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Lisans"
+  },
+  {
+    "soru": "1. Maki -> ?, 2. Bozkır -> ?, 3. Çayır -> ?, 4. Çiçekli bitki -> ?. Hangi hayvancılık türleri gelir?",
+    "siklar": ["Kıl keçisi - Koyun - Sığır - Arıcılık", "Koyun - Sığır - Arıcılık - Kıl keçisi", "Kıl keçisi - Sığır - Arıcılık - Koyun", "Koyun - Arıcılık - Kıl keçisi - Sığır", "Arıcılık - Koyun - Kıl keçisi - Sığır"],
+    "dogru": 0,
+    "ders": "COĞRAFYA",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Lisans"
+  },
+  {
+    "soru": "Hangi meslek farklı bir ekonomik faaliyet grubundadır?",
+    "siklar": ["Çiftçi", "Şoför", "Öğretmen", "Doktor", "Aşçı"],
+    "dogru": 0,
+    "ders": "COĞRAFYA",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Lisans"
+  },
+  {
+    "soru": "Yer altı kaynağı ve rezerv yeri eşleşmesi yanlıştır?",
+    "siklar": ["Demir - Divriği", "Krom - Guleman", "Manganez - Seydişehir", "Bakır - Murgul", "Barit - Alanya"],
+    "dogru": 2,
+    "ders": "COĞRAFYA",
+    "zorluk": "ORTA",
+    "deneme": "2012 KPSS Lisans",
+    "cozum": "Seydişehir'de Boksit (Alüminyum) çıkarılır."
+  },
+  {
+    "soru": "Hangi termik santralin hava kirliliği etkisi daha azdır?",
+    "siklar": ["Soma", "Yatağan", "Çatalağzı", "Ambarlı", "Seyitömer"],
+    "dogru": 3,
+    "ders": "COĞRAFYA",
+    "zorluk": "ZOR",
+    "deneme": "2012 KPSS Lisans",
+    "cozum": "Ambarlı doğalgaz ile çalışır, diğerleri kömürle çalışır."
+  },
+  {
+    "soru": "Karadeniz kıyısında çay, fındık, kâğıt sanayisinin gelişme nedeni?",
+    "siklar": ["Sermaye", "İş gücü", "Ham madde", "Ulaşım", "Enerji"],
+    "dogru": 2,
+    "ders": "COĞRAFYA",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Lisans"
+  },
+  {
+    "soru": "Hangi ulaşım projesinin yolcu trafiğindeki payı en fazladır?",
+    "siklar": ["Marmaray", "Ankara-Sivas Hızlı Tren", "Bakü-Tiflis-Kars", "Ankara-Bursa Hızlı Tren", "Ovit Tüneli"],
+    "dogru": 0,
+    "ders": "COĞRAFYA",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Lisans"
+  },
+  {
+    "soru": "Hangi turizm etkinliği yıl boyunca katkı sağlar?",
+    "siklar": ["Kış", "Deniz", "Yayla", "Akarsu", "Kaplıca"],
+    "dogru": 4,
+    "ders": "COĞRAFYA",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Lisans"
+  },
+  {
+    "soru": "Yeşilırmak Havzası Gelişim Projesi ili değildir?",
+    "siklar": ["Samsun", "Çorum", "Tokat", "Yozgat", "Amasya"],
+    "dogru": 3,
+    "ders": "COĞRAFYA",
+    "zorluk": "ORTA",
+    "deneme": "2012 KPSS Lisans"
+  },
+  {
+    "soru": "Dış satımın dış alımı karşılama oranının düşük olmasının nedeni değildir?",
+    "siklar": ["İç tüketim", "İmalatta dışa bağımlılık", "Enerjide dışa bağımlılık", "Rekabet güçlüğü", "Turizm gelirlerinin artması"],
+    "dogru": 4,
+    "ders": "COĞRAFYA",
+    "zorluk": "ORTA",
+    "deneme": "2012 KPSS Lisans"
+  },
+  {
+    "soru": "Doğal çevre üzerindeki insan etkisi en azdır?",
+    "siklar": ["Göl kurutma", "Deniz doldurma", "Termik santral", "Yaylada arıcılık", "Boğaz köprüsü"],
+    "dogru": 3,
+    "ders": "COĞRAFYA",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Lisans"
+  },
+  {
+    "soru": "Türk hukukunda olağan evlenme yaşı kaçtır?",
+    "siklar": ["Kadın 15, Erkek 17", "Her ikisi 16", "Her ikisi 17", "Kadın 17, Erkek 21", "Kadın 13, Erkek 14"],
+    "dogru": 2,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Lisans"
+  },
+  {
+    "soru": "Aksine işlem yapılamayan kurallara ne denir?",
+    "siklar": ["Emredici", "Yedek", "Yorumlayıcı", "Tamamlayıcı", "Tanımlayıcı"],
+    "dogru": 0,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Lisans"
+  },
+  {
+    "soru": "Borçlunun sorumluluğu ile ilgili hangisi yanlıştır?",
+    "siklar": ["Borca aykırı davranışla doğar", "Mal varlığı sorumluluğudur", "Özgürlük kısıtlanamaz", "Sınırsız veya sınırlı olabilir", "Şahıs varlığı ile de sorumlu tutulabilir"],
+    "dogru": 4,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ORTA",
+    "deneme": "2012 KPSS Lisans"
+  },
+  {
+    "soru": "1982 Anayasası'na göre Bakanlar Kurulu ile ilgili yanlış olan? (2012)",
+    "siklar": ["Başbakan milletvekilidir", "Bakanlar milletvekili olmayabilir", "Bakanlıklar kanunla kurulur", "Tüzük çıkarabilir", "Bakanların görevine Başbakan son verir"],
+    "dogru": 4,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ZOR",
+    "deneme": "2012 KPSS Lisans",
+    "cozum": "Eski sistemde bakanların görevine Başbakanın önerisiyle Cumhurbaşkanı son verirdi."
+  },
+  {
+    "soru": "Cumhurbaşkanlığına adaylık için kaç milletvekili teklifi gerekir? (2012)",
+    "siklar": ["10", "20", "25", "30", "55"],
+    "dogru": 1,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "KOLAY",
+    "deneme": "2012 KPSS Lisans"
+  },
+  {
+    "soru": "TBMM'nin toplantıya çağrılması ile ilgili yanlış olan?",
+    "siklar": ["1/5 üye isteğiyle Başkan çağırır", "Başkan doğrudan çağırır", "Cumhurbaşkanı doğrudan çağırır", "Başbakan doğrudan çağırır", "Bakanlar Kurulu isteğiyle Cumhurbaşkanı çağırır"],
+    "dogru": 3,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ORTA",
+    "deneme": "2012 KPSS Lisans"
+  },
+  {
+    "soru": "Kamu düzeninin unsurlarından değildir?",
+    "siklar": ["Genel inanç", "Esenlik", "Genel sağlık", "Genel ahlak", "Güvenlik"],
+    "dogru": 0,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ZOR",
+    "deneme": "2012 KPSS Lisans"
+  },
+  {
+    "soru": "Sadece Bakanlar Kurulu tarafından çıkarılabilen? (2012)",
+    "siklar": ["Yalnız I", "Yalnız II", "I ve II (KHK ve Tüzük)", "I, II ve III", "I, II ve IV"],
+    "dogru": 2,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ORTA",
+    "deneme": "2012 KPSS Lisans"
+  },
+  {
+    "soru": "Yönetmelik yapma yetkisine sahip değildir?",
+    "siklar": ["KİT'ler", "Ticaret Odası", "Hukuk Fakültesi", "İl Özel İdaresi", "Belediye"],
+    "dogru": 2,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ZOR",
+    "deneme": "2012 KPSS Lisans",
+    "cozum": "Hukuk Fakültesi tüzel kişiliği olmadığı için yönetmelik çıkaramaz."
+  },
+  {
+    "soru": "Türkiye'nin kredi notu görünümünü durağana çeviren kuruluş? (2012 Güncel)",
+    "siklar": ["Moody's", "Fitch", "Experian", "Standard and Poor's (S&P)", "Callcredit"],
+    "dogru": 3,
+    "ders": "GÜNCEL BİLGİLER",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2012 KPSS Lisans"
+  },
+  {
+    "soru": "2012 NATO Zirvesi nerede yapıldı?",
+    "siklar": ["Japonya", "ABD", "G.Kore", "İsveç", "Türkiye"],
+    "dogru": 1,
+    "ders": "GÜNCEL BİLGİLER",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2012 KPSS Lisans"
+  },
+  {
+    "soru": "2012 Dünya Ekonomik Forumu (WEF) nerede yapıldı?",
+    "siklar": ["Bağdat", "Bakü", "İstanbul", "Davos", "Kahire"],
+    "dogru": 2,
+    "ders": "GÜNCEL BİLGİLER",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2012 KPSS Lisans"
   }
 
   ]
+
 
 
 
