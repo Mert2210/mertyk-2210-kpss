@@ -103,12 +103,10 @@ io.on("connection", (socket) => {
         let pool = [...tumSorular];
         console.log(`Oyun Başlıyor: Oda ${roomCode}, Mod: ${settings.isMistakeMode ? "HATA" : "NORMAL"}, Deneme: ${settings.deneme}`);
 
-        // 1. HATA ANALİZ MODU (HEM YANLIŞLAR HEM FİLTRELER)
+        // 1. HATA ANALİZ MODU
         if (settings.isMistakeMode && settings.mistakeList && settings.mistakeList.length > 0) {
-            // Önce sadece kullanıcının yanlışlarını seç
             pool = pool.filter(q => settings.mistakeList.includes(q.soru));
             
-            // Yanlışlar içinde de Ders/Zorluk filtresi uygula
             if (settings.subject && settings.subject !== "HEPSI") {
                 const aranan = settings.subject.trim().toLocaleUpperCase('tr');
                 pool = pool.filter(q => (q.ders || "GENEL").trim().toLocaleUpperCase('tr') === aranan);
@@ -120,45 +118,44 @@ io.on("connection", (socket) => {
                 pool = pool.filter(q => q.siklar && q.siklar.length == settings.sikSayisi);
             }
 
-            // Kalan soruları karıştır ve limiti uygula
             room.questions = pool.sort(() => Math.random() - 0.5)
                                  .slice(0, settings.count || 20)
                                  .map(q => shuffleOptions(q));
         }
 
-        // 2. DENEME MODU (SIRALI VE ÖZEL DERS SIRALAMASI)
+        // 2. DENEME MODU
         else if (settings.deneme && settings.deneme !== "HEPSI") {
             // Sadece seçilen denemenin sorularını getir
             pool = pool.filter(q => q.deneme == settings.deneme);
+
+            // DERS FİLTRESİ (Deneme içinde de çalışması için)
+            if (settings.subject && settings.subject !== "HEPSI") {
+                const aranan = settings.subject.trim().toLocaleUpperCase('tr');
+                pool = pool.filter(q => (q.ders || "").trim().toLocaleUpperCase('tr') === aranan);
+            }
             
-            // Ders Sıralaması: Tarih -> Coğrafya -> Vatandaşlık -> Güncel
+            // Sıralama (Tarih -> Coğrafya...)
             const dersSirasi = { "TARİH": 1, "COĞRAFYA": 2, "VATANDAŞLIK": 3, "GÜNCEL BİLGİLER": 4 };
-            
             pool.sort((a, b) => {
                 const dersA = (a.ders || "").trim().toLocaleUpperCase('tr');
                 const dersB = (b.ders || "").trim().toLocaleUpperCase('tr');
                 const siraA = dersSirasi[dersA] || 99;
                 const siraB = dersSirasi[dersB] || 99;
-                
                 return siraA - siraB;
             });
 
-            // --- DEĞİŞİKLİK BURADA ---
-            // Soru sayısını (count) dikkate al, yoksa hepsini getir.
+            // Soru Limiti
             const limit = parseInt(settings.count) || pool.length;
-
-            // Soruları limitle (Örn: 10 seçtiysen sadece ilk 10 Tarih sorusu gelir)
-            // Deneme modunda SORULARI karıştırma yapmıyoruz, sadece cevap şıklarını karıştırıyoruz.
+            // Deneme modunda SORULARI karıştırma yapmıyoruz
             room.questions = pool.slice(0, limit).map(q => shuffleOptions(q));
         }
 
-        // 3. GENEL MOD (KARIŞIK VE FİLTRELİ)
+        // 3. GENEL MOD
         else {
             if (settings.subject && settings.subject !== "HEPSI") {
                 const aranan = settings.subject.trim().toLocaleUpperCase('tr');
                 pool = pool.filter(q => (q.ders || "GENEL").trim().toLocaleUpperCase('tr') === aranan);
             }
-            // ZORLUK FİLTRESİ (Burada "ÇIKMIŞ" seçeneği de otomatik çalışır)
             if (settings.difficulty && settings.difficulty !== "HEPSI") {
                  pool = pool.filter(q => (q.zorluk || "ORTA") === settings.difficulty);
             }
@@ -166,7 +163,6 @@ io.on("connection", (socket) => {
                 pool = pool.filter(q => q.siklar && q.siklar.length == settings.sikSayisi);
             }
 
-            // Karışık modda soruları karıştırıyoruz
             room.questions = pool.sort(() => Math.random() - 0.5)
                                  .slice(0, settings.count || 20)
                                  .map(q => shuffleOptions(q));
@@ -174,10 +170,25 @@ io.on("connection", (socket) => {
         
         // Boş Kontrolü
         if(room.questions.length === 0) {
-             room.questions = [{ "soru": "Seçilen kriterlere uygun soru bulunamadı!", "ders": "UYARI", "siklar": ["Tamam"], "dogru": 0, "cozum": "Filtreleri değiştirin." }];
+             room.questions = [{ "soru": "Seçilen kriterlere uygun soru bulunamadı!", "ders": "UYARI", "siklar": ["Tamam"], "dogru": 0 }];
         }
 
+        // --- SÜRE AYARLARI ---
         room.settings = settings;
+        room.timerMode = settings.timerMode || 'question'; // 'question' veya 'general'
+        
+        if (room.timerMode === 'general') {
+            const dakika = parseInt(settings.duration) || 30;
+            room.totalTimeSeconds = dakika * 60; 
+            room.endTime = Date.now() + (room.totalTimeSeconds * 1000);
+            
+            // Genel süre bitince oyunu bitiren tetikleyici
+            room.globalTimeout = setTimeout(() => {
+                io.to(roomCode).emit("gameOver", Object.values(room.players));
+                room.gameStarted = false;
+            }, room.totalTimeSeconds * 1000);
+        }
+
         room.gameStarted = true;
         room.currentQuestionIndex = 0;
         sendQuestionToRoom(roomCode);
@@ -198,7 +209,8 @@ io.on("connection", (socket) => {
 
             if (isCorrect) {
                 const gecen = (Date.now() - room.questionStartTime) / 1000;
-                const kalan = Math.max(0, room.settings.duration - gecen);
+                // Genel modda da olsa, soru başına da olsa hızlı cevap bonusu (baz süre 20 alalım)
+                const kalan = Math.max(0, 20 - gecen); 
                 earnedPoints = 10 + Math.ceil(kalan / 4); 
                 player.score += earnedPoints;
             } else if (answerIndex !== -1) {
@@ -211,12 +223,26 @@ io.on("connection", (socket) => {
             });
             io.to(roomCode).emit("updatePlayerList", Object.values(room.players));
 
+            // Soru Başına Mod ise herkes cevaplayınca geç, Genel Mod ise bekle (manuel geçiş)
             if (room.answerCount >= Object.keys(room.players).length) {
-                clearTimeout(room.timerId); 
-                room.currentQuestionIndex++; 
-                setTimeout(() => { sendQuestionToRoom(roomCode); }, 1500); 
+                if (room.timerMode === 'question') {
+                    clearTimeout(room.timerId); 
+                    room.currentQuestionIndex++; 
+                    setTimeout(() => { sendQuestionToRoom(roomCode); }, 1500); 
+                }
             }
         }
+    });
+
+    // SORU ATLAMA / NAVİGASYON (Sadece Deneme Modu)
+    socket.on("jumpToQuestion", ({ roomCode, index }) => {
+        const room = rooms[roomCode];
+        if (!room) return;
+        if (index < 0 || index >= room.questions.length) return;
+        if (Object.keys(room.players).length > 1) return; // Sadece tek kişilikte izin ver
+
+        room.currentQuestionIndex = index;
+        sendQuestionToRoom(roomCode);
     });
     
     // YENİ SORU KAYDETME
@@ -244,6 +270,7 @@ function sendQuestionToRoom(roomCode) {
     if (!room) return;
     
     if (room.currentQuestionIndex >= room.questions.length) {
+        if(room.globalTimeout) clearTimeout(room.globalTimeout);
         io.to(roomCode).emit("gameOver", Object.values(room.players));
         room.gameStarted = false; return;
     }
@@ -253,18 +280,34 @@ function sendQuestionToRoom(roomCode) {
     room.questionStartTime = Date.now();
     const q = room.questions[room.currentQuestionIndex];
     
+    // Kalan süreyi hesapla (Genel Mod için)
+    let remaining = 0;
+    if (room.timerMode === 'general') {
+        remaining = Math.max(0, Math.floor((room.endTime - Date.now()) / 1000));
+    }
+
     io.to(roomCode).emit("newQuestion", {
         soru: q.soru, siklar: q.siklar, ders: q.ders, resim: q.resim, 
         zorluk: q.zorluk, deneme: q.deneme, cozum: q.cozum,    
-        index: room.currentQuestionIndex + 1, total: room.questions.length, duration: room.settings.duration
+        index: room.currentQuestionIndex + 1, 
+        total: room.questions.length, 
+        duration: parseInt(room.settings.duration), 
+        timerMode: room.timerMode, 
+        remainingTime: remaining   
     });
     
-    room.timerId = setTimeout(() => { 
-        if (rooms[roomCode] && room.gameStarted) { 
-            room.currentQuestionIndex++; 
-            sendQuestionToRoom(roomCode); 
-        } 
-    }, room.settings.duration * 1000);
+    // Soru Başına Mod ise Timer Kur, Genel Mod ise Kurma
+    if (room.timerMode === 'question') {
+        if(room.timerId) clearTimeout(room.timerId);
+        room.timerId = setTimeout(() => { 
+            if (rooms[roomCode] && room.gameStarted) { 
+                room.currentQuestionIndex++; 
+                sendQuestionToRoom(roomCode); 
+            } 
+        }, room.settings.duration * 1000);
+    } else {
+        if(room.timerId) clearTimeout(room.timerId); 
+    }
 }
 
 const PORT = process.env.PORT || 3000;
