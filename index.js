@@ -22,6 +22,7 @@ app.get("/ping", (req, res) => {
 // --- 🛠️ SORU YÜKLEME VE TAMİR ---
 let tumSorular = [];
 const QUESTIONS_FILE = path.join(__dirname, 'questions.json');
+const REPORTS_FILE = path.join(__dirname, 'reports.json'); // YENİ: Rapor dosyası
 
 function sorulariYukle() {
     console.log("📂 Soru dosyası okunuyor...");
@@ -61,6 +62,55 @@ function sorulariYukle() {
 }
 sorulariYukle();
 
+// --- 🕵️ GİZLİ RAPOR SAYFASI ---
+app.get("/raporlar", (req, res) => {
+    if (fs.existsSync(REPORTS_FILE)) {
+        const data = JSON.parse(fs.readFileSync(REPORTS_FILE, 'utf8'));
+        
+        let html = `
+        <html>
+        <head>
+            <title>Hatalı Soru Raporları</title>
+            <style>
+                body { font-family: sans-serif; padding: 20px; background: #f4f4f9; }
+                table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+                th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+                th { background-color: #1e3c72; color: white; }
+                tr:nth-child(even) { background-color: #f2f2f2; }
+                h1 { color: #1e3c72; }
+            </style>
+        </head>
+        <body>
+            <h1>⚠️ Gelen Hata Bildirimleri</h1>
+            <table>
+                <tr>
+                    <th>Tarih</th>
+                    <th>Kullanıcı</th>
+                    <th>Deneme / Ders</th>
+                    <th>Soru</th>
+                    <th>Şikayet Nedeni</th>
+                </tr>
+        `;
+        
+        data.reverse().forEach(r => {
+            html += `
+                <tr>
+                    <td>${r.tarih}</td>
+                    <td>${r.raporlayan}</td>
+                    <td>${r.deneme || "Genel"}</td>
+                    <td>${r.soru}</td>
+                    <td style="color:red; font-weight:bold;">${r.mesaj}</td>
+                </tr>
+            `;
+        });
+        
+        html += `</table></body></html>`;
+        res.send(html);
+    } else {
+        res.send("<h2>Henüz hiç rapor yok! 🎉</h2>");
+    }
+});
+
 const rooms = {};
 
 // ŞIKLARI KARIŞTIRMA
@@ -74,15 +124,35 @@ function shuffleOptions(q) {
 
 io.on("connection", (socket) => {
     
-    // --- YENİ EKLENEN KISIM: OTOMATİK DENEME LİSTESİ GÖNDERME ---
-    // 1. Tüm soruların içinden "deneme" isimlerini çek
-    // 2. Tekrar edenleri temizle (Set kullanarak)
-    // 3. Alfabetik sırala
+    // --- OTOMATİK DENEME LİSTESİ GÖNDERME ---
     const mevcutDenemeler = [...new Set(tumSorular.map(q => q.deneme).filter(x => x))].sort();
-    
-    // Kullanıcıya bu listeyi gönder (İstemci bunu yakalayıp menüyü dolduracak)
     socket.emit('updateDenemeList', mevcutDenemeler);
-    // -------------------------------------------------------------
+    // ----------------------------------------
+
+    // --- YENİ: HATALI SORU BİLDİRİMİ ALMA ---
+    socket.on('reportQuestion', (data) => {
+        console.log("⚠️ Bir soru rapor edildi:", data.soru);
+        
+        let reports = [];
+        if (fs.existsSync(REPORTS_FILE)) {
+            try {
+                reports = JSON.parse(fs.readFileSync(REPORTS_FILE, 'utf8'));
+            } catch(e) {}
+        }
+        
+        reports.push({
+            tarih: new Date().toLocaleString(),
+            raporlayan: data.username,
+            soru: data.soru,
+            deneme: data.deneme,
+            mesaj: data.reason
+        });
+        
+        fs.writeFile(REPORTS_FILE, JSON.stringify(reports, null, 2), (err) => {
+            if(err) console.error("Rapor kaydedilemedi.");
+        });
+    });
+    // ----------------------------------------
 
     // ODA YÖNETİMİ
     socket.on("createRoom", (username) => {
@@ -106,7 +176,7 @@ io.on("connection", (socket) => {
         io.to(roomCode).emit("updatePlayerList", Object.values(rooms[roomCode].players));
     });
 
-    // --- OYUN BAŞLATMA MANTIĞI (FİLTRELER DAHİL) ---
+    // --- OYUN BAŞLATMA MANTIĞI ---
     socket.on("startGame", ({ roomCode, settings }) => {
         const room = rooms[roomCode];
         if (!room) return;
@@ -114,10 +184,8 @@ io.on("connection", (socket) => {
         let pool = [...tumSorular];
         console.log(`Oyun Başlıyor: Oda ${roomCode}, Mod: ${settings.isMistakeMode ? "HATA" : "NORMAL"}, Deneme: ${settings.deneme}`);
 
-        // 1. HATA ANALİZ MODU
         if (settings.isMistakeMode && settings.mistakeList && settings.mistakeList.length > 0) {
             pool = pool.filter(q => settings.mistakeList.includes(q.soru));
-            
             if (settings.subject && settings.subject !== "HEPSI") {
                 const aranan = settings.subject.trim().toLocaleUpperCase('tr');
                 pool = pool.filter(q => (q.ders || "GENEL").trim().toLocaleUpperCase('tr') === aranan);
@@ -128,24 +196,16 @@ io.on("connection", (socket) => {
             if (settings.sikSayisi && settings.sikSayisi !== "HEPSI") {
                 pool = pool.filter(q => q.siklar && q.siklar.length == settings.sikSayisi);
             }
-
             room.questions = pool.sort(() => Math.random() - 0.5)
                                  .slice(0, settings.count || 20)
                                  .map(q => shuffleOptions(q));
         }
-
-        // 2. DENEME MODU
         else if (settings.deneme && settings.deneme !== "HEPSI") {
-            // Sadece seçilen denemenin sorularını getir
             pool = pool.filter(q => q.deneme == settings.deneme);
-
-            // DERS FİLTRESİ (Deneme içinde de çalışması için)
             if (settings.subject && settings.subject !== "HEPSI") {
                 const aranan = settings.subject.trim().toLocaleUpperCase('tr');
                 pool = pool.filter(q => (q.ders || "").trim().toLocaleUpperCase('tr') === aranan);
             }
-            
-            // Sıralama (Tarih -> Coğrafya...)
             const dersSirasi = { "TARİH": 1, "COĞRAFYA": 2, "VATANDAŞLIK": 3, "GÜNCEL BİLGİLER": 4 };
             pool.sort((a, b) => {
                 const dersA = (a.ders || "").trim().toLocaleUpperCase('tr');
@@ -154,14 +214,9 @@ io.on("connection", (socket) => {
                 const siraB = dersSirasi[dersB] || 99;
                 return siraA - siraB;
             });
-
-            // Soru Limiti
             const limit = parseInt(settings.count) || pool.length;
-            // Deneme modunda SORULARI karıştırma yapmıyoruz
             room.questions = pool.slice(0, limit).map(q => shuffleOptions(q));
         }
-
-        // 3. GENEL MOD
         else {
             if (settings.subject && settings.subject !== "HEPSI") {
                 const aranan = settings.subject.trim().toLocaleUpperCase('tr');
@@ -173,27 +228,23 @@ io.on("connection", (socket) => {
             if (settings.sikSayisi && settings.sikSayisi !== "HEPSI") {
                 pool = pool.filter(q => q.siklar && q.siklar.length == settings.sikSayisi);
             }
-
             room.questions = pool.sort(() => Math.random() - 0.5)
                                  .slice(0, settings.count || 20)
                                  .map(q => shuffleOptions(q));
         }
         
-        // Boş Kontrolü
         if(room.questions.length === 0) {
              room.questions = [{ "soru": "Seçilen kriterlere uygun soru bulunamadı!", "ders": "UYARI", "siklar": ["Tamam"], "dogru": 0 }];
         }
 
-        // --- SÜRE AYARLARI ---
         room.settings = settings;
-        room.timerMode = settings.timerMode || 'question'; // 'question' veya 'general'
+        room.timerMode = settings.timerMode || 'question';
         
         if (room.timerMode === 'general') {
             const dakika = parseInt(settings.duration) || 30;
             room.totalTimeSeconds = dakika * 60; 
             room.endTime = Date.now() + (room.totalTimeSeconds * 1000);
             
-            // Genel süre bitince oyunu bitiren tetikleyici
             room.globalTimeout = setTimeout(() => {
                 io.to(roomCode).emit("gameOver", Object.values(room.players));
                 room.gameStarted = false;
@@ -205,7 +256,6 @@ io.on("connection", (socket) => {
         sendQuestionToRoom(roomCode);
     });
 
-    // CEVAP İŞLEME
     socket.on("submitAnswer", ({ roomCode, answerIndex }) => {
         const room = rooms[roomCode];
         if (!room || !room.gameStarted) return;
@@ -220,7 +270,6 @@ io.on("connection", (socket) => {
 
             if (isCorrect) {
                 const gecen = (Date.now() - room.questionStartTime) / 1000;
-                // Genel modda da olsa, soru başına da olsa hızlı cevap bonusu (baz süre 20 alalım)
                 const kalan = Math.max(0, 20 - gecen); 
                 earnedPoints = 10 + Math.ceil(kalan / 4); 
                 player.score += earnedPoints;
@@ -234,7 +283,6 @@ io.on("connection", (socket) => {
             });
             io.to(roomCode).emit("updatePlayerList", Object.values(room.players));
 
-            // Soru Başına Mod ise herkes cevaplayınca geç, Genel Mod ise bekle (manuel geçiş)
             if (room.answerCount >= Object.keys(room.players).length) {
                 if (room.timerMode === 'question') {
                     clearTimeout(room.timerId); 
@@ -245,18 +293,16 @@ io.on("connection", (socket) => {
         }
     });
 
-    // SORU ATLAMA / NAVİGASYON (Sadece Deneme Modu)
     socket.on("jumpToQuestion", ({ roomCode, index }) => {
         const room = rooms[roomCode];
         if (!room) return;
         if (index < 0 || index >= room.questions.length) return;
-        if (Object.keys(room.players).length > 1) return; // Sadece tek kişilikte izin ver
+        if (Object.keys(room.players).length > 1) return; 
 
         room.currentQuestionIndex = index;
         sendQuestionToRoom(roomCode);
     });
     
-    // YENİ SORU KAYDETME
     socket.on("addNewQuestion", (q) => { 
         tumSorular.push(q);
         fs.writeFile(QUESTIONS_FILE, JSON.stringify(tumSorular, null, 2), (err) => {
@@ -264,7 +310,6 @@ io.on("connection", (socket) => {
         });
     });
     
-    // BAĞLANTI KOPMASI
     socket.on("disconnect", () => {
         for (const code in rooms) {
             if (rooms[code].players[socket.id]) {
@@ -291,7 +336,6 @@ function sendQuestionToRoom(roomCode) {
     room.questionStartTime = Date.now();
     const q = room.questions[room.currentQuestionIndex];
     
-    // Kalan süreyi hesapla (Genel Mod için)
     let remaining = 0;
     if (room.timerMode === 'general') {
         remaining = Math.max(0, Math.floor((room.endTime - Date.now()) / 1000));
@@ -307,7 +351,6 @@ function sendQuestionToRoom(roomCode) {
         remainingTime: remaining   
     });
     
-    // Soru Başına Mod ise Timer Kur, Genel Mod ise Kurma
     if (room.timerMode === 'question') {
         if(room.timerId) clearTimeout(room.timerId);
         room.timerId = setTimeout(() => { 
@@ -323,4 +366,3 @@ function sendQuestionToRoom(roomCode) {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`🚀 Sunucu ${PORT} portunda tam güç çalışıyor.`));
-
