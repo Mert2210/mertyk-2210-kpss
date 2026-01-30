@@ -20,9 +20,9 @@
             margin: 0; 
             display: flex; 
             justify-content: center; 
-            align-items: flex-start; 
+            align-items: flex-start; /* İçerik yukarıdan başlar */
             min-height: 100vh; 
-            overflow-y: auto; 
+            overflow-y: auto; /* Kaydırmayı serbest bırak */
             padding: 20px 0; 
         }
 
@@ -324,15 +324,15 @@
     let questionStatusList = []; 
     let globalTimerInterval = null;
 
-    // --- YENİ: ZORLAŞTIRILMIŞ RÜTBE SİSTEMİ (3. Seviyeden sonra makas açılıyor) ---
+    // --- YENİ: ZORLAŞTIRILMIŞ RÜTBE SİSTEMİ ---
     const rankLevels = [
-        { name: "1. Seviye", limit: 300 },   // 0 - 300
-        { name: "2. Seviye", limit: 650 },   // 300 - 650
-        { name: "3. Seviye", limit: 1200 },  // 650 - 1200 (+550) - Makas Açıldı
-        { name: "4. Seviye", limit: 2000 },  // 1200 - 2000 (+800)
-        { name: "5. Seviye", limit: 3000 },  // 2000 - 3000 (+1000)
-        { name: "6. Seviye", limit: 4500 },  // 3000 - 4500 (+1500)
-        { name: "7. Seviye", limit: 999999 } // 4500+ (Zirve)
+        { name: "1. Seviye", limit: 300 },   
+        { name: "2. Seviye", limit: 650 },   
+        { name: "3. Seviye", limit: 1200 },  
+        { name: "4. Seviye", limit: 2000 },  
+        { name: "5. Seviye", limit: 3000 },  
+        { name: "6. Seviye", limit: 4500 },  
+        { name: "7. Seviye", limit: 999999 } 
     ];
 
     let totalUserPoints = parseInt(localStorage.getItem('kpss_total_points')) || 0;
@@ -410,7 +410,6 @@
         else if (qData.dogru !== null) { list[idx] = {...qData}; saveLocalData(listKey, list); }
     }
 
-    // --- GEÇMİŞ EKRANI (Buton olmasa da fonksiyonu saklıyoruz) ---
     function showHistory() {
         const history = getLocalData('kpss_game_history');
         const content = document.getElementById('list-content');
@@ -441,7 +440,7 @@
         else if(type === 'blank') title = "⚪ Boşlarım";
 
         document.getElementById('list-title').innerText = title;
-        document.getElementById('pdf-btn').style.display = 'block'; // Hepsinde PDF indirilebilsin
+        document.getElementById('pdf-btn').style.display = 'block'; 
 
         document.getElementById('list-content').innerHTML = list.length ? list.map((q, i) => 
             `<div class="list-item">
@@ -460,7 +459,6 @@
         let headerTitle = document.getElementById('list-title').innerText;
         const listContent = document.getElementById('list-content').innerHTML;
         const printWindow = window.open('', '', 'height=600,width=800');
-        
         printWindow.document.write('<html><head><title>Çıktı Al</title>');
         printWindow.document.write('<style>body{font-family:sans-serif; padding:20px;} .list-item{margin-bottom:20px; border-bottom:1px solid #ccc; padding-bottom:10px; page-break-inside: avoid;} .q-text{font-weight:bold; display:block; margin-bottom:5px; color:#333;} .ans-text{color:green; font-weight:bold;}</style>');
         printWindow.document.write('</head><body>');
@@ -497,16 +495,14 @@
         isTrialMode = true; 
         isMistakeMode = true; 
         
-        // Hata modu için özel ayar paketi gönderiyoruz (Trim işlemi Server'da yapılacak)
         const settings = {
             isMistakeMode: true,
-            mistakeList: wrongs.map(q => q.soru), // Sadece soru metinlerini gönder
+            mistakeList: wrongs.map(q => q.soru.trim()),
             count: wrongs.length,
             timerMode: 'question',
             duration: 60,
             subject: "HEPSI"
         };
-        
         socket.emit('startGame', { roomCode: myCode, settings: settings }); 
     }
 
@@ -516,13 +512,11 @@
     
     function toggleDropdown(id, trigger) { document.querySelectorAll('.dropdown-content').forEach(el => { if(el.id !== id) el.classList.remove('show'); }); document.querySelectorAll('.dropdown-trigger').forEach(el => { if(el !== trigger) el.classList.remove('open'); }); const content = document.getElementById(id); content.classList.toggle('show'); trigger.classList.toggle('open'); }
     
-    // --- GÜNCELLENMİŞ TOPLAM SORU SAYISI GÖSTERİMİ ---
     function updateTriggerText(containerId, allLabel) {
         const container = document.getElementById(containerId); const trigger = container.previousElementSibling; const checked = container.querySelectorAll('input[type="checkbox"]:not([id$="-all"]):checked'); const total = container.querySelectorAll('input[type="checkbox"]:not([id$="-all"])').length;
         
         if (checked.length === 0) { trigger.innerText = "Lütfen Seçim Yapınız"; trigger.style.color = "#e74c3c"; container.querySelector('input[id$="-all"]').checked = false; }
         else if (checked.length === total) { 
-            // Sadece Kaynak Seçimi ise sayı göster
             if(containerId === 'deneme-content') {
                 let totalQ = 0; container.querySelectorAll('label').forEach(lbl => { const match = lbl.innerText.match(/\((\d+)/); if(match) totalQ += parseInt(match[1]); });
                 trigger.innerText = allLabel + ` (Toplam ${totalQ} Soru)`; 
@@ -546,7 +540,17 @@
 
     function finishExamEarly() { if(confirm("Sınavı bitirmek istiyor musun?")) { socket.disconnect(); socket.connect(); let totalScore = 0, correctCount = 0, wrongCount = 0; gameHistory.forEach(g => { if(g.earnedPoints) { totalScore += g.earnedPoints; correctCount++; } else if(g.userAnswerIndex !== -1 && !g.isCorrect) { totalScore -= 5; wrongCount++; } }); renderResultScreen([{ username: getUsername() || "Ben", score: totalScore }], correctCount, wrongCount); } }
     function submitBlank() { socket.emit('submitAnswer', {roomCode: myCode, answerIndex: -1}); disableAllButtons(); }
-    function disableAllButtons() { myButtons.forEach(x => x.disabled = true); document.getElementById('btn-blank').disabled = true; }
+    
+    // --- GÜNCELLENDİ: BUTONLARI VE ODAĞI SIFIRLAMA ---
+    function disableAllButtons() { 
+        myButtons.forEach(x => { 
+            x.disabled = true; 
+            x.blur(); // Odaktan çıkar (İşaretli kalma sorununu çözer)
+        }); 
+        const blankBtn = document.getElementById('btn-blank');
+        blankBtn.disabled = true;
+        blankBtn.blur();
+    }
 
     function showReviewScreen() {
         const container = document.getElementById('review-content'); container.innerHTML = "";
@@ -587,8 +591,98 @@
     function toggleAllSubjects(source) { document.querySelectorAll('input[name="subject-secim"]').forEach(cb => cb.checked = source.checked); updateTriggerText('subject-content', 'Tüm Dersler'); }
     socket.on('roomJoined', c => { myCode=c; document.getElementById('display-room-code').innerText=c; showScreen('screen-lobby'); document.getElementById('wait-msg').style.display='block'; });
     socket.on('updatePlayerList', p => { const h = p.map(x => `<div class="player-card"><span>${x.username}</span><span>${x.score}</span></div>`).join(''); document.getElementById('lobby-list').innerHTML = isTrialMode ? "" : h; document.getElementById('live-scores-list').innerHTML = h; });
-    socket.on('newQuestion', d => { if (!questionStatusList || questionStatusList.length !== d.total) { gameHistory = []; questionStatusList = new Array(d.total).fill(null); } showScreen('screen-game'); document.getElementById('result-msg').innerText = ""; currentQuestionData = { ...d, dogru: null }; if(isTrialMode) { document.getElementById('question-navigator').style.display = 'grid'; document.getElementById('nav-buttons').style.display = 'flex'; document.getElementById('live-scores-container').style.display = 'none'; renderNavigator(d.total, d.index - 1); } else { document.getElementById('question-navigator').style.display = 'none'; document.getElementById('nav-buttons').style.display = 'none'; document.getElementById('live-scores-container').style.display = 'block'; } document.getElementById('star-btn').classList.toggle('starred', !!getLocalData('kpss_favs').find(q => q.soru === d.soru)); document.getElementById('q-lesson').innerText = d.ders + (d.zorluk ? ` (${d.zorluk})` : ""); document.getElementById('q-count').innerText = d.index + "/" + d.total; document.getElementById('q-text').innerText = d.soru; const img = document.getElementById('q-image'); if(d.resim) { img.src = d.resim.startsWith('http') ? d.resim : '/img/' + d.resim; img.style.display = 'block'; } else { img.style.display = 'none'; } const area = document.getElementById('opts-area'); area.innerHTML = ""; myButtons = []; d.siklar.forEach((s, i) => { const b = document.createElement('button'); b.className = 'opt-btn'; b.innerText = s; const status = questionStatusList[d.index - 1]; if(status && i === status.selectedIndex) { if(status.result === 'correct') b.classList.add('correct'); else b.classList.add('wrong'); } b.onclick = () => { if(questionStatusList[d.index - 1]) return; socket.emit('submitAnswer', {roomCode: myCode, answerIndex: i}); disableAllButtons(); }; area.appendChild(b); myButtons.push(b); }); if(questionStatusList[d.index - 1]) disableAllButtons(); else document.getElementById('btn-blank').disabled = false; const timerBar = document.getElementById('timer-bar'); const genTimer = document.getElementById('general-timer-display'); if (d.timerMode === 'question') { timerBar.style.display = 'block'; genTimer.style.display = 'none'; timerBar.style.transition = 'none'; timerBar.style.width = '100%'; setTimeout(() => { timerBar.style.transition = `width ${d.duration}s linear`; timerBar.style.width = '0%'; }, 50); } else { timerBar.style.display = 'none'; genTimer.style.display = 'block'; if (d.index === 1 && d.remainingTime) startGlobalCountdown(d.remainingTime); } });
-    socket.on('answerResult', d => { if(currentQuestionData) { questionStatusList[currentQuestionData.index - 1] = { selectedIndex: d.selectedIndex, result: d.correct ? 'correct' : (d.selectedIndex === -1 ? 'blank' : 'wrong') }; if(isTrialMode) renderNavigator(currentQuestionData.total, currentQuestionData.index - 1); } if (currentQuestionData) { currentQuestionData.dogru = d.correctIndex; saveToHistory(currentQuestionData, 'kpss_favs'); gameHistory.push({ question: currentQuestionData, userAnswerIndex: d.selectedIndex, isCorrect: d.correct, correctAnswerIndex: d.correctIndex, earnedPoints: d.points }); if(isMistakeMode && d.correct) { let wrongs = getLocalData('kpss_wrongs'); wrongs = wrongs.filter(q => q.soru !== currentQuestionData.soru); saveLocalData('kpss_wrongs', wrongs); } else if (!d.correct && !isMistakeMode && d.selectedIndex !== -1) { saveToHistory(currentQuestionData, 'kpss_wrongs'); } } if(d.points > 0) { document.getElementById('result-msg').innerText = `+${d.points} Puan!`; playSnd('snd-correct'); } if(d.isBlank) { myButtons[d.correctIndex].classList.add('correct'); saveToHistory(currentQuestionData, 'kpss_blanks'); } else { const btn = myButtons[d.selectedIndex]; if(d.correct) { btn.classList.add('correct'); } else { btn.classList.add('wrong'); playSnd('snd-wrong'); myButtons[d.correctIndex].classList.add('correct'); } } });
+    
+    // --- GÜNCELLENDİ: YENİ SORU GELDİĞİNDE BUTONLARI SIFIRLA ---
+    socket.on('newQuestion', d => { 
+        if (!questionStatusList || questionStatusList.length !== d.total) { 
+            gameHistory = []; questionStatusList = new Array(d.total).fill(null); 
+        } 
+        showScreen('screen-game'); 
+        document.getElementById('result-msg').innerText = ""; 
+        currentQuestionData = { ...d, dogru: null }; 
+        
+        // Önceki şıkların stillerini ve içeriklerini tamamen temizle
+        const area = document.getElementById('opts-area');
+        area.innerHTML = ""; // İçeriği boşalt
+        myButtons = []; // Dizi referansını sıfırla
+
+        if(isTrialMode) { document.getElementById('question-navigator').style.display = 'grid'; document.getElementById('nav-buttons').style.display = 'flex'; document.getElementById('live-scores-container').style.display = 'none'; renderNavigator(d.total, d.index - 1); } 
+        else { document.getElementById('question-navigator').style.display = 'none'; document.getElementById('nav-buttons').style.display = 'none'; document.getElementById('live-scores-container').style.display = 'block'; }
+        
+        document.getElementById('star-btn').classList.toggle('starred', !!getLocalData('kpss_favs').find(q => q.soru === d.soru));
+        document.getElementById('q-lesson').innerText = d.ders + (d.zorluk ? ` (${d.zorluk})` : ""); 
+        document.getElementById('q-count').innerText = d.index + "/" + d.total; 
+        document.getElementById('q-text').innerText = d.soru; 
+        const img = document.getElementById('q-image'); 
+        if(d.resim) { img.src = d.resim.startsWith('http') ? d.resim : '/img/' + d.resim; img.style.display = 'block'; } else { img.style.display = 'none'; } 
+        
+        // Yeni butonları oluştur ve ekle
+        d.siklar.forEach((s, i) => { 
+            const b = document.createElement('button'); 
+            b.className = 'opt-btn'; // Sadece temiz sınıf
+            b.innerText = s; 
+            
+            // Eğer bu soruya daha önce cevap verilmişse işaretle
+            const status = questionStatusList[d.index - 1];
+            if(status && i === status.selectedIndex) { 
+                if(status.result === 'correct') b.classList.add('correct'); 
+                else b.classList.add('wrong'); 
+            }
+            
+            b.onclick = () => { 
+                if(questionStatusList[d.index - 1]) return; 
+                socket.emit('submitAnswer', {roomCode: myCode, answerIndex: i}); 
+                disableAllButtons(); 
+            }; 
+            area.appendChild(b); 
+            myButtons.push(b); 
+        });
+
+        // Boş bırak butonu durumunu ayarla
+        if(questionStatusList[d.index - 1]) disableAllButtons(); 
+        else {
+            const blankBtn = document.getElementById('btn-blank');
+            blankBtn.disabled = false;
+            blankBtn.blur(); // Odağı kaldır
+        }
+
+        const timerBar = document.getElementById('timer-bar'); const genTimer = document.getElementById('general-timer-display'); 
+        if (d.timerMode === 'question') { 
+            timerBar.style.display = 'block'; genTimer.style.display = 'none'; 
+            timerBar.style.transition = 'none'; timerBar.style.width = '100%'; 
+            setTimeout(() => { timerBar.style.transition = `width ${d.duration}s linear`; timerBar.style.width = '0%'; }, 50); 
+        } 
+        else { 
+            timerBar.style.display = 'none'; genTimer.style.display = 'block'; 
+            if (d.index === 1 && d.remainingTime) startGlobalCountdown(d.remainingTime); 
+        } 
+    });
+
+    socket.on('answerResult', d => { 
+        if(currentQuestionData) { 
+            questionStatusList[currentQuestionData.index - 1] = { selectedIndex: d.selectedIndex, result: d.correct ? 'correct' : (d.selectedIndex === -1 ? 'blank' : 'wrong') }; 
+            if(isTrialMode) renderNavigator(currentQuestionData.total, currentQuestionData.index - 1); 
+        } 
+        if (currentQuestionData) { 
+            currentQuestionData.dogru = d.correctIndex; 
+            saveToHistory(currentQuestionData, 'kpss_favs'); 
+            gameHistory.push({ question: currentQuestionData, userAnswerIndex: d.selectedIndex, isCorrect: d.correct, correctAnswerIndex: d.correctIndex, earnedPoints: d.points }); 
+            if(isMistakeMode && d.correct) { 
+                let wrongs = getLocalData('kpss_wrongs'); wrongs = wrongs.filter(q => q.soru !== currentQuestionData.soru); saveLocalData('kpss_wrongs', wrongs); 
+            } 
+            else if (!d.correct && !isMistakeMode && d.selectedIndex !== -1) { saveToHistory(currentQuestionData, 'kpss_wrongs'); } 
+        } 
+        if(d.points > 0) { document.getElementById('result-msg').innerText = `+${d.points} Puan!`; playSnd('snd-correct'); } 
+        
+        if(d.isBlank) { 
+            myButtons[d.correctIndex].classList.add('correct'); saveToHistory(currentQuestionData, 'kpss_blanks'); 
+        } else { 
+            const btn = myButtons[d.selectedIndex]; 
+            if(d.correct) { btn.classList.add('correct'); } 
+            else { btn.classList.add('wrong'); playSnd('snd-wrong'); myButtons[d.correctIndex].classList.add('correct'); } 
+        } 
+    });
+    
     socket.on('gameOver', p => { renderResultScreen(p, 0, 0); questionStatusList = []; });
     socket.on('errorMsg', m => alert(m));
 </script>
