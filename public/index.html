@@ -6,16 +6,12 @@
     <title>MYK 2210 - KPSS Platformu</title>
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#1e3c72">
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-
+    
     <style>
-        /* =========================================
-           1. GENEL SAYFA VE GÖVDE AYARLARI
-           ========================================= */
+        /* --- GENEL AYARLAR --- */
         body { 
             font-family: 'Segoe UI', sans-serif; 
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); 
@@ -24,13 +20,12 @@
             margin: 0; 
             display: flex; 
             justify-content: center; 
-            align-items: flex-start; /* İçerik yukarıdan başlasın */
+            align-items: flex-start; 
             min-height: 100vh; 
-            overflow-y: auto; /* Dikey kaydırmaya izin ver (Scroll Sorunu Çözümü) */
+            overflow-y: auto; 
             padding: 20px 0; 
         }
 
-        /* Ana Taşıyıcı Kutu */
         .container { 
             background: rgba(255,255,255,0.95); 
             color: #333; 
@@ -41,372 +36,101 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.3); 
             position: relative; 
             margin-bottom: 20px; 
-            /* max-height kaldırıldı, içerik kadar uzasın */
         }
 
-        h1, h2, h3 { 
-            margin-top: 0; 
-            color: #1e3c72; 
-        }
-
-        /* =========================================
-           2. FORM ELEMANLARI (BUTON, INPUT)
-           ========================================= */
-        input, select, button { 
-            width: 100%; 
-            padding: 12px; 
-            margin-bottom: 8px; 
-            border-radius: 8px; 
-            border: 1px solid #ccc; 
-            box-sizing: border-box; 
-            font-size: 1rem; 
-        }
-
-        button { 
-            background: #1e3c72; 
-            color: white; 
-            border: none; 
-            font-weight: bold; 
-            cursor: pointer; 
-            transition: 0.2s; 
-        }
+        h1, h2, h3 { margin-top: 0; color: #1e3c72; }
         
-        button:hover { 
-            opacity: 0.9; 
-            transform: translateY(-1px); 
-        }
-
-        /* Özel Buton Renkleri */
+        input, select, button { width: 100%; padding: 12px; margin-bottom: 8px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; font-size: 1rem; }
+        button { background: #1e3c72; color: white; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        button:hover { opacity: 0.9; transform: translateY(-1px); }
         button.green { background: #27ae60; }
         button.orange { background: #e67e22; }
         button.red { background: #c0392b; }
         button.purple { background: #8e44ad; }
-        button.outline { 
-            background: transparent; 
-            border: 2px solid #1e3c72; 
-            color: #1e3c72; 
-        }
+        button.outline { background: transparent; border: 2px solid #1e3c72; color: #1e3c72; }
 
-        /* =========================================
-           3. EKRAN GEÇİŞLERİ VE LİSTE YAPISI
-           ========================================= */
         .screen { display: none; } 
-        .active { 
-            display: block; 
-            animation: fadeIn 0.3s; 
-        }
-        
-        @keyframes fadeIn { 
-            from { opacity: 0; } 
-            to { opacity: 1; } 
-        }
+        .active { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .list-item { 
-            background: #fff; 
-            border-bottom: 2px solid #f0f2f5; 
-            padding: 12px; 
-            text-align: left; 
-            font-size: 0.85rem; 
-        }
+        /* --- LİSTE ELEMANLARI --- */
+        .list-item { background: #fff; border-bottom: 2px solid #f0f2f5; padding: 12px; text-align: left; font-size: 0.85rem; }
+        .list-item .q-text { font-weight: bold; color: #333; display: block; margin-bottom: 5px; }
+        .list-item .ans-text { color: #27ae60; font-weight: bold; font-size: 0.8rem; background: #e8f5e9; padding: 4px; border-radius: 4px; display: inline-block; }
         
-        .list-item .q-text { 
-            font-weight: bold; 
-            color: #333; 
-            display: block; 
-            margin-bottom: 5px; 
-        }
-        
-        .list-item .ans-text { 
-            color: #27ae60; 
-            font-weight: bold; 
-            font-size: 0.8rem; 
-            background: #e8f5e9; 
-            padding: 4px; 
-            border-radius: 4px; 
-            display: inline-block; 
-        }
-
-        /* =========================================
-           4. OYUN İÇİ GÖRÜNÜM (ŞIKLAR, RESİM)
-           ========================================= */
-        .player-card { 
-            background: #f0f2f5; 
-            padding: 8px; 
-            margin: 4px 0; 
-            border-radius: 5px; 
-            display: flex; 
-            justify-content: space-between; 
-            font-size: 0.9rem; 
-            font-weight: bold; 
-        }
-
-        .opt-btn { 
-            background: #eef2f3; 
-            color: #333; 
-            text-align: left; 
-            border: 2px solid #ddd; 
-            width: 100%; 
-            margin-bottom: 8px; 
-            cursor: pointer; 
-        }
-        
+        .player-card { background: #f0f2f5; padding: 8px; margin: 4px 0; border-radius: 5px; display: flex; justify-content: space-between; font-size: 0.9rem; font-weight: bold; }
+        .opt-btn { background: #eef2f3; color: #333; text-align: left; border: 2px solid #ddd; width: 100%; margin-bottom: 8px; cursor: pointer; }
         .opt-btn:hover { background-color: #e0e0e0; }
-        
-        .correct { 
-            background: #2ecc71 !important; 
-            color: white; 
-            border-color: #27ae60; 
-        }
-        
-        .wrong { 
-            background: #e74c3c !important; 
-            color: white; 
-            border-color: #c0392b; 
-        }
+        .correct { background: #2ecc71 !important; color: white; border-color: #27ae60; }
+        .wrong { background: #e74c3c !important; color: white; border-color: #c0392b; }
 
-        #timer-bar { 
-            height: 6px; 
-            background: #e67e22; 
-            width: 100%; 
-            margin-top: 10px; 
-            border-radius: 3px; 
-        }
+        #timer-bar { height: 6px; background: #e67e22; width: 100%; margin-top: 10px; border-radius: 3px; }
+        .badge { background: #e67e22; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; }
+        #q-image { width: 100%; max-height: 180px; object-fit: contain; margin-bottom: 10px; display: none; border-radius: 8px; }
         
-        .badge { 
-            background: #e67e22; 
-            color: white; 
-            padding: 4px 8px; 
-            border-radius: 4px; 
-            font-size: 0.8rem; 
-        }
+        #star-btn { font-size: 1.5rem; background: none; border: none; color: #ccc; width: auto; cursor: pointer; padding: 0; line-height: 1; }
+        #star-btn.starred { color: #f1c40f; text-shadow: 0 0 5px rgba(241,196,15,0.5); }
         
-        #q-image { 
-            width: 100%; 
-            max-height: 180px; 
-            object-fit: contain; 
-            margin-bottom: 10px; 
-            display: none; 
-            border-radius: 8px; 
-        }
+        #live-scores-container { margin-top: 15px; border-top: 2px solid #eee; padding-top: 10px; }
+        #btn-sound-toggle { font-size: 0.8rem; padding: 5px; margin-top: 10px; }
 
-        #star-btn { 
-            font-size: 1.5rem; 
-            background: none; 
-            border: none; 
-            color: #ccc; 
-            width: auto; 
-            cursor: pointer; 
-            padding: 0; 
-            line-height: 1; 
-        }
-        
-        #star-btn.starred { 
-            color: #f1c40f; 
-            text-shadow: 0 0 5px rgba(241,196,15,0.5); 
-        }
-
-        /* =========================================
-           5. ANALİZ VE SONUÇ EKRANI
-           ========================================= */
-        .review-card { 
-            background: #fff; 
-            border: 1px solid #ddd; 
-            border-radius: 8px; 
-            padding: 15px; 
-            margin-bottom: 15px; 
-            text-align: left; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
-        }
-        
-        .review-q { 
-            font-weight: bold; 
-            margin-bottom: 10px; 
-            color: #1e3c72; 
-        }
-        
-        .review-row { 
-            display: flex; 
-            justify-content: space-between; 
-            font-size: 0.9rem; 
-            margin-bottom: 5px; 
-        }
-        
+        /* --- SONUÇ KARTLARI --- */
+        .review-card { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-bottom: 15px; text-align: left; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .review-q { font-weight: bold; margin-bottom: 10px; color: #1e3c72; }
+        .review-row { display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 5px; }
+        .review-user-ans { font-weight: bold; }
         .review-correct-ans { color: #27ae60; font-weight: bold; }
         .text-green { color: #27ae60; }
         .text-red { color: #c0392b; }
-        
-        .review-solution { 
-            background: #fff3cd; 
-            color: #856404; 
-            padding: 10px; 
-            border-radius: 5px; 
-            font-size: 0.85rem; 
-            margin-top: 10px; 
-            border-left: 4px solid #ffeeba; 
-        }
+        .review-solution { background: #fff3cd; color: #856404; padding: 10px; border-radius: 5px; font-size: 0.85rem; margin-top: 10px; border-left: 4px solid #ffeeba; }
 
-        .analysis-card { 
-            background: #f8f9fa; 
-            border-radius: 8px; 
-            padding: 10px; 
-            margin-top: 10px; 
-            text-align: left; 
-            border: 1px solid #e9ecef; 
-        }
-        
-        .analysis-item { 
-            display: flex; 
-            justify-content: space-between; 
-            padding: 5px 0; 
-            border-bottom: 1px dashed #ddd; 
-            font-size: 0.85rem; 
-        }
-        
+        .analysis-card { background: #f8f9fa; border-radius: 8px; padding: 10px; margin-top: 10px; text-align: left; border: 1px solid #e9ecef; }
+        .analysis-item { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px dashed #ddd; font-size: 0.85rem; }
         .analysis-item:last-child { border-bottom: none; }
 
-        /* =========================================
-           6. NAVİGASYON (SORU GEÇİŞLERİ)
-           ========================================= */
-        #question-navigator { 
-            display: grid; 
-            grid-template-columns: repeat(5, 1fr); 
-            gap: 5px; 
-            margin-top: 15px; 
-            padding: 10px; 
-            background: #f1f2f6; 
-            border-radius: 8px; 
-            border: 1px solid #ddd; 
-        }
-        
-        .nav-box { 
-            width: 30px; 
-            height: 30px; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            background: #fff; 
-            border: 1px solid #ccc; 
-            border-radius: 4px; 
-            cursor: pointer; 
-            font-size: 0.8rem; 
-            font-weight: bold; 
-            color: #555; 
-            transition: 0.2s; 
-        }
-        
-        .nav-box.active { 
-            border: 2px solid #e67e22; 
-            transform: scale(1.1); 
-            box-shadow: 0 0 5px rgba(230, 126, 34, 0.5); 
-        }
-        
+        /* --- SORU NAVİGASYONU --- */
+        #question-navigator { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; margin-top: 15px; padding: 10px; background: #f1f2f6; border-radius: 8px; border: 1px solid #ddd; }
+        .nav-box { width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; background: #fff; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; font-size: 0.8rem; font-weight: bold; color: #555; transition: 0.2s; }
+        .nav-box:hover { background: #e0e0e0; }
+        .nav-box.active { border: 2px solid #e67e22; transform: scale(1.1); box-shadow: 0 0 5px rgba(230, 126, 34, 0.5); }
+        .nav-box.answered { background: #3498db; color: white; border-color: #2980b9; }
         .nav-box.correct { background: #27ae60; color: white; border-color: #2ecc71; }
         .nav-box.wrong { background: #c0392b; color: white; border-color: #e74c3c; }
-        .nav-box.answered { background: #3498db; color: white; border-color: #2980b9; }
 
-        #nav-buttons { 
-            display: flex; 
-            justify-content: space-between; 
-            margin-top: 15px; 
-            gap: 15px; 
-        }
-        
-        .nav-btn { 
-            flex: 1; 
-            padding: 12px; 
-            border: none; 
-            border-radius: 12px; 
-            font-size: 0.95rem; 
-            font-weight: 600; 
-            cursor: pointer; 
-            transition: all 0.3s; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            gap: 8px; 
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
-        }
-        
+        #nav-buttons { display: flex; justify-content: space-between; margin-top: 15px; gap: 15px; }
+        .nav-btn { flex: 1; padding: 12px; border: none; border-radius: 12px; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         .nav-btn.prev { background-color: #f8f9fa; color: #7f8c8d; border: 1px solid #eef2f3; }
+        .nav-btn.prev:hover { background-color: #ecf0f1; transform: translateY(-2px); color: #34495e; }
         .nav-btn.next { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; box-shadow: 0 4px 15px rgba(30, 60, 114, 0.3); }
+        .nav-btn.next:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(30, 60, 114, 0.4); filter: brightness(1.1); }
 
-        .home-btn { 
-            background: none; 
-            border: none; 
-            font-size: 1.3rem; 
-            cursor: pointer; 
-            transition: 0.2s; 
-            padding: 5px; 
-            border-radius: 50%; 
-        }
+        .home-btn { background: none; border: none; font-size: 1.3rem; cursor: pointer; transition: 0.2s; padding: 5px; border-radius: 50%; }
         .home-btn:hover { background-color: rgba(0,0,0,0.05); transform: scale(1.1); }
-
         #report-btn { font-size: 1.2rem; background: none; border: none; cursor: pointer; padding: 0; line-height: 1; margin-left: 5px; }
         #report-btn:hover { transform: scale(1.1); }
 
-        /* =========================================
-           7. AÇILIR KAPANIR (DROPDOWN) MENÜLER
-           ========================================= */
+        /* --- AÇILIR KAPANIR MENÜLER --- */
         .dropdown-wrapper { position: relative; margin-bottom: 8px; width: 100%; }
-        
-        .dropdown-trigger { 
-            background-color: #fff; 
-            color: #333; 
-            border: 2px solid #e67e22; 
-            padding: 12px; 
-            width: 100%; 
-            text-align: left; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            font-weight: bold; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-        }
-        
+        .dropdown-trigger { background-color: #fff; color: #333; border: 2px solid #e67e22; padding: 12px; width: 100%; text-align: left; border-radius: 8px; cursor: pointer; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
         .dropdown-trigger::after { content: '▼'; font-size: 0.8rem; }
         .dropdown-trigger.open::after { content: '▲'; }
         .dropdown-trigger.subject-trigger { border-color: #2980b9; }
-
-        .dropdown-content { 
-            display: none; 
-            position: absolute; 
-            background-color: #fff; 
-            width: 100%; 
-            border: 1px solid #ccc; 
-            border-radius: 8px; 
-            box-shadow: 0 8px 16px rgba(0,0,0,0.2); 
-            z-index: 100; 
-            max-height: 200px; 
-            overflow-y: auto; 
-            left: 0; 
-        }
-        
+        .dropdown-content { display: none; position: absolute; background-color: #fff; width: 100%; border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 8px 16px rgba(0,0,0,0.2); z-index: 100; max-height: 200px; overflow-y: auto; left: 0; }
         .dropdown-content.down { top: 100%; margin-top: 5px; }
         .dropdown-content.up { bottom: 100%; margin-bottom: 5px; top: auto; }
         .dropdown-content.show { display: block; }
-
-        .checkbox-item { 
-            display: flex; 
-            align-items: center; 
-            padding: 10px; 
-            border-bottom: 1px solid #f0f0f0; 
-            cursor: pointer; 
-        }
-        
+        .checkbox-item { display: flex; align-items: center; padding: 10px; border-bottom: 1px solid #f0f0f0; cursor: pointer; }
+        .checkbox-item:last-child { border-bottom: none; }
         .checkbox-item:hover { background-color: #f9f9f9; }
         .checkbox-item input { width: auto; margin: 0 10px 0 0; cursor: pointer; transform: scale(1.2); }
         .checkbox-item label { cursor: pointer; font-size: 0.9rem; flex: 1; text-align: left; color: #333; margin: 0; }
-        
         .selection-label { font-size:0.7rem; color:#666; display:block; margin-bottom:2px; text-align:left; }
 
-        /* =========================================
-           8. RÜTBE VE PROFİL KARTI (YENİLENMİŞ KİBAR TASARIM)
-           ========================================= */
+        /* --- KİBAR RÜTBE KARTI --- */
         #rank-display {
             background: linear-gradient(to right, #f1c40f, #f39c12);
             color: white;
-            padding: 8px 12px; /* Daha ince, daha kibar */
+            padding: 8px 12px;
             border-radius: 12px;
             margin-bottom: 15px;
             box-shadow: 0 2px 6px rgba(0,0,0,0.15);
@@ -416,130 +140,22 @@
             cursor: pointer;
             transition: transform 0.2s;
         }
-        
         #rank-display:hover { transform: translateY(-2px); }
         
-        #rank-title { 
-            font-weight: bold; 
-            font-size: 1rem; 
-            display: block; 
-            text-shadow: 0 1px 2px rgba(0,0,0,0.2); 
-        }
+        #rank-title { font-weight: bold; font-size: 1rem; display: block; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+        #total-points-display { font-size: 0.8rem; float:right; background:rgba(0,0,0,0.25); padding:2px 8px; border-radius:10px; margin-top: -20px; }
         
-        #total-points-display { 
-            font-size: 0.8rem; 
-            float: right; 
-            background: rgba(0,0,0,0.25); 
-            padding: 2px 8px; 
-            border-radius: 10px; 
-            margin-top: -20px; 
-        }
-        
-        /* Daha İnce İlerleme Çubuğu */
-        .progress-container { 
-            width: 100%; 
-            background-color: rgba(255,255,255,0.3); 
-            border-radius: 5px; 
-            margin-top: 6px; 
-            height: 6px; 
-            overflow: hidden; 
-        }
-        
-        .progress-bar { 
-            height: 100%; 
-            background-color: #fff; 
-            width: 0%; 
-            transition: width 0.8s ease-in-out; 
-        }
-        
-        .next-level-info { 
-            font-size: 0.7rem; 
-            margin-top: 3px; 
-            opacity: 0.95; 
-            text-align: right; 
-        }
+        /* İnce İlerleme Çubuğu */
+        .progress-container { width: 100%; background-color: rgba(255,255,255,0.3); border-radius: 5px; margin-top: 6px; height: 6px; overflow: hidden; }
+        .progress-bar { height: 100%; background-color: #fff; width: 0%; transition: width 0.8s ease-in-out; }
+        .next-level-info { font-size: 0.7rem; margin-top: 3px; opacity: 0.95; text-align: right; }
 
-        /* Rütbe Tablosu Popup'ı */
-        #rank-table-modal { 
-            display: none; 
-            position: fixed; 
-            top: 50%; 
-            left: 50%; 
-            transform: translate(-50%, -50%); 
-            background: white; 
-            color: #333; 
-            padding: 20px; 
-            border-radius: 15px; 
-            box-shadow: 0 0 30px rgba(0,0,0,0.6); 
-            z-index: 200; 
-            width: 85%; 
-            max-width: 320px; 
-            animation: popIn 0.3s; 
-        }
+        /* Rütbe Tablosu Popup */
+        #rank-table-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; color: #333; padding: 20px; border-radius: 15px; box-shadow: 0 0 30px rgba(0,0,0,0.6); z-index: 200; width: 85%; max-width: 320px; animation: popIn 0.3s; }
+        @keyframes popIn { from { transform: translate(-50%, -60%); opacity: 0; } to { transform: translate(-50%, -50%); opacity: 1; } }
         
-        @keyframes popIn { 
-            from { transform: translate(-50%, -60%); opacity: 0; } 
-            to { transform: translate(-50%, -50%); opacity: 1; } 
-        }
-        
-        .rank-row { 
-            display: flex; 
-            justify-content: space-between; 
-            border-bottom: 1px solid #eee; 
-            padding: 8px 5px; 
-            font-size: 0.9rem; 
-        }
-        
-        .rank-row:last-child { border-bottom: none; }
+        .rank-row { display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding: 8px 5px; font-size: 0.9rem; }
         .rank-row.active { color: #e67e22; font-weight: bold; background-color: #fff8e1; border-radius: 5px; }
-
-        /* =========================================
-           9. EMOJİ EFEKTLERİ
-           ========================================= */
-        #emoji-bar { 
-            display: flex; 
-            gap: 10px; 
-            justify-content: center; 
-            margin-top: 15px; 
-            padding-top: 10px; 
-            border-top: 1px solid #eee; 
-        }
-        
-        .emoji-btn { 
-            background: none; 
-            border: none; 
-            font-size: 1.5rem; 
-            cursor: pointer; 
-            transition: transform 0.1s; 
-            padding: 5px; 
-        }
-        
-        .emoji-btn:hover { transform: scale(1.3); }
-        .emoji-btn:active { transform: scale(0.9); }
-        
-        #flying-emojis-container { 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%; 
-            pointer-events: none; 
-            z-index: 9999; 
-            overflow: hidden; 
-        }
-        
-        .flying-emoji { 
-            position: absolute; 
-            font-size: 2.5rem; 
-            animation: floatUp 2.5s ease-out forwards; 
-            text-shadow: 0 0 5px rgba(0,0,0,0.3); 
-        }
-        
-        @keyframes floatUp { 
-            0% { transform: translateY(0) scale(0.5); opacity: 0; } 
-            20% { transform: translateY(-20px) scale(1.2); opacity: 1; }
-            100% { transform: translateY(-400px) scale(1); opacity: 0; } 
-        }
     </style>
 </head>
 <body>
@@ -547,12 +163,9 @@
 <audio id="snd-correct" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3" preload="auto"></audio>
 <audio id="snd-wrong" src="https://assets.mixkit.co/active_storage/sfx/2021/2021-preview.mp3" preload="auto"></audio>
 
-<div id="flying-emojis-container"></div>
-
 <div id="rank-table-modal">
     <h3 style="text-align:center; border-bottom:2px solid #e67e22; padding-bottom:10px; margin-top:0;">📊 Rütbe ve Puan Sistemi</h3>
-    <div id="rank-table-content">
-        </div>
+    <div id="rank-table-content"></div>
     <div style="text-align:center; margin-top:15px;">
         <button onclick="document.getElementById('rank-table-modal').style.display='none'" class="red" style="width:auto; padding:8px 20px; border-radius:20px;">Kapat</button>
     </div>
@@ -610,7 +223,6 @@
         
         <div id="host-controls" style="display:none; margin-top:20px; background: #f9f9f9; padding: 15px; border-radius: 10px;">
             <h3 style="font-size: 1rem; margin-bottom: 10px;">Sınav Ayarları</h3>
-            
             <div style="display:flex; gap:5px; align-items: flex-end; margin-bottom: 8px;">
                 <div style="flex:1;">
                     <span style="font-size:0.7rem; color:#666;">Süre Modu</span>
@@ -624,26 +236,22 @@
                     <input type="number" id="set-duration" value="20" style="padding:8px;">
                 </div>
             </div>
-
             <div style="display:flex; gap:5px; align-items: flex-end; margin-bottom: 8px;">
                 <div style="flex:1;">
                     <span style="font-size:0.7rem; color:#666;">Soru Sayısı</span>
                     <input type="number" id="set-count" value="10" style="padding:8px;">
                 </div>
             </div>
-            
             <span class="selection-label">Soru Seçimi:</span>
             <div class="dropdown-wrapper">
                 <div class="dropdown-trigger" onclick="toggleDropdown('deneme-content', this)">Yükleniyor...</div>
                 <div id="deneme-content" class="dropdown-content down"></div>
             </div>
-            
             <span class="selection-label">Dersler:</span>
             <div class="dropdown-wrapper">
                 <div class="dropdown-trigger subject-trigger" onclick="toggleDropdown('subject-content', this)">Yükleniyor...</div>
                 <div id="subject-content" class="dropdown-content up"></div>
             </div>
-            
             <select id="set-difficulty">
                 <option value="HEPSI">Tüm Seviyeler</option>
                 <option value="KOLAY">Kolay</option>
@@ -651,13 +259,11 @@
                 <option value="ZOR">Zor</option>
                 <option value="ÇIKMIŞ">🔥 Sadece Çıkmış Sorular</option>
             </select>
-
             <select id="set-sik-sayisi" style="border: 2px solid #2980b9; color: #2980b9; font-weight:bold;">
                 <option value="HEPSI">Karışık (Tüm Sorular)</option>
                 <option value="4">Başlangıç Soruları (4 Şıklı)</option>
                 <option value="5">Yeni Nesil Sorular (5 Şıklı)</option>
             </select>
-
             <button onclick="startGame()" class="orange" style="margin-top:10px;">SINAVI BAŞLAT</button>
         </div>
         <p id="wait-msg" style="display:none; color:#777;">Kurucu ayarları yapıyor...</p>
@@ -675,35 +281,18 @@
                 <span id="q-count" style="font-weight:bold;">1/10</span>
             </div>
         </div>
-        
         <div id="question-navigator" style="display:none;"></div> 
-
         <img id="q-image" src="">
         <h3 id="q-text" style="font-size:1.1rem; margin:15px 0; text-align: left;">Soru...</h3>
         <div id="opts-area"></div>
-        
         <div id="nav-buttons" style="display:none;">
             <button onclick="navigateQuestion(-1)" class="nav-btn prev"><span>❮</span> Önceki</button>
             <button onclick="navigateQuestion(1)" class="nav-btn next">Sonraki <span>❯</span></button>
         </div>
-
         <button id="btn-blank" onclick="submitBlank()" style="background:#95a5a6; margin-top:15px; width:100%; border-radius:8px;">⚪ BOŞ BIRAK</button>
-        
         <div id="timer-bar"></div>
-        <div id="general-timer-display" style="display:none; text-align:center; font-size:1.5rem; font-weight:bold; color:#1e3c72; margin-top:10px;">
-            ⏱️ <span id="gen-timer-val">00:00</span>
-        </div>
-
+        <div id="general-timer-display" style="display:none; text-align:center; font-size:1.5rem; font-weight:bold; color:#1e3c72; margin-top:10px;">⏱️ <span id="gen-timer-val">00:00</span></div>
         <div id="result-msg" style="height: 20px; margin-top: 10px; font-weight: bold; color: #e67e22;"></div>
-
-        <div id="emoji-bar">
-            <button class="emoji-btn" onclick="sendEmoji('🔥')">🔥</button>
-            <button class="emoji-btn" onclick="sendEmoji('👏')">👏</button>
-            <button class="emoji-btn" onclick="sendEmoji('😂')">😂</button>
-            <button class="emoji-btn" onclick="sendEmoji('🤔')">🤔</button>
-            <button class="emoji-btn" onclick="sendEmoji('❤️')">❤️</button>
-        </div>
-
         <div id="live-scores-container">
             <h4 style="margin:0 0 5px 0; font-size:0.8rem; color:#1e3c72; text-align:left; border-bottom: 1px solid #ddd;">📊 CANLI SKORLAR</h4>
             <div id="live-scores-list"></div>
@@ -712,8 +301,7 @@
 
     <div id="screen-result" class="screen">
         <h2>🏆 SONUÇLAR</h2>
-        <div id="result-board"></div> 
-        <div class="analysis-card" id="branch-analysis"></div>
+        <div id="result-board"></div> <div class="analysis-card" id="branch-analysis"></div>
         <br>
         <button onclick="showReviewScreen()" class="orange" style="margin-bottom: 10px;">🔍 SORULARI İNCELE & ÇÖZÜMLER</button>
         <button onclick="location.reload()" class="outline">ANA MENÜYE DÖN</button>
@@ -728,9 +316,6 @@
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
-    /* =========================================
-       TEMEL DEĞİŞKENLER VE BAŞLANGIÇ AYARLARI
-       ========================================= */
     const socket = io({ transports: ["polling", "websocket"] });
     let myCode = "", myButtons = [], currentQuestionData = null, currentListType = "";
     let isSoundEnabled = localStorage.getItem('kpss_sound') !== 'false';
@@ -738,20 +323,19 @@
     let questionStatusList = []; 
     let globalTimerInterval = null;
 
-    // --- RÜTBE SİSTEMİ VERİLERİ ---
+    // --- YENİ: ZORLAŞTIRILMIŞ RÜTBE SİSTEMİ (3. Seviyeden sonra makas açılıyor) ---
     const rankLevels = [
         { name: "1. Seviye", limit: 300 },   // 0 - 300
         { name: "2. Seviye", limit: 650 },   // 300 - 650
-        { name: "3. Seviye", limit: 1050 },  // 650 - 1050
-        { name: "4. Seviye", limit: 1500 },  // 1050 - 1500
-        { name: "5. Seviye", limit: 2000 },  // 1500 - 2000
-        { name: "6. Seviye", limit: 2550 },  // 2000 - 2550
+        { name: "3. Seviye", limit: 1100 },  // 650 - 1100 (+450)
+        { name: "4. Seviye", limit: 1700 },  // 1100 - 1700 (+600)
+        { name: "5. Seviye", limit: 2500 },  // 1700 - 2500 (+800)
+        { name: "6. Seviye", limit: 3500 },  // 2500 - 3500 (+1000)
         { name: "7. Seviye", limit: 999999 } // Zirve
     ];
 
     let totalUserPoints = parseInt(localStorage.getItem('kpss_total_points')) || 0;
     
-    // --- RÜTBE GÖSTERGESİNİ GÜNCELLEME ---
     function updateRankDisplay() {
         const rankTitle = document.getElementById('rank-title');
         const pointsDisplay = document.getElementById('total-points-display');
@@ -776,7 +360,6 @@
             }
         }
         
-        // İlerleme Çubuğu Yüzdesi
         let percentage = 100;
         if(currentRank.name !== "7. Seviye") {
             const range = nextLimit - prevLimit;
@@ -791,7 +374,6 @@
         pointsDisplay.innerText = totalUserPoints + " Puan";
         progressBar.style.width = percentage + "%";
 
-        // Tabloyu Doldur
         let html = "";
         let prev = 0;
         rankLevels.forEach((r, i) => {
@@ -806,7 +388,6 @@
     function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
     function getUsername() { return document.getElementById('username').value || null; }
     
-    // SAYFA YÜKLENDİĞİNDE
     window.onload = function() { 
         const savedName = localStorage.getItem('saved_username'); 
         if(savedName) document.getElementById('username').value = savedName; 
@@ -854,7 +435,6 @@
         const list = getLocalData(type==='fav'?'kpss_favs':(type==='wrong'?'kpss_wrongs':'kpss_blanks'));
         document.getElementById('list-title').innerText = type==='fav'?'⭐ Yıldızlılar':(type==='wrong'?'❌ Yanlışlar':'⚪ Boşlarım');
         document.getElementById('pdf-btn').style.display = (type === 'wrong' && list.length > 0) ? 'block' : 'none';
-
         document.getElementById('list-content').innerHTML = list.length ? list.map((q, i) => 
             `<div class="list-item">
                 <span class="q-text"><b>${i+1}.</b> ${q.soru}</span>
@@ -864,17 +444,15 @@
         showScreen('screen-list');
     }
 
-    // --- PDF İNDİRME ---
     function downloadPDF() {
         if(currentListType !== 'wrong') return;
         const btn = document.getElementById('pdf-btn');
         const originalText = btn.innerText;
         btn.innerText = "Hazırlanıyor...";
-        
         const listContent = document.getElementById('list-content').innerHTML;
         const printWindow = window.open('', '', 'height=600,width=800');
         printWindow.document.write('<html><head><title>Yanlış Sorularım</title>');
-        printWindow.document.write('<style>body{font-family:sans-serif; padding:20px;} .list-item{margin-bottom:20px; border-bottom:1px solid #ccc; padding-bottom:10px;} .q-text{font-weight:bold; display:block; margin-bottom:5px; color:#333;} .ans-text{color:green; font-weight:bold;}</style>');
+        printWindow.document.write('<style>body{font-family:sans-serif; padding:20px;} .list-item{margin-bottom:20px; border-bottom:1px solid #ccc; padding-bottom:10px; page-break-inside: avoid;} .q-text{font-weight:bold; display:block; margin-bottom:5px; color:#333;} .ans-text{color:green; font-weight:bold;}</style>');
         printWindow.document.write('</head><body>');
         printWindow.document.write('<h1 style="text-align:center; color:#c0392b;">❌ Yanlış Yaptığım Sorular</h1>');
         printWindow.document.write(listContent);
@@ -897,31 +475,26 @@
         if (reason) { socket.emit('reportQuestion', { soru: currentQuestionData.soru, deneme: currentQuestionData.deneme, reason: reason, username: getUsername() || "Anonim" }); alert("Teşekkürler! Hata bildirimi alındı."); }
     }
 
-    function sendEmoji(emoji) { if (!myCode) return; socket.emit('sendEmoji', { roomCode: myCode, emoji: emoji }); }
-    socket.on('receiveEmoji', (emoji) => {
-        const container = document.getElementById('flying-emojis-container'); const el = document.createElement('div'); el.innerText = emoji; el.className = 'flying-emoji';
-        el.style.left = (10 + Math.random() * 80) + '%'; el.style.bottom = '10%'; container.appendChild(el); setTimeout(() => { el.remove(); }, 2500);
-    });
-
     function createRoom() { const n = getUsername(); if(n) { localStorage.setItem('saved_username', n); socket.emit('createRoom', n); } else alert("İsim giriniz!"); }
     function startTrial() { const n = getUsername(); if(n) { localStorage.setItem('saved_username', n); isTrialMode=true; socket.emit('createRoom', n); } else alert("İsim giriniz!"); }
     function startMistakesTrial() { const n = getUsername(); const wrongs = getLocalData('kpss_wrongs'); if(!n) return alert("İsim giriniz!"); if(wrongs.length < 3) return alert("En az 3 yanlış sorunuz olmalı!"); localStorage.setItem('saved_username', n); isTrialMode = true; isMistakeMode = true; socket.emit('createRoom', n); }
     function joinRoom() { const n = getUsername(), c = document.getElementById('room-code-input').value; if(n && c) { localStorage.setItem('saved_username', n); myCode = c; socket.emit('joinRoom', {username:n, roomCode:c}); } }
-    
     function toggleTimerInput() { const mode = document.getElementById('set-timer-mode').value; const label = document.getElementById('label-duration'); const input = document.getElementById('set-duration'); if(mode === 'general') { label.innerText = "Toplam Süre (Dakika)"; input.value = "30"; } else { label.innerText = "Soru Başına (Saniye)"; input.value = "20"; } }
+    
     function toggleDropdown(id, trigger) { document.querySelectorAll('.dropdown-content').forEach(el => { if(el.id !== id) el.classList.remove('show'); }); document.querySelectorAll('.dropdown-trigger').forEach(el => { if(el !== trigger) el.classList.remove('open'); }); const content = document.getElementById(id); content.classList.toggle('show'); trigger.classList.toggle('open'); }
     
-    // --- GÜNCELLENMİŞ MENÜ SAYACI ---
+    // --- GÜNCELLENMİŞ TOPLAM SORU SAYISI GÖSTERİMİ ---
     function updateTriggerText(containerId, allLabel) {
         const container = document.getElementById(containerId); const trigger = container.previousElementSibling; const checked = container.querySelectorAll('input[type="checkbox"]:not([id$="-all"]):checked'); const total = container.querySelectorAll('input[type="checkbox"]:not([id$="-all"])').length;
         
         if (checked.length === 0) { trigger.innerText = "Lütfen Seçim Yapınız"; trigger.style.color = "#e74c3c"; container.querySelector('input[id$="-all"]').checked = false; }
         else if (checked.length === total) { 
-            if(containerId === 'deneme-content') { // Sadece Kaynak Seçimi ise sayı göster
+            // Sadece Kaynak Seçimi ise sayı göster
+            if(containerId === 'deneme-content') {
                 let totalQ = 0; container.querySelectorAll('label').forEach(lbl => { const match = lbl.innerText.match(/\((\d+)/); if(match) totalQ += parseInt(match[1]); });
                 trigger.innerText = allLabel + ` (Toplam ${totalQ} Soru)`; 
             } else {
-                trigger.innerText = allLabel + " (Hepsi Seçili)"; // Ders Seçimi için sadece bu yazsın
+                trigger.innerText = allLabel + " (Hepsi Seçili)";
             }
             trigger.style.color = "#333"; container.querySelector('input[id$="-all"]').checked = true; 
         }
@@ -952,7 +525,6 @@
         showScreen('screen-review');
     }
 
-    // --- SONUÇ VE KAYIT ---
     function renderResultScreen(playerList, myCorrect=0, myWrong=0) {
         showScreen('screen-result'); clearInterval(globalTimerInterval); 
         playerList.sort((a,b) => b.score - a.score);
