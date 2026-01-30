@@ -14335,7 +14335,1026 @@
     "ders": "GÜNCEL BİLGİLER",
     "deneme": "2015 Lisans",
     "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "I. Teoman, II. Mete Han, III. Kutluk Kağan. Yukarıdakilerden hangileri Asya Hun Devleti'ne hükümdarlık yapmıştır?",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "I ve II", "II ve III"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim",
+    "cozum": "Kutluk Kağan, II. Göktürk (Kutluk) Devleti'nin kurucusudur. Teoman ve Mete Han Asya Hun hükümdarlarıdır."
+  },
+  {
+    "soru": "1058 yılında Abbasi Halifesi'nin Tuğrul Bey'e 'Doğu'nun ve Batı'nın Sultanı' unvanını vermesinin sebebi aşağıdakilerden hangisidir?",
+    "siklar": ["Büveyhîlerin Bağdat'taki hâkimiyetlerine son vermesi", "Gazneli Mesud'u Dandanakan Savaşı'nda yenmesi", "Bizans ordusunu Pasinler Savaşı'nda yenmesi", "Karahanlılara karşı başarı sağlaması", "Ani Kalesi'ni fethetmesi"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim"
+  },
+  {
+    "soru": "Anadolu Selçuklu Devleti'nde veliaht ilan edilen kişi ya başkentte bulunur ya da merkeze yakın bir şehre melik olarak görevlendirilirdi. Bu uygulamanın aşağıdakilerden hangisiyle ilgili olduğu savunulamaz?",
+    "siklar": ["Sultanın ölümü durumunda ülkede iç karışıklıkların çıkmasını önlemek", "Veliahtı devlet yönetimine hazırlamak", "Sultanın sefere çıkması hâlinde başkentin güvenliğini sağlamak", "Merkezî devlet yapısını devam ettirmek", "Şehirlerde valilerin yetkilerini artırmak"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim"
+  },
+  {
+    "soru": "Osmanlı tarihinde Osman Bey'in ardından devletin ikinci kurucusu olarak tanımlanan padişah aşağıdakilerden hangisidir?",
+    "siklar": ["I. Bayezit", "I. Mehmet (Çelebi)", "I. Murat", "Orhan Gazi", "II. Murat"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim",
+    "cozum": "Ankara Savaşı sonrası yaşanan Fetret Devri'ne son verip devlet otoritesini yeniden sağladığı için Çelebi Mehmet 'ikinci kurucu' sayılır."
+  },
+  {
+    "soru": "Osmanlı Devleti'nde; I. ürün üzerinden vergi alınması, II. üretimin tarıma dayalı olması, III. fethedilen toprakların padişaha ait olması durumlarından hangilerinin toprakların boş bırakılmasına izin verilmemesinin nedenleri arasında olduğu savunulabilir?",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "I ve II", "I, II ve III"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi Osmanlı Devleti'nin hazinesinden sorumlu görevlidir?",
+    "siklar": ["Nişancı", "Vezir-i Azam", "Defterdar", "Kadıasker", "Şeyhülislam"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim"
+  },
+  {
+    "soru": "İrad-ı Cedit hazinesinin oluşturulmasına neden olan gelişme aşağıdakilerden hangisidir?",
+    "siklar": ["İlk Türk matbaasının açılması", "Asakir-i Mansure-i Muhammediyenin kurulması", "Yeniçeri Ocağının kaldırılması", "Nizam-ı Cedit ordusunun kurulması", "Yeni saraylar yapılması"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim",
+    "cozum": "III. Selim döneminde kurulan Nizam-ı Cedit ordusunun masraflarını karşılamak için İrad-ı Cedit hazinesi oluşturulmuştur."
+  },
+  {
+    "soru": "Aşağıdaki kavramlardan hangisinin açıklaması yanlıştır?",
+    "siklar": ["Harem: Saray kadınlarının eğitildikleri bölüm", "Fetret Devri: 1402-1413 arası taht kavgaları dönemi", "Has: Geliri 100 bin akçeden fazla olan dirlik", "Cizye: Gayrimüslimlerden askerlik karşılığı alınan vergi", "Sıbyan Mektebi: Padişah çocuklarının yetiştirildiği saray okulu"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim",
+    "cozum": "Sıbyan mektebi, Osmanlı'da mahalle mektepleridir (ilköğretim). Padişah çocuklarının özel eğitim aldığı yer Şehzadegân Mektebi'dir."
+  },
+  {
+    "soru": "Osmanlı Devleti'nin ilk resmî gazetesi aşağıdakilerden hangisidir?",
+    "siklar": ["Ceride-i Havadis", "Takvim-i Vekayi", "Tercüman-ı Ahval", "Tasvir-i Efkar", "Tercüman-ı Hakikat"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim"
+  },
+  {
+    "soru": "Mustafa Reşit Paşa'nın Sultan Abdülmecit adına kaleme aldığı Tanzimat Fermanı (1839) ile hedeflenen reformlar arasında hangisi yer almaz?",
+    "siklar": ["Bütün vatandaşların can ve mal güvenliğinin sağlanması", "Müsadere usulünün kaldırılması", "Meşruti yönetimin ilan edilmesi", "Vergi vermede adaletin sağlanması", "Askerlik süresinin kısaltılması"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim",
+    "cozum": "Meşruti yönetim (Meşrutiyet), 1876 Kanun-i Esasi ile ilan edilmiştir."
+  },
+  {
+    "soru": "Aşağıdakilerden hangisinin Osmanlıcılık düşüncesi doğrultusunda yapılan çalışmalardan biri olduğu söylenemez?",
+    "siklar": ["Sened-i İttifak'ın kabul edilmesi", "Tanzimat Fermanı'nın ilan edilmesi", "Kanunuesasi'nin yürürlüğe girmesi", "Mebusan Meclisinin açılması", "Islahat Fermanı'nın yayımlanması"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim",
+    "cozum": "Sened-i İttifak, Padişah ile Ayanlar arasındadır; Osmanlıcılık (azınlıkları devlete bağlama) fikriyle ilgisi yoktur."
+  },
+  {
+    "soru": "Osmanlı Devleti'nin I. Dünya Savaşı'nda Orta Asya Türkleri ile birleşmek için açtığı cephe aşağıdakilerden hangisidir?",
+    "siklar": ["Irak", "Kanal", "Kafkas", "Çanakkale", "Yemen"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim"
+  },
+  {
+    "soru": "İtalyanlar Millî Mücadele yıllarında, kendilerini halka sevdirme ve çatışmaya girmeden nüfuz etme yolunu benimsemişlerdir. Hangisi bu politikaya örnek gösterilemez?",
+    "siklar": ["Ankara Hükümetinin siyasi taleplerini tümüyle kabul etmeleri", "İşgal bölgelerinde ücretsiz sağlık hizmeti vermeleri", "Otomobillerle yolcu taşıma hizmeti gerçekleştirmeleri", "Türk tüccarlara himaye vesikası vermeleri", "Çocuklara çikolata dağıtmaları"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim",
+    "cozum": "Ankara Hükümeti'nin siyasi taleplerini tümüyle kabul etmeleri, Sakarya Savaşı sonrasındaki siyasi bir sonuçtur, işgal politikasının bir parçası değildir."
+  },
+  {
+    "soru": "Alaşehir Kongresi ile ilgili; I. Osmanlı yönetimine karşı olunmadığı, II. bağımsızlık vurgusu yapıldığı, III. milli egemenliğin amaçlandığı çıkarımlarından hangileri yapılabilir?",
+    "siklar": ["Yalnız III", "I ve II", "I ve III", "II ve III", "I, II ve III"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim",
+    "cozum": "Alaşehir Kongresi'nde saltanata bağlılık bildirilmiş (I) ve Yunan işgaline karşı çıkılmıştır (II). Ancak milli egemenlik (rejim değişikliği) vurgusu yoktur."
+  },
+  {
+    "soru": "Sivas Kongresi'nin, Erzurum Kongresi'ne göre daha az delegeyle toplanmasının nedenleri arasında hangisi yer almaz?",
+    "siklar": ["Güvenlik endişesi", "Maddi imkânsızlıklar", "Batı Anadolu'da da kongrelerin toplanması", "Erzurum Kongresi'nin başarısız görülmesi", "Bazı bölgelerin işgal altında bulunması"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim"
+  },
+  {
+    "soru": "'Milli sınırlar içinde vatan bir bütündür, parçalanamaz.' kararı ilk kez aşağıdaki kongrelerin hangisinde alınmıştır?",
+    "siklar": ["Pozantı Kongresi", "Afyon Kongresi", "Erzurum Kongresi", "Edirne Kongresi", "Balıkesir Kongresi"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim"
+  },
+  {
+    "soru": "Milli Mücadele Dönemi'nde yapılan; I. Gediz, II. Birinci İnönü, III. İkinci İnönü, IV. Kütahya-Eskişehir, V. Sakarya savaşlarının hangilerinde Türk askeri başarılı olmuştur?",
+    "siklar": ["I, II ve III", "I, III ve IV", "I, II ve V", "II, III ve IV", "II, III ve V"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim",
+    "cozum": "Gediz (Taarruzu) ve Kütahya-Eskişehir savaşlarında Türk ordusu yenilmiştir. Diğerlerinde zafer kazanılmıştır."
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi Milli Mücadele sırasında gerçekleşen olaylardan biri değildir?",
+    "siklar": ["İstiklal Marşı'nın kabulü", "TBMM'nin açılması", "Teşkilat-ı Esasiye Kanunu'nun kabulü", "Tekâlif-i Milliye Emirleri'nin çıkarılması", "Yıldırım Orduları Grup Komutanlığının kurulması"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim",
+    "cozum": "Yıldırım Orduları Grup Komutanlığı, I. Dünya Savaşı sırasında (Suriye-Filistin Cephesi) kurulmuştur."
+  },
+  {
+    "soru": "1929 Dünya Ekonomik Krizi döneminde Türkiye'deki gelişmelerden biri değildir?",
+    "siklar": ["Devletçilik ilkesinin CHP programına girmesi", "Halkevlerinin faaliyete geçmesi", "Menemen'de rejim karşıtı bir olayın çıkması", "İzmir'de Türkiye İktisat Kongresi'nin toplanması", "Serbest Cumhuriyet Fırkası'nın kurulması"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim",
+    "cozum": "İzmir İktisat Kongresi 1923 yılında, krizden önce toplanmıştır."
+  },
+  {
+    "soru": "İtilaf Devletleri'nin, Mudanya Ateşkesi'nden sonraki barış görüşmelerine TBMM ile İstanbul Hükümetini birlikte davet etmeleri hangisine gerekçe oluşturmuştur?",
+    "siklar": ["Saltanatın kaldırılmasına", "Nisab-ı Müzakere Kanunu'na", "1921 Anayasası'nın kabulüne", "İstiklal Mahkemelerinin kurulmasına", "Meclis-i Mebusanın kapatılmasına"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim"
+  },
+  {
+    "soru": "17 Şubat 1926'da kabul edilen Türk Medeni Kanunu, hangi devletin kanunu örnek alınarak hazırlanmıştır?",
+    "siklar": ["Fransa", "İsviçre", "İtalya", "Almanya", "İngiltere"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim"
+  },
+  {
+    "soru": "'Biz, Batılılar ne yaptıysa aynısını yapmak değil, nasıl yaptılarsa öyle yapmak istiyoruz.' sözüyle Türk İnkılabı'nın hedeflediği temel unsur hangisidir?",
+    "siklar": ["Yöntem bilgisi", "Maddi destek", "Yetişmiş eleman", "Teknik araç", "Basılı kaynak"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim"
+  },
+  {
+    "soru": "Birinci TBMM'de kabul edilen kömür havzalarındaki işçilerin sosyal haklarıyla ilgili kanun, hangi ilkeyle ilgilidir?",
+    "siklar": ["Halkçılık", "Laiklik", "İnkılapçılık", "Milliyetçilik", "Cumhuriyetçilik"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim"
+  },
+  {
+    "soru": "Aşağıdaki devletlerden hangisi, Türkiye'nin Balkan Antantı'nı oluşturma çabalarına karşı çıkmıştır?",
+    "siklar": ["İngiltere", "Yugoslavya", "Romanya", "Bulgaristan", "Fransa"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisinin açıklaması karşısında yanlış verilmiştir?",
+    "siklar": ["Maginot Hattı: Almanya'nın yayılma politikası gerekçesi", "OPEC: Petrol İhraç Eden Ülkeler Örgütü", "Balfour Deklarasyonu: Yahudi devleti kurulması için dönüm noktası", "SEATO: Güneydoğu Asya Antlaşma Teşkilatı", "Basmacı Hareketi: Türklerin bağımsızlık mücadelesi"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim",
+    "cozum": "Maginot Hattı, Fransa'nın Almanya saldırısına karşı kurduğu savunma hattıdır."
+  },
+  {
+    "soru": "Cumhuriyet Halk Partisinin yaklaşık 27 yıl süren iktidarı, hangi partinin seçimi kazanmasıyla son bulmuştur?",
+    "siklar": ["Millet Partisi", "Millî Kalkınma Partisi", "Demokrat Parti", "Adalet Partisi", "Hürriyet Partisi"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim",
+    "cozum": "1950 seçimleri ile Demokrat Parti iktidara gelmiştir."
+  },
+  {
+    "soru": "SSCB'nin dağılmasının ardından kurulan Bağımsız Devletler Topluluğu (BDT) kurucu üyeleri arasında hangisi yer almaz?",
+    "siklar": ["Azerbaycan", "Gürcistan", "Ermenistan", "Türkmenistan", "Ukrayna"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim",
+    "cozum": "Gürcistan BDT'ye sonradan (1993'te) katılmış ve 2008'de ayrılmıştır."
+  },
+  {
+    "soru": "Yukarıdaki haritada koyu renkle gösterilen alanlarda (Karadeniz, Antalya, Menteşe, Gelibolu civarı) aşağıdaki doğal afetlerden hangisi daha sık görülmektedir?",
+    "siklar": ["Sel ve taşkın", "Orman yangını", "Deprem", "Heyelan", "Çığ"],
+    "dogru": 2,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim",
+    "resim": "2016_ortaogretim_gk_28.jpg",
+    "cozum": "Haritada gösterilen yerler (Kuzey Anadolu Fayı, Batı Anadolu Fay Hattı ve Doğu Anadolu Fayı) Türkiye'nin ana deprem kuşaklarıdır."
+  },
+  {
+    "soru": "Türkiye'de bir meteoroloji istasyonunda kış yağışlarının yaz yağışlarından fazla olması aşağıdakilerden hangisiyle ilgilidir?",
+    "siklar": ["Denizel etkilere yakın olmasıyla", "Karasal etkilere yakın olmasıyla", "Kar şeklinde yağış almasıyla", "Yüksekliğin düşük olmasıyla", "Yağışların orografik olmasıyla"],
+    "dogru": 0,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim"
+  },
+  {
+    "soru": "Aşağıdaki dağların hangisinde buzul aşındırması sonucunda oluşan sirk göllerine rastlanmaz?",
+    "siklar": ["Kaçkar", "Mercan", "Köroğlu", "Bolkar", "Karçal"],
+    "dogru": 2,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim",
+    "cozum": "Köroğlu dağlarının yükseltisi, kalıcı kar sınırının altında olduğu için buzul şekilleri (sirk gölleri) görülmez."
+  },
+  {
+    "soru": "Türkiye'nin dağ oluşumunda; I. kıvrılma, II. kırılma, III. volkanizma etkili olmuştur. Bu etmenler sırasıyla hangi dağ gruplarını oluşturmuştur?",
+    "siklar": ["Bozdağlar - Aydın Dağları - Erciyes", "Küre Dağları - Madra Dağı - Karacadağ", "Yunt Dağı - Süphan Dağı - Madra Dağı", "Aydın Dağları - Küre Dağları - Yıldız Dağları", "Yıldız Dağları - Köroğlu Dağları - Ağrı Dağı"],
+    "dogru": 1,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim",
+    "cozum": "Küre (Kıvrım/I), Madra (Kırık/II), Karacadağ (Volkanik/III)."
+  },
+  {
+    "soru": "Türkiye'de iki farklı yörenin bitki topluluklarının benzer özellikler göstermesinde hangisinin etkisi daha azdır?",
+    "siklar": ["Yağış rejimi", "Toprak özelliği", "Sıcaklık koşulları", "Bakı koşulları", "Denizellik"],
+    "dogru": 3,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi Akdeniz'e dökülen akarsulardan biri değildir?",
+    "siklar": ["Seyhan", "Ceyhan", "Eşen", "Manavgat", "Gönen"],
+    "dogru": 4,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim",
+    "cozum": "Gönen Çayı, Marmara Denizi'ne dökülür."
+  },
+  {
+    "soru": "Yukarıdaki haritada numaralandırılan yerlerin hangisinde heyelan riski diğerlerine göre daha fazladır?",
+    "siklar": ["I (İç Anadolu)", "II (Doğu Karadeniz)", "III (Güneydoğu)", "IV (Ege)", "V (Doğu Anadolu - Van)"],
+    "dogru": 1,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim",
+    "resim": "2016_ortaogretim_gk_34.jpg",
+    "cozum": "II numaralı yer (Trabzon-Rize çevresi) Doğu Karadeniz'dir ve Türkiye'de heyelan riskinin en yüksek olduğu bölgedir."
+  },
+  {
+    "soru": "Ziraat mühendisi: 'Yılda birden fazla ürün alınır, buğdaydan sonra mısır ve soya ekilir. Dağlık alanda kıl keçisi yetiştirilir.' Bu mühendis nerede yaşamaktadır?",
+    "siklar": ["Iğdır Ovası", "Bursa Ovası", "Harran Ovası", "Çukurova", "Isparta Ovası"],
+    "dogru": 3,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim"
+  },
+  {
+    "soru": "Yukarıdaki haritada numaralandırılarak koyu renkle gösterilen alanların hangilerinde, arazinin engebeli yapısı nüfusun seyrek dağılışında daha fazla etkilidir?",
+    "siklar": ["I ve II", "II ve III", "II ve IV", "III ve IV", "IV ve V"],
+    "dogru": 2,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim",
+    "resim": "2016_ortaogretim_gk_36.jpg",
+    "cozum": "II (Sinop-Kastamonu çevresi) ve IV (Menteşe Yöresi) dağlık olduğu için seyrek nüfusludur."
+  },
+  {
+    "soru": "Mevsimlik tarım işçisi göçleri aşağıdaki alanların hangisinde daha az görülür?",
+    "siklar": ["Erzurum ve Kars çevresi", "Şanlıurfa ve Adıyaman çevresi", "Adana ve Mersin çevresi", "Antalya ve Alanya çevresi", "Giresun ve Ordu çevresi"],
+    "dogru": 0,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim",
+    "cozum": "Erzurum-Kars çevresinde tarım süresi kısadır ve iklim serttir, bu yüzden yoğun tarım işçisi göçü almaz."
+  },
+  {
+    "soru": "Erzurum, Ardahan ve Ağrı üçgeninde büyükbaş hayvancılığın ön plana çıkmasında etkili olan temel faktörler hangileridir?",
+    "siklar": ["Yükselti ve toprak özellikleri", "Yerleşme ve iklim", "İklim ve yeryüzü şekilleri", "İklim ve hidrografya", "İklim ve tarım kültürü"],
+    "dogru": 2,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim",
+    "cozum": "Yaz yağışları (iklim) gür çayırları oluşturur, engebeli arazi (yer şekilleri) tarımı sınırlar; bu durum büyükbaş hayvancılığı zorunlu kılar."
+  },
+  {
+    "soru": "Turizmin Türkiye ekonomisine katkısını artırmak için uygulanacak politikalar arasında hangisi yer almaz?",
+    "siklar": ["Turizm sektöründe istihdamın artırılması", "Turistik çekiciliklerin artırılması", "Alternatif turizm türlerinin geliştirilmesi", "Tanıtım ve pazarlamaya ağırlık verilmesi", "Hava yolu ulaşımının geliştirilmesi"],
+    "dogru": 0,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim",
+    "cozum": "İstihdamı artırmak bir amaç/politika değil, turizmin gelişmesinin doğal bir sonucudur."
+  },
+  {
+    "soru": "Türkiye tarımının, Cumhuriyet'in ilk yıllarındaki durumuyla ilgili olarak aşağıdakilerden hangisi söylenemez?",
+    "siklar": ["Tarımdan geçimini sağlayan insan sayısı fazladır.", "Tarımda gübre kullanımı yetersizdir.", "Birim alandan elde edilen verim düşüktür.", "Tarımda makine kullanımı yeterli değildir.", "Ticari amaçlı tarımsal faaliyetler daha yaygındır."],
+    "dogru": 4,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim",
+    "cozum": "Cumhuriyetin ilk yıllarında tarım 'geçimlik' (kendi ihtiyacını karşılama) düzeydeydi, ticari tarım yaygın değildi."
+  },
+  {
+    "soru": "Türkiye'de hâlen tarıma dayalı sanayiye en fazla katkı sağlayan bölgesel kalkınma projesi hangisidir?",
+    "siklar": ["DAP", "GAP", "DOKAP", "YHGP", "ZBK"],
+    "dogru": 1,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim"
+  },
+  {
+    "soru": "Aşağıdaki haritada numaralandırılan alanların hangisinde ormanlar daha az yer kaplar?",
+    "siklar": ["I (İç Batı Anadolu)", "II (Antalya)", "III (Hakkari)", "IV (Güneydoğu Anadolu)", "V (Ardahan)"],
+    "dogru": 3,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim",
+    "resim": "2016_ortaogretim_gk_42.jpg",
+    "cozum": "IV numaralı alan Güneydoğu Anadolu'nun güneyidir ve Türkiye'de orman varlığının en az olduğu yerlerdendir."
+  },
+  {
+    "soru": "Türkiye'de kara yolu taşımacılığının diğer ulaşım biçimlerine göre daha gelişmiş olmasındaki en önemli etken nedir?",
+    "siklar": ["Tüm illerin otobanlarla bağlanması", "Taşıtların ülkede üretilmesi", "Akaryakıt istasyonlarının çokluğu", "Yolcu ve yük taşımacılığı talebinin yüksek olması", "Sürücü eğitimleri"],
+    "dogru": 3,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi Türkiye-Suriye sınırında yer alan sınır kapılarından biri değildir?",
+    "siklar": ["Cilvegözü", "Gürbulak", "Öncüpınar", "Akçakale", "Yayladağı"],
+    "dogru": 1,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim",
+    "cozum": "Gürbulak sınır kapısı İran sınırındadır."
+  },
+  {
+    "soru": "Rüzgâr enerjisi potansiyeli bakımından aşağıdaki alanlardan hangisi diğerlerine göre daha olumsuz koşullara sahiptir?",
+    "siklar": ["Gökçeada ve Bozcaada", "Biga Yarımadası", "Urla Yarımadası", "Bodrum ve çevresi", "Rize ve çevresi"],
+    "dogru": 4,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim",
+    "cozum": "Rize ve çevresi (Doğu Karadeniz) rüzgar potansiyeli bakımından Batı bölgelerine göre daha verimsizdir."
+  },
+  {
+    "soru": "1982 Anayasası'na göre, Bakanlar Kurulu süresi kaç ayı geçmemek üzere olağanüstü hâl (OHAL) ilan edebilir? (Not: 2017 öncesi hüküm)",
+    "siklar": ["2", "3", "4", "6", "8"],
+    "dogru": 3,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim"
+  },
+  {
+    "soru": "1982 Anayasası'na göre, aşağıdakilerden hangisi Bakanlar Kuruluna kanun hükmünde kararname (KHK) çıkarma yetkisi verebilir? (Not: Eski sistem)",
+    "siklar": ["Cumhurbaşkanı", "TBMM", "Anayasa Mahkemesi", "Yargıtay", "Başbakan"],
+    "dogru": 1,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim",
+    "cozum": "Eski sistemde TBMM, Yetki Kanunu ile Bakanlar Kuruluna KHK çıkarma yetkisi verirdi."
+  },
+  {
+    "soru": "Cumhurbaşkanının hastalık ve yurt dışına çıkma gibi nedenlerle geçici olarak görevinden ayrılması hâlinde kim vekillik eder?",
+    "siklar": ["İçişleri Bakanı", "Anayasa Mahkemesi Başkanı", "Başbakan", "Cumhurbaşkanlığı Genel Sekreteri", "TBMM Başkanı"],
+    "dogru": 4,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi idari işlem niteliği taşımaz?",
+    "siklar": ["Kanun", "Tüzük", "Sirküler", "Tebliğ", "Müşterek kararname"],
+    "dogru": 0,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim",
+    "cozum": "Kanun, Yasama (TBMM) işlemidir; idari (yürütme) işlem değildir."
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi yönetmelik çıkarabilir?",
+    "siklar": ["Mahalle Muhtarı", "Belediye", "Emniyet Müdürlüğü", "Vali", "İlçe İdare Kurulu"],
+    "dogru": 1,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim",
+    "cozum": "Yönetmelik çıkarma yetkisi; Başbakanlık (kalktı), Bakanlıklar ve Kamu Tüzel Kişilerine (Belediye vb.) aittir."
+  },
+  {
+    "soru": "Kamu yararının gerektirdiği durumlarda, özel mülkiyetteki taşınmazların bedeli ödenerek idareye geçirilmesine ne ad verilir?",
+    "siklar": ["Devletleştirme", "Özelleştirme", "Kamulaştırma", "İstimval", "Geçici işgal"],
+    "dogru": 2,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi normlar hiyerarşisinde kanunlar ile aynı basamakta yer alabilir?",
+    "siklar": ["Genelgeler", "Yönetmelikler", "Uluslararası antlaşmalar", "Anayasa", "Tüzükler"],
+    "dogru": 2,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi sözleşme özgürlüğü kapsamında değerlendirilemez?",
+    "siklar": ["Şekil özgürlüğü", "Sözleşme yapma özgürlüğü", "Sözleşmenin tarafını seçme", "Sözleşmeyi değiştirme", "Sözleşmeyi emredici hukuk kurallarına aykırı düzenleyebilme"],
+    "dogru": 4,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim"
+  },
+  {
+    "soru": "Türk Medeni Kanunu'na göre, 'bir kimsenin sürekli kalma niyetiyle oturduğu yer' ifadesiyle tanımlanan kavram hangisidir?",
+    "siklar": ["İdare merkezi", "Şube", "Yargı yeri", "Yerleşim yeri (İkametgah)", "Uyrukluk"],
+    "dogru": 3,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim"
+  },
+  {
+    "soru": "Hababam Sınıfı filmlerinin yönetmeni aşağıdakilerden hangisidir?",
+    "siklar": ["Zeki Ökten", "Memduh Ün", "Türker İnanoğlu", "Umur Bugay", "Ertem Eğilmez"],
+    "dogru": 4,
+    "ders": "GÜNCEL BİLGİLER",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim"
+  },
+  {
+    "soru": "Türkiye'de aşağıdaki lisans programlarından hangisinin öğretim süresi diğerlerine göre daha uzundur?",
+    "siklar": ["İngilizce öğretmenliği", "Bilgisayar mühendisliği", "Tıp", "Mimarlık", "Hukuk"],
+    "dogru": 2,
+    "ders": "GÜNCEL BİLGİLER",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim",
+    "cozum": "Tıp fakültesi 6 yıldır, diğerleri genelde 4 yıldır."
+  },
+  {
+    "soru": "Başlangıç meridyeninin geçtiği kabul edilen Greenwich, hangi ülkededir?",
+    "siklar": ["İngiltere", "Güney Afrika", "Avustralya", "Kanada", "ABD"],
+    "dogru": 0,
+    "ders": "GÜNCEL BİLGİLER",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim"
+  },
+  {
+    "soru": "'Kalktı Göç Eyledi Avşar Elleri', 'Zahidem' gibi bozlaklarıyla tanınan ünlü halk ozanı kimdir?",
+    "siklar": ["Şeref Taşlıova", "Veysel Şatıroğlu", "Davut Sulari", "Muharrem Ertaş", "Hacı Taşan"],
+    "dogru": 3,
+    "ders": "GÜNCEL BİLGİLER",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim"
+  },
+  {
+    "soru": "2016 Yaz Paralimpik Oyunları nerede yapılmıştır?",
+    "siklar": ["Japonya", "Brezilya", "Rusya", "İspanya", "Çin"],
+    "dogru": 1,
+    "ders": "GÜNCEL BİLGİLER",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim"
+  },
+  {
+    "soru": "Aşağıdaki illerin hangisinde yer alan üniversitenin adı 'Ömer Halisdemir Üniversitesi' olarak değiştirilmiştir?",
+    "siklar": ["Balıkesir", "Giresun", "Osmaniye", "Erzincan", "Niğde"],
+    "dogru": 4,
+    "ders": "GÜNCEL BİLGİLER",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ortaöğretim"
+  },
+  {
+    "soru": "Tarihte pek çok Türk kavmi, Doğu ve Orta Avrupa ile Balkanlar'a yerleşmiş, zamanla Türk kimliğini yitirerek Hristiyanlaşmıştır. Türk kavimlerinin kimliklerini yitirmesinde; I. ana yurtlarından gelen göçlerin azalması, II. zamanla bölgedeki siyasi üstünlüklerini kaybetmeleri, III. bölgedeki kültürlerle yakın ticari ve sosyal ilişki kurmaları durumlarından hangilerinin etkili olduğu savunulabilir?",
+    "siklar": ["Yalnız I", "Yalnız II", "I ve II", "II ve III", "I, II ve III"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans"
+  },
+  {
+    "soru": "1118-1157 yılları arasında hükümdarlık yapmış olan ve Büyük Selçuklu Devleti'nin son sultanı olarak bilinen kişi aşağıdakilerden hangisidir?",
+    "siklar": ["Sencer", "Melikşah", "Berkyaruk", "Muhammed Tapar", "Kutalmış"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Anadolu Selçuklu Devleti, Kösedağ Savaşı sonrasında Moğolların Anadolu'yu tahrip etmesi ticareti olumsuz etkiledi. Moğolların önünden kaçan Türkmenler daha batıdaki bölgelere yerleşti. Bu savaş aşağıdakilerden hangisidir?",
+    "siklar": ["Malazgirt", "Miryokefalon", "Yassıçemen", "Kösedağ", "Dandanakan"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi XIV. yüzyılda Osmanlı Devleti'nin Balkanlar'a geçişini kolaylaştıran durumlardan biridir?",
+    "siklar": ["Anadolu'daki bazı Türk beylerinin Timur'a sığınması", "Papalığın, Ortodoks ve Katolik mezheplerini birleştirme çabaları", "Karesioğulları Beyliği'nin Osmanlı Devleti'ne katılması", "Bizans İmparatoru'nun Çimpe Kalesi'ni üs olarak vermesi", "Venediklilerin Ege Denizi'nde ticari üstünlük kurması"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Turgut Reis'in şehit düştüğü ve Osmanlı'nın fethi için ele geçirdiği yer aşağıdakilerden hangisidir?",
+    "siklar": ["Malta", "Sakız", "Rodos", "Trablusgarp", "Sicilya"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans"
+  },
+  {
+    "soru": "XVI. yüzyılda Osmanlı Devleti'nde eyaletlerin salyaneli ve salyanesiz olarak gruplandırılmasında aşağıdakilerden hangisinin etkisi olduğu savunulabilir?",
+    "siklar": ["Tımar Sistemi'nin her bölgede uygulanmaması", "Her eyaletin gelir miktarının farklı olması", "Eyalet sınırlarının çok geniş olması", "Eyaletlerde farklı etnik unsurların bulunması", "Ülke nüfusunun giderek artması"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Osmanlılar, Balkanlar'da fethettikleri yerlere Anadolu'dan götürdükleri Türkleri yerleştirmişlerdir. Bu yerleştirmelerde özellikle konargöçerleri tercih etmişlerdir. Osmanlı Devleti'nin izlediği bu iskân politikasıyla aşağıdakilerden hangisini amaçladığı savunulabilir?",
+    "siklar": ["Komşu ülkelerle iyi geçinmek", "Anadolu'daki nüfus yoğunluğunu azaltmak", "Fethedilen bölgelerde nüfus dengesini sağlamak", "Devşirme usulünü uygulamaya koymak", "Kültür etkileşimini önlemek"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Yirmisekiz Mehmet Çelebi'nin, Osmanlı elçisi olarak gönderildiği Avrupa şehri aşağıdakilerden hangisidir?",
+    "siklar": ["Paris", "Viyana", "Berlin", "Londra", "Roma"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Osmanlı Devleti'nde; I. Tanzimat Fermanı'nın hazırlanması, II. Meşrutiyet'in ilan edilmesi, III. matbaanın kullanılmaya başlanması gelişmelerinin hangilerinde, Fransız İhtilali'nin etkisinin olduğu savunulabilir?",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "I ve II", "II ve III"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Reisülküttaplık, II. Mahmut Dönemi'nde aşağıdaki nazırlıklardan hangisine dönüştürülmüştür?",
+    "siklar": ["Maliye", "Hariciye", "Dâhiliye", "Harbiye", "Adliye"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Tarih öğretmeni Ferhat Bey, sınıfında Namık Kemal'in 'Eski toplumsal yapıya uygarlığı oturtmanın yolu anayasa ve eğitimle gerçekleşir.' sözünü söylemiş ve öğrencilerden XIX. yüzyılda bu söz doğrultusunda yapılan ıslahatlara örnek vermelerini istemiştir. Öğrencilerden; Şamil: I. Meşrutiyet'in ilan edilmesi, Halit: Kanunuesasi'nin kabulü, Büşra: Rüştiye ve idadilerin açılması, Tuğçe: Medreselerin kapatılması cevaplarını vermişlerdir. Buna göre öğrencilerden hangileri yanlış cevap vermiştir?",
+    "siklar": ["Şamil", "Tuğçe", "Halit ve Büşra", "Büşra ve Tuğçe", "Şamil ve Halit"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans",
+    "cozum": "Medreselerin kapatılması Cumhuriyet döneminde (Tevhid-i Tedrisat ile) gerçekleşmiştir."
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi Rusya'nın, Balkanlar'daki Ortodoks ve Slav toplulukları kışkırtma politikasının da etkisiyle XIX. yüzyılda bağımsız olan devletlerden biri değildir?",
+    "siklar": ["Yunanistan", "Bulgaristan", "Sırbistan", "Karadağ", "Arnavutluk"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans",
+    "cozum": "Arnavutluk, XX. yüzyılda (Balkan Savaşları sırasında) bağımsız olmuştur."
+  },
+  {
+    "soru": "I. Dünya Savaşı'nın sonunda bozulan güçler dengesini yeniden tesis etmeyi amaçlayan ve Avrupa'da yeni bir düzenin kurulmasıyla sonuçlanan konferans aşağıdakilerin hangisinde toplanmıştır?",
+    "siklar": ["Londra", "Berlin", "Madrid", "Paris", "Roma"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisinin açıklaması, karşısında yanlış olarak verilmiştir?",
+    "siklar": ["Teşkilat-ı Esasiye Kanunu: Yeni Türk devletinin ilk anayasası", "Reddi İlhak Cemiyeti: Yunan işgaline karşı çıkan dernek", "Temsilciler Kurulu: Önce Erzurum, ardından Sivas'ta yapılan kongreler sonucu oluşturulan yürütme kurulu", "Felah-ı Vatan Grubu: Son Osmanlı parlamentosunda kurulan grup", "Meclis-i Müessisan: Son Osmanlı parlamentosu"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans",
+    "cozum": "Meclis-i Müessisan 'Kurucu Meclis' demektir; Son Osmanlı Mebusan Meclisi değildir."
+  },
+  {
+    "soru": "Sivas Kongresi sonrasında oluşturulan, ilk sayısını Eylül 1919'da çıkaran ve bu dönemde Milli Mücadele'nin yayın organı olma özelliğini taşıyan gazete aşağıdakilerden hangisidir?",
+    "siklar": ["İrade-i Milliye", "İzmir'e Doğru", "Tasvir-i Efkâr", "Yeni Gün", "İstikbal"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Mehmet Akif Ersoy tarafından yazılan İstiklal Marşı aşağıdakilerin hangisinde ilk kez milli marş olarak kabul edilmiştir?",
+    "siklar": ["I. TBMM", "II. TBMM", "Son Osmanlı Mebusan Meclisi", "Sivas Kongresi", "Erzurum Kongresi"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Aşağıdakilerin hangisinde neden-sonuç ilişkisi kurulamaz?",
+    "siklar": ["I. İnönü Zaferi'nin kazanılması - Londra Konferansı'nın toplanması", "İstanbul'un işgal edilmesi - TBMM'nin açılması", "Türk ordusunun Sakarya Nehri'nin doğusuna çekilmesi - Mustafa Kemal'in başkomutan olması", "Sakarya Zaferi'nin kazanılması - Mudanya Ateşkesi'nin imzalanması", "Büyük Taarruz'un kazanılması - Misakımilli'nin ilan edilmesi"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans",
+    "cozum": "Misakımilli, Büyük Taarruz'dan çok önce, Son Osmanlı Mebusan Meclisi'nde ilan edilmiştir."
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi Terakkiperver Cumhuriyet Fırkası gibi siyasi partilerin kurulmasında etkili olan, Milli Mücadele'yi başlatan kadro arasında yer almamıştır?",
+    "siklar": ["Damat Ferit Paşa", "Rauf Orbay", "Kâzım Karabekir", "Ali Fuat Cebesoy", "Fevzi Çakmak"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans"
+  },
+  {
+    "soru": "1924 Anayasası'na göre Türkiye Büyük Millet Meclisi her yılın hangi ayının ilk günü kendiliğinden toplanır?",
+    "siklar": ["Ocak", "Mart", "Mayıs", "Ekim", "Kasım"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Öğretim programlarının halkın ihtiyaçlarına cevap verecek şekle getirilmesi, eğitim sistemi milli olacak şekilde ilk ve ortaöğretim programlarının düzenlenmesi, okul açılmasının Milli Eğitim Bakanlığının iznine bağlanması. Bu gelişmeler, aşağıdakilerden hangisiyle gerçekleştirilmiştir?",
+    "siklar": ["Köy Enstitülerinin kurulmasıyla", "Maarif Teşkilatı Hakkında Kanun'un çıkarılmasıyla", "Yeni Türk harflerinin kabul edilmesiyle", "Üniversite Reformu'nun yapılmasıyla", "Millet Mekteplerinin açılmasıyla"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans"
+  },
+  {
+    "soru": "1. Devlet adına para basmak, 2. Ulusal bankalarla rekabet etmek, 3. Türk lirasının değerini korumak. Yukarıdakilerden hangileri Türkiye Cumhuriyet Merkez Bankasının görevleri arasında yer almaz?",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "I ve II", "II ve III"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Atatürk'e göre devletçilik, güçlü ve çağdaş bir devlet meydana getirmenin temel bir aracıdır. Devletçilik ilkesinin benimsenmesinde; I. özel teşebbüsün yeterli düzeyde olmaması, II. ekonomik ve toplumsal sıkıntıların yaşanması, III. 1929 Dünya Ekonomi Krizi'nin ortaya çıkması durumlarından hangilerinin etkili olduğu savunulabilir?",
+    "siklar": ["Yalnız I", "Yalnız III", "I ve II", "II ve III", "I, II ve III"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Tarih tezinde Orta Asya ve Anadolu tarihlerini önemseyen Atatürk, özellikle 1930'lu yıllarda tarih çalışmalarına katkıda bulunmuştur. Atatürk'ün tarih anlayışıyla ilgili aşağıdakilerden hangisi söylenemez?",
+    "siklar": ["Evrensel olmayan bir tarih anlayışı geliştirmiştir.", "Bütünleştirici ve çağdaş bir tarih anlayışını savunmuştur.", "Akıl ve bilimi tarih anlayışının merkezine koymuştur.", "Türk kültürünün tarihsel gelişim sürecine önem vermiştir.", "İslamiyet öncesi Türk tarihinin de araştırılmasına öncelik vermiştir."],
+    "dogru": 0,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Montrö Boğazlar Sözleşmesi'nin imzalanmasında; I. İtalya'nın Habeşistan'ı işgali, II. Almanya'nın Versay Antlaşması'nı ihlal etmesi, III. Rodos ve On İki Ada'nın Yunanistan'a verilmesi durumlarından hangilerinin etkili olduğu savunulabilir?",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "I ve II", "I, II ve III"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi II. Dünya Savaşı sırasında, Mussolini'nin iktidardan düşmesinin ardından toplanan ve Almanya'ya karşı Avrupa'da Normandiya kıyılarından ikinci bir cephe açılması kararının alındığı konferanstır?",
+    "siklar": ["Moskova", "Yalta", "Kahire", "Tahran", "Quebec"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi Marshall Planı'nın amaçları arasında yer alır?",
+    "siklar": ["Bloklar arasındaki silahlanmayı sınırlandırmak", "ABD'yi Avrupa ülkelerinden soyutlamak", "Yugoslavya'nın Doğu Bloku'na katılımını sağlamak", "Avrupa ülkelerinde ekonomik kalkınmayı sağlamak", "Avrupa Birliği'nin kurulmasına ortam oluşturmak"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi 1974 Kıbrıs Barış Harekâtı sonrasında yaşanan gelişmelerden biridir?",
+    "siklar": ["Makarios'un Kıbrıs Cumhuriyeti'nin cumhurbaşkanı olması", "Adayı Yunanistan'a bağlama girişimlerinin başlaması", "Kıbrıs Geçici Türk Yönetimi'nin oluşturulması", "Türk Mukavemet Teşkilatı'nın faaliyete geçmesi", "Kuzey Kıbrıs Türk Cumhuriyeti'nin kurulması"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans",
+    "cozum": "KKTC 1983 yılında kurulmuştur."
+  },
+  {
+    "soru": "Yükselti arttıkça sıcaklığın düşme oranı Karadeniz kıyı dağlarının kuzey yamaçlarında, güney yamaçlara oranla daha azdır. Bu durum aşağıdakilerden hangisiyle ilgilidir?",
+    "siklar": ["Güney yamaçların daha sıcak olmasıyla", "Güney yamaçlarda bitki örtüsünün daha seyrek olmasıyla", "Kuzey yamaçların daha nemli olmasıyla", "Kuzey yamaçlarda eğimin farklı olmasıyla", "Kuzey yamaçlarda fön rüzgârlarının etkili olmasıyla"],
+    "dogru": 2,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans",
+    "cozum": "Nemli hava, sıcaklığı tutar ve aşırı soğumayı engeller. Kuzey yamaçlar denizel etkiye açık ve nemlidir."
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi karstik kökenli bir ova değildir?",
+    "siklar": ["Tercan", "Muğla", "Kestel", "Elmalı", "Suğla"],
+    "dogru": 0,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans",
+    "cozum": "Tercan (Erzincan) tektonik kökenlidir."
+  },
+  {
+    "soru": "Karadeniz Bölgesi'nde yaygın olarak görülen orman güllerinin Nur Dağları yamaçlarında, Akdeniz Flora Bölgesi'ne ait Lübnan Sediri'nin ise Erbaa-Niksar çevresinde yetişmesinin temel sebebi aşağıdakilerden hangisidir?",
+    "siklar": ["Toprak şartlarının bu alanlarda bitki isteğine uygun olması", "Bu alanların, bitkilerin sıcaklık ve nem isteğine uygun olması", "4. Zaman iklim salınımları sırasında bu alanlara yayılmış olmaları", "Bu alanlara ağaçlandırma çalışmalarıyla dikilmiş olmaları", "Bu türlerin endemik bitkiler olması"],
+    "dogru": 2,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans",
+    "cozum": "Bu bitkiler 'relikt' (kalıntı) bitkilerdir ve eski iklim dönemlerinden kalmışlardır."
+  },
+  {
+    "soru": "Türkiye'de buzulların etkisiyle oluşmuş topografik şekillere ancak yüksek dağlık alanlarda rastlanmaktadır. Buna göre aşağıdakilerin hangisinde buzul şekillerine rastlanmaz?",
+    "siklar": ["Erciyes Dağı", "Aladağlar", "Uludağ", "Kaçkar Dağı", "Yıldız Dağları"],
+    "dogru": 4,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans",
+    "cozum": "Yıldız Dağları'nın yükseltisi (yaklaşık 1000m) buzul oluşumu için yeterli değildir."
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi, Türkiye topraklarının tümü için en önemli sorundur?",
+    "siklar": ["Tuzluluk", "Taşlılık", "Erozyon", "Kuraklık", "Drenaj bozukluğu"],
+    "dogru": 2,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans"
+  },
+  {
+    "soru": "I. Ereğli Sazlığı, II. Sultan Sazlığı, III. Hotamış Sazlığı. Yukarıdakilerin hangileri Konya Kapalı Havzası'nda bulunan sulak alanlardan biri değildir?",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "I ve II", "II ve III"],
+    "dogru": 1,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans",
+    "cozum": "Sultan Sazlığı Kayseri'dedir (Develi Ovası), ancak hidrolojik olarak Konya Kapalı Havzası'nın bir parçası değildir (Kızılırmak havzasına yakındır, ancak kapalı havzadır. Soruda 'Konya Kapalı Havzası' coğrafi bölge olarak sorulmuştur. Sultan Sazlığı, Erciyes'in güneyindedir ve ayrı bir ekosistemdir)."
+  },
+  {
+    "soru": "Türkiye'nin toprak özellikleriyle ilgili aşağıdakilerden hangisi doğrudur?",
+    "siklar": ["Karadeniz Bölgesi'nin yüksek kesimlerindeki topraklarda podzollaşma görülür.", "En fazla yıkanmanın olduğu topraklar iç bölgelerdeki platolardadır.", "Akdeniz Bölgesi'nin alçak kesimlerindeki topraklarda Terra Rossa oluşumu görülmez.", "Kuzeydoğu Anadolu platolarındaki topraklarda organik madde miktarı azdır.", "Tuz Gölü Havzası'ndaki topraklarda bitki yetişmez."],
+    "dogru": 0,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Lozan Antlaşması çerçevesinde Yunanistan ile Türkiye arasında yapılan göç, hangi göç türüne örnek olarak gösterilebilir?",
+    "siklar": ["Tehcir", "Mübadele", "İltica", "İş gücü", "Mevsimlik"],
+    "dogru": 1,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Aşağıdaki illerden hangisinin Trakya Yarımadası'nda toprakları bulunmamaktadır?",
+    "siklar": ["Balıkesir", "Edirne", "Kırklareli", "Çanakkale", "İstanbul"],
+    "dogru": 0,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans"
+  },
+  {
+    "soru": "I. Refah düzeyi, II. Eğitim seviyesi, III. Nüfus yoğunluğu. Türkiye'nin batı ve doğu illeri arasındaki doğurganlık oranın farklı olmasında yukarıdakilerden hangileri etkilidir?",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "I ve II", "II ve III"],
+    "dogru": 3,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Sanayi faaliyetleri, Türkiye'deki nüfuslanma sürecinde oldukça önemli bir yer tutmaktadır. Sanayi tesislerinin çok olduğu yerler aynı zamanda nüfus yoğunluğunun da fazla olduğu yerlerdir. Buna göre, yukarıdaki haritada numaralandırılarak gösterilen yerlerin hangisinde nüfus yoğunluğunun yüksek olmasında sanayi faktörü fazla etkili değildir?",
+    "siklar": ["I (İzmir)", "II (Eskişehir)", "III (Adana)", "IV (Trabzon)", "V (Gaziantep)"],
+    "dogru": 3,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans",
+    "resim": "2016_onlisans_gk_38.jpg",
+    "cozum": "Trabzon (IV) daha çok tarım, hizmet ve ticaret şehridir, sanayi diğer şıklardaki iller kadar (İzmir, Adana, Gaziantep, Eskişehir) yoğun değildir."
+  },
+  {
+    "soru": "Türkiye'de turizm, 1980'lerden itibaren gelişme göstermeye ve bu doğrultuda turizm çeşitliliği son yıllarda artmaya başlamıştır. Buna göre Türkiye'de; I. ekoturizm, II. golf turizmi, III. kültür turizmi, IV. deniz ve kıyı turizmi türlerinden hangileri diğerlerine göre daha fazla turist çekmektedir?",
+    "siklar": ["I ve II", "I ve III", "II ve III", "II ve IV", "III ve IV"],
+    "dogru": 4,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Türkiye-Bulgaristan sınırında yer alır. Kara yolu ve demir yolu geçişi vardır. İşlek ve önemli bir gümrük kapısıdır. Bazı özellikleri verilen bu sınır kapısı aşağıdakilerden hangisidir?",
+    "siklar": ["Cilvegözü", "İpsala", "Kapıkule", "Gürbulak", "Habur"],
+    "dogru": 2,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Türkiye'de genellikle sanayi faaliyetlerinin yoğun olduğu kentlerde demir yolu ulaşımı bulunmaktadır. Aşağıdaki kentlerden hangisi bu duruma uymamaktadır?",
+    "siklar": ["Kayseri", "Manisa", "Gaziantep", "Mersin", "Bursa"],
+    "dogru": 4,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans",
+    "cozum": "Bursa, Türkiye'nin büyük sanayi kentlerinden biri olmasına rağmen demir yolu ulaşımı (yük/yolcu) bulunmamaktadır (YHT çalışmaları devam etmektedir)."
+  },
+  {
+    "soru": "Türkiye'de bazı iller, sahip oldukları ham maddeler nedeniyle belirli sanayi dallarıyla özdeşleşmişlerdir. Aşağıdakilerden hangisi buna örnek verilemez?",
+    "siklar": ["Kars - süt mamulleri", "Eskişehir - meyve suyu üretimi", "Çanakkale - konserve ürünler", "Aydın - pamuklu dokuma", "Konya - unlu mamuller"],
+    "dogru": 1,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans",
+    "cozum": "Eskişehir meyve suyu üretimiyle değil; un, şeker, makine, vagon sanayisi gibi dallarla öne çıkar. Meyve suyu daha çok Tokat, Bursa, İzmir gibi illerde yoğundur."
+  },
+  {
+    "soru": "I. Bakü-Tiflis-Ceyhan, II. Mavi Akım, III. Kerkük-Yumurtalık, IV. İran-Türkiye, V. Yumurtalık-Kırıkkale. Yukarıda verilen boru hatlarının hangilerinde petrol taşımacılığı yapılmaktadır?",
+    "siklar": ["I ve II", "I ve IV", "I, III ve V", "II, III ve IV", "III, IV ve V"],
+    "dogru": 2,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans",
+    "cozum": "Mavi Akım ve İran-Türkiye boru hatları Doğalgaz taşır."
+  },
+  {
+    "soru": "Türkiye'deki kırsal yerleşmelerde yaşayanlar, bulundukları bölgenin coğrafi özelliklerine göre farklı ekonomik faaliyetlerde bulunmaktadırlar. Buna göre yukarıdaki haritada numaraladırılarak gösterilen kırsal alanların hangilerinde tarımsal ekonomik faaliyetler daha çok benzerlik gösterir?",
+    "siklar": ["I ve II", "I ve III", "I ve V", "II ve III", "III ve IV"],
+    "dogru": 0,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans",
+    "resim": "2016_onlisans_gk_44.jpg",
+    "cozum": "I (İzmir çevresi) ve II (Antalya/Akdeniz) benzer iklim özelliklerine sahip oldukları için tarımsal faaliyetleri de benzerdir."
+  },
+  {
+    "soru": "Aşağıdaki haritada alternatif enerji üretiminin yapıldığı üç alan koyu renkle gösterilmiştir. Bu alanlar Türkiye'de aşağıdaki enerji kaynaklarından hangisiyle öne çıkmaktadır?",
+    "siklar": ["Dalga", "Gel-git", "Rüzgâr", "Jeotermal", "Biyomas"],
+    "dogru": 3,
+    "ders": "COĞRAFYA",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans",
+    "resim": "2016_onlisans_gk_45.jpg",
+    "cozum": "İşaretli yerler (Çanakkale, İzmir-Aydın, Denizli-Sarayköy) Türkiye'nin jeotermal enerji potansiyeli en yüksek alanlarıdır."
+  },
+  {
+    "soru": "1982 Anayasası'na göre, Türkiye Büyük Millet Meclisinin toplantı yeter sayısı en az kaçtır?",
+    "siklar": ["367", "330", "276", "184", "139"],
+    "dogru": 3,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans",
+    "cozum": "Toplantı yeter sayısı üye tamsayısının üçte biridir (184)."
+  },
+  {
+    "soru": "1982 Anayasası'na göre, Yüksek Seçim Kurulu ile İlgili aşağıdaki ifadelerden hangisi yanlıştır?",
+    "siklar": ["Anayasa'nın yasama başlığı altında düzenlenmiştir.", "Yedi asıl, dört yedek üyeden oluşur.", "Üyeleri Yargıtay ve Danıştay Genel Kurullarınca seçilir.", "Kararlarına karşı Anayasa Mahkemesine itiraz başvurusunda bulunulabilir.", "Cumhurbaşkanlığı seçim tutanaklarını kabul etmekle görevlidir."],
+    "dogru": 3,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans",
+    "cozum": "YSK kararları kesindir, itiraz edilemez."
+  },
+  {
+    "soru": "1982 Anayasası'na göre, Türkiye Büyük Millet Meclisi genel seçimlerinden önce çekilmesi gereken üç bakan aşağıdakilerin hangisinde birlikte verilmiştir? (Not: 2017 değişikliği öncesi)",
+    "siklar": ["Dışişleri, içişleri, maliye", "Dışişleri, maliye, milli savunma", "Adalet, içişleri, ulaştırma", "Adalet, dışişleri, ulaştırma", "İçişleri, maliye, milli savunma"],
+    "dogru": 2,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Aşağıda verilenlerin hangisinde idarenin bütünlüğünü sağlayan hukuki araç, diğerlerinden farklıdır?",
+    "siklar": ["Millî eğitim bakanı - Ağrı il milli eğitim müdürü", "Sağlık bakanı - Sağlık Bakanlığı müsteşarı", "Karayolları genel müdürü - Karayolları 1. bölge müdürü", "Kayseri il nüfus müdürü - Kayseri nüfus memuru", "Alaca kaymakamı - Gazipaşa Köyü muhtarı"],
+    "dogru": 4,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans",
+    "cozum": "Kaymakam (Merkez) ile Muhtar (Yerel) arasındaki ilişki İdari Vesayet'tir. Diğerleri Hiyerarşi'dir."
+  },
+  {
+    "soru": "Memur atama işleminin iptali istemiyle açılan bir dava, aşağıdakilerin hangisi tarafından karara bağlanır?",
+    "siklar": ["İdari yargı", "Adli yargı", "Uyuşmazlık Mahkemesi", "Anayasa yargısı", "İlgili bakanlık"],
+    "dogru": 0,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Danıştay ile ilgili aşağıdaki ifadelerden hangisi yanlıştır?",
+    "siklar": ["Üyelerinin dörtte üçü Hâkimler ve Savcılar Kurulu tarafından seçilir.", "1982 Anayasası'nda yüksek mahkemelerden biri olarak sayılmıştır.", "Başkanı, kendi üyeleri arasından cumhurbaşkanınca atanır.", "Kamu hizmetleriyle ilgili imtiyaz şartlaşma ve sözleşmeleri hakkında düşüncesini bildirir.", "Kanunla gösterilen belli davalara ilk ve son derece mahkemesi olarak bakar."],
+    "dogru": 2,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans",
+    "cozum": "Danıştay Başkanı, Danıştay üyeleri tarafından kendi aralarından seçilir."
+  },
+  {
+    "soru": "4721 sayılı Türk Medeni Kanunu madde 1: 'Kanunda uygulanabilir bir hüküm yoksa, hâkim, örf ve âdet hukukuna göre, bu da yoksa kendisi kanun koyucu olsaydı nasıl bir kural koyacak idiyse ona göre karar verir.' Bu parçada altı çizili bölümde aşağıdakilerden hangisi ifade edilmiştir?",
+    "siklar": ["Hâkimin hukuk yaratması", "Hâkimin takdir yetkisini kullanması", "Kanunlaştırma", "Kanunların çatışması", "Kanunun yorumlanması"],
+    "dogru": 0,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi Türk hukukunda günümüzde kabul edilen yorum çeşitleri veya yöntemlerinden biri değildir?",
+    "siklar": ["Sistematik yorum", "Tarihsel yorum", "Lafzi yorum", "Yargısal yorum", "Yasama yorumu"],
+    "dogru": 4,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Birden fazla kişinin, kanun veya sözleşme gereği aralarında daha önceden mevcut olan ortaklık bağına dayanarak, belirlenmiş bir payları olmaksızın aynı eşyanın tamamına malik olmaları aşağıdakilerden hangisiyle ifade edilir?",
+    "siklar": ["İntifa hakkı", "Kat mülkiyeti", "Elbirliği mülkiyeti", "Rehin hakkı", "Zilyetlik"],
+    "dogru": 2,
+    "ders": "VATANDAŞLIK",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans"
+  },
+  {
+    "soru": "1986 yılında uğradığı suikast sonucu hayatını kaybeden Olof Palme, aşağıdaki ülkelerin hangisinde başbakanlık yapmıştır?",
+    "siklar": ["Hollanda", "Danimarka", "Norveç", "Finlandiya", "İsveç"],
+    "dogru": 4,
+    "ders": "GÜNCEL BİLGİLER",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Aşağıdaki ülkelerden hangisinin bayrağında hilal yoktur?",
+    "siklar": ["Tunus", "Cezayir", "Pakistan", "Irak", "Azerbaycan"],
+    "dogru": 3,
+    "ders": "GÜNCEL BİLGİLER",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Kara delikler konusundaki çalışmalarıyla tanınan, Zamanın Kısa Tarihi ve Ceviz Kabuğundaki Evren adlı kitapların yazarı olan fizikçi aşağıdakilerden hangisidir?",
+    "siklar": ["James Watson", "Stephen Hawking", "Alan Turing", "Albert Einstein", "John Nash"],
+    "dogru": 1,
+    "ders": "GÜNCEL BİLGİLER",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans"
+  },
+  {
+    "soru": "İnka Uygarlığı'nın ortaya çıktığı bölge aşağıdakilerden hangisidir?",
+    "siklar": ["Güney Amerika", "Mezopotamya", "Kuzey Afrika", "Batı Avrupa", "Orta Asya"],
+    "dogru": 0,
+    "ders": "GÜNCEL BİLGİLER",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans"
+  },
+  {
+    "soru": "2016 yılının Haziran ayında Kore'de düzenlenen Dünya Şampiyonası'nda, 15-17 yaş grubunda şampiyon olan Türk kadın sporcu aşağıdakilerden hangisidir?",
+    "siklar": ["Eda Eyüpoğlu", "Ayşe Begüm Onbaşı", "Buse Merve Kaplan", "Sezin Sürüm", "Melisa Morsünbül"],
+    "dogru": 1,
+    "ders": "GÜNCEL BİLGİLER",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans"
+  },
+  {
+    "soru": "Aşağıdaki illerin hangisinde yer alan üniversitenin adı, 'Ömer Halisdemir Üniversitesi' olarak değiştirilmiştir?",
+    "siklar": ["Balıkesir", "Giresun", "Osmaniye", "Erzincan", "Niğde"],
+    "dogru": 4,
+    "ders": "GÜNCEL BİLGİLER",
+    "zorluk": "ÇIKMIŞ",
+    "deneme": "2016 KPSS Ön Lisans"
   }
 ]
+
 
 
