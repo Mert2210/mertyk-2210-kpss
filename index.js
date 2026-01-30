@@ -113,6 +113,16 @@ app.get("/raporlar", (req, res) => {
 
 const rooms = {};
 
+// --- YENİ EKLENEN GELİŞMİŞ KARIŞTIRMA ALGORİTMASI (Fisher-Yates) ---
+// Bu algoritma, soruların gerçekten rastgele dağılmasını sağlar.
+function fisherYatesShuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
 // ŞIKLARI KARIŞTIRMA
 function shuffleOptions(q) {
     if (!q || !q.siklar) return q;
@@ -151,7 +161,6 @@ io.on("connection", (socket) => {
         }
     });
 
-    // İstemciye nesne olarak gönderiyoruz
     const listeVerisi = {
         denemeler: denemeSayilari,
         ozgunSayi: ozgunSoruSayisi
@@ -223,30 +232,31 @@ io.on("connection", (socket) => {
             if (settings.sikSayisi && settings.sikSayisi !== "HEPSI") {
                 pool = pool.filter(q => q.siklar && q.siklar.length == settings.sikSayisi);
             }
-            room.questions = pool.sort(() => Math.random() - 0.5)
+            // Burada da Fisher-Yates kullanıyoruz ki hata soruları hep aynı sırada gelmesin
+            room.questions = fisherYatesShuffle(pool)
                                  .slice(0, settings.count || 20)
                                  .map(q => shuffleOptions(q));
         }
 
-        // 2. SORU SEÇİMİ MODU (GÜNCELLENDİ: ÖZGÜN SORU DESTEĞİ)
+        // 2. SORU SEÇİMİ MODU (GÜNCELLENDİ)
         else if (settings.deneme && settings.deneme !== "HEPSI") {
             const secilenler = Array.isArray(settings.deneme) ? settings.deneme : [settings.deneme];
             
-            // Eğer "Özgün Sorular" seçildiyse özel mantık
             if (secilenler.includes("OZGUN_SORULAR")) {
-                 // Çıkmış olmayanları al
                  const ozgunHavuz = pool.filter(q => q.zorluk !== "ÇIKMIŞ");
-                 // Diğer seçilen denemeleri de al
                  const denemeHavuz = pool.filter(q => secilenler.includes(q.deneme));
-                 // Birleştir ve Tekrarları Sil (Set kullanarak)
-                 // Sorunun ID'si olmadığı için nesne referansına göre unique yapar
                  pool = [...new Set([...ozgunHavuz, ...denemeHavuz])];
             } else {
-                 // Sadece deneme seçildiyse standart filtre
                  pool = pool.filter(q => secilenler.includes(q.deneme));
             }
 
             pool = filterBySubject(pool, settings.subject);
+            
+            // Denemelerde genellikle ders sırası (Tarih -> Coğrafya...) istenir.
+            // Ama sen "hep aynı sorular gelmesin" dedin.
+            // Eğer "Tüm Sorular" seçiliyse KARIŞIK gelmeli, belirli bir deneme seçiliyse SIRALI gelmeli.
+            // Bu mantığı korumak için burada karıştırma yapmıyoruz (kullanıcı bilinçli olarak 2014 KPSS'yi seçtiyse sırayla çözmek ister).
+            // Ancak birden fazla deneme seçtiyse karıştırabiliriz. Şimdilik standart sıralamayı koruyoruz.
             
             const dersSirasi = { "TARİH": 1, "COĞRAFYA": 2, "VATANDAŞLIK": 3, "GÜNCEL BİLGİLER": 4 };
             pool.sort((a, b) => {
@@ -261,7 +271,7 @@ io.on("connection", (socket) => {
             room.questions = pool.slice(0, limit).map(q => shuffleOptions(q));
         }
 
-        // 3. GENEL MOD
+        // 3. GENEL MOD (TÜM SORULAR SEÇİLDİĞİNDE)
         else {
             pool = filterBySubject(pool, settings.subject);
 
@@ -271,7 +281,10 @@ io.on("connection", (socket) => {
             if (settings.sikSayisi && settings.sikSayisi !== "HEPSI") {
                 pool = pool.filter(q => q.siklar && q.siklar.length == settings.sikSayisi);
             }
-            room.questions = pool.sort(() => Math.random() - 0.5)
+            
+            // İŞTE BURASI: "Tüm Sorular" modunda gelişmiş karıştırma kullanıyoruz!
+            // Standart .sort() yerine Fisher-Yates ile gerçekten rastgele yapıyoruz.
+            room.questions = fisherYatesShuffle(pool)
                                  .slice(0, settings.count || 20)
                                  .map(q => shuffleOptions(q));
         }
@@ -414,3 +427,4 @@ function sendQuestionToRoom(roomCode) {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`🚀 Sunucu ${PORT} portunda tam güç çalışıyor.`));
+
