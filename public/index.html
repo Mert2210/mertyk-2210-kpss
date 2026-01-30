@@ -20,9 +20,9 @@
             margin: 0; 
             display: flex; 
             justify-content: center; 
-            align-items: flex-start; /* İçerik yukarıdan başlar */
+            align-items: flex-start; 
             min-height: 100vh; 
-            overflow-y: auto; /* Kaydırmayı serbest bırak */
+            overflow-y: auto; 
             padding: 20px 0; 
         }
 
@@ -59,10 +59,45 @@
         .list-item .ans-text { color: #27ae60; font-weight: bold; font-size: 0.8rem; background: #e8f5e9; padding: 4px; border-radius: 4px; display: inline-block; }
         
         .player-card { background: #f0f2f5; padding: 8px; margin: 4px 0; border-radius: 5px; display: flex; justify-content: space-between; font-size: 0.9rem; font-weight: bold; }
-        .opt-btn { background: #eef2f3; color: #333; text-align: left; border: 2px solid #ddd; width: 100%; margin-bottom: 8px; cursor: pointer; }
-        .opt-btn:hover { background-color: #e0e0e0; }
-        .correct { background: #2ecc71 !important; color: white; border-color: #27ae60; }
-        .wrong { background: #e74c3c !important; color: white; border-color: #c0392b; }
+        
+        /* --- ŞIK BUTONLARI (GÜNCELLENDİ) --- */
+        .opt-btn { 
+            background: #eef2f3; 
+            color: #333; 
+            text-align: left; 
+            border: 2px solid #ddd; 
+            width: 100%; 
+            margin-bottom: 8px; 
+            cursor: pointer; 
+            /* Mobilde tıklama gecikmesini ve vurguyu kaldır */
+            -webkit-tap-highlight-color: transparent; 
+            outline: none;
+        }
+
+        /* Sadece bilgisayarda (mouse varsa) hover efekti çalışsın */
+        @media (hover: hover) {
+            .opt-btn:hover { background-color: #e0e0e0; }
+        }
+
+        /* Tıklanınca veya odaklanınca renk değişmesin (Varsayılan griyi engelle) */
+        .opt-btn:focus {
+            outline: none;
+            background-color: #eef2f3; /* Varsayılan renge zorla */
+            border-color: #ddd;
+        }
+
+        /* Doğru ve Yanlış classları en son ezsin diye !important kullanıyoruz */
+        .correct { 
+            background: #2ecc71 !important; 
+            color: white !important; 
+            border-color: #27ae60 !important; 
+        }
+        
+        .wrong { 
+            background: #e74c3c !important; 
+            color: white !important; 
+            border-color: #c0392b !important; 
+        }
 
         #timer-bar { height: 6px; background: #e67e22; width: 100%; margin-top: 10px; border-radius: 3px; }
         .badge { background: #e67e22; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; }
@@ -433,15 +468,8 @@
     function showLocalList(type) {
         currentListType = type;
         const list = getLocalData(type==='fav'?'kpss_favs':(type==='wrong'?'kpss_wrongs':'kpss_blanks'));
-        
-        let title = "Liste";
-        if(type === 'fav') title = "⭐ Yıldızlılar";
-        else if(type === 'wrong') title = "❌ Yanlışlar";
-        else if(type === 'blank') title = "⚪ Boşlarım";
-
-        document.getElementById('list-title').innerText = title;
-        document.getElementById('pdf-btn').style.display = 'block'; 
-
+        document.getElementById('list-title').innerText = type==='fav'?'⭐ Yıldızlılar':(type==='wrong'?'❌ Yanlışlar':'⚪ Boşlarım');
+        document.getElementById('pdf-btn').style.display = (type === 'wrong' && list.length > 0) ? 'block' : 'none';
         document.getElementById('list-content').innerHTML = list.length ? list.map((q, i) => 
             `<div class="list-item">
                 <span class="q-text"><b>${i+1}.</b> ${q.soru}</span>
@@ -452,17 +480,16 @@
     }
 
     function downloadPDF() {
+        if(currentListType !== 'wrong') return;
         const btn = document.getElementById('pdf-btn');
         const originalText = btn.innerText;
         btn.innerText = "Hazırlanıyor...";
-        
-        let headerTitle = document.getElementById('list-title').innerText;
         const listContent = document.getElementById('list-content').innerHTML;
         const printWindow = window.open('', '', 'height=600,width=800');
-        printWindow.document.write('<html><head><title>Çıktı Al</title>');
+        printWindow.document.write('<html><head><title>Yanlış Sorularım</title>');
         printWindow.document.write('<style>body{font-family:sans-serif; padding:20px;} .list-item{margin-bottom:20px; border-bottom:1px solid #ccc; padding-bottom:10px; page-break-inside: avoid;} .q-text{font-weight:bold; display:block; margin-bottom:5px; color:#333;} .ans-text{color:green; font-weight:bold;}</style>');
         printWindow.document.write('</head><body>');
-        printWindow.document.write(`<h1 style="text-align:center; color:#1e3c72;">${headerTitle}</h1>`);
+        printWindow.document.write('<h1 style="text-align:center; color:#c0392b;">❌ Yanlış Yaptığım Sorular</h1>');
         printWindow.document.write(listContent);
         printWindow.document.write('</body></html>');
         printWindow.document.close();
