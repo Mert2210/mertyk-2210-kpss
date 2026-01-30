@@ -513,11 +513,27 @@
     function createRoom() { const n = getUsername(); if(n) { localStorage.setItem('saved_username', n); socket.emit('createRoom', n); } else alert("İsim giriniz!"); }
     function startTrial() { const n = getUsername(); if(n) { localStorage.setItem('saved_username', n); isTrialMode=true; socket.emit('createRoom', n); } else alert("İsim giriniz!"); }
     
+    // --- GÜNCELLENMİŞ HATA SINAVI (TEST VERSİYONU) ---
     function startMistakesTrial() { 
+        // 1. Tıklama Algılandı mı?
+        console.log("Butona tıklandı!"); 
+        
+        // 2. İsim Kontrolü
         const n = getUsername(); 
+        if(!n) return alert("Lütfen önce isminizi giriniz!"); 
+
+        // 3. Yanlış Soruları Çek
         const wrongs = getLocalData('kpss_wrongs'); 
-        if(!n) return alert("İsim giriniz!"); 
-        if(wrongs.length < 3) return alert("En az 3 yanlış sorunuz olmalı!"); 
+        
+        // --- HATA AYIKLAMA (DEBUG) ---
+        // Burada veriyi ekrana yazdırıyoruz ki boş mu dolu mu görelim
+        alert(`Sistem Kontrolü:\n- İsim: ${n}\n- Kayıtlı Yanlış Sayısı: ${wrongs.length}`);
+
+        if(wrongs.length === 0) {
+            return alert("⚠️ HATA: Hiç yanlış yapılmış sorunuz yok! Lütfen önce normal bir deneme çözüp yanlış yapın.");
+        }
+        
+        // Soru sayısı az olsa bile testi başlatmaya zorla (Test amaçlı <3 kuralını kaldırdık)
         localStorage.setItem('saved_username', n); 
         isTrialMode = true; 
         isMistakeMode = true; 
@@ -525,12 +541,18 @@
         const settings = {
             isMistakeMode: true,
             mistakeList: wrongs.map(q => q.soru.trim()),
-            count: wrongs.length,
+            count: wrongs.length, // Kaç tane varsa o kadar sor
             timerMode: 'question',
             duration: 60,
             subject: "HEPSI"
         };
-        socket.emit('startGame', { roomCode: myCode, settings: settings }); 
+        
+        // Sunucuya gönder
+        if(socket && socket.connected) {
+            socket.emit('startGame', { roomCode: myCode, settings: settings }); 
+        } else {
+            alert("⚠️ Sunucu ile bağlantı yok! Lütfen sayfayı yenileyin veya sunucuyu kontrol edin.");
+        } 
     }
 
     function joinRoom() { const n = getUsername(), c = document.getElementById('room-code-input').value; if(n && c) { localStorage.setItem('saved_username', n); myCode = c; socket.emit('joinRoom', {username:n, roomCode:c}); } }
