@@ -1,6 +1,6 @@
 /* ==========================================================================
    MYK 2210 - KPSS PLATFORMU SUNUCU DOSYASI (SERVER)
-   Sürüm: ULTRA FINAL (Hatasız)
+   Sürüm: ULTRA FINAL + RANK SİSTEMİ ENTEGRE (Hatasız)
    ========================================================================== */
 
 const express = require("express");
@@ -39,6 +39,7 @@ function sorulariYukle() {
     if (fs.existsSync(QUESTIONS_FILE)) {
         try {
             let rawData = fs.readFileSync(QUESTIONS_FILE, 'utf8');
+            // Olası JSON hatalarını (fazladan köşeli parantez vs.) temizle
             rawData = rawData.replace(/\]\s*\[/g, ",");
             rawData = rawData.replace(/\]\s*,\s*\[/g, ",");
             while (rawData.startsWith("[[")) { rawData = rawData.replace("[[", "["); }
@@ -177,19 +178,53 @@ io.on("connection", (socket) => {
         fs.writeFile(REPORTS_FILE, JSON.stringify(reports, null, 2), () => {});
     });
 
-    socket.on("createRoom", (username) => {
+    // --- GÜNCELLENEN KISIM: CREATE ROOM (RANK DESTEĞİ) ---
+    socket.on("createRoom", (data) => {
+        // İstemci artık { username, rank } objesi gönderiyor
+        const username = data.username || "Misafir";
+        const rank = data.rank || "1. Seviye"; 
+
         const roomCode = Math.floor(1000 + Math.random() * 9000).toString();
-        rooms[roomCode] = { code: roomCode, players: {}, gameStarted: false, currentQuestionIndex: 0, questions: [], settings: {}, timerId: null, answerCount: 0, questionStartTime: 0 };
+        rooms[roomCode] = { 
+            code: roomCode, 
+            players: {}, 
+            gameStarted: false, 
+            currentQuestionIndex: 0, 
+            questions: [], 
+            settings: {}, 
+            timerId: null, 
+            answerCount: 0, 
+            questionStartTime: 0 
+        };
+        
         socket.join(roomCode);
-        rooms[roomCode].players[socket.id] = { id: socket.id, username: username, score: 0, isHost: true, hasAnsweredThisRound: false };
+        rooms[roomCode].players[socket.id] = { 
+            id: socket.id, 
+            username: username, 
+            rank: rank, // <--- Rütbe eklendi
+            score: 0, 
+            isHost: true, 
+            hasAnsweredThisRound: false 
+        };
+        
         socket.emit("roomCreated", roomCode);
         io.to(roomCode).emit("updatePlayerList", Object.values(rooms[roomCode].players));
     });
 
-    socket.on("joinRoom", ({ username, roomCode }) => {
+    // --- GÜNCELLENEN KISIM: JOIN ROOM (RANK DESTEĞİ) ---
+    socket.on("joinRoom", ({ username, roomCode, rank }) => {
         if (!rooms[roomCode]) return socket.emit("errorMsg", "Oda bulunamadı!");
+        
         socket.join(roomCode);
-        rooms[roomCode].players[socket.id] = { id: socket.id, username: username, score: 0, isHost: false, hasAnsweredThisRound: false };
+        rooms[roomCode].players[socket.id] = { 
+            id: socket.id, 
+            username: username, 
+            rank: rank || "1. Seviye", // <--- Rütbe eklendi
+            score: 0, 
+            isHost: false, 
+            hasAnsweredThisRound: false 
+        };
+        
         socket.emit("roomJoined", roomCode);
         io.to(roomCode).emit("updatePlayerList", Object.values(rooms[roomCode].players));
     });
