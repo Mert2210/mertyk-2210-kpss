@@ -6800,7 +6800,7 @@
   },
   {
     "soru": "2023 yılında 'Avrupa Kültür Başkenti' seçilen şehirlerden biri hangisidir?",
-    "siklar": ["Temeşvar (Romanya)", "Paris", "Londra", "Berlin", "Roma"],
+    "siklar": ["Romanya", "Paris", "Londra", "Berlin", "Roma"],
     "dogru": 0,
     "ders": "GÜNCEL BİLGİLER",
     "zorluk": "GÜNCEL"
@@ -14345,3 +14345,4 @@
     "zorluk": "ÇIKMIŞ"
   }
 ]
+
