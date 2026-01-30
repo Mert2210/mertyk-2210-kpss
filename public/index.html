@@ -11,7 +11,7 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
     <style>
-        /* --- GENEL AYARLAR --- */
+        /* --- GENEL SAYFA YAPISI --- */
         body { 
             font-family: 'Segoe UI', sans-serif; 
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); 
@@ -293,6 +293,7 @@
         <div id="timer-bar"></div>
         <div id="general-timer-display" style="display:none; text-align:center; font-size:1.5rem; font-weight:bold; color:#1e3c72; margin-top:10px;">⏱️ <span id="gen-timer-val">00:00</span></div>
         <div id="result-msg" style="height: 20px; margin-top: 10px; font-weight: bold; color: #e67e22;"></div>
+        
         <div id="live-scores-container">
             <h4 style="margin:0 0 5px 0; font-size:0.8rem; color:#1e3c72; text-align:left; border-bottom: 1px solid #ddd;">📊 CANLI SKORLAR</h4>
             <div id="live-scores-list"></div>
@@ -327,11 +328,11 @@
     const rankLevels = [
         { name: "1. Seviye", limit: 300 },   // 0 - 300
         { name: "2. Seviye", limit: 650 },   // 300 - 650
-        { name: "3. Seviye", limit: 1100 },  // 650 - 1100 (+450)
-        { name: "4. Seviye", limit: 1700 },  // 1100 - 1700 (+600)
-        { name: "5. Seviye", limit: 2500 },  // 1700 - 2500 (+800)
-        { name: "6. Seviye", limit: 3500 },  // 2500 - 3500 (+1000)
-        { name: "7. Seviye", limit: 999999 } // Zirve
+        { name: "3. Seviye", limit: 1200 },  // 650 - 1200 (+550) - Makas Açıldı
+        { name: "4. Seviye", limit: 2000 },  // 1200 - 2000 (+800)
+        { name: "5. Seviye", limit: 3000 },  // 2000 - 3000 (+1000)
+        { name: "6. Seviye", limit: 4500 },  // 3000 - 4500 (+1500)
+        { name: "7. Seviye", limit: 999999 } // 4500+ (Zirve)
     ];
 
     let totalUserPoints = parseInt(localStorage.getItem('kpss_total_points')) || 0;
@@ -433,8 +434,15 @@
     function showLocalList(type) {
         currentListType = type;
         const list = getLocalData(type==='fav'?'kpss_favs':(type==='wrong'?'kpss_wrongs':'kpss_blanks'));
-        document.getElementById('list-title').innerText = type==='fav'?'⭐ Yıldızlılar':(type==='wrong'?'❌ Yanlışlar':'⚪ Boşlarım');
-        document.getElementById('pdf-btn').style.display = (type === 'wrong' && list.length > 0) ? 'block' : 'none';
+        
+        let title = "Liste";
+        if(type === 'fav') title = "⭐ Yıldızlılar";
+        else if(type === 'wrong') title = "❌ Yanlışlar";
+        else if(type === 'blank') title = "⚪ Boşlarım";
+
+        document.getElementById('list-title').innerText = title;
+        document.getElementById('pdf-btn').style.display = 'block'; // Hepsinde PDF indirilebilsin
+
         document.getElementById('list-content').innerHTML = list.length ? list.map((q, i) => 
             `<div class="list-item">
                 <span class="q-text"><b>${i+1}.</b> ${q.soru}</span>
@@ -445,16 +453,18 @@
     }
 
     function downloadPDF() {
-        if(currentListType !== 'wrong') return;
         const btn = document.getElementById('pdf-btn');
         const originalText = btn.innerText;
         btn.innerText = "Hazırlanıyor...";
+        
+        let headerTitle = document.getElementById('list-title').innerText;
         const listContent = document.getElementById('list-content').innerHTML;
         const printWindow = window.open('', '', 'height=600,width=800');
-        printWindow.document.write('<html><head><title>Yanlış Sorularım</title>');
+        
+        printWindow.document.write('<html><head><title>Çıktı Al</title>');
         printWindow.document.write('<style>body{font-family:sans-serif; padding:20px;} .list-item{margin-bottom:20px; border-bottom:1px solid #ccc; padding-bottom:10px; page-break-inside: avoid;} .q-text{font-weight:bold; display:block; margin-bottom:5px; color:#333;} .ans-text{color:green; font-weight:bold;}</style>');
         printWindow.document.write('</head><body>');
-        printWindow.document.write('<h1 style="text-align:center; color:#c0392b;">❌ Yanlış Yaptığım Sorular</h1>');
+        printWindow.document.write(`<h1 style="text-align:center; color:#1e3c72;">${headerTitle}</h1>`);
         printWindow.document.write(listContent);
         printWindow.document.write('</body></html>');
         printWindow.document.close();
@@ -477,8 +487,31 @@
 
     function createRoom() { const n = getUsername(); if(n) { localStorage.setItem('saved_username', n); socket.emit('createRoom', n); } else alert("İsim giriniz!"); }
     function startTrial() { const n = getUsername(); if(n) { localStorage.setItem('saved_username', n); isTrialMode=true; socket.emit('createRoom', n); } else alert("İsim giriniz!"); }
-    function startMistakesTrial() { const n = getUsername(); const wrongs = getLocalData('kpss_wrongs'); if(!n) return alert("İsim giriniz!"); if(wrongs.length < 3) return alert("En az 3 yanlış sorunuz olmalı!"); localStorage.setItem('saved_username', n); isTrialMode = true; isMistakeMode = true; socket.emit('createRoom', n); }
+    
+    function startMistakesTrial() { 
+        const n = getUsername(); 
+        const wrongs = getLocalData('kpss_wrongs'); 
+        if(!n) return alert("İsim giriniz!"); 
+        if(wrongs.length < 3) return alert("En az 3 yanlış sorunuz olmalı!"); 
+        localStorage.setItem('saved_username', n); 
+        isTrialMode = true; 
+        isMistakeMode = true; 
+        
+        // Hata modu için özel ayar paketi gönderiyoruz (Trim işlemi Server'da yapılacak)
+        const settings = {
+            isMistakeMode: true,
+            mistakeList: wrongs.map(q => q.soru), // Sadece soru metinlerini gönder
+            count: wrongs.length,
+            timerMode: 'question',
+            duration: 60,
+            subject: "HEPSI"
+        };
+        
+        socket.emit('startGame', { roomCode: myCode, settings: settings }); 
+    }
+
     function joinRoom() { const n = getUsername(), c = document.getElementById('room-code-input').value; if(n && c) { localStorage.setItem('saved_username', n); myCode = c; socket.emit('joinRoom', {username:n, roomCode:c}); } }
+    
     function toggleTimerInput() { const mode = document.getElementById('set-timer-mode').value; const label = document.getElementById('label-duration'); const input = document.getElementById('set-duration'); if(mode === 'general') { label.innerText = "Toplam Süre (Dakika)"; input.value = "30"; } else { label.innerText = "Soru Başına (Saniye)"; input.value = "20"; } }
     
     function toggleDropdown(id, trigger) { document.querySelectorAll('.dropdown-content').forEach(el => { if(el.id !== id) el.classList.remove('show'); }); document.querySelectorAll('.dropdown-trigger').forEach(el => { if(el !== trigger) el.classList.remove('open'); }); const content = document.getElementById(id); content.classList.toggle('show'); trigger.classList.toggle('open'); }
