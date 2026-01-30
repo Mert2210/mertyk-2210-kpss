@@ -10648,14 +10648,6 @@
     "deneme": "2012 KPSS Ortaöğretim"
   },
   {
-    "soru": "Atatürk'ün 'Din ve mezhep herkesin vicdanına kalmış bir iştir' sözü hangi ilkeyi vurgular?",
-    "siklar": ["Yalnız I (Halkçılık)", "Yalnız II (Laiklik)", "I ve II", "II ve III", "I, II ve III"],
-    "dogru": 1,
-    "ders": "TARİH",
-    "zorluk": "KOLAY",
-    "deneme": "2012 KPSS Ortaöğretim"
-  },
-  {
     "soru": "Aşağıdakilerden hangisi Atatürk Dönemi ekonomik faaliyetlerinden biri değildir?",
     "siklar": ["Merkez Bankası'nın kurulması", "Varlık Vergisi'nin uygulanması", "İktisat Kongresi", "Teşvik-i Sanayi Kanunu", "I. Beş Yıllık Sanayi Planı"],
     "dogru": 1,
@@ -14345,4 +14337,5 @@
     "zorluk": "ÇIKMIŞ"
   }
 ]
+
 
