@@ -67,7 +67,6 @@
 
         .home-btn { background: none; border: none; font-size: 1.3rem; cursor: pointer; transition: 0.2s; padding: 5px; border-radius: 50%; }
         .home-btn:hover { background-color: rgba(0,0,0,0.05); transform: scale(1.1); }
-        
         #report-btn { font-size: 1.2rem; background: none; border: none; cursor: pointer; padding: 0; line-height: 1; margin-left: 5px; }
         #report-btn:hover { transform: scale(1.1); }
 
@@ -157,20 +156,16 @@
                 </div>
             </div>
             
-            <span class="selection-label">Soru Kaynağı Seçimi:</span>
+            <span class="selection-label">Soru Seçimi:</span>
             <div class="dropdown-wrapper">
-                <div class="dropdown-trigger" onclick="toggleDropdown('deneme-content', this)">Tüm Kaynaklar (Seçili)</div>
-                <div id="deneme-content" class="dropdown-content down">
-                    <div style="padding:10px; color:#999;">Yükleniyor...</div>
-                </div>
+                <div class="dropdown-trigger" onclick="toggleDropdown('deneme-content', this)">Yükleniyor...</div>
+                <div id="deneme-content" class="dropdown-content down"></div>
             </div>
             
             <span class="selection-label">Dersler:</span>
             <div class="dropdown-wrapper">
-                <div class="dropdown-trigger subject-trigger" onclick="toggleDropdown('subject-content', this)">Tüm Dersler (Seçili)</div>
-                <div id="subject-content" class="dropdown-content up">
-                    <div style="padding:10px; color:#999;">Yükleniyor...</div>
-                </div>
+                <div class="dropdown-trigger subject-trigger" onclick="toggleDropdown('subject-content', this)">Yükleniyor...</div>
+                <div id="subject-content" class="dropdown-content up"></div>
             </div>
             
             <select id="set-difficulty">
@@ -288,7 +283,7 @@
 
     function reportCurrentQuestion() {
         if (!currentQuestionData) return;
-        const reason = prompt("Bu sorudaki hata nedir? (Örn: Cevap anahtarı yanlış, Yazım hatası vb.)");
+        const reason = prompt("Bu sorudaki hata nedir?");
         if (reason) {
             socket.emit('reportQuestion', {
                 soru: currentQuestionData.soru,
@@ -310,22 +305,22 @@
 
     function clearList() { if(confirm("Silinsin mi?")) { localStorage.removeItem(currentListType==='fav'?'kpss_favs':(currentListType==='wrong'?'kpss_wrongs':'kpss_blanks')); showLocalList(currentListType); } }
 
-    function createRoom() { const n = getUsername(); if(n) { localStorage.setItem('saved_username', n); isTrialMode=false; isMistakeMode=false; socket.emit('createRoom', n); } else alert("İsim giriniz!"); }
+    function createRoom() { const n = getUsername(); if(n) { localStorage.setItem('saved_username', n); socket.emit('createRoom', n); } else alert("İsim giriniz!"); }
     
-    function startTrial() { const n = getUsername(); if(n) { localStorage.setItem('saved_username', n); isTrialMode=true; isMistakeMode=false; socket.emit('createRoom', n); } else alert("İsim giriniz!"); }
+    function startTrial() { const n = getUsername(); if(n) { localStorage.setItem('saved_username', n); isTrialMode=true; socket.emit('createRoom', n); } else alert("İsim giriniz!"); }
     
     function startMistakesTrial() {
         const n = getUsername();
         const wrongs = getLocalData('kpss_wrongs');
         if(!n) return alert("İsim giriniz!");
-        if(wrongs.length < 3) return alert("Hatalardan sınav yapmak için en az 3 yanlış sorunuz olmalı!");
+        if(wrongs.length < 3) return alert("En az 3 yanlış sorunuz olmalı!");
         localStorage.setItem('saved_username', n);
         isTrialMode = true;
         isMistakeMode = true;
         socket.emit('createRoom', n);
     }
 
-    function joinRoom() { const n = getUsername(), c = document.getElementById('room-code-input').value; if(n && c) { localStorage.setItem('saved_username', n); isTrialMode=false; myCode = c; socket.emit('joinRoom', {username:n, roomCode:c}); } }
+    function joinRoom() { const n = getUsername(), c = document.getElementById('room-code-input').value; if(n && c) { localStorage.setItem('saved_username', n); myCode = c; socket.emit('joinRoom', {username:n, roomCode:c}); } }
     
     function toggleTimerInput() {
         const mode = document.getElementById('set-timer-mode').value;
@@ -353,6 +348,38 @@
         const content = document.getElementById(id);
         content.classList.toggle('show');
         trigger.classList.toggle('open');
+    }
+
+    function updateTriggerText(containerId, allLabel) {
+        const container = document.getElementById(containerId);
+        const trigger = container.previousElementSibling; 
+        
+        const allCheckbox = container.querySelector('input[id$="-all"]');
+        const otherCheckboxes = container.querySelectorAll('input[type="checkbox"]:not([id$="-all"])');
+        const checkedBoxes = container.querySelectorAll('input[type="checkbox"]:not([id$="-all"]):checked');
+
+        if (checkedBoxes.length === 0) {
+            trigger.innerText = "Lütfen Seçim Yapınız";
+            trigger.style.color = "#e74c3c";
+            allCheckbox.checked = false;
+        } else if (checkedBoxes.length === otherCheckboxes.length) {
+            trigger.innerText = allLabel + " (Hepsi Seçili)";
+            trigger.style.color = "#333";
+            allCheckbox.checked = true;
+        } else if (checkedBoxes.length <= 2) {
+            // Parantez içindeki sayıları temizle (Görsel temizlik)
+            const names = Array.from(checkedBoxes).map(cb => {
+                const label = container.querySelector(`label[for="${cb.id}"]`);
+                return label.innerText.replace(/\s*\(\d+ Soru\)/, "").replace("✨ ", "");
+            }).join(", ");
+            trigger.innerText = names;
+            trigger.style.color = "#333";
+            allCheckbox.checked = false;
+        } else {
+            trigger.innerText = `${checkedBoxes.length} Öge Seçildi`;
+            trigger.style.color = "#333";
+            allCheckbox.checked = false;
+        }
     }
 
     window.onclick = function(event) {
@@ -390,7 +417,7 @@
     }
 
     function finishExamEarly() {
-        if(confirm("Sınavı bitirip sonuç ekranına gitmek istiyor musun?")) {
+        if(confirm("Sınavı bitirmek istiyor musun?")) {
             socket.disconnect(); 
             socket.connect(); 
             
@@ -517,26 +544,41 @@
         }
     });
     
-    // OTOMATİK DENEME LİSTESİ (VARSAYILAN SEÇİLİ)
-    socket.on('updateDenemeList', (liste) => {
+    // --- GÜNCELLENMİŞ SOCKET EVENTS ---
+
+    socket.on('updateDenemeList', (data) => {
         const container = document.getElementById('deneme-content');
         container.innerHTML = '';
         
+        // Tümü Seç Kutusu
         const allDiv = document.createElement('div');
         allDiv.className = 'checkbox-item';
         allDiv.style.backgroundColor = '#f0f8ff';
         allDiv.innerHTML = `<input type="checkbox" id="cb-all" checked onchange="toggleAllDeneme(this)"><label for="cb-all"><strong>TÜMÜNÜ SEÇ / KALDIR</strong></label>`;
         container.appendChild(allDiv);
 
-        liste.forEach((denemeAdi, index) => {
+        // Özgün Sorular (Varsa)
+        if (data.ozgunSayi > 0) {
+            const ozgunDiv = document.createElement('div');
+            ozgunDiv.className = 'checkbox-item';
+            ozgunDiv.style.borderBottom = '2px solid #e67e22';
+            ozgunDiv.innerHTML = `<input type="checkbox" name="deneme-secim" id="cb-ozgun" value="OZGUN_SORULAR" checked onchange="updateTriggerText('deneme-content', 'Tüm Kaynaklar')"><label for="cb-ozgun">✨ Özgün Sorular (${data.ozgunSayi} Soru)</label>`;
+            container.appendChild(ozgunDiv);
+        }
+
+        // Denemeler Listesi
+        Object.keys(data.denemeler).sort().reverse().forEach((denemeAdi, index) => {
             const div = document.createElement('div');
             div.className = 'checkbox-item';
-            div.innerHTML = `<input type="checkbox" name="deneme-secim" id="cb-${index}" value="${denemeAdi}" checked><label for="cb-${index}">${denemeAdi}</label>`;
+            const adet = data.denemeler[denemeAdi];
+            div.innerHTML = `<input type="checkbox" name="deneme-secim" id="cb-${index}" value="${denemeAdi}" checked onchange="updateTriggerText('deneme-content', 'Tüm Kaynaklar')"><label for="cb-${index}">${denemeAdi} (${adet} Soru)</label>`;
             container.appendChild(div);
         });
+
+        // Sayfa ilk yüklendiğinde başlığı düzelt
+        updateTriggerText('deneme-content', 'Tüm Kaynaklar');
     });
 
-    // OTOMATİK DERS LİSTESİ (VARSAYILAN SEÇİLİ)
     socket.on('updateSubjectList', (liste) => {
         const container = document.getElementById('subject-content');
         container.innerHTML = '';
@@ -550,19 +592,25 @@
         liste.forEach((dersAdi, index) => {
             const div = document.createElement('div');
             div.className = 'checkbox-item';
-            div.innerHTML = `<input type="checkbox" name="subject-secim" id="sub-${index}" value="${dersAdi}" checked><label for="sub-${index}">${dersAdi}</label>`;
+            div.innerHTML = `<input type="checkbox" name="subject-secim" id="sub-${index}" value="${dersAdi}" checked onchange="updateTriggerText('subject-content', 'Tüm Dersler')"><label for="sub-${index}">${dersAdi}</label>`;
             container.appendChild(div);
         });
+        
+        updateTriggerText('subject-content', 'Tüm Dersler');
     });
+
+    // --- TOGGLE FONKSİYONLARI ---
 
     function toggleAllDeneme(source) {
         const checkboxes = document.querySelectorAll('input[name="deneme-secim"]');
         checkboxes.forEach(cb => cb.checked = source.checked);
+        updateTriggerText('deneme-content', 'Tüm Kaynaklar');
     }
 
     function toggleAllSubjects(source) {
         const checkboxes = document.querySelectorAll('input[name="subject-secim"]');
         checkboxes.forEach(cb => cb.checked = source.checked);
+        updateTriggerText('subject-content', 'Tüm Dersler');
     }
     
     socket.on('roomJoined', c => { myCode=c; document.getElementById('display-room-code').innerText=c; showScreen('screen-lobby'); document.getElementById('wait-msg').style.display='block'; });
@@ -574,7 +622,6 @@
     });
 
     socket.on('newQuestion', d => {
-        // DÜZELTME: Sadece liste henüz oluşmamışsa sıfırla. Navigasyonla 1'e dönünce silinmez.
         if (!questionStatusList || questionStatusList.length !== d.total) { 
             gameHistory = []; 
             questionStatusList = new Array(d.total).fill(null); 
