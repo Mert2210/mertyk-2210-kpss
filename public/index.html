@@ -58,9 +58,23 @@
         .list-item .q-text { font-weight: bold; color: #333; display: block; margin-bottom: 5px; }
         .list-item .ans-text { color: #27ae60; font-weight: bold; font-size: 0.8rem; background: #e8f5e9; padding: 4px; border-radius: 4px; display: inline-block; }
         
-        .player-card { background: #f0f2f5; padding: 8px; margin: 4px 0; border-radius: 5px; display: flex; justify-content: space-between; font-size: 0.9rem; font-weight: bold; }
+        .player-card { background: #f0f2f5; padding: 8px; margin: 4px 0; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; font-weight: bold; }
         
-        /* --- ŞIK BUTONLARI (GÜNCELLENDİ - STICKY HOVER FIX) --- */
+        /* --- YENİ EKLENEN RÜTBE ROZETİ STİLİ --- */
+        .player-rank-badge {
+            font-size: 0.75rem;
+            background: linear-gradient(to right, #f1c40f, #f39c12);
+            color: #fff;
+            padding: 3px 8px;
+            border-radius: 12px;
+            margin-left: 8px;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            vertical-align: middle;
+            display: inline-block;
+        }
+
+        /* --- ŞIK BUTONLARI --- */
         .opt-btn { 
             background: #eef2f3; 
             color: #333; 
@@ -355,7 +369,7 @@
     let questionStatusList = []; 
     let globalTimerInterval = null;
 
-    // --- YENİ: ZORLAŞTIRILMIŞ RÜTBE SİSTEMİ ---
+    // --- RÜTBE SİSTEMİ VERİLERİ ---
     const rankLevels = [
         { name: "1. Seviye", limit: 300 },   
         { name: "2. Seviye", limit: 650 },   
@@ -368,6 +382,16 @@
 
     let totalUserPoints = parseInt(localStorage.getItem('kpss_total_points')) || 0;
     
+    // YENİ HELPER FONKSİYON: Şuan hangi seviyedeyiz string olarak döner
+    function getCurrentRankName() {
+        let currentRank = rankLevels[0];
+        for (let i = 0; i < rankLevels.length; i++) {
+            if (totalUserPoints < rankLevels[i].limit) { currentRank = rankLevels[i]; break; }
+            else if (i === rankLevels.length - 1) { currentRank = rankLevels[i]; }
+        }
+        return currentRank.name;
+    }
+
     function updateRankDisplay() {
         const rankTitle = document.getElementById('rank-title');
         const pointsDisplay = document.getElementById('total-points-display');
@@ -431,11 +455,37 @@
     function toggleStar() { if (!currentQuestionData) return; const btn = document.getElementById('star-btn'); let favs = getLocalData('kpss_favs'); const idx = favs.findIndex(q => q.soru === currentQuestionData.soru); if (idx > -1) { favs.splice(idx, 1); btn.classList.remove('starred'); } else { favs.push({...currentQuestionData}); btn.classList.add('starred'); } saveLocalData('kpss_favs', favs); }
     function reportCurrentQuestion() { if (!currentQuestionData) return; const reason = prompt("Bu sorudaki hata nedir?"); if (reason) { socket.emit('reportQuestion', { soru: currentQuestionData.soru, deneme: currentQuestionData.deneme, reason: reason, username: getUsername() || "Anonim" }); alert("Teşekkürler! Hata bildirimi alındı."); } }
 
-    function createRoom() { const n = getUsername(); if(n) { localStorage.setItem('saved_username', n); isTrialMode = false; isMistakeMode = false; socket.emit('createRoom', n); } else alert("İsim giriniz!"); }
-    function startTrial() { const n = getUsername(); if(n) { localStorage.setItem('saved_username', n); isTrialMode=true; isMistakeMode = false; socket.emit('createRoom', n); } else alert("İsim giriniz!"); }
-    function joinRoom() { const n = getUsername(), c = document.getElementById('room-code-input').value; if(n && c) { localStorage.setItem('saved_username', n); myCode = c; socket.emit('joinRoom', {username:n, roomCode:c}); } }
+    // --- GÜNCELLENEN SOCKET FONKSİYONLARI (RANK GÖNDERİMİ) ---
+    function createRoom() { 
+        const n = getUsername(); 
+        if(n) { 
+            localStorage.setItem('saved_username', n); 
+            isTrialMode = false; isMistakeMode = false; 
+            // Rank bilgisi eklendi
+            socket.emit('createRoom', { username: n, rank: getCurrentRankName() }); 
+        } else alert("İsim giriniz!"); 
+    }
     
-    // --- YENİLENEN HATA SINAVI MANTIĞI ---
+    function startTrial() { 
+        const n = getUsername(); 
+        if(n) { 
+            localStorage.setItem('saved_username', n); 
+            isTrialMode=true; isMistakeMode = false; 
+            // Rank bilgisi eklendi
+            socket.emit('createRoom', { username: n, rank: getCurrentRankName() }); 
+        } else alert("İsim giriniz!"); 
+    }
+    
+    function joinRoom() { 
+        const n = getUsername(), c = document.getElementById('room-code-input').value; 
+        if(n && c) { 
+            localStorage.setItem('saved_username', n); 
+            myCode = c; 
+            // Rank bilgisi eklendi
+            socket.emit('joinRoom', {username:n, roomCode:c, rank: getCurrentRankName()}); 
+        } 
+    }
+    
     function goToMistakeLobby() {
         const n = getUsername();
         if(!n) return alert("Önce isminizi giriniz!");
@@ -446,7 +496,8 @@
         isTrialMode = true;
         isMistakeMode = true; 
         
-        socket.emit('createRoom', n); // Odayı kur, ayarlar açılacak
+        // Rank bilgisi eklendi
+        socket.emit('createRoom', { username: n, rank: getCurrentRankName() });
     }
 
     function toggleTimerInput() { const mode = document.getElementById('set-timer-mode').value; const label = document.getElementById('label-duration'); const input = document.getElementById('set-duration'); if(mode === 'general') { label.innerText = "Toplam Süre (Dakika)"; input.value = "30"; } else { label.innerText = "Soru Başına (Saniye)"; input.value = "20"; } }
@@ -476,14 +527,59 @@
         socket.emit('startGame', { roomCode: myCode, settings: settings }); 
     }
 
-    function finishExamEarly() { if(confirm("Sınavı bitirmek istiyor musun?")) { socket.disconnect(); socket.connect(); let totalScore = 0, correctCount = 0, wrongCount = 0; gameHistory.forEach(g => { if(g.earnedPoints) { totalScore += g.earnedPoints; correctCount++; } else if(g.userAnswerIndex !== -1 && !g.isCorrect) { totalScore -= 5; wrongCount++; } }); renderResultScreen([{ username: getUsername() || "Ben", score: totalScore }], correctCount, wrongCount); } }
+    // --- GÜNCELLENEN: ERKEN BİTİRME (RANK BİLGİSİ İLE) ---
+    function finishExamEarly() { 
+        if(confirm("Sınavı bitirmek istiyor musun?")) { 
+            socket.disconnect(); 
+            socket.connect(); 
+            let totalScore = 0, correctCount = 0, wrongCount = 0; 
+            gameHistory.forEach(g => { 
+                if(g.earnedPoints) { totalScore += g.earnedPoints; correctCount++; } 
+                else if(g.userAnswerIndex !== -1 && !g.isCorrect) { totalScore -= 5; wrongCount++; } 
+            }); 
+            // Rank bilgisi gönderiliyor
+            renderResultScreen([{ 
+                username: getUsername() || "Ben", 
+                score: totalScore, 
+                rank: getCurrentRankName() 
+            }], correctCount, wrongCount); 
+        } 
+    }
+
     function submitBlank() { socket.emit('submitAnswer', {roomCode: myCode, answerIndex: -1}); disableAllButtons(); }
     
     function disableAllButtons() { myButtons.forEach(x => { x.disabled = true; x.blur(); }); const blankBtn = document.getElementById('btn-blank'); blankBtn.disabled = true; blankBtn.blur(); }
 
     function showReviewScreen() { const container = document.getElementById('review-content'); container.innerHTML = ""; if (gameHistory.length === 0) { container.innerHTML = "<p>Veri yok.</p>"; showScreen('screen-review'); return; } gameHistory.forEach((item, index) => { const q = item.question; const userAns = item.userAnswerIndex === -1 ? "BOŞ" : q.siklar[item.userAnswerIndex]; const correctAns = q.siklar[item.correctAnswerIndex]; const statusClass = item.isCorrect ? "text-green" : "text-red"; const statusIcon = item.isCorrect ? "✅" : (item.userAnswerIndex === -1 ? "⚪" : "❌"); const solutionHTML = q.cozum ? `<div class="review-solution">💡 <b>Çözüm:</b> ${q.cozum}</div>` : ""; container.innerHTML += `<div class="review-card"><div class="review-q">${index + 1}. ${q.soru}</div><div class="review-row"><span>Senin Cevabın:</span><span class="${statusClass} review-user-ans">${statusIcon} ${userAns}</span></div><div class="review-row"><span>Doğru Cevap:</span><span class="review-correct-ans">${correctAns}</span></div>${solutionHTML}</div>`; }); showScreen('screen-review'); }
 
-    function renderResultScreen(playerList, myCorrect=0, myWrong=0) { showScreen('screen-result'); clearInterval(globalTimerInterval); playerList.sort((a,b) => b.score - a.score); document.getElementById('result-board').innerHTML = playerList.map((x,i) => `<div class="player-card"><span>${i+1}. ${x.username}</span><span>${x.score} P</span></div>`).join(''); const myResult = playerList.find(p => p.username === (getUsername() || "Ben")); if(myResult) { totalUserPoints += myResult.score; localStorage.setItem('kpss_total_points', totalUserPoints); updateRankDisplay(); let history = getLocalData('kpss_game_history'); history.push({ date: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString().slice(0,5), score: myResult.score, correct: myCorrect, wrong: myWrong }); saveLocalData('kpss_game_history', history); } const stats = {}; gameHistory.forEach(item => { const ders = item.question.ders || "Genel"; if(!stats[ders]) stats[ders] = { dogru: 0, toplam: 0 }; stats[ders].toplam++; if(item.isCorrect) stats[ders].dogru++; }); let analysisHTML = "<h4 style='margin:0 0 10px 0; color:#1e3c72;'>📊 Branş Başarı Analizi</h4>"; if(Object.keys(stats).length === 0) analysisHTML += "<p>Veri yok.</p>"; else { for(let ders in stats) { const yuzde = Math.round((stats[ders].dogru / stats[ders].toplam) * 100); const color = yuzde >= 70 ? "#27ae60" : (yuzde >= 40 ? "#e67e22" : "#c0392b"); analysisHTML += `<div class="analysis-item"><span>${ders}</span><span style="color:${color}; font-weight:bold;">%${yuzde} Başarı (${stats[ders].dogru}/${stats[ders].toplam})</span></div>`; } } document.getElementById('branch-analysis').innerHTML = analysisHTML; confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } }); }
+    // --- GÜNCELLENEN: SONUÇ EKRANI RENDER (RANK ROZETİ EKLENDİ) ---
+    function renderResultScreen(playerList, myCorrect=0, myWrong=0) { 
+        showScreen('screen-result'); 
+        clearInterval(globalTimerInterval); 
+        playerList.sort((a,b) => b.score - a.score); 
+        
+        // İsmin yanına span.player-rank-badge eklendi
+        document.getElementById('result-board').innerHTML = playerList.map((x,i) => 
+            `<div class="player-card">
+                <span style="display:flex; align-items:center;">
+                    ${i+1}. ${x.username} 
+                    <span class="player-rank-badge">${x.rank || getCurrentRankName()}</span>
+                </span>
+                <span>${x.score} P</span>
+            </div>`
+        ).join(''); 
+        
+        const myResult = playerList.find(p => p.username === (getUsername() || "Ben")); 
+        if(myResult) { 
+            totalUserPoints += myResult.score; 
+            localStorage.setItem('kpss_total_points', totalUserPoints); 
+            updateRankDisplay(); 
+            let history = getLocalData('kpss_game_history'); 
+            history.push({ date: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString().slice(0,5), score: myResult.score, correct: myCorrect, wrong: myWrong }); 
+            saveLocalData('kpss_game_history', history); 
+        } 
+        const stats = {}; gameHistory.forEach(item => { const ders = item.question.ders || "Genel"; if(!stats[ders]) stats[ders] = { dogru: 0, toplam: 0 }; stats[ders].toplam++; if(item.isCorrect) stats[ders].dogru++; }); let analysisHTML = "<h4 style='margin:0 0 10px 0; color:#1e3c72;'>📊 Branş Başarı Analizi</h4>"; if(Object.keys(stats).length === 0) analysisHTML += "<p>Veri yok.</p>"; else { for(let ders in stats) { const yuzde = Math.round((stats[ders].dogru / stats[ders].toplam) * 100); const color = yuzde >= 70 ? "#27ae60" : (yuzde >= 40 ? "#e67e22" : "#c0392b"); analysisHTML += `<div class="analysis-item"><span>${ders}</span><span style="color:${color}; font-weight:bold;">%${yuzde} Başarı (${stats[ders].dogru}/${stats[ders].toplam})</span></div>`; } } document.getElementById('branch-analysis').innerHTML = analysisHTML; confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } }); 
+    }
 
     function renderNavigator(total, currentIndex) { const navDiv = document.getElementById('question-navigator'); navDiv.innerHTML = ""; for(let i=0; i<total; i++) { const box = document.createElement('div'); box.className = 'nav-box'; box.innerText = i + 1; if(i === currentIndex) box.classList.add('active'); if(questionStatusList[i]) { if(questionStatusList[i].result === 'correct') box.classList.add('correct'); else if(questionStatusList[i].result === 'wrong') box.classList.add('wrong'); else box.classList.add('answered'); } box.onclick = () => { if(isTrialMode) socket.emit('jumpToQuestion', { roomCode: myCode, index: i }); }; navDiv.appendChild(box); } }
     function navigateQuestion(direction) { if(!currentQuestionData) return; socket.emit('jumpToQuestion', { roomCode: myCode, index: (currentQuestionData.index - 1) + direction }); }
@@ -497,19 +593,16 @@
         showScreen('screen-lobby'); 
         document.getElementById('host-controls').style.display = 'block'; 
         
-        // HATA MODU AYARLARI
         if(isMistakeMode) {
-            document.getElementById('normal-mode-settings').style.display = 'none'; // Kaynak/Ders Gizle
-            document.getElementById('mistake-info-box').style.display = 'block'; // Uyarıyı Göster
+            document.getElementById('normal-mode-settings').style.display = 'none'; 
+            document.getElementById('mistake-info-box').style.display = 'block'; 
             
-            // Soru sayısını maksimum yanlış sayısı ile sınırla
             const wrongCount = getLocalData('kpss_wrongs').length;
             const countInput = document.getElementById('set-count');
             countInput.value = Math.min(10, wrongCount); 
             countInput.max = wrongCount;
             countInput.previousElementSibling.innerText = `Soru Sayısı (Maks: ${wrongCount})`;
         } else {
-            // Normal Mod Ayarları
             document.getElementById('normal-mode-settings').style.display = 'block';
             document.getElementById('mistake-info-box').style.display = 'none';
             document.getElementById('set-count').max = ""; 
@@ -524,7 +617,21 @@
     function toggleAllDeneme(source) { document.querySelectorAll('input[name="deneme-secim"]').forEach(cb => cb.checked = source.checked); updateTriggerText('deneme-content', 'Tüm Kaynaklar'); }
     function toggleAllSubjects(source) { document.querySelectorAll('input[name="subject-secim"]').forEach(cb => cb.checked = source.checked); updateTriggerText('subject-content', 'Tüm Dersler'); }
     socket.on('roomJoined', c => { myCode=c; document.getElementById('display-room-code').innerText=c; showScreen('screen-lobby'); document.getElementById('wait-msg').style.display='block'; });
-    socket.on('updatePlayerList', p => { const h = p.map(x => `<div class="player-card"><span>${x.username}</span><span>${x.score}</span></div>`).join(''); document.getElementById('lobby-list').innerHTML = isTrialMode ? "" : h; document.getElementById('live-scores-list').innerHTML = h; });
+    
+    // --- GÜNCELLENEN: CANLI SKOR LİSTESİ (RANK ROZETİ EKLENDİ) ---
+    socket.on('updatePlayerList', p => { 
+        const h = p.map(x => 
+            `<div class="player-card">
+                <span style="display:flex; align-items:center;">
+                    ${x.username} 
+                    <span class="player-rank-badge">${x.rank || "1. Seviye"}</span>
+                </span>
+                <span>${x.score}</span>
+            </div>`
+        ).join(''); 
+        document.getElementById('lobby-list').innerHTML = isTrialMode ? "" : h; 
+        document.getElementById('live-scores-list').innerHTML = h; 
+    });
     
     socket.on('newQuestion', d => { 
         if (document.activeElement) document.activeElement.blur(); 
