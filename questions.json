@@ -12421,9 +12421,993 @@
     "ders": "GÜNCEL BİLGİLER",
     "zorluk": "ÇIKMIŞ",
     "deneme": "2013 KPSS Lisans"
+  },
+  [
+  {
+    "soru": "Aşağıdakilerden hangisi Karadeniz'in kuzeyinden Avrupa'ya göç eden Türk kavimlerinden biri değildir?",
+    "siklar": ["Avarlar", "Peçenekler", "Hunlar", "Kıpçaklar", "Uygurlar"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "İslamiyetin kabulünden önceki Türk devletlerinin ele alınacağı 'İpek Yolu'nda Türkler' adlı bir sergide aşağıdaki devletlerden hangisi yer almaz?",
+    "siklar": ["Karahanlı", "Uygur", "Göktürk", "Asya Hun", "Avrupa Hun"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Türklerde, İslamiyet'in kabulüyle birlikte tasvir yasağı nedeniyle resimden boşalan yerin yazı ile doldurulmasına neden olan sanat dalı hangisidir?",
+    "siklar": ["Hat", "Tezhip", "Nakkaşlık", "Oymacılık", "Ebru"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi, Osmanlıların Balkanlardaki ilerleyişi sırasında elde ettiği kazanımlardan biri olan 'Sırpsındığı Savaşı' ile ilişkilidir?",
+    "siklar": ["Maltepe Savaşı", "Çimpe Kalesi'nin fethi", "Edirne'nin fethi", "Sırpsındığı Savaşı", "Aydıncık'ın fethi"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi Osmanlı ordu teşkilatında 'kapıkulu askerlerini' oluşturan birliklerden değildir?",
+    "siklar": ["Lağımcılar", "Beşliler", "Cebeciler", "Humbaracılar", "Top arabacıları"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Osmanlı Devleti'nde uygulanan tımar sistemi aşağıdaki alanların hangisinde işlev görmemiştir?",
+    "siklar": ["Askerî", "İdari", "Mali", "Kültürel", "Ekonomik"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Osmanlı padişahlarına tanınan kardeşlerini öldürebilme yetkisi (kardeş katli), hangi padişah döneminde kaldırılmıştır?",
+    "siklar": ["I. Ahmet", "II. Selim", "II. Mahmut", "III. Selim", "Kanuni Sultan Süleyman"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi, III. Selim Dönemi'nde yapılan ıslahat hareketlerinden biri değildir?",
+    "siklar": ["İlk karantina teşkilatının kurulması", "Daimî elçiliklerin açılması", "Nizam-ı Cedit ordusunun kurulması", "Avrupa'dan subay getirilmesi", "Yabancı dil öğretimine önem verilmesi"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Mısır Valisi Kavalalı Mehmet Ali Paşa'nın isyan etmesi hangi Osmanlı padişahı döneminde gerçekleşmiştir?",
+    "siklar": ["II. Mahmut", "III. Selim", "Abdülmecit", "II. Abdülhamit", "V. Mehmet Reşat"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Osmanlı Devleti'nde XIX. yüzyılda yayımlanan Takvim-i Vekâyi, Tercüman-ı Ahvâl ve Tasvir-i Efkâr gazetelerinden hangileri özel gazetedir?",
+    "siklar": ["Yalnız II", "Yalnız III", "I ve II", "II ve III", "I, II ve III"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Tanzimat Fermanı'nın hazırlanmasına katkıda bulunan ve Gülhane Parkı'nda okuyan devlet adamı kimdir?",
+    "siklar": ["Mithat Paşa", "Namık Kemal", "Mustafa Reşit Paşa", "Hüseyin Avni Paşa", "Alemdar Mustafa Paşa"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Osmanlı İmparatorluğu'nu ekonomik açıdan sıkıntıya sokan Balta Limanı Ticaret Antlaşması hangi devletle imzalanmıştır?",
+    "siklar": ["Fransa", "Rusya", "Almanya", "Avusturya", "İngiltere"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Aşağıdaki devletlerden hangisi, I. Dünya Savaşı sırasında Osmanlı topraklarının paylaşımına yönelik antlaşmalarda yer almamıştır?",
+    "siklar": ["İngiltere", "Fransa", "Avusturya-Macaristan", "Rusya", "İtalya"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "İzmir'in işgali sonrasında Türklerin haklılığını belirten ve Yunanistan'ı sorumlu tutan rapor kime aittir?",
+    "siklar": ["Tuğamiral Richard Webb", "Koramiral Calthorpe", "Amiral Robeck", "General Milne", "Amiral Bristol"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Yeni Türk Devleti'nin milli egemenlik ilkesi üzerine kurulacağını gösteren ilk adım aşağıdakilerden hangisidir?",
+    "siklar": ["Amasya Genelgesi'nin yayımlanması", "Saltanatın kaldırılması", "Halifeliğin kaldırılması", "Cumhuriyet'in ilan edilmesi", "Medeni Kanun'un kabul edilmesi"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Anlaşma Devletleri'nin Osmanlı Mebuslar Meclisini basıp milletvekillerini Malta'ya sürgün etmesinde hangisi etkili olmuştur?",
+    "siklar": ["Misakımillî'nin kabul edilmesi", "Meclisin açılmasının gecikmesi", "Seçim boykotu", "Gayrimüslim vekiller", "Londra Konferansı"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi I. İnönü Savaşı'na yol açan Yunan saldırısının nedenlerinden biridir?",
+    "siklar": ["Londra Konferansı'nı önlemek", "Ankara Antlaşması'nı etkilemek", "Anayasa'yı engellemek", "TBMM'ye Sevr Antlaşması'nı kabul ettirmek", "Gümrü Antlaşması'nı uygulatmak"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Lozan Barış Konferansı'na sadece Boğazlarla ilgili görüşmeler için katılan iki devlet hangisidir?",
+    "siklar": ["Sovyet Rusya - Bulgaristan", "Yunanistan - Sovyet Rusya", "Sovyet Rusya - Romanya", "Yugoslavya - Bulgaristan", "Romanya - Yugoslavya"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Lozan Antlaşması'yla çözülemeyen Musul, Boğazlar ve Hatay konularından hangileri sonraki yıllarda Türkiye lehine sonuçlanmıştır?",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "I ve II", "II ve III"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi Atatürk Dönemi'nde inkılabın kültürel temellerini sağlamlaştırmak için açılan kurumlardan biri değildir?",
+    "siklar": ["Atatürk Orman Çiftliği", "İnkılap Tarihi Enstitüsü", "Türk Dil Kurumu", "Türk Tarih Kurumu", "Halkevleri"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Türkiye Cumhuriyeti'nde resmî işlemlerdeki karışıklıkları önlemek amacıyla 1934 yılında aşağıdakilerden hangisi gerçekleştirilmiştir?",
+    "siklar": ["Soyadı Kanunu'nun kabul edilmesi", "Medeni Kanun'un kabul edilmesi", "Yeni Türk alfabesinin kabul edilmesi", "Kadınlara seçme ve seçilme haklarının verilmesi", "Şapka Kanunu'nun çıkarılması"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Cumhuriyet Dönemi'nde Türkiye'nin İngiltere ve Fransa'ya yakınlaşmasında; Mussolini'nin yayılmacılığı ve Almanya'nın politikaları gibi durumlardan hangileri etkili olmuştur?",
+    "siklar": ["Yalnız I", "I ve II", "I ve III", "II ve III", "I, II ve III"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Halkçılık ilkesi, Atatürk'ün idealindeki halkın; sınıfsız, imtiyazsız ve kaynaşmış olma özelliklerinden hangilerine dayanmaktadır?",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "I ve II", "I, II ve III"],
+    "dogru": 4,
+    "ders": "TARİH",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Atatürk'ün 'ekonomik alanda kamu imkânlarını fiilen seferber kılmak' şeklinde tanımladığı ilke hangisidir?",
+    "siklar": ["Devletçilik", "Halkçılık", "Laiklik", "Cumhuriyetçilik", "Milliyetçilik"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Atatürk'ün vefatından önce 'Bir dünya harbi olacaktır...' diyerek II. Dünya Savaşı'nı öngörmesinde hangisinin etkisi yoktur?",
+    "siklar": ["Japonya'ya atom bombasının atılmasının", "Japonya'nın Mançurya'ya saldırmasının", "Rusya'nın komünist rejimi", "İtalya'nın saldırgan politikası", "Almanya'nın Versay'dan kurtulma çabası"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi, 1991 yılında SSCB'nin dağılması sonucunda bağımsızlığını ilan eden devletlerden biri değildir?",
+    "siklar": ["Ukrayna", "Polonya", "Gürcistan", "Ermenistan", "Estonya"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi Orta Asya'daki bağımsız Türk cumhuriyetlerinden biri değildir?",
+    "siklar": ["Tataristan", "Kırgızistan", "Özbekistan", "Kazakistan", "Türkmenistan"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Aşağıda coğrafi koordinatları verilen alanlardan hangisi, Türkiye sınırları içerisinde yer almaktadır?",
+    "siklar": ["37°29' - 37°27'", "36°29' - 36°27'", "35°27' - 35°29'", "38°27' - 38°29'", "39°29' - 39°27'"],
+    "dogru": 2,
+    "ders": "COĞRAFYA",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Türkiye'nin jeopolitik öneminin oluşmasında aşağıdakilerden hangisinin bir etkisi yoktur?",
+    "siklar": ["Fosil yakıt dış satımının fazla olmasının", "Konumu", "Ulaşım yolları kavşağı", "Petrol kaynaklarına yakınlık", "Doğal kaynak potansiyeli"],
+    "dogru": 0,
+    "ders": "COĞRAFYA",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Aşağıdaki haritada numaralandırılarak gösterilen alanların hangilerinde rüzgâr, yer şekilleri üzerinde daha fazla etkilidir?",
+    "siklar": ["I ve II", "I ve IV", "II ve V", "III ve IV", "III ve V"],
+    "dogru": 4,
+    "ders": "COĞRAFYA",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ",
+    "resim": "2014orta_gk_s30.jpg"
+  },
+  {
+    "soru": "Göksu, Sakarya, Filyos ve Ergene akarsularından hangileri, karşısında verilen denize dökülmez?",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "II ve IV", "III ve IV"],
+    "dogru": 2,
+    "ders": "COĞRAFYA",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Türkiye'de Ege Denizi kıyılarıyla ilgili özelliklerden hangisi, yaz mevsiminin sıcak ve kurak geçmesiyle ilişkili değildir?",
+    "siklar": ["Deniz turizmi süresinin uzun olması", "Maki örtüsünün yaygın olması", "Pamuk ve zeytin yetiştirilmesi", "Sıcak su kaynaklarının bulunması", "Orman yangınlarının sık görülmesi"],
+    "dogru": 3,
+    "ders": "COĞRAFYA",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Buna göre haritada numaralarla gösterilen alanların hangisinde, geniş alanlı falez oluşumları görülür?",
+    "siklar": ["I", "II", "III", "IV", "V"],
+    "dogru": 4,
+    "ders": "COĞRAFYA",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ",
+    "resim": "2014orta_gk_s33.jpg"
+  },
+  {
+    "soru": "Aşağıda verilen akarsu ve oluşturduğu delta ovası eşleştirmelerinden hangisi yanlıştır?",
+    "siklar": ["Kızılırmak - Bafra", "Sakarya - Karasu", "Yeşilırmak - Çarşamba", "Büyük Menderes - Menemen", "Göksu - Silifke"],
+    "dogru": 3,
+    "ders": "COĞRAFYA",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Aşağıdaki nüfus piramidinde 35-39 yaş grubunun az olmasının nedeni nedir?",
+    "siklar": ["Cumhuriyet öncesi savaş döneminde doğurganlığın düşük olması", "Nüfus artış hızının düşmesi", "Doğum oranlarının yüksek olması", "II. Dünya Savaşı etkisi", "Yaşlı nüfusta ölüm hızı"],
+    "dogru": 0,
+    "ders": "COĞRAFYA",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ",
+    "resim": "2014orta_gk_s35.jpg"
+  },
+  {
+    "soru": "Türkiye'de yaşanan iç göçler dikkate alındığında aşağıdaki faaliyet alanlarından hangisinin mevsimlik göçler üzerindeki etkisi daha azdır?",
+    "siklar": ["Turizm", "Tarım", "Yaylacılık", "Ormancılık", "İnşaat"],
+    "dogru": 3,
+    "ders": "COĞRAFYA",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Beslenme ve yetiştirilme koşulları göz önüne alındığında, haritada gösterilen alanların hangisinde koyun yetiştiriciliğinin önemi daha azdır?",
+    "siklar": ["I", "II", "III", "IV", "V"],
+    "dogru": 4,
+    "ders": "COĞRAFYA",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ",
+    "resim": "2014orta_gk_s39.jpg"
+  },
+  {
+    "soru": "Akdeniz ve Ege kıyılarında iklim benzer olduğu halde, Ege kıyılarında zeytin yetişme alanları neden daha geniştir?",
+    "siklar": ["Dağların uzanışı", "Yıllık yağış tutarı", "Deniz etkisi", "Ortalama yükselti", "Akarsu ağının genişliği"],
+    "dogru": 0,
+    "ders": "COĞRAFYA",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Haritada numaralandırılmış liman şehirlerinden hangisi; korunaklı liman, gelişmiş kara yolu, geniş hinterlant ve gelişmiş sanayi özelliklerinin tümüne sahiptir?",
+    "siklar": ["I", "II", "III", "IV", "V"],
+    "dogru": 1,
+    "ders": "COĞRAFYA",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ",
+    "resim": "2014orta_gk_s37.jpg"
+  },
+  {
+    "soru": "Perlit rezervinin haritadaki alanlarda görülmesinde hangisiyle doğrudan bir ilişki söz konusudur?",
+    "siklar": ["Volkanik arazilerle", "Jipsli arazilerle", "Kaya tuzu yataklarıyla", "Fay hatlarıyla", "Masif arazilerle"],
+    "dogru": 0,
+    "ders": "COĞRAFYA",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ",
+    "resim": "2014orta_gk_s40.jpg"
+  },
+  {
+    "soru": "Türkiye'de son yıllarda enerji üretiminde doğal gazın payının artmasıyla hangisinin gerçekleştiği söylenemez?",
+    "siklar": ["Termik santrallerin sayısı artmıştır.", "Hava kirliliği azalmıştır.", "Enerjide dışa bağımlılık artmıştır.", "Yeni istihdam olanakları çıkmıştır.", "Hidroelektrik santrallerin sayısı azalmıştır."],
+    "dogru": 4,
+    "ders": "COĞRAFYA",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Türkiye'de bazı büyük sanayi tesislerinin kıyı kesimlerinde kurulmasının nedeni nedir?",
+    "siklar": ["Enerji temini", "Ulusal güvenlik", "Ulaşım kolaylığı", "Sermaye kolaylığı", "Ham madde temini"],
+    "dogru": 2,
+    "ders": "COĞRAFYA",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi, Akdeniz kıyı kesimiyle iç kesimleri birbirine bağlayan geçitlerden biri değildir?",
+    "siklar": ["Gülek Boğazı", "Sertavul Geçidi", "Çubuk Beli", "Cankurtaran Geçidi", "Çeltikçi Beli"],
+    "dogru": 3,
+    "ders": "COĞRAFYA",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Türkiye'nin dış ticaretiyle ilgili olarak aşağıdaki yorumlardan hangisi doğrudur?",
+    "siklar": ["Turizm gelirleri dış ticaret açığını kapatır.", "Dış satım istenilen düzeydedir.", "İthalat, ihracattan yüksektir.", "Dış alımda AB ülkeleri ilk sıradadır.", "Sadece tarım ürünleri satılır."],
+    "dogru": 2,
+    "ders": "COĞRAFYA",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Haritada numaralandırılmış alanlardan hangisi uluslararası turizm bakımından günümüzde en az ilgi gören yerdir?",
+    "siklar": ["I", "II", "III", "IV", "V"],
+    "dogru": 4,
+    "ders": "COĞRAFYA",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ",
+    "resim": "2014orta_gk_s45.jpg"
+  },
+  {
+    "soru": "Bir kimsenin bilerek sebep olmadığı bir tehlikeden kendisini veya başkasını kurtarmak için üçüncü bir kişinin malına zarar vermesi haline ne denir?",
+    "siklar": ["Haklı savunma", "Zorunluluk hâli (Iztırar)", "Mücbir sebep", "Beklenmeyen hâl", "İhkakıhak"],
+    "dogru": 1,
+    "ders": "VATANDAŞLIK",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Hâkim, bir uyuşmazlığın çözümünde aşağıdaki kaynaklardan hangisine diğerlerinden önce başvurur?",
+    "siklar": ["Kanun", "Yönetmelik", "Bilimsel görüş", "Örf ve âdet hukuku", "Yargı kararları"],
+    "dogru": 0,
+    "ders": "VATANDAŞLIK",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Kanunların yürürlüğe girme tarihi belirtilmemişse, Resmî Gazete'de yayımlandıktan kaç gün sonra yürürlüğe girer?",
+    "siklar": ["Yayımlandığı gün", "Ertesi gün", "15 gün sonra", "30 gün sonra", "45 gün sonra"],
+    "dogru": 4,
+    "ders": "VATANDAŞLIK",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "1982 Anayasası'na göre, Cumhurbaşkanlığı seçimleri için gerekli seçilme yaşı kaçtır?",
+    "siklar": ["25", "30", "35", "40", "45"],
+    "dogru": 3,
+    "ders": "VATANDAŞLIK",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Tüzüklerin iptaline ilişkin davalara hangi mahkeme bakar?",
+    "siklar": ["Anayasa Mahkemesi", "Yargıtay", "Danıştay", "Uyuşmazlık Mahkemesi", "İdare Mahkemesi"],
+    "dogru": 2,
+    "ders": "VATANDAŞLIK",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Seçimlerin yönetimi ve denetimi kime aittir?",
+    "siklar": ["TBMM", "İçişleri Bakanlığı", "Anayasa Mahkemesi", "Adalet Bakanlığı", "Yüksek Seçim Kurulu"],
+    "dogru": 4,
+    "ders": "VATANDAŞLIK",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi tüzük çıkarma yetkisine sahiptir?",
+    "siklar": ["Cumhurbaşkanlığı", "İçişleri Bakanlığı", "Barolar Birliği", "Başbakanlık", "Bakanlar Kurulu"],
+    "dogru": 4,
+    "ders": "VATANDAŞLIK",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Bir ilçenin adının değiştirilmesi aşağıdakilerden hangisiyle yapılabilir?",
+    "siklar": ["Üçlü kararnameyle", "Başbakanın kararıyla", "İçişleri Bakanının kararıyla", "Bakanlar Kurulu kararıyla", "Kanunla"],
+    "dogru": 4,
+    "ders": "VATANDAŞLIK",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi yüksek mahkemelerden biridir?",
+    "siklar": ["Danıştay", "Sayıştay", "Bölge İdare Mahkemesi", "Yüksek Seçim Kurulu", "Hakimler ve Savcılar Kurulu"],
+    "dogru": 0,
+    "ders": "VATANDAŞLIK",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Türk Dil Kurumu, 'selfie' kelimesine Türkçe karşılık olarak hangisini seçmiştir?",
+    "siklar": ["Bakçek", "Görçek", "Kendiçekim", "Kendinçek", "Özçekim"],
+    "dogru": 4,
+    "ders": "GÜNCEL BİLGİLER",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "2013 yılında hayatını kaybeden, demokratik yollarla seçilen ilk Güney Afrika devlet başkanı kimdir?",
+    "siklar": ["Nelson Mandela", "Hugo Chavez", "Fidel Castro", "Itamar Franco", "Vaclav Havel"],
+    "dogru": 0,
+    "ders": "GÜNCEL BİLGİLER",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "2013 yılı Nobel Barış Ödülü'nü kim veya hangi kurum almıştır?",
+    "siklar": ["Kimyasal Silahların Yasaklanması Örgütü", "Avrupa Birliği", "Barack Obama", "Uluslararası Atom Enerjisi Kurumu", "BM Mülteciler Yüksek Komiserliği"],
+    "dogru": 0,
+    "ders": "GÜNCEL BİLGİLER",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Sir Arthur Conan Doyle tarafından yaratılan İngiliz hayalî dedektif kahraman hangisidir?",
+    "siklar": ["Red Kit", "Müfettiş Gadget", "Sherlock Holmes", "Superman", "Harry Potter"],
+    "dogru": 2,
+    "ders": "GÜNCEL BİLGİLER",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi bir ada ülkesi değildir?",
+    "siklar": ["Hindistan", "Japonya", "Yeni Zelanda", "İngiltere", "Madagaskar"],
+    "dogru": 0,
+    "ders": "GÜNCEL BİLGİLER",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi, Aşık Edebiyatı geleneğinin temsilcilerinden biri değildir?",
+    "siklar": ["Karacaoğlan", "Köroğlu", "Dadaloğlu", "Aşık Paşa", "Aşık Veysel"],
+    "dogru": 3,
+    "ders": "GÜNCEL BİLGİLER",
+    "deneme": "2014 Ortaöğretim",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "562'de Bayan Han tarafından Orta Avrupa'da kurulan, 805'te Franklar tarafından yıkılan ve İstanbul'u iki kez kuşatan devlet aşağıdakilerden hangisidir?",
+    "siklar": ["Hazar", "Bulgar", "Avar", "Türgeş", "Avrupa Hun"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Aşağıda verilen Türk-İslam bilginlerinden hangisinin çalıştığı alan yanlış verilmiştir?",
+    "siklar": ["Farabi - Müzik, Felsefe, Fizik", "Gazali - Felsefe, Hukuk, İlahiyat", "İbni Rüşd - Coğrafya, Tıp", "İbni Fadlan - Coğrafya, Diplomasi", "İbni Sina - Tıp, Felsefe"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ",
+    "cozum": "İbni Rüşd (Averroes), daha çok felsefe, hukuk ve tıp alanlarındaki çalışmalarıyla tanınır. Coğrafyacı değildir."
+  },
+  {
+    "soru": "Anadolu Selçuklu Dönemi'nde tarih yazıcılığına önem verilmiş ve Selçuklu sultanları için Farsça tarih kitapları yazılmıştır. Aşağıdakilerden hangisi, belirtilen dönemin tarih kitabı yazarlarındandır?",
+    "siklar": ["İbni Bibi", "Yunus Emre", "Aşık Paşa", "Gülşehri", "Hoca Dehhani"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Osmanlı Dönemi'nde bir ustanın yanında çalışan çırağın o işte ustalaştığı ve işi yapmada ehliyet sahibi olduğunu gösteren belge aşağıdakilerden hangisidir?",
+    "siklar": ["Hüccet", "Ferman", "İcazet", "Sertifika", "Senet"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "XVII. yüzyılda Osmanlı Devleti'nde görülen; Yeniçeri Ocağı'nın bozulması, cülus bahşişi sorunları ve saray kadınlarının askeri kışkırtması gibi gelişmeler hangisinin ortaya çıkmasında etkili olmuştur?",
+    "siklar": ["İstanbul isyanları", "Celali isyanları", "Eyalet isyanları", "Azınlık isyanları", "Taht kavgaları"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi, XVI. yüzyıl sonlarından itibaren devletin buhranını ve kurtulma çarelerini içeren ıslahat layihaları (raporları) yazanlardan biri değildir?",
+    "siklar": ["Hasan Kâfi el-Akhisari", "Kâtip Çelebi", "Hoca Sadeddin Efendi", "Gelibolulu Mustafa Ali", "Koçi Bey"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi Genç Osmanlılardan biri değildir?",
+    "siklar": ["Ahmet Cevdet Paşa", "Namık Kemal", "Şinasi", "Ziya Paşa", "Ali Suavi"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Osmanlı Devleti'nin ilk Türk kadın yazarı olarak bilinen ve Hanımlara Mahsus Gazete'de yazılar yazan yazar kimdir?",
+    "siklar": ["Fatma Aliye", "Halide Edip", "Emine Semiye", "Fatma Müzehher", "Fatma Kevser"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Osmanlı Devleti'nde ilk kez anayasaya dayalı parlamentolu sisteme geçiş, hangi padişah döneminde gerçekleşmiştir?",
+    "siklar": ["II. Abdülhamit", "III. Selim", "II. Mahmut", "Abdülmecit", "Abdülaziz"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Türk modernleşme tarihinde yenileşmeyi ilk defa geniş bir program çerçevesinde ve uzman raporları (layihalar) doğrultusunda yürütmeye çalışan padişah kimdir?",
+    "siklar": ["III. Selim", "III. Ahmet", "II. Mahmut", "II. Abdülhamit", "Abdülmecit"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Kanunuesasi'yi hazırlayan komisyona başkanlık eden Osmanlı devlet adamı kimdir?",
+    "siklar": ["Sait Paşa", "Mithat Paşa", "Ahmet Vefik Paşa", "Ahmet Cevdet Paşa", "Mustafa Reşit Paşa"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "XIX. yüzyılda Osmanlı Devleti'nde görülen fikir akımları ve savunucusu eşleştirmelerinden hangisi doğrudur?",
+    "siklar": ["Batıcılık - Abdullah Cevdet", "İslamcılık - Ziya Gökalp", "Türkçülük - Ziya Paşa", "Osmanlıcılık - Ömer Seyfettin", "Batıcılık - Yusuf Akçura"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Mustafa Kemal'in 'Gazeteci Şerif' adını kullanarak katıldığı savaş hangisidir?",
+    "siklar": ["Trablusgarp Savaşı", "I. Balkan Savaşı", "II. Balkan Savaşı", "Çanakkale Savaşı", "II. İnönü Savaşı"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi, Atatürk'ün öğrenim gördüğü okullardan biri değildir?",
+    "siklar": ["Harp Okulu", "Manastır Askerî İdadisi", "Selanik Askerî Rüştiyesi", "Kuleli Askeri İdadisi", "Şemsi Efendi Mektebi"],
+    "dogru": 3,
+    "ders": "TARİH",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Mustafa Kemal aşağıdakilerin hangisinden sonra askerlik görevinden istifa etmiştir?",
+    "siklar": ["Amasya Genelgesi'nin yayımlanması", "Temsilciler Kurulu'nun Ankara'ya gelmesi", "Sivas Kongresi'nin yapılması", "Misakımillî'nin ilan edilmesi", "Amasya Görüşmeleri'nin yapılması"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi İstanbul'un Anlaşma Devletleri tarafından resmen işgal edilmesinin nedenlerinden biri değildir?",
+    "siklar": ["Ankara'da TBMM'nin açılması", "Misakımilli'nin kabul edilmesi", "Maraş'ın Fransızların kontrolünden çıkması", "Urfa'daki direnişin yoğunlaşması", "Batı Cephesi'nde Yunan ordusuna karşı direnişin artması"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ",
+    "cozum": "TBMM'nin açılması işgalin nedeni değil, sonucudur. İşgal 16 Mart 1920'de, TBMM'nin açılışı 23 Nisan 1920'dedir."
+  },
+  {
+    "soru": "1921 Anayasası'nda yer alan hangi hüküm, meşrutiyetten cumhuriyete geçileceğinin bir işaretidir?",
+    "siklar": ["Egemenlik kayıtsız şartsız milletindir.", "Yürütme ve yasama yetkisi meclistedir.", "Antlaşma ve barış yapma yetkisi TBMM'dedir.", "Meclis başkanı hükümetin de başkanıdır.", "Seçimler iki yılda bir yapılır."],
+    "dogru": 0,
+    "ders": "TARİH",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Lozan Barış Konferansı'na gözlemci olarak katılan devlet hangisidir?",
+    "siklar": ["Amerika Birleşik Devletleri", "Yunanistan", "Sovyet Rusya", "Almanya", "Japonya"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Laikleşme yolunda önemli bir adım atılması ve Osmanlı ailesinin yurt dışına çıkarılması hangi olayın sonucudur?",
+    "siklar": ["Halifeliğin kaldırılması", "Teşkilatıesasiye Kanunu'nun çıkarılması", "Cumhuriyetin ilan edilmesi", "Şeriye ve Evkaf Vekâletinin kaldırılması", "Tevhid-i Tedrisat Kanunu'nun çıkarılması"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Türk Medeni Kanunu'nun kabul edilmesiyle aşağıdaki kurumlardan hangisinin faaliyet alanı daralmıştır?",
+    "siklar": ["TBMM", "Milli Eğitim Bakanlığı", "Fener Rum Patrikhanesi", "İstiklal Mahkemeleri", "Erkân-ı Harbiye-i Umumiye Riyaseti"],
+    "dogru": 2,
+    "ders": "TARİH",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Mustafa Kemal'in Milli Mücadele'de 'milli irade'ye vurgu yapması hangi politikaya işaret eder?",
+    "siklar": ["Demokrasi", "Oligarşi", "Monarşi", "Teokrasi", "Meşrutiyet"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Atatürk'ün 'Türk ulusunu geri bırakan kurumları değiştirip yerine çağdaş kurumlar koymak' sözü hangi ilkeyle ilgilidir?",
+    "siklar": ["İnkılapçılık", "Cumhuriyetçilik", "Milliyetçilik", "Halkçılık", "Devletçilik"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Lahey Sürekli Adalet Divanı'nın Atatürk Dönemi'nde Türkiye lehine karar verdiği sorun hangisidir?",
+    "siklar": ["Bozkurt-Lotus", "Etabli", "Musul", "Kıbrıs", "Adalar"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Ankara Antlaşması'yla Türkiye'ye ait olduğu belirtilen Caber Kalesi (Süleyman Şah Türbesi) hangi ülke sınırları içindedir?",
+    "siklar": ["Suriye", "İran", "Irak", "Azerbaycan", "Gürcistan"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi, II. Dünya Savaşı'na giden süreçte yapılmış bir ittifak veya antlaşma değildir?",
+    "siklar": ["Balkan Antantı", "Türk-Afgan Dostluk Antlaşması", "Sadabat Paktı", "Montrö Sözleşmesi", "Türk-İngiliz Akdeniz İttifakı"],
+    "dogru": 1,
+    "ders": "TARİH",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ",
+    "cozum": "Türk-Afgan Dostluk Antlaşması 1921 yılında, Kurtuluş Savaşı sırasında imzalanmıştır."
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi, Demokrat Parti Dönemi'nde (1950-1960) gerçekleşen olaylardan biri değildir?",
+    "siklar": ["Ankara Üniversitesinin kurulması", "Atatürk'ü Koruma Kanunu'nun kabul edilmesi", "Türkiye İşçi Sendikaları Konfederasyonunun kurulması", "Tahkikat Komisyonu'nun kurulması", "Yabancı Sermayeyi Teşvik Kanunu'nun çıkarılması"],
+    "dogru": 0,
+    "ders": "TARİH",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ",
+    "cozum": "Ankara Üniversitesi 1946 yılında (CHP dönemi) kurulmuştur."
+  },
+  {
+    "soru": "Şangay İşbirliği Örgütü'ne üye olan ülkeler aşağıdakilerin hangisinde birlikte verilmiştir?",
+    "siklar": ["Çin, Rusya, Japonya, Kazakistan, Özbekistan, Ukrayna", "Çin, Rusya, Kazakistan, Tacikistan, Özbekistan, Kırgızistan", "Rusya, Hindistan, Tacikistan, Kırgızistan, Singapur, Malezya", "Kazakistan, Kırgızistan, Tacikistan, Özbekistan, Azerbaycan, Türkiye", "Ukrayna, Beyaz Rusya, Çin, Japonya, Hindistan, Moğolistan"],
+    "dogru": 1,
+    "ders": "GÜNCEL BİLGİLER",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Aşağıdaki haritada numaralandırılmış beş doğrultudan hangisinde yükselti farkı en fazladır?",
+    "siklar": ["I", "II", "III", "IV", "V"],
+    "dogru": 0,
+    "ders": "COĞRAFYA",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ",
+    "resim": "2014onlisans_gk_s28.jpg"
+  },
+  {
+    "soru": "Bir Türkiye fiziki haritası incelendiğinde Çukurova'nın yeşil, Konya Ovası'nın sarı, Erzurum Ovası'nın kahverengi ile gösterilmesi ne ile ilgilidir?",
+    "siklar": ["Bitki örtülerinin farklılığıyla", "Eğim derecelerinin farklılığıyla", "Yükseltilerinin farklılığıyla", "Toprak türlerinin farklılığıyla", "Jeolojik yapılarının farklılığıyla"],
+    "dogru": 2,
+    "ders": "COĞRAFYA",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Sıcaklığın düşmesiyle gerçekleşen don olayının, haritadaki yörelerin hangilerinde daha erken görülmesi beklenir?",
+    "siklar": ["I ve II", "I ve IV", "II ve III", "III ve IV", "III ve V"],
+    "dogru": 2,
+    "ders": "COĞRAFYA",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ",
+    "resim": "2014onlisans_gk_s30.jpg"
+  },
+  {
+    "soru": "Aşağıdaki haritada gösterilen yerlerin hangilerinde kalker ve jipse bağlı karstlaşmanın tipik örnekleri daha yaygın görülür?",
+    "siklar": ["I ve II", "I ve V", "II ve III", "III ve IV", "III ve V"],
+    "dogru": 4,
+    "ders": "COĞRAFYA",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ",
+    "resim": "2014onlisans_gk_s31.jpg"
+  },
+  {
+    "soru": "Türkiye'de nemlilik ve yağışın güney-kuzey ve doğu-batı yönünde farklılık göstermesinin nedenleri arasında hangisi yer almaz?",
+    "siklar": ["Denizellik", "Bitki örtüsü", "Karasallık", "Yükselti", "Bakı"],
+    "dogru": 1,
+    "ders": "COĞRAFYA",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ",
+    "cozum": "Bitki örtüsü iklimin bir sonucu olarak ortaya çıkar, iklimi belirleyen temel bir neden değildir."
+  },
+  {
+    "soru": "Ankara, Mersin ve Trabzon'da en fazla yağışın görüldüğü mevsimler sırasıyla hangisidir?",
+    "siklar": ["Kış - İlkbahar - Kış", "Kış - Sonbahar - İlkbahar", "İlkbahar - Kış - Sonbahar", "İlkbahar - Sonbahar - Kış", "Kış - Kış - Sonbahar"],
+    "dogru": 2,
+    "ders": "COĞRAFYA",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Kuzey Anadolu Dağları'nın kuzeye bakan kesimlerinde asit karakterli toprakların yaygın olmasında hangisi etkilidir?",
+    "siklar": ["Sıcaklık rejimi", "Yükselti", "Yağış miktarı", "Yağış rejimi", "Bitki örtüsü"],
+    "dogru": 2,
+    "ders": "COĞRAFYA",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ",
+    "cozum": "Aşırı yağış toprağın yıkanmasına ve asitlenmesine neden olur."
+  },
+  {
+    "soru": "Aşağıdaki Türkiye nüfus grafiğine göre hangisi kesin olarak söylenir?",
+    "siklar": ["Nüfus artış hızının en yüksek olduğu dönem 1945-1950 arasıdır.", "Nüfus artış hızı her dönem aynı olmuştur.", "Nüfus artış hızının en düşük olduğu dönem 1990-1997 arasıdır.", "Nüfus miktarının en fazla olduğu dönem 1927-1935 arasıdır.", "1950'den sonra nüfus artış hızı sürekli düşmüştür."],
+    "dogru": 0,
+    "ders": "COĞRAFYA",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ",
+    "resim": "2014onlisans_gk_s35.jpg"
+  },
+  {
+    "soru": "Şehirlerin gelişimi ve ekonomik fonksiyonları dikkate alındığında aşağıdaki eşleştirmelerden hangisi doğrudur?",
+    "siklar": ["Mersin (Ulaşım) - Afyon (Ticaret) - İzmit (Sanayi)", "Afyon (Ulaşım) - İzmit (Ticaret) - Mersin (Sanayi)", "İzmit (Ulaşım) - Mersin (Ticaret) - Afyon (Sanayi)", "Mersin (Ulaşım) - İzmit (Ticaret) - Afyon (Sanayi)", "Afyon (Ulaşım) - Mersin (Ticaret) - İzmit (Sanayi)"],
+    "dogru": 4,
+    "ders": "COĞRAFYA",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Türkiye'de yaşanan göçlerle ilgili olarak aşağıda verilenlerden hangisi yanlıştır?",
+    "siklar": ["Göç alan/veren illerde nüfusun cinsiyet oranı değişir.", "Göçler büyük şehirlere yönelmiştir.", "Göç eden nüfusun ekonomik düzeyi genelde düşüktür.", "Göçlerde şehirlerin çekiciliği ve kırsalın iticiliği etkilidir.", "Göçlerin çoğunluğu beyin göçü şeklindedir."],
+    "dogru": 4,
+    "ders": "COĞRAFYA",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ",
+    "cozum": "İç göçlerin büyük kısmı işçi göçü veya mevsimlik göçtür, beyin göçü (nitelikli iş gücü) çoğunluğu oluşturmaz."
+  },
+  {
+    "soru": "Haritada koyu renkle gösterilen alanlarda (Akdeniz-Ege kıyıları) turunçgil üretiminin yoğunlaşmasının temel nedeni nedir?",
+    "siklar": ["Nem oranının fazla olması", "Kireçli toprakların yaygın olması", "Yıllık ortalama sıcaklığın 10 derecenin altına düşmemesi", "Föhn rüzgârlarının etkili olması", "Yetişme döneminde don olayının yaşanmaması"],
+    "dogru": 4,
+    "ders": "COĞRAFYA",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ",
+    "resim": "2014onlisans_gk_s38.jpg"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi, Türkiye'deki arazi varlığı içinde en geniş alana sahiptir?",
+    "siklar": ["Tarım alanları", "Dikili alanlar", "Orman alanları", "Çayır ve mera alanları", "Kayalık alanlar"],
+    "dogru": 0,
+    "ders": "COĞRAFYA",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Türkiye'deki hayvancılık faaliyetleriyle ilgili olarak aşağıda verilenlerden hangisi yanlıştır?",
+    "siklar": ["Bozkırlarda küçükbaş hayvancılık yaygındır.", "Küçükbaşta en çok koyun tercih edilir.", "Mera hayvancılığında verim ahır hayvancılığına göre düşüktür.", "Ege kıyılarında hayvancılık tarımdan daha önemlidir.", "Ahır hayvancılığında modern yöntemler kullanılır."],
+    "dogru": 3,
+    "ders": "COĞRAFYA",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Türkiye'de kıyı ve deniz turizmi bakımından aşağıdaki illerden hangisi diğerlerine göre daha az gelişmiştir?",
+    "siklar": ["Aydın", "Muğla", "Balıkesir", "Sinop", "Rize"],
+    "dogru": 4,
+    "ders": "COĞRAFYA",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Haritada Türkiye'nin 2023 turizm stratejisine göre belirlenen iki 'Turizm Gelişim Koridoru' gösterilmiştir. Bunlar hangisidir?",
+    "siklar": ["Eko-turizm / Yayla", "Kültür / Eko-turizm", "Yayla / İpek Yolu", "Zeytin / Kış Turizmi", "Yayla / Eko-turizm"],
+    "dogru": 3,
+    "ders": "COĞRAFYA",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ",
+    "resim": "2014onlisans_gk_s42.jpg"
+  },
+  {
+    "soru": "Türkiye'nin toplam enerji tüketimi içinde en büyük paya sahip olan yerli enerji kaynağı türü hangisidir?",
+    "siklar": ["Taş kömürü", "Linyit", "Asfaltit", "Petrol", "Doğal gaz"],
+    "dogru": 1,
+    "ders": "COĞRAFYA",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Haritada numaralandırılmış alanların hangilerinde, demir yolu ulaşımının gelişmemesinde yer şekillerinin etkisi daha fazladır?",
+    "siklar": ["I ve II", "I ve III", "II ve IV", "II ve V", "IV ve V"],
+    "dogru": 3,
+    "ders": "COĞRAFYA",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ",
+    "resim": "2014onlisans_gk_s44.jpg"
+  },
+  {
+    "soru": "Türkiye'de yeni iş alanlarının ortaya çıkması sonucu; Nüfus hareketleri, Ticaret hacmi ve Nüfus artış hızı unsurlarından hangilerinde artış olması beklenir?",
+    "siklar": ["Yalnız I", "Yalnız II", "Yalnız III", "I ve II", "II ve III"],
+    "dogru": 3,
+    "ders": "COĞRAFYA",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "1926 yılında kabul edilen Türk Ceza Kanunu hangi ülkeden iktibas edilmiştir?",
+    "siklar": ["Fransa", "Almanya", "İtalya", "İsviçre", "İngiltere"],
+    "dogru": 2,
+    "ders": "VATANDAŞLIK",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "1982 Anayasası'na göre aşağıdakilerden hangisi, Cumhuriyetin niteliklerinden biri değildir?",
+    "siklar": ["Başlangıçta belirtilen ilkelere bağlılık", "Demokratik devlet", "Hukuk devleti", "Sosyal devlet", "Liberal devlet"],
+    "dogru": 4,
+    "ders": "VATANDAŞLIK",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Bir kıyı devletinin kara ülkesinin denizin altında süren doğal uzantısı ne olarak adlandırılır?",
+    "siklar": ["Bitişik bölge", "Kıta sahanlığı", "Münhasır ekonomik bölge", "İç sular", "Balıkçılık bölgesi"],
+    "dogru": 1,
+    "ders": "VATANDAŞLIK",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "1982 Anayasası'na göre seçimlerde kimler oy kullanamaz?",
+    "siklar": ["Yurt dışındaki işçiler", "Devlet memurları", "Kasıtlı suçtan hükümlüler", "18 yaşını dolduranlar", "Üniversite öğrencileri"],
+    "dogru": 2,
+    "ders": "VATANDAŞLIK",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "1982 Anayasası'na göre Sayıştay, kimin adına denetim görevini gerçekleştirir?",
+    "siklar": ["Cumhurbaşkanı", "Bakanlar Kurulu", "Kamu Başdenetçisi", "Başbakan", "Türkiye Büyük Millet Meclisi"],
+    "dogru": 4,
+    "ders": "VATANDAŞLIK",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Hâkimler ve Savcılar Yüksek Kurulu üyelerinin bir kısmı aşağıdakilerden hangisi tarafından seçilir?",
+    "siklar": ["TBMM", "Cumhurbaşkanı", "Adalet Bakanı", "Yargıtay Cumhuriyet Başsavcısı", "Anayasa Mahkemesi"],
+    "dogru": 1,
+    "ders": "VATANDAŞLIK",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Devlet Memurları Kanunu'na göre, adaylık ile ilgili hangisi yanlıştır?",
+    "siklar": ["Süre en az 1 yıldır.", "Süre 2 yıldan çok olamaz.", "Aday memurun başka kuruma nakli yapılabilir.", "İlişiği kesilenler 3 yıl memur olamaz.", "Eğitimler aynı kurumda yapılır."],
+    "dogru": 3,
+    "ders": "VATANDAŞLIK",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ",
+    "cozum": "Adaylık süresince ilişikleri kesilenler 3 yıl süreyle devlet memurluğuna alınmazlar. (Seçenekte yanlış bilgi verilmiş, doğru cevap budur)."
+  },
+  {
+    "soru": "İl ve ilçe dışındaki bir yerleşim yerinde belediye kurulabilmesi için gerekli asgari nüfus kaçtır?",
+    "siklar": ["2.000", "3.000", "4.000", "5.000", "10.000"],
+    "dogru": 3,
+    "ders": "VATANDAŞLIK",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Polis, Jandarma, Orman kolluğu ve Gümrük kolluğundan hangileri aynı zamanda adli kolluk olarak görev yapar?",
+    "siklar": ["I ve II", "I ve III", "I, III ve IV", "II, III ve IV", "I, II, III ve IV"],
+    "dogru": 0,
+    "ders": "VATANDAŞLIK",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "'İstanbul'un gözü' lakabıyla anılan ünlü fotoğraf sanatçısı kimdir?",
+    "siklar": ["Ara Güler", "Kutluğ Ataman", "Coşkun Aral", "Fikret Otyam", "Kudret Sabancı"],
+    "dogru": 0,
+    "ders": "GÜNCEL BİLGİLER",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "İtalya'da yaşayan ve 'Kemerlerinizi Bağlayınız' filmiyle ödüller alan yönetmen kimdir?",
+    "siklar": ["Ferzan Özpetek", "Zeki Demirkubuz", "Sinan Çetin", "Mustafa Altıoklar", "Fatih Akın"],
+    "dogru": 0,
+    "ders": "GÜNCEL BİLGİLER",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "İlk kez 2013'te yapılan ve Türkçe konuşan ülkelerin katıldığı şarkı yarışması hangisidir?",
+    "siklar": ["Altın Mikrofon", "Anadolu Ateşi", "Türkvizyon", "Türk Melodi", "Türkü Star"],
+    "dogru": 2,
+    "ders": "GÜNCEL BİLGİLER",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Aşağıdakilerden hangisi İskandinav ülkelerinden biri değildir?",
+    "siklar": ["İsveç", "Norveç", "Finlandiya", "Danimarka", "Polonya"],
+    "dogru": 4,
+    "ders": "GÜNCEL BİLGİLER",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "Özgürlük Heykeli'ni ABD'ye hediye eden ülke hangisidir?",
+    "siklar": ["İngiltere", "Almanya", "Rusya", "Japonya", "Fransa"],
+    "dogru": 4,
+    "ders": "GÜNCEL BİLGİLER",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ"
+  },
+  {
+    "soru": "1882'de Sanayi-i Nefise Mektebi adıyla kurulan üniversite günümüzde hangisidir?",
+    "siklar": ["İTÜ", "İstanbul Üniversitesi", "Yıldız Teknik", "Mimar Sinan Güzel Sanatlar", "Boğaziçi"],
+    "dogru": 3,
+    "ders": "GÜNCEL BİLGİLER",
+    "deneme": "2014 Ön Lisans",
+    "zorluk": "ÇIKMIŞ"
   }
+]
 
-  ]
+
 
 
 
