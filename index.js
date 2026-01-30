@@ -124,14 +124,9 @@ function shuffleOptions(q) {
 
 // --- YARDIMCI FONKSİYON: DERS FİLTRELEME ---
 function filterBySubject(pool, selectedSubjects) {
-    // Eğer "HEPSI" seçiliyse veya boşsa filtreleme yapma
     if (!selectedSubjects || selectedSubjects === "HEPSI" || selectedSubjects.includes("HEPSI")) return pool;
-    
-    // Seçilen dersleri diziye çevir ve büyük harf yap
     const targets = (Array.isArray(selectedSubjects) ? selectedSubjects : [selectedSubjects])
                     .map(s => s.trim().toLocaleUpperCase('tr'));
-    
-    // Havuzdaki soruların dersi bu listede var mı?
     return pool.filter(q => {
         const qDers = (q.ders || "GENEL").trim().toLocaleUpperCase('tr');
         return targets.includes(qDers);
@@ -140,25 +135,41 @@ function filterBySubject(pool, selectedSubjects) {
 
 io.on("connection", (socket) => {
     
-    // --- OTOMATİK DENEME ve DERS LİSTESİ GÖNDERME ---
-    const mevcutDenemeler = [...new Set(tumSorular.map(q => q.deneme).filter(x => x))].sort();
+    // --- GÜNCELLENMİŞ: SAYILI ve GRUPLANDIRILMIŞ LİSTE GÖNDERME ---
+    const denemeSayilari = {};
+    let ozgunSoruSayisi = 0;
     const mevcutDersler = [...new Set(tumSorular.map(q => (q.ders || "").trim().toLocaleUpperCase('tr')).filter(x => x))].sort();
+
+    tumSorular.forEach(q => {
+        // Deneme istatistiği
+        if (q.deneme) {
+            denemeSayilari[q.deneme] = (denemeSayilari[q.deneme] || 0) + 1;
+        }
+        // Özgün soru kontrolü (Zorluk seviyesi veya etiketinde 'ÇIKMIŞ' yazmıyorsa)
+        if (q.zorluk !== "ÇIKMIŞ") {
+            ozgunSoruSayisi++;
+        }
+    });
+
+    // İstemciye nesne olarak gönderiyoruz
+    const listeVerisi = {
+        denemeler: denemeSayilari,
+        ozgunSayi: ozgunSoruSayisi
+    };
     
-    socket.emit('updateDenemeList', mevcutDenemeler);
-    socket.emit('updateSubjectList', mevcutDersler); // YENİ: Dersleri de gönderiyoruz
-    // ----------------------------------------
+    socket.emit('updateDenemeList', listeVerisi);
+    socket.emit('updateSubjectList', mevcutDersler);
+    // -----------------------------------------------------------
 
     // --- HATALI SORU BİLDİRİMİ ALMA ---
     socket.on('reportQuestion', (data) => {
         console.log("⚠️ Bir soru rapor edildi:", data.soru);
-        
         let reports = [];
         if (fs.existsSync(REPORTS_FILE)) {
             try {
                 reports = JSON.parse(fs.readFileSync(REPORTS_FILE, 'utf8'));
             } catch(e) {}
         }
-        
         reports.push({
             tarih: new Date().toLocaleString(),
             raporlayan: data.username,
@@ -166,7 +177,6 @@ io.on("connection", (socket) => {
             deneme: data.deneme,
             mesaj: data.reason
         });
-        
         fs.writeFile(REPORTS_FILE, JSON.stringify(reports, null, 2), (err) => {
             if(err) console.error("Rapor kaydedilemedi.");
         });
@@ -200,13 +210,11 @@ io.on("connection", (socket) => {
         if (!room) return;
         
         let pool = [...tumSorular];
-        console.log(`Oyun Başlıyor: Oda ${roomCode}, Mod: ${settings.isMistakeMode ? "HATA" : "NORMAL"}, Deneme: ${settings.deneme}`);
+        console.log(`Oyun Başlıyor: Oda ${roomCode}, Mod: ${settings.isMistakeMode ? "HATA" : "NORMAL"}`);
 
         // 1. HATA ANALİZ MODU
         if (settings.isMistakeMode && settings.mistakeList && settings.mistakeList.length > 0) {
             pool = pool.filter(q => settings.mistakeList.includes(q.soru));
-            
-            // DERS FİLTRESİ (Çoklu Seçim)
             pool = filterBySubject(pool, settings.subject);
 
             if (settings.difficulty && settings.difficulty !== "HEPSI") {
@@ -220,16 +228,26 @@ io.on("connection", (socket) => {
                                  .map(q => shuffleOptions(q));
         }
 
-        // 2. DENEME MODU (Çoklu Seçim)
+        // 2. SORU SEÇİMİ MODU (GÜNCELLENDİ: ÖZGÜN SORU DESTEĞİ)
         else if (settings.deneme && settings.deneme !== "HEPSI") {
-            const secilenDenemeler = Array.isArray(settings.deneme) ? settings.deneme : [settings.deneme];
-            // Deneme Filtresi
-            pool = pool.filter(q => secilenDenemeler.includes(q.deneme));
+            const secilenler = Array.isArray(settings.deneme) ? settings.deneme : [settings.deneme];
+            
+            // Eğer "Özgün Sorular" seçildiyse özel mantık
+            if (secilenler.includes("OZGUN_SORULAR")) {
+                 // Çıkmış olmayanları al
+                 const ozgunHavuz = pool.filter(q => q.zorluk !== "ÇIKMIŞ");
+                 // Diğer seçilen denemeleri de al
+                 const denemeHavuz = pool.filter(q => secilenler.includes(q.deneme));
+                 // Birleştir ve Tekrarları Sil (Set kullanarak)
+                 // Sorunun ID'si olmadığı için nesne referansına göre unique yapar
+                 pool = [...new Set([...ozgunHavuz, ...denemeHavuz])];
+            } else {
+                 // Sadece deneme seçildiyse standart filtre
+                 pool = pool.filter(q => secilenler.includes(q.deneme));
+            }
 
-            // DERS FİLTRESİ (Çoklu Seçim)
             pool = filterBySubject(pool, settings.subject);
             
-            // Sıralama (Tarih -> Coğrafya...)
             const dersSirasi = { "TARİH": 1, "COĞRAFYA": 2, "VATANDAŞLIK": 3, "GÜNCEL BİLGİLER": 4 };
             pool.sort((a, b) => {
                 const dersA = (a.ders || "").trim().toLocaleUpperCase('tr');
@@ -239,14 +257,12 @@ io.on("connection", (socket) => {
                 return siraA - siraB;
             });
 
-            // Soru Limiti
             const limit = parseInt(settings.count) || pool.length;
             room.questions = pool.slice(0, limit).map(q => shuffleOptions(q));
         }
 
         // 3. GENEL MOD
         else {
-            // DERS FİLTRESİ (Çoklu Seçim)
             pool = filterBySubject(pool, settings.subject);
 
             if (settings.difficulty && settings.difficulty !== "HEPSI") {
@@ -260,7 +276,6 @@ io.on("connection", (socket) => {
                                  .map(q => shuffleOptions(q));
         }
         
-        // Boş Kontrolü
         if(room.questions.length === 0) {
              room.questions = [{ "soru": "Seçilen kriterlere uygun soru bulunamadı!", "ders": "UYARI", "siklar": ["Tamam"], "dogru": 0 }];
         }
