@@ -6,12 +6,16 @@
     <title>MYK 2210 - KPSS Platformu</title>
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#1e3c72">
-    
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
     <style>
-        /* --- GENEL SAYFA STİLLERİ --- */
+        /* =========================================
+           1. GENEL SAYFA VE GÖVDE AYARLARI
+           ========================================= */
         body { 
             font-family: 'Segoe UI', sans-serif; 
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); 
@@ -20,11 +24,13 @@
             margin: 0; 
             display: flex; 
             justify-content: center; 
-            align-items: center; 
+            align-items: flex-start; /* İçerik yukarıdan başlasın */
             min-height: 100vh; 
-            overflow: hidden; 
+            overflow-y: auto; /* Dikey kaydırmaya izin ver (Scroll Sorunu Çözümü) */
+            padding: 20px 0; 
         }
 
+        /* Ana Taşıyıcı Kutu */
         .container { 
             background: rgba(255,255,255,0.95); 
             color: #333; 
@@ -34,14 +40,18 @@
             border-radius: 15px; 
             box-shadow: 0 10px 30px rgba(0,0,0,0.3); 
             position: relative; 
-            max-height: 95vh; 
-            overflow-y: auto; 
-            z-index: 10; 
+            margin-bottom: 20px; 
+            /* max-height kaldırıldı, içerik kadar uzasın */
         }
 
-        h1, h2, h3 { margin-top: 0; color: #1e3c72; }
-        
-        /* --- FORM ELEMANLARI --- */
+        h1, h2, h3 { 
+            margin-top: 0; 
+            color: #1e3c72; 
+        }
+
+        /* =========================================
+           2. FORM ELEMANLARI (BUTON, INPUT)
+           ========================================= */
         input, select, button { 
             width: 100%; 
             padding: 12px; 
@@ -52,142 +62,479 @@
             font-size: 1rem; 
         }
 
-        /* --- BUTON RENKLERİ VE EFEKTLERİ --- */
-        button { background: #1e3c72; color: white; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        button:hover { opacity: 0.9; transform: translateY(-1px); }
-        button:active { transform: translateY(1px); }
+        button { 
+            background: #1e3c72; 
+            color: white; 
+            border: none; 
+            font-weight: bold; 
+            cursor: pointer; 
+            transition: 0.2s; 
+        }
         
+        button:hover { 
+            opacity: 0.9; 
+            transform: translateY(-1px); 
+        }
+
+        /* Özel Buton Renkleri */
         button.green { background: #27ae60; }
         button.orange { background: #e67e22; }
         button.red { background: #c0392b; }
         button.purple { background: #8e44ad; }
-        button.outline { background: transparent; border: 2px solid #1e3c72; color: #1e3c72; }
+        button.outline { 
+            background: transparent; 
+            border: 2px solid #1e3c72; 
+            color: #1e3c72; 
+        }
 
-        /* --- EKRAN GEÇİŞLERİ --- */
+        /* =========================================
+           3. EKRAN GEÇİŞLERİ VE LİSTE YAPISI
+           ========================================= */
         .screen { display: none; } 
-        .active { display: block; animation: fadeIn 0.3s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .active { 
+            display: block; 
+            animation: fadeIn 0.3s; 
+        }
+        
+        @keyframes fadeIn { 
+            from { opacity: 0; } 
+            to { opacity: 1; } 
+        }
 
-        /* --- LİSTE VE SORU GÖRÜNÜMÜ --- */
-        .list-item { background: #fff; border-bottom: 2px solid #f0f2f5; padding: 12px; text-align: left; font-size: 0.85rem; }
-        .list-item .q-text { font-weight: bold; color: #333; display: block; margin-bottom: 5px; }
-        .list-item .ans-text { color: #27ae60; font-weight: bold; font-size: 0.8rem; background: #e8f5e9; padding: 4px; border-radius: 4px; display: inline-block; }
+        .list-item { 
+            background: #fff; 
+            border-bottom: 2px solid #f0f2f5; 
+            padding: 12px; 
+            text-align: left; 
+            font-size: 0.85rem; 
+        }
         
-        .player-card { background: #f0f2f5; padding: 8px; margin: 4px 0; border-radius: 5px; display: flex; justify-content: space-between; font-size: 0.9rem; font-weight: bold; }
+        .list-item .q-text { 
+            font-weight: bold; 
+            color: #333; 
+            display: block; 
+            margin-bottom: 5px; 
+        }
         
-        .opt-btn { background: #eef2f3; color: #333; text-align: left; border: 2px solid #ddd; width: 100%; margin-bottom: 8px; cursor: pointer; }
+        .list-item .ans-text { 
+            color: #27ae60; 
+            font-weight: bold; 
+            font-size: 0.8rem; 
+            background: #e8f5e9; 
+            padding: 4px; 
+            border-radius: 4px; 
+            display: inline-block; 
+        }
+
+        /* =========================================
+           4. OYUN İÇİ GÖRÜNÜM (ŞIKLAR, RESİM)
+           ========================================= */
+        .player-card { 
+            background: #f0f2f5; 
+            padding: 8px; 
+            margin: 4px 0; 
+            border-radius: 5px; 
+            display: flex; 
+            justify-content: space-between; 
+            font-size: 0.9rem; 
+            font-weight: bold; 
+        }
+
+        .opt-btn { 
+            background: #eef2f3; 
+            color: #333; 
+            text-align: left; 
+            border: 2px solid #ddd; 
+            width: 100%; 
+            margin-bottom: 8px; 
+            cursor: pointer; 
+        }
+        
         .opt-btn:hover { background-color: #e0e0e0; }
         
-        .correct { background: #2ecc71 !important; color: white; border-color: #27ae60; }
-        .wrong { background: #e74c3c !important; color: white; border-color: #c0392b; }
-
-        /* --- SAYAÇ VE ROZETLER --- */
-        #timer-bar { height: 6px; background: #e67e22; width: 100%; margin-top: 10px; border-radius: 3px; }
-        .badge { background: #e67e22; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; }
-        #q-image { width: 100%; max-height: 180px; object-fit: contain; margin-bottom: 10px; display: none; border-radius: 8px; }
+        .correct { 
+            background: #2ecc71 !important; 
+            color: white; 
+            border-color: #27ae60; 
+        }
         
-        #star-btn { font-size: 1.5rem; background: none; border: none; color: #ccc; width: auto; cursor: pointer; padding: 0; line-height: 1; }
-        #star-btn.starred { color: #f1c40f; text-shadow: 0 0 5px rgba(241,196,15,0.5); }
-        
-        #live-scores-container { margin-top: 15px; border-top: 2px solid #eee; padding-top: 10px; }
-        #btn-sound-toggle { font-size: 0.8rem; padding: 5px; margin-top: 10px; }
+        .wrong { 
+            background: #e74c3c !important; 
+            color: white; 
+            border-color: #c0392b; 
+        }
 
-        /* --- SONUÇ VE ANALİZ KARTLARI --- */
-        .review-card { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-bottom: 15px; text-align: left; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .review-q { font-weight: bold; margin-bottom: 10px; color: #1e3c72; }
-        .review-row { display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 5px; }
-        .review-user-ans { font-weight: bold; }
+        #timer-bar { 
+            height: 6px; 
+            background: #e67e22; 
+            width: 100%; 
+            margin-top: 10px; 
+            border-radius: 3px; 
+        }
+        
+        .badge { 
+            background: #e67e22; 
+            color: white; 
+            padding: 4px 8px; 
+            border-radius: 4px; 
+            font-size: 0.8rem; 
+        }
+        
+        #q-image { 
+            width: 100%; 
+            max-height: 180px; 
+            object-fit: contain; 
+            margin-bottom: 10px; 
+            display: none; 
+            border-radius: 8px; 
+        }
+
+        #star-btn { 
+            font-size: 1.5rem; 
+            background: none; 
+            border: none; 
+            color: #ccc; 
+            width: auto; 
+            cursor: pointer; 
+            padding: 0; 
+            line-height: 1; 
+        }
+        
+        #star-btn.starred { 
+            color: #f1c40f; 
+            text-shadow: 0 0 5px rgba(241,196,15,0.5); 
+        }
+
+        /* =========================================
+           5. ANALİZ VE SONUÇ EKRANI
+           ========================================= */
+        .review-card { 
+            background: #fff; 
+            border: 1px solid #ddd; 
+            border-radius: 8px; 
+            padding: 15px; 
+            margin-bottom: 15px; 
+            text-align: left; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
+        }
+        
+        .review-q { 
+            font-weight: bold; 
+            margin-bottom: 10px; 
+            color: #1e3c72; 
+        }
+        
+        .review-row { 
+            display: flex; 
+            justify-content: space-between; 
+            font-size: 0.9rem; 
+            margin-bottom: 5px; 
+        }
+        
         .review-correct-ans { color: #27ae60; font-weight: bold; }
         .text-green { color: #27ae60; }
         .text-red { color: #c0392b; }
-        .review-solution { background: #fff3cd; color: #856404; padding: 10px; border-radius: 5px; font-size: 0.85rem; margin-top: 10px; border-left: 4px solid #ffeeba; }
+        
+        .review-solution { 
+            background: #fff3cd; 
+            color: #856404; 
+            padding: 10px; 
+            border-radius: 5px; 
+            font-size: 0.85rem; 
+            margin-top: 10px; 
+            border-left: 4px solid #ffeeba; 
+        }
 
-        .analysis-card { background: #f8f9fa; border-radius: 8px; padding: 10px; margin-top: 10px; text-align: left; border: 1px solid #e9ecef; }
-        .analysis-item { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px dashed #ddd; font-size: 0.85rem; }
+        .analysis-card { 
+            background: #f8f9fa; 
+            border-radius: 8px; 
+            padding: 10px; 
+            margin-top: 10px; 
+            text-align: left; 
+            border: 1px solid #e9ecef; 
+        }
+        
+        .analysis-item { 
+            display: flex; 
+            justify-content: space-between; 
+            padding: 5px 0; 
+            border-bottom: 1px dashed #ddd; 
+            font-size: 0.85rem; 
+        }
+        
         .analysis-item:last-child { border-bottom: none; }
 
-        /* --- SORU NAVİGASYON KUTULARI --- */
-        #question-navigator { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; margin-top: 15px; padding: 10px; background: #f1f2f6; border-radius: 8px; border: 1px solid #ddd; }
-        .nav-box { width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; background: #fff; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; font-size: 0.8rem; font-weight: bold; color: #555; transition: 0.2s; }
-        .nav-box:hover { background: #e0e0e0; }
-        .nav-box.active { border: 2px solid #e67e22; transform: scale(1.1); box-shadow: 0 0 5px rgba(230, 126, 34, 0.5); }
-        .nav-box.answered { background: #3498db; color: white; border-color: #2980b9; }
+        /* =========================================
+           6. NAVİGASYON (SORU GEÇİŞLERİ)
+           ========================================= */
+        #question-navigator { 
+            display: grid; 
+            grid-template-columns: repeat(5, 1fr); 
+            gap: 5px; 
+            margin-top: 15px; 
+            padding: 10px; 
+            background: #f1f2f6; 
+            border-radius: 8px; 
+            border: 1px solid #ddd; 
+        }
+        
+        .nav-box { 
+            width: 30px; 
+            height: 30px; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            background: #fff; 
+            border: 1px solid #ccc; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-size: 0.8rem; 
+            font-weight: bold; 
+            color: #555; 
+            transition: 0.2s; 
+        }
+        
+        .nav-box.active { 
+            border: 2px solid #e67e22; 
+            transform: scale(1.1); 
+            box-shadow: 0 0 5px rgba(230, 126, 34, 0.5); 
+        }
+        
         .nav-box.correct { background: #27ae60; color: white; border-color: #2ecc71; }
         .nav-box.wrong { background: #c0392b; color: white; border-color: #e74c3c; }
+        .nav-box.answered { background: #3498db; color: white; border-color: #2980b9; }
 
-        #nav-buttons { display: flex; justify-content: space-between; margin-top: 15px; gap: 15px; }
-        .nav-btn { flex: 1; padding: 12px; border: none; border-radius: 12px; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        #nav-buttons { 
+            display: flex; 
+            justify-content: space-between; 
+            margin-top: 15px; 
+            gap: 15px; 
+        }
+        
+        .nav-btn { 
+            flex: 1; 
+            padding: 12px; 
+            border: none; 
+            border-radius: 12px; 
+            font-size: 0.95rem; 
+            font-weight: 600; 
+            cursor: pointer; 
+            transition: all 0.3s; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 8px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
+        }
+        
         .nav-btn.prev { background-color: #f8f9fa; color: #7f8c8d; border: 1px solid #eef2f3; }
-        .nav-btn.prev:hover { background-color: #ecf0f1; transform: translateY(-2px); color: #34495e; }
         .nav-btn.next { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; box-shadow: 0 4px 15px rgba(30, 60, 114, 0.3); }
-        .nav-btn.next:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(30, 60, 114, 0.4); filter: brightness(1.1); }
 
-        .home-btn { background: none; border: none; font-size: 1.3rem; cursor: pointer; transition: 0.2s; padding: 5px; border-radius: 50%; }
+        .home-btn { 
+            background: none; 
+            border: none; 
+            font-size: 1.3rem; 
+            cursor: pointer; 
+            transition: 0.2s; 
+            padding: 5px; 
+            border-radius: 50%; 
+        }
         .home-btn:hover { background-color: rgba(0,0,0,0.05); transform: scale(1.1); }
+
         #report-btn { font-size: 1.2rem; background: none; border: none; cursor: pointer; padding: 0; line-height: 1; margin-left: 5px; }
         #report-btn:hover { transform: scale(1.1); }
 
-        /* --- AÇILIR KAPANIR MENÜLER (DROPDOWN) --- */
+        /* =========================================
+           7. AÇILIR KAPANIR (DROPDOWN) MENÜLER
+           ========================================= */
         .dropdown-wrapper { position: relative; margin-bottom: 8px; width: 100%; }
-        .dropdown-trigger { background-color: #fff; color: #333; border: 2px solid #e67e22; padding: 12px; width: 100%; text-align: left; border-radius: 8px; cursor: pointer; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
+        
+        .dropdown-trigger { 
+            background-color: #fff; 
+            color: #333; 
+            border: 2px solid #e67e22; 
+            padding: 12px; 
+            width: 100%; 
+            text-align: left; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+        }
+        
         .dropdown-trigger::after { content: '▼'; font-size: 0.8rem; }
         .dropdown-trigger.open::after { content: '▲'; }
         .dropdown-trigger.subject-trigger { border-color: #2980b9; }
 
-        .dropdown-content { display: none; position: absolute; background-color: #fff; width: 100%; border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 8px 16px rgba(0,0,0,0.2); z-index: 100; max-height: 200px; overflow-y: auto; left: 0; }
+        .dropdown-content { 
+            display: none; 
+            position: absolute; 
+            background-color: #fff; 
+            width: 100%; 
+            border: 1px solid #ccc; 
+            border-radius: 8px; 
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2); 
+            z-index: 100; 
+            max-height: 200px; 
+            overflow-y: auto; 
+            left: 0; 
+        }
+        
         .dropdown-content.down { top: 100%; margin-top: 5px; }
         .dropdown-content.up { bottom: 100%; margin-bottom: 5px; top: auto; }
         .dropdown-content.show { display: block; }
 
-        .checkbox-item { display: flex; align-items: center; padding: 10px; border-bottom: 1px solid #f0f0f0; cursor: pointer; }
-        .checkbox-item:last-child { border-bottom: none; }
+        .checkbox-item { 
+            display: flex; 
+            align-items: center; 
+            padding: 10px; 
+            border-bottom: 1px solid #f0f0f0; 
+            cursor: pointer; 
+        }
+        
         .checkbox-item:hover { background-color: #f9f9f9; }
         .checkbox-item input { width: auto; margin: 0 10px 0 0; cursor: pointer; transform: scale(1.2); }
         .checkbox-item label { cursor: pointer; font-size: 0.9rem; flex: 1; text-align: left; color: #333; margin: 0; }
         
         .selection-label { font-size:0.7rem; color:#666; display:block; margin-bottom:2px; text-align:left; }
 
-        /* --- YENİ EKLENEN ÖZELLİK: RÜTBE VE PROFİL KARTI --- */
+        /* =========================================
+           8. RÜTBE VE PROFİL KARTI (YENİLENMİŞ KİBAR TASARIM)
+           ========================================= */
         #rank-display {
             background: linear-gradient(to right, #f1c40f, #f39c12);
             color: white;
-            padding: 12px;
+            padding: 8px 12px; /* Daha ince, daha kibar */
             border-radius: 12px;
             margin-bottom: 15px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
             text-align: left;
             position: relative;
             overflow: hidden;
-            cursor: pointer; /* Tıklanabilir olduğunu göster */
+            cursor: pointer;
             transition: transform 0.2s;
         }
+        
         #rank-display:hover { transform: translateY(-2px); }
         
-        #rank-title { font-weight: bold; font-size: 1.1rem; display: block; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
-        #total-points-display { font-size: 0.9rem; float:right; background:rgba(0,0,0,0.25); padding:3px 10px; border-radius:15px; margin-top: -25px; }
+        #rank-title { 
+            font-weight: bold; 
+            font-size: 1rem; 
+            display: block; 
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2); 
+        }
         
-        /* İlerleme Çubuğu */
-        .progress-container { width: 100%; background-color: rgba(255,255,255,0.3); border-radius: 10px; margin-top: 10px; height: 10px; overflow: hidden; }
-        .progress-bar { height: 100%; background-color: #fff; width: 0%; transition: width 0.8s ease-in-out; box-shadow: 0 0 5px rgba(255,255,255,0.5); }
-        .next-level-info { font-size: 0.75rem; margin-top: 5px; opacity: 0.9; text-align: right; }
+        #total-points-display { 
+            font-size: 0.8rem; 
+            float: right; 
+            background: rgba(0,0,0,0.25); 
+            padding: 2px 8px; 
+            border-radius: 10px; 
+            margin-top: -20px; 
+        }
+        
+        /* Daha İnce İlerleme Çubuğu */
+        .progress-container { 
+            width: 100%; 
+            background-color: rgba(255,255,255,0.3); 
+            border-radius: 5px; 
+            margin-top: 6px; 
+            height: 6px; 
+            overflow: hidden; 
+        }
+        
+        .progress-bar { 
+            height: 100%; 
+            background-color: #fff; 
+            width: 0%; 
+            transition: width 0.8s ease-in-out; 
+        }
+        
+        .next-level-info { 
+            font-size: 0.7rem; 
+            margin-top: 3px; 
+            opacity: 0.95; 
+            text-align: right; 
+        }
 
-        /* Puan Tablosu Modal (Popup) */
-        #rank-table-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; color: #333; padding: 20px; border-radius: 15px; box-shadow: 0 0 30px rgba(0,0,0,0.6); z-index: 200; width: 85%; max-width: 320px; animation: popIn 0.3s; }
-        @keyframes popIn { from { transform: translate(-50%, -60%); opacity: 0; } to { transform: translate(-50%, -50%); opacity: 1; } }
+        /* Rütbe Tablosu Popup'ı */
+        #rank-table-modal { 
+            display: none; 
+            position: fixed; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%); 
+            background: white; 
+            color: #333; 
+            padding: 20px; 
+            border-radius: 15px; 
+            box-shadow: 0 0 30px rgba(0,0,0,0.6); 
+            z-index: 200; 
+            width: 85%; 
+            max-width: 320px; 
+            animation: popIn 0.3s; 
+        }
         
-        .rank-row { display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding: 8px 5px; font-size: 0.9rem; }
+        @keyframes popIn { 
+            from { transform: translate(-50%, -60%); opacity: 0; } 
+            to { transform: translate(-50%, -50%); opacity: 1; } 
+        }
+        
+        .rank-row { 
+            display: flex; 
+            justify-content: space-between; 
+            border-bottom: 1px solid #eee; 
+            padding: 8px 5px; 
+            font-size: 0.9rem; 
+        }
+        
         .rank-row:last-child { border-bottom: none; }
         .rank-row.active { color: #e67e22; font-weight: bold; background-color: #fff8e1; border-radius: 5px; }
 
-        /* --- YENİ EKLENEN ÖZELLİK: EMOJİ REAKSİYONLARI --- */
-        #emoji-bar { display: flex; gap: 10px; justify-content: center; margin-top: 15px; padding-top: 10px; border-top: 1px solid #eee; }
-        .emoji-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; transition: transform 0.1s; padding: 5px; }
+        /* =========================================
+           9. EMOJİ EFEKTLERİ
+           ========================================= */
+        #emoji-bar { 
+            display: flex; 
+            gap: 10px; 
+            justify-content: center; 
+            margin-top: 15px; 
+            padding-top: 10px; 
+            border-top: 1px solid #eee; 
+        }
+        
+        .emoji-btn { 
+            background: none; 
+            border: none; 
+            font-size: 1.5rem; 
+            cursor: pointer; 
+            transition: transform 0.1s; 
+            padding: 5px; 
+        }
+        
         .emoji-btn:hover { transform: scale(1.3); }
         .emoji-btn:active { transform: scale(0.9); }
         
-        /* Uçan Emojiler */
-        #flying-emojis-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; overflow: hidden; }
-        .flying-emoji { position: absolute; font-size: 2.5rem; animation: floatUp 2.5s ease-out forwards; text-shadow: 0 0 5px rgba(0,0,0,0.3); }
+        #flying-emojis-container { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            pointer-events: none; 
+            z-index: 9999; 
+            overflow: hidden; 
+        }
+        
+        .flying-emoji { 
+            position: absolute; 
+            font-size: 2.5rem; 
+            animation: floatUp 2.5s ease-out forwards; 
+            text-shadow: 0 0 5px rgba(0,0,0,0.3); 
+        }
+        
         @keyframes floatUp { 
             0% { transform: translateY(0) scale(0.5); opacity: 0; } 
             20% { transform: translateY(-20px) scale(1.2); opacity: 1; }
@@ -240,11 +587,10 @@
             <button onclick="showLocalList('fav')" class="outline" style="font-size:0.75rem;">⭐ Yıldızlılar</button>
             <button onclick="showLocalList('wrong')" class="outline" style="font-size:0.75rem;">❌ Yanlışlar</button>
             <button onclick="showLocalList('blank')" class="outline" style="font-size:0.75rem;">⚪ Boşlarım</button>
-            <button onclick="showHistory()" class="outline" style="font-size:0.75rem;">📅 Geçmişim</button>
+            <button onclick="startMistakesTrial()" class="red" style="font-size:0.75rem;">🧠 Hata Sınavı</button>
         </div>
         
-        <button onclick="startMistakesTrial()" class="red" style="margin-top:5px; font-size:0.8rem;">🧠 Hata Sınavı Yap</button>
-        <button id="btn-sound-toggle" onclick="toggleSound()" class="outline">🔊 SES: AÇIK</button>
+        <button id="btn-sound-toggle" onclick="toggleSound()" class="outline" style="margin-top:10px;">🔊 SES: AÇIK</button>
     </div>
 
     <div id="screen-list" class="screen">
@@ -382,6 +728,9 @@
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
+    /* =========================================
+       TEMEL DEĞİŞKENLER VE BAŞLANGIÇ AYARLARI
+       ========================================= */
     const socket = io({ transports: ["polling", "websocket"] });
     let myCode = "", myButtons = [], currentQuestionData = null, currentListType = "";
     let isSoundEnabled = localStorage.getItem('kpss_sound') !== 'false';
@@ -389,21 +738,20 @@
     let questionStatusList = []; 
     let globalTimerInterval = null;
 
-    // --- YENİ: RÜTBE SİSTEMİ YAPILANDIRMASI (İSTEDİĞİN ARALIKLAR) ---
+    // --- RÜTBE SİSTEMİ VERİLERİ ---
     const rankLevels = [
         { name: "1. Seviye", limit: 300 },   // 0 - 300
-        { name: "2. Seviye", limit: 650 },   // 300 - 650 (Fark 350)
-        { name: "3. Seviye", limit: 1050 },  // 650 - 1050 (Fark 400)
-        { name: "4. Seviye", limit: 1500 },  // 1050 - 1500 (Fark 450)
-        { name: "5. Seviye", limit: 2000 },  // 1500 - 2000 (Fark 500)
-        { name: "6. Seviye", limit: 2550 },  // 2000 - 2550 (Fark 550)
-        { name: "7. Seviye", limit: 999999 } // 2550+ (Zirve)
+        { name: "2. Seviye", limit: 650 },   // 300 - 650
+        { name: "3. Seviye", limit: 1050 },  // 650 - 1050
+        { name: "4. Seviye", limit: 1500 },  // 1050 - 1500
+        { name: "5. Seviye", limit: 2000 },  // 1500 - 2000
+        { name: "6. Seviye", limit: 2550 },  // 2000 - 2550
+        { name: "7. Seviye", limit: 999999 } // Zirve
     ];
 
-    // Toplam puanı tarayıcı hafızasından çek
     let totalUserPoints = parseInt(localStorage.getItem('kpss_total_points')) || 0;
     
-    // Rütbe Göstergesini Güncelleme Fonksiyonu
+    // --- RÜTBE GÖSTERGESİNİ GÜNCELLEME ---
     function updateRankDisplay() {
         const rankTitle = document.getElementById('rank-title');
         const pointsDisplay = document.getElementById('total-points-display');
@@ -415,7 +763,6 @@
         let prevLimit = 0;
         let nextLimit = rankLevels[0].limit;
 
-        // Hangi seviyede olduğunu bul
         for (let i = 0; i < rankLevels.length; i++) {
             if (totalUserPoints < rankLevels[i].limit) {
                 currentRank = rankLevels[i];
@@ -429,7 +776,7 @@
             }
         }
         
-        // İlerleme Çubuğunu Hesapla
+        // İlerleme Çubuğu Yüzdesi
         let percentage = 100;
         if(currentRank.name !== "7. Seviye") {
             const range = nextLimit - prevLimit;
@@ -444,7 +791,7 @@
         pointsDisplay.innerText = totalUserPoints + " Puan";
         progressBar.style.width = percentage + "%";
 
-        // Puan Tablosunu Doldur (Popup İçeriği)
+        // Tabloyu Doldur
         let html = "";
         let prev = 0;
         rankLevels.forEach((r, i) => {
@@ -459,11 +806,12 @@
     function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
     function getUsername() { return document.getElementById('username').value || null; }
     
+    // SAYFA YÜKLENDİĞİNDE
     window.onload = function() { 
         const savedName = localStorage.getItem('saved_username'); 
         if(savedName) document.getElementById('username').value = savedName; 
         updateSoundUI();
-        updateRankDisplay(); // Sayfa açılınca rütbeyi göster
+        updateRankDisplay(); 
     }
 
     function toggleSound() { isSoundEnabled = !isSoundEnabled; localStorage.setItem('kpss_sound', isSoundEnabled); updateSoundUI(); }
@@ -480,12 +828,12 @@
         else if (qData.dogru !== null) { list[idx] = {...qData}; saveLocalData(listKey, list); }
     }
 
-    // --- YENİ: GEÇMİŞ OYUNLAR EKRANI ---
+    // --- GEÇMİŞ EKRANI (Buton olmasa da fonksiyonu saklıyoruz) ---
     function showHistory() {
         const history = getLocalData('kpss_game_history');
         const content = document.getElementById('list-content');
         document.getElementById('list-title').innerText = "📅 Oyun Geçmişim";
-        document.getElementById('pdf-btn').style.display = 'none'; // Geçmişte PDF butonu gizle
+        document.getElementById('pdf-btn').style.display = 'none';
 
         if(history.length === 0) {
             content.innerHTML = "<p style='padding:20px; color:#666;'>Henüz hiç oyun oynamadınız.</p>";
@@ -505,8 +853,6 @@
         currentListType = type;
         const list = getLocalData(type==='fav'?'kpss_favs':(type==='wrong'?'kpss_wrongs':'kpss_blanks'));
         document.getElementById('list-title').innerText = type==='fav'?'⭐ Yıldızlılar':(type==='wrong'?'❌ Yanlışlar':'⚪ Boşlarım');
-        
-        // Sadece 'wrong' (Yanlışlar) listesinde PDF butonunu göster
         document.getElementById('pdf-btn').style.display = (type === 'wrong' && list.length > 0) ? 'block' : 'none';
 
         document.getElementById('list-content').innerHTML = list.length ? list.map((q, i) => 
@@ -518,7 +864,7 @@
         showScreen('screen-list');
     }
 
-    // --- YENİ: PDF İNDİRME ÖZELLİĞİ ---
+    // --- PDF İNDİRME ---
     function downloadPDF() {
         if(currentListType !== 'wrong') return;
         const btn = document.getElementById('pdf-btn');
@@ -527,32 +873,20 @@
         
         const listContent = document.getElementById('list-content').innerHTML;
         const printWindow = window.open('', '', 'height=600,width=800');
-        
         printWindow.document.write('<html><head><title>Yanlış Sorularım</title>');
-        printWindow.document.write('<style>body{font-family:sans-serif; padding:20px;} .list-item{margin-bottom:20px; border-bottom:1px solid #ccc; padding-bottom:10px; page-break-inside: avoid;} .q-text{font-weight:bold; display:block; margin-bottom:5px; color:#333;} .ans-text{color:green; font-weight:bold;}</style>');
+        printWindow.document.write('<style>body{font-family:sans-serif; padding:20px;} .list-item{margin-bottom:20px; border-bottom:1px solid #ccc; padding-bottom:10px;} .q-text{font-weight:bold; display:block; margin-bottom:5px; color:#333;} .ans-text{color:green; font-weight:bold;}</style>');
         printWindow.document.write('</head><body>');
         printWindow.document.write('<h1 style="text-align:center; color:#c0392b;">❌ Yanlış Yaptığım Sorular</h1>');
         printWindow.document.write(listContent);
         printWindow.document.write('</body></html>');
-        
         printWindow.document.close();
         printWindow.focus();
-        
-        // Tarayıcının yazdırma penceresini aç
-        setTimeout(() => {
-            printWindow.print();
-            btn.innerText = originalText;
-            // printWindow.close(); // İsteğe bağlı: yazdırdıktan sonra kapat
-        }, 500);
+        setTimeout(() => { printWindow.print(); btn.innerText = originalText; }, 500);
     }
 
     function clearList() { 
-        if(currentListType === 'history') { 
-            if(confirm("Tüm oyun geçmişin silinsin mi?")) { localStorage.removeItem('kpss_game_history'); showHistory(); } 
-        } 
-        else { 
-            if(confirm("Bu liste silinsin mi?")) { localStorage.removeItem(currentListType==='fav'?'kpss_favs':(currentListType==='wrong'?'kpss_wrongs':'kpss_blanks')); showLocalList(currentListType); } 
-        }
+        if(currentListType === 'history') { if(confirm("Tüm oyun geçmişin silinsin mi?")) { localStorage.removeItem('kpss_game_history'); showHistory(); } } 
+        else { if(confirm("Bu liste silinsin mi?")) { localStorage.removeItem(currentListType==='fav'?'kpss_favs':(currentListType==='wrong'?'kpss_wrongs':'kpss_blanks')); showLocalList(currentListType); } }
     }
 
     function toggleStar() { if (!currentQuestionData) return; const btn = document.getElementById('star-btn'); let favs = getLocalData('kpss_favs'); const idx = favs.findIndex(q => q.soru === currentQuestionData.soru); if (idx > -1) { favs.splice(idx, 1); btn.classList.remove('starred'); } else { favs.push({...currentQuestionData}); btn.classList.add('starred'); } saveLocalData('kpss_favs', favs); }
@@ -563,19 +897,10 @@
         if (reason) { socket.emit('reportQuestion', { soru: currentQuestionData.soru, deneme: currentQuestionData.deneme, reason: reason, username: getUsername() || "Anonim" }); alert("Teşekkürler! Hata bildirimi alındı."); }
     }
 
-    // --- YENİ: EMOJİ GÖNDERME ---
     function sendEmoji(emoji) { if (!myCode) return; socket.emit('sendEmoji', { roomCode: myCode, emoji: emoji }); }
-    
-    // Emoji Alma
     socket.on('receiveEmoji', (emoji) => {
-        const container = document.getElementById('flying-emojis-container'); 
-        const el = document.createElement('div'); 
-        el.innerText = emoji; 
-        el.className = 'flying-emoji';
-        el.style.left = (10 + Math.random() * 80) + '%'; 
-        el.style.bottom = '10%'; 
-        container.appendChild(el); 
-        setTimeout(() => { el.remove(); }, 2500);
+        const container = document.getElementById('flying-emojis-container'); const el = document.createElement('div'); el.innerText = emoji; el.className = 'flying-emoji';
+        el.style.left = (10 + Math.random() * 80) + '%'; el.style.bottom = '10%'; container.appendChild(el); setTimeout(() => { el.remove(); }, 2500);
     });
 
     function createRoom() { const n = getUsername(); if(n) { localStorage.setItem('saved_username', n); socket.emit('createRoom', n); } else alert("İsim giriniz!"); }
@@ -584,35 +909,25 @@
     function joinRoom() { const n = getUsername(), c = document.getElementById('room-code-input').value; if(n && c) { localStorage.setItem('saved_username', n); myCode = c; socket.emit('joinRoom', {username:n, roomCode:c}); } }
     
     function toggleTimerInput() { const mode = document.getElementById('set-timer-mode').value; const label = document.getElementById('label-duration'); const input = document.getElementById('set-duration'); if(mode === 'general') { label.innerText = "Toplam Süre (Dakika)"; input.value = "30"; } else { label.innerText = "Soru Başına (Saniye)"; input.value = "20"; } }
-    
     function toggleDropdown(id, trigger) { document.querySelectorAll('.dropdown-content').forEach(el => { if(el.id !== id) el.classList.remove('show'); }); document.querySelectorAll('.dropdown-trigger').forEach(el => { if(el !== trigger) el.classList.remove('open'); }); const content = document.getElementById(id); content.classList.toggle('show'); trigger.classList.toggle('open'); }
     
-    // --- YENİ: TOPLAM SORU SAYISI GÖSTERİMİ ---
+    // --- GÜNCELLENMİŞ MENÜ SAYACI ---
     function updateTriggerText(containerId, allLabel) {
         const container = document.getElementById(containerId); const trigger = container.previousElementSibling; const checked = container.querySelectorAll('input[type="checkbox"]:not([id$="-all"]):checked'); const total = container.querySelectorAll('input[type="checkbox"]:not([id$="-all"])').length;
         
-        if (checked.length === 0) { 
-            trigger.innerText = "Lütfen Seçim Yapınız"; trigger.style.color = "#e74c3c"; container.querySelector('input[id$="-all"]').checked = false; 
-        }
+        if (checked.length === 0) { trigger.innerText = "Lütfen Seçim Yapınız"; trigger.style.color = "#e74c3c"; container.querySelector('input[id$="-all"]').checked = false; }
         else if (checked.length === total) { 
-            // Seçili olanların içindeki soru sayılarını topla (Parantez içindeki sayılar)
-            let totalQ = 0; 
-            container.querySelectorAll('label').forEach(lbl => { 
-                const match = lbl.innerText.match(/\((\d+)/); 
-                if(match) totalQ += parseInt(match[1]); 
-            });
-            trigger.innerText = allLabel + ` (Toplam ${totalQ} Soru)`; 
-            trigger.style.color = "#333"; 
-            container.querySelector('input[id$="-all"]').checked = true; 
+            if(containerId === 'deneme-content') { // Sadece Kaynak Seçimi ise sayı göster
+                let totalQ = 0; container.querySelectorAll('label').forEach(lbl => { const match = lbl.innerText.match(/\((\d+)/); if(match) totalQ += parseInt(match[1]); });
+                trigger.innerText = allLabel + ` (Toplam ${totalQ} Soru)`; 
+            } else {
+                trigger.innerText = allLabel + " (Hepsi Seçili)"; // Ders Seçimi için sadece bu yazsın
+            }
+            trigger.style.color = "#333"; container.querySelector('input[id$="-all"]').checked = true; 
         }
-        else if (checked.length <= 2) { 
-            const names = Array.from(checked).map(cb => container.querySelector(`label[for="${cb.id}"]`).innerText.replace(/\s*\(\d+ Soru\)/, "").replace("✨ ", "")).join(", "); 
-            trigger.innerText = names; trigger.style.color = "#333"; container.querySelector('input[id$="-all"]').checked = false; 
-        } else { 
-            trigger.innerText = `${checked.length} Kaynak Seçildi`; trigger.style.color = "#333"; container.querySelector('input[id$="-all"]').checked = false; 
-        }
+        else if (checked.length <= 2) { const names = Array.from(checked).map(cb => container.querySelector(`label[for="${cb.id}"]`).innerText.replace(/\s*\(\d+ Soru\)/, "").replace("✨ ", "")).join(", "); trigger.innerText = names; trigger.style.color = "#333"; container.querySelector('input[id$="-all"]').checked = false; }
+        else { trigger.innerText = `${checked.length} Kaynak Seçildi`; trigger.style.color = "#333"; container.querySelector('input[id$="-all"]').checked = false; }
     }
-    
     window.onclick = function(event) { if (!event.target.matches('.dropdown-trigger') && !event.target.closest('.dropdown-content')) { document.querySelectorAll('.dropdown-content').forEach(el => el.classList.remove('show')); document.querySelectorAll('.dropdown-trigger').forEach(el => el.classList.remove('open')); } }
 
     function startGame() { 
@@ -623,18 +938,7 @@
         socket.emit('startGame', { roomCode: myCode, settings: settings }); 
     }
 
-    function finishExamEarly() { 
-        if(confirm("Sınavı bitirmek istiyor musun?")) { 
-            socket.disconnect(); socket.connect(); 
-            let totalScore = 0, correctCount = 0, wrongCount = 0; 
-            gameHistory.forEach(g => { 
-                if(g.earnedPoints) { totalScore += g.earnedPoints; correctCount++; } 
-                else if(g.userAnswerIndex !== -1 && !g.isCorrect) { totalScore -= 5; wrongCount++; } 
-            }); 
-            renderResultScreen([{ username: getUsername() || "Ben", score: totalScore }], correctCount, wrongCount); 
-        } 
-    }
-    
+    function finishExamEarly() { if(confirm("Sınavı bitirmek istiyor musun?")) { socket.disconnect(); socket.connect(); let totalScore = 0, correctCount = 0, wrongCount = 0; gameHistory.forEach(g => { if(g.earnedPoints) { totalScore += g.earnedPoints; correctCount++; } else if(g.userAnswerIndex !== -1 && !g.isCorrect) { totalScore -= 5; wrongCount++; } }); renderResultScreen([{ username: getUsername() || "Ben", score: totalScore }], correctCount, wrongCount); } }
     function submitBlank() { socket.emit('submitAnswer', {roomCode: myCode, answerIndex: -1}); disableAllButtons(); }
     function disableAllButtons() { myButtons.forEach(x => x.disabled = true); document.getElementById('btn-blank').disabled = true; }
 
@@ -648,31 +952,16 @@
         showScreen('screen-review');
     }
 
-    // --- GÜNCELLENMİŞ SONUÇ EKRANI VE PUAN KAYDETME ---
+    // --- SONUÇ VE KAYIT ---
     function renderResultScreen(playerList, myCorrect=0, myWrong=0) {
         showScreen('screen-result'); clearInterval(globalTimerInterval); 
         playerList.sort((a,b) => b.score - a.score);
         document.getElementById('result-board').innerHTML = playerList.map((x,i) => `<div class="player-card"><span>${i+1}. ${x.username}</span><span>${x.score} P</span></div>`).join('');
-        
-        // Benim sonucumu bul ve kaydet
         const myResult = playerList.find(p => p.username === (getUsername() || "Ben"));
         if(myResult) {
-            // Puanı Kalıcı Olarak Ekle
-            totalUserPoints += myResult.score; 
-            localStorage.setItem('kpss_total_points', totalUserPoints); 
-            updateRankDisplay(); // Rütbeyi güncelle
-
-            // Geçmişe Kaydet
-            let history = getLocalData('kpss_game_history'); 
-            history.push({ 
-                date: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString().slice(0,5), 
-                score: myResult.score, 
-                correct: myCorrect, 
-                wrong: myWrong 
-            }); 
-            saveLocalData('kpss_game_history', history);
+            totalUserPoints += myResult.score; localStorage.setItem('kpss_total_points', totalUserPoints); updateRankDisplay();
+            let history = getLocalData('kpss_game_history'); history.push({ date: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString().slice(0,5), score: myResult.score, correct: myCorrect, wrong: myWrong }); saveLocalData('kpss_game_history', history);
         }
-        
         const stats = {}; gameHistory.forEach(item => { const ders = item.question.ders || "Genel"; if(!stats[ders]) stats[ders] = { dogru: 0, toplam: 0 }; stats[ders].toplam++; if(item.isCorrect) stats[ders].dogru++; });
         let analysisHTML = "<h4 style='margin:0 0 10px 0; color:#1e3c72;'>📊 Branş Başarı Analizi</h4>";
         if(Object.keys(stats).length === 0) analysisHTML += "<p>Veri yok.</p>"; else { for(let ders in stats) { const yuzde = Math.round((stats[ders].dogru / stats[ders].toplam) * 100); const color = yuzde >= 70 ? "#27ae60" : (yuzde >= 40 ? "#e67e22" : "#c0392b"); analysisHTML += `<div class="analysis-item"><span>${ders}</span><span style="color:${color}; font-weight:bold;">%${yuzde} Başarı (${stats[ders].dogru}/${stats[ders].toplam})</span></div>`; } }
