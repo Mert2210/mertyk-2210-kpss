@@ -1,507 +1,599 @@
-/* ==========================================================================
-   MYK 2210 - KPSS PLATFORMU SUNUCU DOSYASI (SERVER)
-   Sürüm: Final Tam Sürüm
-   Özellikler: 
-   - Trim destekli Hata Analizi
-   - Akıllı Sıralama (Ders sırası sabit, içerik rastgele)
-   - Fisher-Yates Karıştırma
-   ========================================================================== */
-
-const express = require("express");
-const http = require("http");
-const { Server } = require("socket.io");
-const fs = require("fs");
-const path = require("path");
-
-// Uygulama ve Sunucu Kurulumu
-const app = express();
-const server = http.createServer(app);
-const io = new Server(server, {
-    cors: {
-        origin: "*",
-        methods: ["GET", "POST"]
-    },
-    transports: ["polling", "websocket"]
-});
-
-// Statik dosyalar (Resimler, CSS vb.) için public klasörünü dışa aç
-app.use(express.static(path.join(__dirname, "public")));
-
-// --- 🟢 SUNUCU DURUM KONTROLÜ (PING) ---
-app.get("/ping", (req, res) => {
-    res.send("Pong! Sunucu tüm sistemleriyle aktif ve çalışıyor.");
-});
-
-// ==========================================================================
-// 1. VERİ YÖNETİMİ VE DOSYA İŞLEMLERİ
-// ==========================================================================
-
-let tumSorular = [];
-const QUESTIONS_FILE = path.join(__dirname, 'questions.json');
-const REPORTS_FILE = path.join(__dirname, 'reports.json');
-
-/**
- * Soruları yükleyen ve bozuk JSON dosyalarını onarmaya çalışan fonksiyon.
- */
-function sorulariYukle() {
-    console.log("📂 Soru dosyası okunuyor...");
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MYK 2210 - KPSS Platformu</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#1e3c72">
     
-    if (fs.existsSync(QUESTIONS_FILE)) {
-        try {
-            let rawData = fs.readFileSync(QUESTIONS_FILE, 'utf8');
-
-            // Olası JSON format hatalarını temizle
-            rawData = rawData.replace(/\]\s*\[/g, ",");
-            rawData = rawData.replace(/\]\s*,\s*\[/g, ",");
-            
-            while (rawData.startsWith("[[")) { rawData = rawData.replace("[[", "["); }
-            while (rawData.endsWith("]]")) { rawData = rawData.replace("]]", "]"); }
-
-            try {
-                tumSorular = JSON.parse(rawData);
-                console.log(`✅ BAŞARILI: Toplam ${tumSorular.length} soru hafızaya alındı.`);
-            } catch (parseErr) {
-                console.log("⚠️ JSON bozuk, kurtarma modu devreye giriyor...");
-                const matches = rawData.match(/\{.*?\}/gs); 
-                if (matches) {
-                    const fixedJson = "[" + matches.join(",") + "]";
-                    tumSorular = JSON.parse(fixedJson);
-                    console.log(`✅ TAMİR EDİLDİ: ${tumSorular.length} soru kurtarıldı.`);
-                } else {
-                    throw new Error("Dosya kurtarılamayacak kadar hasarlı.");
-                }
-            }
-        } catch (err) {
-            console.error("❌ HATA: Dosya okunamadı!");
-            tumSorular = [{ 
-                "soru": "SİSTEM HATASI: Sorular yüklenemedi.", 
-                "ders": "SİSTEM", 
-                "siklar": ["Tamam"], 
-                "dogru": 0 
-            }];
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <style>
+        /* --- GENEL SAYFA YAPISI (Scroll Sorunu Çözüldü) --- */
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); 
+            color: #fff; 
+            text-align: center; 
+            margin: 0; 
+            display: flex; 
+            justify-content: center; 
+            align-items: flex-start; /* İçerik yukarıdan başlasın */
+            min-height: 100vh; 
+            overflow-y: auto; /* Kaydırmayı serbest bıraktık */
+            padding: 20px 0; 
         }
-    } else {
-        console.log("⚠️ Dosya bulunamadı, örnek oluşturuluyor.");
-        tumSorular = [{ "soru": "Örnek Soru", "ders": "GENEL", "siklar": ["A", "B"], "dogru": 0 }];
-    }
-}
 
-// Sunucu başlarken soruları yükle
-sorulariYukle();
+        .container { 
+            background: rgba(255,255,255,0.95); 
+            color: #333; 
+            width: 95%; 
+            max-width: 450px; 
+            padding: 20px; 
+            border-radius: 15px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3); 
+            position: relative; 
+            margin-bottom: 20px; 
+        }
 
-// --- 🕵️ RAPORLAMA SAYFASI ---
-app.get("/raporlar", (req, res) => {
-    if (fs.existsSync(REPORTS_FILE)) {
-        const data = JSON.parse(fs.readFileSync(REPORTS_FILE, 'utf8'));
+        h1, h2, h3 { margin-top: 0; color: #1e3c72; }
         
-        let html = `
-        <html>
-        <head>
-            <title>Hatalı Soru Raporları</title>
-            <style>
-                body { font-family: 'Segoe UI', sans-serif; padding: 20px; background: #f4f4f9; }
-                table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-                th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-                th { background-color: #1e3c72; color: white; }
-                tr:nth-child(even) { background-color: #f8f9fa; }
-                h1 { color: #1e3c72; border-bottom: 2px solid #e67e22; display:inline-block; padding-bottom:10px; }
-            </style>
-        </head>
-        <body>
-            <h1>⚠️ Gelen Hata Bildirimleri (${data.length})</h1>
-            <table>
-                <tr>
-                    <th>Tarih</th>
-                    <th>Kullanıcı</th>
-                    <th>Deneme / Kaynak</th>
-                    <th>Soru Metni</th>
-                    <th>Şikayet Nedeni</th>
-                </tr>
-        `;
+        input, select, button { width: 100%; padding: 12px; margin-bottom: 8px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; font-size: 1rem; }
+        button { background: #1e3c72; color: white; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        button:hover { opacity: 0.9; transform: translateY(-1px); }
+        button.green { background: #27ae60; }
+        button.orange { background: #e67e22; }
+        button.red { background: #c0392b; }
+        button.purple { background: #8e44ad; }
+        button.outline { background: transparent; border: 2px solid #1e3c72; color: #1e3c72; }
+
+        .screen { display: none; } 
+        .active { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* --- LİSTE ELEMANLARI --- */
+        .list-item { background: #fff; border-bottom: 2px solid #f0f2f5; padding: 12px; text-align: left; font-size: 0.85rem; }
+        .list-item .q-text { font-weight: bold; color: #333; display: block; margin-bottom: 5px; }
+        .list-item .ans-text { color: #27ae60; font-weight: bold; font-size: 0.8rem; background: #e8f5e9; padding: 4px; border-radius: 4px; display: inline-block; }
         
-        data.reverse().forEach(r => {
-            html += `
-                <tr>
-                    <td>${r.tarih}</td>
-                    <td><b>${r.raporlayan}</b></td>
-                    <td>${r.deneme || "Genel"}</td>
-                    <td>${r.soru.substring(0, 100)}...</td>
-                    <td style="color:#c0392b; font-weight:bold;">${r.mesaj}</td>
-                </tr>
-            `;
-        });
+        .player-card { background: #f0f2f5; padding: 8px; margin: 4px 0; border-radius: 5px; display: flex; justify-content: space-between; font-size: 0.9rem; font-weight: bold; }
+        .opt-btn { background: #eef2f3; color: #333; text-align: left; border: 2px solid #ddd; width: 100%; margin-bottom: 8px; cursor: pointer; }
+        .opt-btn:hover { background-color: #e0e0e0; }
+        .correct { background: #2ecc71 !important; color: white; border-color: #27ae60; }
+        .wrong { background: #e74c3c !important; color: white; border-color: #c0392b; }
+
+        #timer-bar { height: 6px; background: #e67e22; width: 100%; margin-top: 10px; border-radius: 3px; }
+        .badge { background: #e67e22; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; }
+        #q-image { width: 100%; max-height: 180px; object-fit: contain; margin-bottom: 10px; display: none; border-radius: 8px; }
         
-        html += `</table></body></html>`;
-        res.send(html);
-    } else {
-        res.send("<h2 style='font-family:sans-serif; color:green;'>Henüz hiç rapor yok! Harika! 🎉</h2>");
-    }
-});
+        #star-btn { font-size: 1.5rem; background: none; border: none; color: #ccc; width: auto; cursor: pointer; padding: 0; line-height: 1; }
+        #star-btn.starred { color: #f1c40f; text-shadow: 0 0 5px rgba(241,196,15,0.5); }
+        
+        #live-scores-container { margin-top: 15px; border-top: 2px solid #eee; padding-top: 10px; }
+        #btn-sound-toggle { font-size: 0.8rem; padding: 5px; margin-top: 10px; }
 
-// ==========================================================================
-// 2. YARDIMCI FONKSİYONLAR (ALGORİTMALAR)
-// ==========================================================================
+        /* --- SONUÇ KARTLARI --- */
+        .review-card { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-bottom: 15px; text-align: left; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .review-q { font-weight: bold; margin-bottom: 10px; color: #1e3c72; }
+        .review-row { display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 5px; }
+        .review-user-ans { font-weight: bold; }
+        .review-correct-ans { color: #27ae60; font-weight: bold; }
+        .text-green { color: #27ae60; }
+        .text-red { color: #c0392b; }
+        .review-solution { background: #fff3cd; color: #856404; padding: 10px; border-radius: 5px; font-size: 0.85rem; margin-top: 10px; border-left: 4px solid #ffeeba; }
 
-const rooms = {};
+        .analysis-card { background: #f8f9fa; border-radius: 8px; padding: 10px; margin-top: 10px; text-align: left; border: 1px solid #e9ecef; }
+        .analysis-item { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px dashed #ddd; font-size: 0.85rem; }
+        .analysis-item:last-child { border-bottom: none; }
 
-/**
- * Fisher-Yates Karıştırma Algoritması
- * Bir diziyi tamamen rastgele karıştırır.
- */
-function fisherYatesShuffle(array) {
-    let currentIndex = array.length, randomIndex;
-    while (currentIndex != 0) {
-        randomIndex = Math.floor(Math.random() * currentIndex);
-        currentIndex--;
-        [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
-    }
-    return array;
-}
+        /* --- SORU NAVİGASYONU --- */
+        #question-navigator { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; margin-top: 15px; padding: 10px; background: #f1f2f6; border-radius: 8px; border: 1px solid #ddd; }
+        .nav-box { width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; background: #fff; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; font-size: 0.8rem; font-weight: bold; color: #555; transition: 0.2s; }
+        .nav-box:hover { background: #e0e0e0; }
+        .nav-box.active { border: 2px solid #e67e22; transform: scale(1.1); box-shadow: 0 0 5px rgba(230, 126, 34, 0.5); }
+        .nav-box.answered { background: #3498db; color: white; border-color: #2980b9; }
+        .nav-box.correct { background: #27ae60; color: white; border-color: #2ecc71; }
+        .nav-box.wrong { background: #c0392b; color: white; border-color: #e74c3c; }
 
-/**
- * Şıkları Karıştırma Fonksiyonu
- */
-function shuffleOptions(q) {
-    if (!q || !q.siklar) return q;
-    const originalCorrectText = q.siklar[q.dogru];
-    const shuffledSiklar = [...q.siklar].sort(() => Math.random() - 0.5);
-    const newCorrectIndex = shuffledSiklar.indexOf(originalCorrectText);
-    return { ...q, siklar: shuffledSiklar, dogru: newCorrectIndex };
-}
+        #nav-buttons { display: flex; justify-content: space-between; margin-top: 15px; gap: 15px; }
+        .nav-btn { flex: 1; padding: 12px; border: none; border-radius: 12px; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .nav-btn.prev { background-color: #f8f9fa; color: #7f8c8d; border: 1px solid #eef2f3; }
+        .nav-btn.prev:hover { background-color: #ecf0f1; transform: translateY(-2px); color: #34495e; }
+        .nav-btn.next { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; box-shadow: 0 4px 15px rgba(30, 60, 114, 0.3); }
+        .nav-btn.next:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(30, 60, 114, 0.4); filter: brightness(1.1); }
 
-/**
- * Ders Filtreleme Yardımcısı
- */
-function filterBySubject(pool, selectedSubjects) {
-    if (!selectedSubjects || selectedSubjects === "HEPSI" || selectedSubjects.includes("HEPSI")) {
-        return pool;
-    }
-    const targets = (Array.isArray(selectedSubjects) ? selectedSubjects : [selectedSubjects])
-                    .map(s => s.trim().toLocaleUpperCase('tr'));
+        .home-btn { background: none; border: none; font-size: 1.3rem; cursor: pointer; transition: 0.2s; padding: 5px; border-radius: 50%; }
+        .home-btn:hover { background-color: rgba(0,0,0,0.05); transform: scale(1.1); }
+        #report-btn { font-size: 1.2rem; background: none; border: none; cursor: pointer; padding: 0; line-height: 1; margin-left: 5px; }
+        #report-btn:hover { transform: scale(1.1); }
 
-    return pool.filter(q => {
-        const qDers = (q.ders || "GENEL").trim().toLocaleUpperCase('tr');
-        return targets.includes(qDers);
-    });
-}
+        /* --- AÇILIR KAPANIR MENÜLER --- */
+        .dropdown-wrapper { position: relative; margin-bottom: 8px; width: 100%; }
+        .dropdown-trigger { background-color: #fff; color: #333; border: 2px solid #e67e22; padding: 12px; width: 100%; text-align: left; border-radius: 8px; cursor: pointer; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
+        .dropdown-trigger::after { content: '▼'; font-size: 0.8rem; }
+        .dropdown-trigger.open::after { content: '▲'; }
+        .dropdown-trigger.subject-trigger { border-color: #2980b9; }
+        .dropdown-content { display: none; position: absolute; background-color: #fff; width: 100%; border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 8px 16px rgba(0,0,0,0.2); z-index: 100; max-height: 200px; overflow-y: auto; left: 0; }
+        .dropdown-content.down { top: 100%; margin-top: 5px; }
+        .dropdown-content.up { bottom: 100%; margin-bottom: 5px; top: auto; }
+        .dropdown-content.show { display: block; }
+        .checkbox-item { display: flex; align-items: center; padding: 10px; border-bottom: 1px solid #f0f0f0; cursor: pointer; }
+        .checkbox-item:last-child { border-bottom: none; }
+        .checkbox-item:hover { background-color: #f9f9f9; }
+        .checkbox-item input { width: auto; margin: 0 10px 0 0; cursor: pointer; transform: scale(1.2); }
+        .checkbox-item label { cursor: pointer; font-size: 0.9rem; flex: 1; text-align: left; color: #333; margin: 0; }
+        .selection-label { font-size:0.7rem; color:#666; display:block; margin-bottom:2px; text-align:left; }
 
-/**
- * 🔥 YENİ: AKILLI SIRALAMA VE KARIŞTIRMA
- * Soruları ders sırasına (Tarih > Coğrafya...) göre dizer AMA
- * her dersin içindeki soruları rastgele karıştırır.
- * Böylece sıralama sabit kalır ama sorular hep aynı gelmez.
- */
-function getOrderedAndShuffledQuestions(pool, count) {
-    // 1. İstenen Ders Sırası (Burası Sabit)
-    const dersSirasi = ["TARİH", "COĞRAFYA", "VATANDAŞLIK", "GÜNCEL BİLGİLER", "EĞİTİM BİLİMLERİ"];
+        /* --- KİBAR RÜTBE KARTI --- */
+        #rank-display {
+            background: linear-gradient(to right, #f1c40f, #f39c12);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        #rank-display:hover { transform: translateY(-2px); }
+        
+        #rank-title { font-weight: bold; font-size: 1rem; display: block; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+        #total-points-display { font-size: 0.8rem; float:right; background:rgba(0,0,0,0.25); padding:2px 8px; border-radius:10px; margin-top: -20px; }
+        
+        /* İnce İlerleme Çubuğu */
+        .progress-container { width: 100%; background-color: rgba(255,255,255,0.3); border-radius: 5px; margin-top: 6px; height: 6px; overflow: hidden; }
+        .progress-bar { height: 100%; background-color: #fff; width: 0%; transition: width 0.8s ease-in-out; }
+        .next-level-info { font-size: 0.7rem; margin-top: 3px; opacity: 0.95; text-align: right; }
+
+        /* Rütbe Tablosu Popup */
+        #rank-table-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; color: #333; padding: 20px; border-radius: 15px; box-shadow: 0 0 30px rgba(0,0,0,0.6); z-index: 200; width: 85%; max-width: 320px; animation: popIn 0.3s; }
+        @keyframes popIn { from { transform: translate(-50%, -60%); opacity: 0; } to { transform: translate(-50%, -50%); opacity: 1; } }
+        
+        .rank-row { display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding: 8px 5px; font-size: 0.9rem; }
+        .rank-row.active { color: #e67e22; font-weight: bold; background-color: #fff8e1; border-radius: 5px; }
+    </style>
+</head>
+<body>
+
+<audio id="snd-correct" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3" preload="auto"></audio>
+<audio id="snd-wrong" src="https://assets.mixkit.co/active_storage/sfx/2021/2021-preview.mp3" preload="auto"></audio>
+
+<div id="rank-table-modal">
+    <h3 style="text-align:center; border-bottom:2px solid #e67e22; padding-bottom:10px; margin-top:0;">📊 Rütbe ve Puan Sistemi</h3>
+    <div id="rank-table-content"></div>
+    <div style="text-align:center; margin-top:15px;">
+        <button onclick="document.getElementById('rank-table-modal').style.display='none'" class="red" style="width:auto; padding:8px 20px; border-radius:20px;">Kapat</button>
+    </div>
+</div>
+
+<div class="container">
+    <div id="screen-login" class="screen active">
+        <h1 style="margin: 0; color: #e67e22; letter-spacing: 2px; font-size: 2.5rem;">MYK 2210</h1>
+        <h3 style="margin: 5px 0 15px 0; font-weight: normal; font-size: 0.9rem; opacity: 0.9; color: #1e3c72;">KPSS SORU ÇÖZME YARIŞMASI</h3>
+        
+        <div id="rank-display" onclick="document.getElementById('rank-table-modal').style.display='block'" title="Puan tablosunu görmek için tıkla">
+            <div>
+                <span id="rank-title">⭐ 1. Seviye</span>
+                <span id="total-points-display">0 Puan</span>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar" id="rank-progress"></div>
+            </div>
+            <div class="next-level-info" id="next-rank-info">Sonraki Seviye: 300 Puan</div>
+        </div>
+        
+        <input type="text" id="username" placeholder="Adınız">
+        <button onclick="startTrial()" class="purple">📝 HIZLI DENEME ÇÖZ</button>
+        <button onclick="createRoom()">🏠 ODA KUR (ARKADAŞINLA)</button>
+        
+        <div style="display:flex; gap:5px;">
+            <input type="number" id="room-code-input" placeholder="Oda Kodu">
+            <button onclick="joinRoom()" class="green" style="width:60%;">KATIL</button>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px; margin-top:5px;">
+            <button onclick="showLocalList('fav')" class="outline" style="font-size:0.75rem;">⭐ Yıldızlılar</button>
+            <button onclick="showLocalList('wrong')" class="outline" style="font-size:0.75rem;">❌ Yanlışlar</button>
+            <button onclick="showLocalList('blank')" class="outline" style="font-size:0.75rem;">⚪ Boşlarım</button>
+            <button onclick="startMistakesTrial()" class="red" style="font-size:0.75rem;">🧠 Hata Sınavı</button>
+        </div>
+        
+        <button id="btn-sound-toggle" onclick="toggleSound()" class="outline" style="margin-top:10px;">🔊 SES: AÇIK</button>
+    </div>
+
+    <div id="screen-list" class="screen">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+             <h3 id="list-title">Liste</h3>
+             <button id="pdf-btn" onclick="downloadPDF()" class="orange" style="width:auto; padding:5px 10px; font-size:0.8rem; display:none;">📄 PDF İndir</button>
+        </div>
+        <div id="list-content" style="max-height: 350px; overflow-y: auto;"></div>
+        <button onclick="clearList()" class="red" style="margin-top:10px;">Listeyi Temizle</button>
+        <button onclick="showScreen('screen-login')" class="outline">ANA MENÜ</button>
+    </div>
+
+    <div id="screen-lobby" class="screen">
+        <p id="room-info-text">Oda Kodu:</p>
+        <h1 id="display-room-code" style="color:#e67e22; margin:0;">----</h1>
+        <div id="lobby-list" style="margin-top:10px;"></div>
+        
+        <div id="host-controls" style="display:none; margin-top:20px; background: #f9f9f9; padding: 15px; border-radius: 10px;">
+            <h3 style="font-size: 1rem; margin-bottom: 10px;">Sınav Ayarları</h3>
+            <div style="display:flex; gap:5px; align-items: flex-end; margin-bottom: 8px;">
+                <div style="flex:1;">
+                    <span style="font-size:0.7rem; color:#666;">Süre Modu</span>
+                    <select id="set-timer-mode" onchange="toggleTimerInput()" style="font-size:0.8rem; padding:8px;">
+                        <option value="question">Soru Başına (Saniye)</option>
+                        <option value="general">Genel Sınav (Dakika)</option>
+                    </select>
+                </div>
+                <div style="flex:1;">
+                    <span id="label-duration" style="font-size:0.7rem; color:#666;">Süre (Sn)</span>
+                    <input type="number" id="set-duration" value="20" style="padding:8px;">
+                </div>
+            </div>
+            <div style="display:flex; gap:5px; align-items: flex-end; margin-bottom: 8px;">
+                <div style="flex:1;">
+                    <span style="font-size:0.7rem; color:#666;">Soru Sayısı</span>
+                    <input type="number" id="set-count" value="10" style="padding:8px;">
+                </div>
+            </div>
+            <span class="selection-label">Soru Seçimi:</span>
+            <div class="dropdown-wrapper">
+                <div class="dropdown-trigger" onclick="toggleDropdown('deneme-content', this)">Yükleniyor...</div>
+                <div id="deneme-content" class="dropdown-content down"></div>
+            </div>
+            <span class="selection-label">Dersler:</span>
+            <div class="dropdown-wrapper">
+                <div class="dropdown-trigger subject-trigger" onclick="toggleDropdown('subject-content', this)">Yükleniyor...</div>
+                <div id="subject-content" class="dropdown-content up"></div>
+            </div>
+            <select id="set-difficulty">
+                <option value="HEPSI">Tüm Seviyeler</option>
+                <option value="KOLAY">Kolay</option>
+                <option value="ORTA">Orta</option>
+                <option value="ZOR">Zor</option>
+                <option value="ÇIKMIŞ">🔥 Sadece Çıkmış Sorular</option>
+            </select>
+            <select id="set-sik-sayisi" style="border: 2px solid #2980b9; color: #2980b9; font-weight:bold;">
+                <option value="HEPSI">Karışık (Tüm Sorular)</option>
+                <option value="4">Başlangıç Soruları (4 Şıklı)</option>
+                <option value="5">Yeni Nesil Sorular (5 Şıklı)</option>
+            </select>
+            <button onclick="startGame()" class="orange" style="margin-top:10px;">SINAVI BAŞLAT</button>
+        </div>
+        <p id="wait-msg" style="display:none; color:#777;">Kurucu ayarları yapıyor...</p>
+    </div>
+
+    <div id="screen-game" class="screen">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <button onclick="finishExamEarly()" class="home-btn" title="Sınavı Bitir">🏁</button>
+                <span id="q-lesson" class="badge">DERS</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 5px;">
+                <button id="report-btn" onclick="reportCurrentQuestion()" title="Hatalı Soru Bildir">⚠️</button>
+                <button id="star-btn" onclick="toggleStar()">★</button>
+                <span id="q-count" style="font-weight:bold;">1/10</span>
+            </div>
+        </div>
+        <div id="question-navigator" style="display:none;"></div> 
+        <img id="q-image" src="">
+        <h3 id="q-text" style="font-size:1.1rem; margin:15px 0; text-align: left;">Soru...</h3>
+        <div id="opts-area"></div>
+        <div id="nav-buttons" style="display:none;">
+            <button onclick="navigateQuestion(-1)" class="nav-btn prev"><span>❮</span> Önceki</button>
+            <button onclick="navigateQuestion(1)" class="nav-btn next">Sonraki <span>❯</span></button>
+        </div>
+        <button id="btn-blank" onclick="submitBlank()" style="background:#95a5a6; margin-top:15px; width:100%; border-radius:8px;">⚪ BOŞ BIRAK</button>
+        <div id="timer-bar"></div>
+        <div id="general-timer-display" style="display:none; text-align:center; font-size:1.5rem; font-weight:bold; color:#1e3c72; margin-top:10px;">⏱️ <span id="gen-timer-val">00:00</span></div>
+        <div id="result-msg" style="height: 20px; margin-top: 10px; font-weight: bold; color: #e67e22;"></div>
+        
+        <div id="live-scores-container">
+            <h4 style="margin:0 0 5px 0; font-size:0.8rem; color:#1e3c72; text-align:left; border-bottom: 1px solid #ddd;">📊 CANLI SKORLAR</h4>
+            <div id="live-scores-list"></div>
+        </div>
+    </div>
+
+    <div id="screen-result" class="screen">
+        <h2>🏆 SONUÇLAR</h2>
+        <div id="result-board"></div> <div class="analysis-card" id="branch-analysis"></div>
+        <br>
+        <button onclick="showReviewScreen()" class="orange" style="margin-bottom: 10px;">🔍 SORULARI İNCELE & ÇÖZÜMLER</button>
+        <button onclick="location.reload()" class="outline">ANA MENÜYE DÖN</button>
+    </div>
+
+    <div id="screen-review" class="screen">
+        <h3>📝 Soru Çözümleri</h3>
+        <div id="review-content" style="max-height: 60vh; overflow-y: auto; padding-right: 5px;"></div>
+        <button onclick="showScreen('screen-result')" class="outline" style="margin-top: 15px;">⬅️ SONUÇLARA DÖN</button>
+    </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    const socket = io({ transports: ["polling", "websocket"] });
+    let myCode = "", myButtons = [], currentQuestionData = null, currentListType = "";
+    let isSoundEnabled = localStorage.getItem('kpss_sound') !== 'false';
+    let isTrialMode = false, isMistakeMode = false, gameHistory = [];
+    let questionStatusList = []; 
+    let globalTimerInterval = null;
+
+    // --- YENİ: ZORLAŞTIRILMIŞ RÜTBE SİSTEMİ (3. Seviyeden sonra makas açılıyor) ---
+    const rankLevels = [
+        { name: "1. Seviye", limit: 300 },   // 0 - 300
+        { name: "2. Seviye", limit: 650 },   // 300 - 650
+        { name: "3. Seviye", limit: 1200 },  // 650 - 1200 (+550) - Makas Açıldı
+        { name: "4. Seviye", limit: 2000 },  // 1200 - 2000 (+800)
+        { name: "5. Seviye", limit: 3000 },  // 2000 - 3000 (+1000)
+        { name: "6. Seviye", limit: 4500 },  // 3000 - 4500 (+1500)
+        { name: "7. Seviye", limit: 999999 } // 4500+ (Zirve)
+    ];
+
+    let totalUserPoints = parseInt(localStorage.getItem('kpss_total_points')) || 0;
     
-    // 2. Soruları Derslere Göre Grupla
-    const grouped = {};
-    const others = []; // Listede olmayan diğer dersler
+    function updateRankDisplay() {
+        const rankTitle = document.getElementById('rank-title');
+        const pointsDisplay = document.getElementById('total-points-display');
+        const progressBar = document.getElementById('rank-progress');
+        const nextInfo = document.getElementById('next-rank-info');
+        const tableContent = document.getElementById('rank-table-content');
 
-    pool.forEach(q => {
-        const dersAdi = (q.ders || "GENEL").trim().toLocaleUpperCase('tr');
-        // Ders adının içinde anahtar kelime geçiyor mu? (Örn: 'TARİH' kelimesi 'INKILAP TARİHİ'nde geçer)
-        let foundKey = dersSirasi.find(k => dersAdi.includes(k));
+        let currentRank = rankLevels[0];
+        let prevLimit = 0;
+        let nextLimit = rankLevels[0].limit;
+
+        for (let i = 0; i < rankLevels.length; i++) {
+            if (totalUserPoints < rankLevels[i].limit) {
+                currentRank = rankLevels[i];
+                nextLimit = rankLevels[i].limit;
+                prevLimit = (i === 0) ? 0 : rankLevels[i-1].limit;
+                break;
+            } else if (i === rankLevels.length - 1) {
+                currentRank = rankLevels[i];
+                prevLimit = rankLevels[i-1].limit;
+                nextLimit = totalUserPoints; 
+            }
+        }
         
-        if (foundKey) {
-            if (!grouped[foundKey]) grouped[foundKey] = [];
-            grouped[foundKey].push(q);
+        let percentage = 100;
+        if(currentRank.name !== "7. Seviye") {
+            const range = nextLimit - prevLimit;
+            const current = totalUserPoints - prevLimit;
+            percentage = Math.min(100, Math.max(0, (current / range) * 100));
+            nextInfo.innerText = `Sonraki Seviye İçin: ${nextLimit - totalUserPoints} Puan Kaldı`;
         } else {
-            others.push(q);
+            nextInfo.innerText = "Zirvedesiniz! 👑";
         }
-    });
 
-    // 3. Her Grubu Kendi İçinde Karıştır (Rastgelelik burada sağlanıyor!)
-    Object.keys(grouped).forEach(ders => {
-        grouped[ders] = fisherYatesShuffle(grouped[ders]);
-    });
-    const shuffledOthers = fisherYatesShuffle(others);
+        rankTitle.innerText = "⭐ " + currentRank.name;
+        pointsDisplay.innerText = totalUserPoints + " Puan";
+        progressBar.style.width = percentage + "%";
 
-    // 4. Sırayla Birleştir
-    let finalList = [];
-    
-    // Önce öncelikli dersleri ekle
-    dersSirasi.forEach(ders => {
-        if (grouped[ders]) {
-            finalList = finalList.concat(grouped[ders]);
-        }
-    });
-
-    // Sonra diğerlerini ekle
-    finalList = finalList.concat(shuffledOthers);
-
-    // 5. İstenen sayı kadarını kes ve şıkları karıştırarak döndür
-    return finalList.slice(0, count).map(q => shuffleOptions(q));
-}
-
-// ==========================================================================
-// 3. SOCKET.IO İLETİŞİM KATMANI (REAL-TIME)
-// ==========================================================================
-
-io.on("connection", (socket) => {
-    console.log(`🔌 Yeni Bağlantı: ${socket.id}`);
-
-    // --- LİSTE GÖNDERİMİ ---
-    const denemeSayilari = {};
-    let ozgunSoruSayisi = 0;
-    const mevcutDersler = [...new Set(tumSorular.map(q => (q.ders || "").trim().toLocaleUpperCase('tr')).filter(x => x))].sort();
-
-    tumSorular.forEach(q => {
-        if (q.deneme) denemeSayilari[q.deneme] = (denemeSayilari[q.deneme] || 0) + 1;
-        if (q.zorluk !== "ÇIKMIŞ") ozgunSoruSayisi++;
-    });
-
-    socket.emit('updateDenemeList', { denemeler: denemeSayilari, ozgunSayi: ozgunSoruSayisi });
-    socket.emit('updateSubjectList', mevcutDersler);
-
-
-    // --- RAPOR KAYDETME ---
-    socket.on('reportQuestion', (data) => {
-        console.log("⚠️ Rapor Alındı:", data.soru);
-        let reports = [];
-        if (fs.existsSync(REPORTS_FILE)) { try { reports = JSON.parse(fs.readFileSync(REPORTS_FILE, 'utf8')); } catch(e) {} }
-        reports.push({
-            tarih: new Date().toLocaleString(),
-            raporlayan: data.username,
-            soru: data.soru,
-            deneme: data.deneme,
-            mesaj: data.reason
+        let html = "";
+        let prev = 0;
+        rankLevels.forEach((r, i) => {
+            const isCurrent = r.name === currentRank.name ? "active" : "";
+            const rangeText = (i === rankLevels.length - 1) ? `${prev}+` : `${prev} - ${r.limit}`;
+            html += `<div class="rank-row ${isCurrent}"><span>${r.name}</span><span>${rangeText}</span></div>`;
+            prev = r.limit;
         });
-        fs.writeFile(REPORTS_FILE, JSON.stringify(reports, null, 2), (err) => { if(err) console.error("Rapor yazılamadı."); });
-    });
+        tableContent.innerHTML = html;
+    }
 
+    function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+    function getUsername() { return document.getElementById('username').value || null; }
+    
+    window.onload = function() { 
+        const savedName = localStorage.getItem('saved_username'); 
+        if(savedName) document.getElementById('username').value = savedName; 
+        updateSoundUI();
+        updateRankDisplay(); 
+    }
 
-    // --- ODA OLUŞTURMA ---
-    socket.on("createRoom", (username) => {
-        const roomCode = Math.floor(1000 + Math.random() * 9000).toString();
-        rooms[roomCode] = {
-            code: roomCode, players: {}, gameStarted: false,
-            currentQuestionIndex: 0, questions: [], settings: {},
-            timerId: null, answerCount: 0, questionStartTime: 0, totalTimeSeconds: 0, endTime: 0
+    function toggleSound() { isSoundEnabled = !isSoundEnabled; localStorage.setItem('kpss_sound', isSoundEnabled); updateSoundUI(); }
+    function updateSoundUI() { document.getElementById('btn-sound-toggle').innerText = isSoundEnabled ? "🔊 SES: AÇIK" : "🔇 SES: KAPALI"; }
+    function playSnd(id) { if(isSoundEnabled) document.getElementById(id).play().catch(()=>{}); }
+
+    function getLocalData(key) { return JSON.parse(localStorage.getItem(key)) || []; }
+    function saveLocalData(key, data) { localStorage.setItem(key, JSON.stringify(data)); }
+    
+    function saveToHistory(qData, listKey) {
+        let list = getLocalData(listKey);
+        const idx = list.findIndex(q => q.soru === qData.soru);
+        if(idx === -1) { list.push({...qData}); saveLocalData(listKey, list); }
+        else if (qData.dogru !== null) { list[idx] = {...qData}; saveLocalData(listKey, list); }
+    }
+
+    // --- GEÇMİŞ EKRANI (Buton olmasa da fonksiyonu saklıyoruz) ---
+    function showHistory() {
+        const history = getLocalData('kpss_game_history');
+        const content = document.getElementById('list-content');
+        document.getElementById('list-title').innerText = "📅 Oyun Geçmişim";
+        document.getElementById('pdf-btn').style.display = 'none';
+
+        if(history.length === 0) {
+            content.innerHTML = "<p style='padding:20px; color:#666;'>Henüz hiç oyun oynamadınız.</p>";
+        } else {
+            content.innerHTML = history.reverse().map(game => 
+                `<div class="list-item" style="border-left: 5px solid ${game.score >= 50 ? '#27ae60' : '#c0392b'};">
+                    <span style="font-weight:bold; display:block;">${game.date}</span>
+                    <span>Puan: ${game.score}</span> | <span>✅ ${game.correct} - ❌ ${game.wrong}</span>
+                 </div>`
+            ).join('');
+        }
+        currentListType = 'history';
+        showScreen('screen-list');
+    }
+
+    // --- LİSTELEME EKRANI (PDF İNDİRME AKTİF) ---
+    function showLocalList(type) {
+        currentListType = type;
+        const list = getLocalData(type==='fav'?'kpss_favs':(type==='wrong'?'kpss_wrongs':'kpss_blanks'));
+        
+        let title = "Liste";
+        if(type === 'fav') title = "⭐ Yıldızlılar";
+        else if(type === 'wrong') title = "❌ Yanlışlar";
+        else if(type === 'blank') title = "⚪ Boşlarım";
+
+        document.getElementById('list-title').innerText = title;
+        document.getElementById('pdf-btn').style.display = 'block'; // Hepsinde PDF indirilebilsin
+
+        document.getElementById('list-content').innerHTML = list.length ? list.map((q, i) => 
+            `<div class="list-item">
+                <span class="q-text"><b>${i+1}.</b> ${q.soru}</span>
+                <span class="ans-text">✅ Doğru Cevap: ${q.siklar ? q.siklar[q.dogru] : '?'}</span>
+             </div>`
+        ).join('') : "<p>Kayıt yok.</p>";
+        showScreen('screen-list');
+    }
+
+    // --- PDF İNDİRME (DİNAMİK BAŞLIKLI) ---
+    function downloadPDF() {
+        const btn = document.getElementById('pdf-btn');
+        const originalText = btn.innerText;
+        btn.innerText = "Hazırlanıyor...";
+        
+        let headerTitle = document.getElementById('list-title').innerText;
+        const listContent = document.getElementById('list-content').innerHTML;
+        const printWindow = window.open('', '', 'height=600,width=800');
+        
+        printWindow.document.write('<html><head><title>Çıktı Al</title>');
+        printWindow.document.write('<style>body{font-family:sans-serif; padding:20px;} .list-item{margin-bottom:20px; border-bottom:1px solid #ccc; padding-bottom:10px; page-break-inside: avoid;} .q-text{font-weight:bold; display:block; margin-bottom:5px; color:#333;} .ans-text{color:green; font-weight:bold;}</style>');
+        printWindow.document.write('</head><body>');
+        printWindow.document.write(`<h1 style="text-align:center; color:#1e3c72;">${headerTitle}</h1>`);
+        printWindow.document.write(listContent);
+        printWindow.document.write('</body></html>');
+        printWindow.document.close();
+        printWindow.focus();
+        setTimeout(() => { printWindow.print(); btn.innerText = originalText; }, 500);
+    }
+
+    function clearList() { 
+        if(currentListType === 'history') { if(confirm("Tüm oyun geçmişin silinsin mi?")) { localStorage.removeItem('kpss_game_history'); showHistory(); } } 
+        else { if(confirm("Bu liste silinsin mi?")) { localStorage.removeItem(currentListType==='fav'?'kpss_favs':(currentListType==='wrong'?'kpss_wrongs':'kpss_blanks')); showLocalList(currentListType); } }
+    }
+
+    function toggleStar() { if (!currentQuestionData) return; const btn = document.getElementById('star-btn'); let favs = getLocalData('kpss_favs'); const idx = favs.findIndex(q => q.soru === currentQuestionData.soru); if (idx > -1) { favs.splice(idx, 1); btn.classList.remove('starred'); } else { favs.push({...currentQuestionData}); btn.classList.add('starred'); } saveLocalData('kpss_favs', favs); }
+
+    function reportCurrentQuestion() {
+        if (!currentQuestionData) return;
+        const reason = prompt("Bu sorudaki hata nedir?");
+        if (reason) { socket.emit('reportQuestion', { soru: currentQuestionData.soru, deneme: currentQuestionData.deneme, reason: reason, username: getUsername() || "Anonim" }); alert("Teşekkürler! Hata bildirimi alındı."); }
+    }
+
+    function createRoom() { const n = getUsername(); if(n) { localStorage.setItem('saved_username', n); socket.emit('createRoom', n); } else alert("İsim giriniz!"); }
+    function startTrial() { const n = getUsername(); if(n) { localStorage.setItem('saved_username', n); isTrialMode=true; socket.emit('createRoom', n); } else alert("İsim giriniz!"); }
+    
+    // --- HATA SINAVI BAŞLATMA (TRIM DÜZELTMESİ) ---
+    function startMistakesTrial() { 
+        const n = getUsername(); 
+        const wrongs = getLocalData('kpss_wrongs'); 
+        if(!n) return alert("İsim giriniz!"); 
+        if(wrongs.length < 3) return alert("En az 3 yanlış sorunuz olmalı!"); 
+        localStorage.setItem('saved_username', n); 
+        isTrialMode = true; 
+        isMistakeMode = true; 
+        
+        // Hatalı soruları trimleyerek sunucuya gönder
+        const settings = {
+            isMistakeMode: true,
+            mistakeList: wrongs.map(q => q.soru.trim()),
+            count: wrongs.length,
+            timerMode: 'question',
+            duration: 60,
+            subject: "HEPSI"
         };
-        socket.join(roomCode);
-        rooms[roomCode].players[socket.id] = { id: socket.id, username: username, score: 0, isHost: true, hasAnsweredThisRound: false };
-        socket.emit("roomCreated", roomCode);
-        io.to(roomCode).emit("updatePlayerList", Object.values(rooms[roomCode].players));
-    });
+        socket.emit('startGame', { roomCode: myCode, settings: settings }); 
+    }
 
-
-    // --- ODAYA KATILMA ---
-    socket.on("joinRoom", ({ username, roomCode }) => {
-        if (!rooms[roomCode]) return socket.emit("errorMsg", "Böyle bir oda bulunamadı!");
-        socket.join(roomCode);
-        rooms[roomCode].players[socket.id] = { id: socket.id, username: username, score: 0, isHost: false, hasAnsweredThisRound: false };
-        socket.emit("roomJoined", roomCode);
-        io.to(roomCode).emit("updatePlayerList", Object.values(rooms[roomCode].players));
-    });
-
-
-    // --- OYUNU BAŞLATMA (KRİTİK GÜNCELLEME) ---
-    socket.on("startGame", ({ roomCode, settings }) => {
-        const room = rooms[roomCode];
-        if (!room) return;
-        
-        let pool = [...tumSorular];
-        const limit = parseInt(settings.count) || 20;
-
-        console.log(`🚀 Oyun Başlıyor: Oda ${roomCode}, Mod: ${settings.isMistakeMode ? "HATA ANALİZİ" : "NORMAL"}`);
-
-        // ---------------------------------------------------------
-        // SENARYO 1: HATA ANALİZ MODU (TRIM DÜZELTMELİ)
-        // ---------------------------------------------------------
-        if (settings.isMistakeMode) {
-            if (settings.mistakeList && settings.mistakeList.length > 0) {
-                // Trim ile eşleşme
-                pool = pool.filter(q => settings.mistakeList.some(mistakeSoru => mistakeSoru.trim() === (q.soru || "").trim()));
-                pool = filterBySubject(pool, settings.subject);
-                // Hatalarda sıra önemli değil, tam karışık
-                room.questions = fisherYatesShuffle(pool).slice(0, limit).map(q => shuffleOptions(q));
-            } else {
-                room.questions = [];
-            }
-        }
-
-        // ---------------------------------------------------------
-        // SENARYO 2: KAYNAK (DENEME) SEÇİMİ MODU (AKILLI KARIŞTIRMA)
-        // ---------------------------------------------------------
-        else if (settings.deneme && settings.deneme !== "HEPSI") {
-            const secilenler = Array.isArray(settings.deneme) ? settings.deneme : [settings.deneme];
-            
-            if (secilenler.includes("OZGUN_SORULAR")) {
-                 const ozgunHavuz = pool.filter(q => q.zorluk !== "ÇIKMIŞ");
-                 const denemeHavuz = pool.filter(q => secilenler.includes(q.deneme));
-                 pool = [...new Set([...ozgunHavuz, ...denemeHavuz])];
-            } else {
-                 pool = pool.filter(q => secilenler.includes(q.deneme));
-            }
-
-            pool = filterBySubject(pool, settings.subject);
-            
-            // BURADA DEĞİŞİKLİK YAPILDI:
-            // "getOrderedAndShuffledQuestions" kullanarak hem ders sırasını koruyoruz 
-            // hem de soruların sürekli aynı gelmesini engelliyoruz.
-            room.questions = getOrderedAndShuffledQuestions(pool, limit);
-        }
-
-        // ---------------------------------------------------------
-        // SENARYO 3: GENEL MOD (TÜM SORULAR / AKILLI KARIŞTIRMA)
-        // ---------------------------------------------------------
-        else {
-            pool = filterBySubject(pool, settings.subject);
-
-            if (settings.difficulty && settings.difficulty !== "HEPSI") {
-                 pool = pool.filter(q => (q.zorluk || "ORTA") === settings.difficulty);
-            }
-            if (settings.sikSayisi && settings.sikSayisi !== "HEPSI") {
-                pool = pool.filter(q => q.siklar && q.siklar.length == settings.sikSayisi);
-            }
-            
-            // Burada da sıralı ama karışık gelmesini istiyorsan:
-            room.questions = getOrderedAndShuffledQuestions(pool, limit);
-            
-            // EĞER "Genel Modda ders sırası olmasın, çorba olsun" dersen alt satırı aç, üsttekini kapa:
-            // room.questions = fisherYatesShuffle(pool).slice(0, limit).map(q => shuffleOptions(q));
-        }
-        
-        // Soru Yoksa Uyarı
-        if(room.questions.length === 0) {
-             room.questions = [{ 
-                 "soru": settings.isMistakeMode 
-                    ? "Hatalı soru bulunamadı! Tarayıcı geçmişi silinmiş olabilir." 
-                    : "Seçilen kriterlere uygun soru bulunamadı!", 
-                 "ders": "UYARI", "siklar": ["Tamam"], "dogru": 0 
-             }];
-        }
-
-        // Zamanlayıcı
-        room.settings = settings;
-        room.timerMode = settings.timerMode || 'question';
-        
-        if (room.timerMode === 'general') {
-            const dakika = parseInt(settings.duration) || 30;
-            room.totalTimeSeconds = dakika * 60; 
-            room.endTime = Date.now() + (room.totalTimeSeconds * 1000);
-            
-            room.globalTimeout = setTimeout(() => {
-                io.to(roomCode).emit("gameOver", Object.values(room.players));
-                room.gameStarted = false;
-            }, room.totalTimeSeconds * 1000);
-        }
-
-        room.gameStarted = true;
-        room.currentQuestionIndex = 0;
-        sendQuestionToRoom(roomCode);
-    });
-
-
-    // --- CEVAP ALMA ---
-    socket.on("submitAnswer", ({ roomCode, answerIndex }) => {
-        const room = rooms[roomCode];
-        if (!room || !room.gameStarted) return;
-        const currentQ = room.questions[room.currentQuestionIndex];
-        const player = room.players[socket.id];
-
-        if (player && !player.hasAnsweredThisRound) {
-            player.hasAnsweredThisRound = true; 
-            room.answerCount++; 
-            let isCorrect = (answerIndex !== -1 && answerIndex == currentQ.dogru);
-            let earnedPoints = 0;
-
-            if (isCorrect) {
-                const gecen = (Date.now() - room.questionStartTime) / 1000;
-                const kalan = Math.max(0, 20 - gecen); 
-                earnedPoints = 10 + Math.ceil(kalan / 4); 
-                player.score += earnedPoints;
-            } else if (answerIndex !== -1) {
-                player.score -= 5;
-            }
-            
-            socket.emit("answerResult", { 
-                correct: isCorrect, correctIndex: currentQ.dogru, selectedIndex: answerIndex, 
-                isBlank: answerIndex === -1, points: earnedPoints 
-            });
-            io.to(roomCode).emit("updatePlayerList", Object.values(room.players));
-
-            if (room.answerCount >= Object.keys(room.players).length) {
-                if (room.timerMode === 'question') {
-                    clearTimeout(room.timerId); 
-                    room.currentQuestionIndex++; 
-                    setTimeout(() => { sendQuestionToRoom(roomCode); }, 1500); 
-                }
-            }
-        }
-    });
-
-    // --- NAVİGASYON ---
-    socket.on("jumpToQuestion", ({ roomCode, index }) => {
-        const room = rooms[roomCode];
-        if (!room) return;
-        if (index < 0 || index >= room.questions.length) return;
-        if (Object.keys(room.players).length > 1) return; 
-        room.currentQuestionIndex = index;
-        sendQuestionToRoom(roomCode);
-    });
+    function joinRoom() { const n = getUsername(), c = document.getElementById('room-code-input').value; if(n && c) { localStorage.setItem('saved_username', n); myCode = c; socket.emit('joinRoom', {username:n, roomCode:c}); } }
     
-    // --- YENİ SORU KAYDET ---
-    socket.on("addNewQuestion", (q) => { 
-        tumSorular.push(q);
-        fs.writeFile(QUESTIONS_FILE, JSON.stringify(tumSorular, null, 2), (err) => {
-            if (err) console.error("Kayıt hatası:", err);
+    function toggleTimerInput() { const mode = document.getElementById('set-timer-mode').value; const label = document.getElementById('label-duration'); const input = document.getElementById('set-duration'); if(mode === 'general') { label.innerText = "Toplam Süre (Dakika)"; input.value = "30"; } else { label.innerText = "Soru Başına (Saniye)"; input.value = "20"; } }
+    
+    function toggleDropdown(id, trigger) { document.querySelectorAll('.dropdown-content').forEach(el => { if(el.id !== id) el.classList.remove('show'); }); document.querySelectorAll('.dropdown-trigger').forEach(el => { if(el !== trigger) el.classList.remove('open'); }); const content = document.getElementById(id); content.classList.toggle('show'); trigger.classList.toggle('open'); }
+    
+    // --- GÜNCELLENMİŞ TOPLAM SORU SAYISI GÖSTERİMİ ---
+    function updateTriggerText(containerId, allLabel) {
+        const container = document.getElementById(containerId); const trigger = container.previousElementSibling; const checked = container.querySelectorAll('input[type="checkbox"]:not([id$="-all"]):checked'); const total = container.querySelectorAll('input[type="checkbox"]:not([id$="-all"])').length;
+        
+        if (checked.length === 0) { trigger.innerText = "Lütfen Seçim Yapınız"; trigger.style.color = "#e74c3c"; container.querySelector('input[id$="-all"]').checked = false; }
+        else if (checked.length === total) { 
+            // Sadece Kaynak Seçiminde (deneme-content) sayı göster
+            if(containerId === 'deneme-content') {
+                let totalQ = 0; container.querySelectorAll('label').forEach(lbl => { const match = lbl.innerText.match(/\((\d+)/); if(match) totalQ += parseInt(match[1]); });
+                trigger.innerText = allLabel + ` (Toplam ${totalQ} Soru)`; 
+            } else {
+                trigger.innerText = allLabel + " (Hepsi Seçili)";
+            }
+            trigger.style.color = "#333"; container.querySelector('input[id$="-all"]').checked = true; 
+        }
+        else if (checked.length <= 2) { const names = Array.from(checked).map(cb => container.querySelector(`label[for="${cb.id}"]`).innerText.replace(/\s*\(\d+ Soru\)/, "").replace("✨ ", "")).join(", "); trigger.innerText = names; trigger.style.color = "#333"; container.querySelector('input[id$="-all"]').checked = false; }
+        else { trigger.innerText = `${checked.length} Kaynak Seçildi`; trigger.style.color = "#333"; container.querySelector('input[id$="-all"]').checked = false; }
+    }
+    window.onclick = function(event) { if (!event.target.matches('.dropdown-trigger') && !event.target.closest('.dropdown-content')) { document.querySelectorAll('.dropdown-content').forEach(el => el.classList.remove('show')); document.querySelectorAll('.dropdown-trigger').forEach(el => el.classList.remove('open')); } }
+
+    function startGame() { 
+        const secilenDenemeler = []; document.querySelectorAll('input[name="deneme-secim"]:checked').forEach(cb => secilenDenemeler.push(cb.value)); const denemeValue = secilenDenemeler.length > 0 ? secilenDenemeler : "HEPSI";
+        const secilenDersler = []; document.querySelectorAll('input[name="subject-secim"]:checked').forEach(cb => secilenDersler.push(cb.value)); const dersValue = secilenDersler.length > 0 ? secilenDersler : "HEPSI";
+        let settings = { deneme: denemeValue, count: document.getElementById('set-count').value, timerMode: document.getElementById('set-timer-mode').value, duration: document.getElementById('set-duration').value, subject: dersValue, difficulty: document.getElementById('set-difficulty').value, sikSayisi: document.getElementById('set-sik-sayisi').value };
+        if(isMistakeMode) { settings.isMistakeMode = true; settings.mistakeList = getLocalData('kpss_wrongs').map(q => q.soru); }
+        socket.emit('startGame', { roomCode: myCode, settings: settings }); 
+    }
+
+    function finishExamEarly() { if(confirm("Sınavı bitirmek istiyor musun?")) { socket.disconnect(); socket.connect(); let totalScore = 0, correctCount = 0, wrongCount = 0; gameHistory.forEach(g => { if(g.earnedPoints) { totalScore += g.earnedPoints; correctCount++; } else if(g.userAnswerIndex !== -1 && !g.isCorrect) { totalScore -= 5; wrongCount++; } }); renderResultScreen([{ username: getUsername() || "Ben", score: totalScore }], correctCount, wrongCount); } }
+    function submitBlank() { socket.emit('submitAnswer', {roomCode: myCode, answerIndex: -1}); disableAllButtons(); }
+    function disableAllButtons() { myButtons.forEach(x => x.disabled = true); document.getElementById('btn-blank').disabled = true; }
+
+    function showReviewScreen() {
+        const container = document.getElementById('review-content'); container.innerHTML = "";
+        if (gameHistory.length === 0) { container.innerHTML = "<p>Veri yok.</p>"; showScreen('screen-review'); return; }
+        gameHistory.forEach((item, index) => {
+            const q = item.question; const userAns = item.userAnswerIndex === -1 ? "BOŞ" : q.siklar[item.userAnswerIndex]; const correctAns = q.siklar[item.correctAnswerIndex]; const statusClass = item.isCorrect ? "text-green" : "text-red"; const statusIcon = item.isCorrect ? "✅" : (item.userAnswerIndex === -1 ? "⚪" : "❌"); const solutionHTML = q.cozum ? `<div class="review-solution">💡 <b>Çözüm:</b> ${q.cozum}</div>` : "";
+            container.innerHTML += `<div class="review-card"><div class="review-q">${index + 1}. ${q.soru}</div><div class="review-row"><span>Senin Cevabın:</span><span class="${statusClass} review-user-ans">${statusIcon} ${userAns}</span></div><div class="review-row"><span>Doğru Cevap:</span><span class="review-correct-ans">${correctAns}</span></div>${solutionHTML}</div>`;
         });
-    });
-    
-    // --- KOPMA ---
-    socket.on("disconnect", () => {
-        for (const code in rooms) {
-            if (rooms[code].players[socket.id]) {
-                delete rooms[code].players[socket.id];
-                io.to(code).emit("updatePlayerList", Object.values(rooms[code].players));
-                if (Object.keys(rooms[code].players).length === 0) delete rooms[code]; 
-            }
+        showScreen('screen-review');
+    }
+
+    function renderResultScreen(playerList, myCorrect=0, myWrong=0) {
+        showScreen('screen-result'); clearInterval(globalTimerInterval); 
+        playerList.sort((a,b) => b.score - a.score);
+        document.getElementById('result-board').innerHTML = playerList.map((x,i) => `<div class="player-card"><span>${i+1}. ${x.username}</span><span>${x.score} P</span></div>`).join('');
+        const myResult = playerList.find(p => p.username === (getUsername() || "Ben"));
+        if(myResult) {
+            totalUserPoints += myResult.score; localStorage.setItem('kpss_total_points', totalUserPoints); updateRankDisplay();
+            let history = getLocalData('kpss_game_history'); history.push({ date: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString().slice(0,5), score: myResult.score, correct: myCorrect, wrong: myWrong }); saveLocalData('kpss_game_history', history);
         }
-    });
-});
-
-function sendQuestionToRoom(roomCode) {
-    const room = rooms[roomCode];
-    if (!room) return;
-    
-    if (room.currentQuestionIndex >= room.questions.length) {
-        if(room.globalTimeout) clearTimeout(room.globalTimeout);
-        io.to(roomCode).emit("gameOver", Object.values(room.players));
-        room.gameStarted = false; return;
-    }
-    
-    room.answerCount = 0; 
-    Object.keys(room.players).forEach(id => { room.players[id].hasAnsweredThisRound = false; });
-    room.questionStartTime = Date.now();
-    const q = room.questions[room.currentQuestionIndex];
-    
-    let remaining = 0;
-    if (room.timerMode === 'general') {
-        remaining = Math.max(0, Math.floor((room.endTime - Date.now()) / 1000));
+        const stats = {}; gameHistory.forEach(item => { const ders = item.question.ders || "Genel"; if(!stats[ders]) stats[ders] = { dogru: 0, toplam: 0 }; stats[ders].toplam++; if(item.isCorrect) stats[ders].dogru++; });
+        let analysisHTML = "<h4 style='margin:0 0 10px 0; color:#1e3c72;'>📊 Branş Başarı Analizi</h4>";
+        if(Object.keys(stats).length === 0) analysisHTML += "<p>Veri yok.</p>"; else { for(let ders in stats) { const yuzde = Math.round((stats[ders].dogru / stats[ders].toplam) * 100); const color = yuzde >= 70 ? "#27ae60" : (yuzde >= 40 ? "#e67e22" : "#c0392b"); analysisHTML += `<div class="analysis-item"><span>${ders}</span><span style="color:${color}; font-weight:bold;">%${yuzde} Başarı (${stats[ders].dogru}/${stats[ders].toplam})</span></div>`; } }
+        document.getElementById('branch-analysis').innerHTML = analysisHTML; confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
     }
 
-    io.to(roomCode).emit("newQuestion", {
-        soru: q.soru, siklar: q.siklar, ders: q.ders, resim: q.resim, 
-        zorluk: q.zorluk, deneme: q.deneme, cozum: q.cozum,    
-        index: room.currentQuestionIndex + 1, total: room.questions.length, 
-        duration: parseInt(room.settings.duration), timerMode: room.timerMode, remainingTime: remaining   
-    });
-    
-    if (room.timerMode === 'question') {
-        if(room.timerId) clearTimeout(room.timerId);
-        room.timerId = setTimeout(() => { 
-            if (rooms[roomCode] && room.gameStarted) { 
-                room.currentQuestionIndex++; 
-                sendQuestionToRoom(roomCode); 
-            } 
-        }, room.settings.duration * 1000);
-    } else {
-        if(room.timerId) clearTimeout(room.timerId); 
+    function renderNavigator(total, currentIndex) {
+        const navDiv = document.getElementById('question-navigator'); navDiv.innerHTML = "";
+        for(let i=0; i<total; i++) { const box = document.createElement('div'); box.className = 'nav-box'; box.innerText = i + 1; if(i === currentIndex) box.classList.add('active'); if(questionStatusList[i]) { if(questionStatusList[i].result === 'correct') box.classList.add('correct'); else if(questionStatusList[i].result === 'wrong') box.classList.add('wrong'); else box.classList.add('answered'); } box.onclick = () => { if(isTrialMode) socket.emit('jumpToQuestion', { roomCode: myCode, index: i }); }; navDiv.appendChild(box); }
     }
-}
+    function navigateQuestion(direction) { if(!currentQuestionData) return; socket.emit('jumpToQuestion', { roomCode: myCode, index: (currentQuestionData.index - 1) + direction }); }
+    function startGlobalCountdown(seconds) { clearInterval(globalTimerInterval); let timeLeft = seconds; function updateDisplay() { let m = Math.floor(timeLeft / 60); let s = timeLeft % 60; document.getElementById('gen-timer-val').innerText = `${m}:${s < 10 ? '0'+s : s}`; } updateDisplay(); globalTimerInterval = setInterval(() => { timeLeft--; updateDisplay(); if(timeLeft <= 0) clearInterval(globalTimerInterval); }, 1000); }
 
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`🚀 Sunucu ${PORT} portunda tam güç çalışıyor.`));
+    socket.on('roomCreated', c => { myCode = c; document.getElementById('display-room-code').innerText = isTrialMode ? (isMistakeMode ? "HATA ANALİZ" : "BİREYSEL DENEME") : c; document.getElementById('room-info-text').innerText = isTrialMode ? "Mod:" : "Oda Kodu:"; showScreen('screen-lobby'); document.getElementById('host-controls').style.display = 'block'; if(isTrialMode) { document.getElementById('wait-msg').style.display = 'none'; if(isMistakeMode) document.getElementById('set-count').value = Math.min(10, getLocalData('kpss_wrongs').length); } });
+    socket.on('updateDenemeList', (data) => { const container = document.getElementById('deneme-content'); container.innerHTML = ''; const allDiv = document.createElement('div'); allDiv.className = 'checkbox-item'; allDiv.style.backgroundColor = '#f0f8ff'; allDiv.innerHTML = `<input type="checkbox" id="cb-all" checked onchange="toggleAllDeneme(this)"><label for="cb-all"><strong>TÜMÜNÜ SEÇ / KALDIR</strong></label>`; container.appendChild(allDiv); if (data.ozgunSayi > 0) { const ozgunDiv = document.createElement('div'); ozgunDiv.className = 'checkbox-item'; ozgunDiv.style.borderBottom = '2px solid #e67e22'; ozgunDiv.innerHTML = `<input type="checkbox" name="deneme-secim" id="cb-ozgun" value="OZGUN_SORULAR" checked onchange="updateTriggerText('deneme-content', 'Tüm Kaynaklar')"><label for="cb-ozgun">✨ Özgün Sorular (${data.ozgunSayi} Soru)</label>`; container.appendChild(ozgunDiv); } Object.keys(data.denemeler).sort().reverse().forEach((denemeAdi, index) => { const div = document.createElement('div'); div.className = 'checkbox-item'; const adet = data.denemeler[denemeAdi]; div.innerHTML = `<input type="checkbox" name="deneme-secim" id="cb-${index}" value="${denemeAdi}" checked onchange="updateTriggerText('deneme-content', 'Tüm Kaynaklar')"><label for="cb-${index}">${denemeAdi} (${adet} Soru)</label>`; container.appendChild(div); }); updateTriggerText('deneme-content', 'Tüm Kaynaklar'); });
+    socket.on('updateSubjectList', (liste) => { const container = document.getElementById('subject-content'); container.innerHTML = ''; const allDiv = document.createElement('div'); allDiv.className = 'checkbox-item'; allDiv.style.backgroundColor = '#f0f8ff'; allDiv.innerHTML = `<input type="checkbox" id="sub-all" checked onchange="toggleAllSubjects(this)"><label for="sub-all"><strong>TÜMÜNÜ SEÇ / KALDIR</strong></label>`; container.appendChild(allDiv); liste.forEach((dersAdi, index) => { const div = document.createElement('div'); div.className = 'checkbox-item'; div.innerHTML = `<input type="checkbox" name="subject-secim" id="sub-${index}" value="${dersAdi}" checked onchange="updateTriggerText('subject-content', 'Tüm Dersler')"><label for="sub-${index}">${dersAdi}</label>`; container.appendChild(div); }); updateTriggerText('subject-content', 'Tüm Dersler'); });
+    function toggleAllDeneme(source) { document.querySelectorAll('input[name="deneme-secim"]').forEach(cb => cb.checked = source.checked); updateTriggerText('deneme-content', 'Tüm Kaynaklar'); }
+    function toggleAllSubjects(source) { document.querySelectorAll('input[name="subject-secim"]').forEach(cb => cb.checked = source.checked); updateTriggerText('subject-content', 'Tüm Dersler'); }
+    socket.on('roomJoined', c => { myCode=c; document.getElementById('display-room-code').innerText=c; showScreen('screen-lobby'); document.getElementById('wait-msg').style.display='block'; });
+    socket.on('updatePlayerList', p => { const h = p.map(x => `<div class="player-card"><span>${x.username}</span><span>${x.score}</span></div>`).join(''); document.getElementById('lobby-list').innerHTML = isTrialMode ? "" : h; document.getElementById('live-scores-list').innerHTML = h; });
+    socket.on('newQuestion', d => { if (!questionStatusList || questionStatusList.length !== d.total) { gameHistory = []; questionStatusList = new Array(d.total).fill(null); } showScreen('screen-game'); document.getElementById('result-msg').innerText = ""; currentQuestionData = { ...d, dogru: null }; if(isTrialMode) { document.getElementById('question-navigator').style.display = 'grid'; document.getElementById('nav-buttons').style.display = 'flex'; document.getElementById('live-scores-container').style.display = 'none'; renderNavigator(d.total, d.index - 1); } else { document.getElementById('question-navigator').style.display = 'none'; document.getElementById('nav-buttons').style.display = 'none'; document.getElementById('live-scores-container').style.display = 'block'; } document.getElementById('star-btn').classList.toggle('starred', !!getLocalData('kpss_favs').find(q => q.soru === d.soru)); document.getElementById('q-lesson').innerText = d.ders + (d.zorluk ? ` (${d.zorluk})` : ""); document.getElementById('q-count').innerText = d.index + "/" + d.total; document.getElementById('q-text').innerText = d.soru; const img = document.getElementById('q-image'); if(d.resim) { img.src = d.resim.startsWith('http') ? d.resim : '/img/' + d.resim; img.style.display = 'block'; } else { img.style.display = 'none'; } const area = document.getElementById('opts-area'); area.innerHTML = ""; myButtons = []; d.siklar.forEach((s, i) => { const b = document.createElement('button'); b.className = 'opt-btn'; b.innerText = s; const status = questionStatusList[d.index - 1]; if(status && i === status.selectedIndex) { if(status.result === 'correct') b.classList.add('correct'); else b.classList.add('wrong'); } b.onclick = () => { if(questionStatusList[d.index - 1]) return; socket.emit('submitAnswer', {roomCode: myCode, answerIndex: i}); disableAllButtons(); }; area.appendChild(b); myButtons.push(b); }); if(questionStatusList[d.index - 1]) disableAllButtons(); else document.getElementById('btn-blank').disabled = false; const timerBar = document.getElementById('timer-bar'); const genTimer = document.getElementById('general-timer-display'); if (d.timerMode === 'question') { timerBar.style.display = 'block'; genTimer.style.display = 'none'; timerBar.style.transition = 'none'; timerBar.style.width = '100%'; setTimeout(() => { timerBar.style.transition = `width ${d.duration}s linear`; timerBar.style.width = '0%'; }, 50); } else { timerBar.style.display = 'none'; genTimer.style.display = 'block'; if (d.index === 1 && d.remainingTime) startGlobalCountdown(d.remainingTime); } });
+    socket.on('answerResult', d => { if(currentQuestionData) { questionStatusList[currentQuestionData.index - 1] = { selectedIndex: d.selectedIndex, result: d.correct ? 'correct' : (d.selectedIndex === -1 ? 'blank' : 'wrong') }; if(isTrialMode) renderNavigator(currentQuestionData.total, currentQuestionData.index - 1); } if (currentQuestionData) { currentQuestionData.dogru = d.correctIndex; saveToHistory(currentQuestionData, 'kpss_favs'); gameHistory.push({ question: currentQuestionData, userAnswerIndex: d.selectedIndex, isCorrect: d.correct, correctAnswerIndex: d.correctIndex, earnedPoints: d.points }); if(isMistakeMode && d.correct) { let wrongs = getLocalData('kpss_wrongs'); wrongs = wrongs.filter(q => q.soru !== currentQuestionData.soru); saveLocalData('kpss_wrongs', wrongs); } else if (!d.correct && !isMistakeMode && d.selectedIndex !== -1) { saveToHistory(currentQuestionData, 'kpss_wrongs'); } } if(d.points > 0) { document.getElementById('result-msg').innerText = `+${d.points} Puan!`; playSnd('snd-correct'); } if(d.isBlank) { myButtons[d.correctIndex].classList.add('correct'); saveToHistory(currentQuestionData, 'kpss_blanks'); } else { const btn = myButtons[d.selectedIndex]; if(d.correct) { btn.classList.add('correct'); } else { btn.classList.add('wrong'); playSnd('snd-wrong'); myButtons[d.correctIndex].classList.add('correct'); } } });
+    socket.on('gameOver', p => { renderResultScreen(p, 0, 0); questionStatusList = []; });
+    socket.on('errorMsg', m => alert(m));
+</script>
+</body>
+</html>
+
