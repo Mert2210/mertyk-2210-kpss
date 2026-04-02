@@ -27,10 +27,11 @@ app.use(express.static(path.join(__dirname, "public")));
 // --- FIREBASE ADMIN MÜHÜRLEME (GÜVENLİ YÖNTEM) ---
 let serviceAccount;
 try {
-    // Render'ın gizli kasasından (Environment Variables) JSON'ı çekiyoruz
-    serviceAccount = JSON.parse(process.env.FIREBASE_CREDENTIALS);
+    if (process.env.FIREBASE_CREDENTIALS) {
+        serviceAccount = JSON.parse(process.env.FIREBASE_CREDENTIALS);
+    }
 } catch (error) {
-    console.error("⚠️ UYARI: Firebase Kimlik Bilgileri bulunamadı!");
+    console.error("⚠️ UYARI: Firebase Kimlik Bilgileri bulunamadı veya hatalı!");
 }
 
 if (serviceAccount) {
@@ -40,12 +41,6 @@ if (serviceAccount) {
     console.log("🔥 Firebase Admin: Bulut bağlantısı GÜVENLİ ŞEKİLDE mühürlendi.");
 }
 const db = admin.apps.length ? admin.firestore() : null;
-
-admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
-});
-const db = admin.firestore();
-console.log("🔥 Firebase Admin: Bulut bağlantısı başarıyla mühürlendi.");
 
 app.get('/', (req, res) => {
     const indexPath = fs.existsSync(path.join(__dirname, 'public', 'index.html')) 
@@ -60,8 +55,10 @@ const QUESTIONS_FILE = path.join(__dirname, 'questions.json');
 const REPORTS_FILE = path.join(__dirname, 'reports.json'); 
 const CLASSES_FILE = path.join(__dirname, 'classes.json');
 
-// --- GEMINI AI AYARI ---
-const genAI = new GoogleGenerativeAI("AIzaSyBHTuCyaJ34zwdnENuL4i7-PSP5d-c0M50");
+// --- GEMINI AI AYARI (GÜVENLİ YÖNTEM) ---
+// API Anahtarı artık kodda değil, sunucunun gizli kasasından (Environment Variables) çekiliyor.
+const geminiApiKey = process.env.GEMINI_API_KEY || "ANAHTAR_YOK";
+const genAI = new GoogleGenerativeAI(geminiApiKey);
 const aiModel = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 // --- SORU HAVUZU MOTORU ---
@@ -174,6 +171,10 @@ io.on("connection", (socket) => {
     // --- YENİ: GEMINI AI SORGUSU ---
     socket.on("askGemini", async (qObj) => {
         try {
+            if(geminiApiKey === "ANAHTAR_YOK") {
+                socket.emit("geminiResponse", "⚠️ Sunucuda AI Anahtarı tanımlanmamış. (Render ayarlarını kontrol et)");
+                return;
+            }
             const prompt = `Sen uzman bir KPSS hocasısın. Aşağıdaki soruyu analiz et, doğru cevabı şıkkıyla belirt ve nedenini çok kısa, net şekilde açıkla: \n\nSoru: ${qObj.soru} \nŞıklar: ${qObj.siklar.join(", ")}`;
             const result = await aiModel.generateContent(prompt);
             socket.emit("geminiResponse", result.response.text());
@@ -222,10 +223,12 @@ io.on("connection", (socket) => {
     socket.on("addNewQuestion", async (newQ) => {
         tumSorular.push(newQ);
         fs.writeFileSync(QUESTIONS_FILE, JSON.stringify(tumSorular, null, 2));
-        try {
-            await db.collection("kpss_sorular").add({ ...newQ, createdAt: admin.firestore.FieldValue.serverTimestamp() });
-            console.log(`☁️ Yeni Soru Buluta Mühürlendi: ${newQ.soru.substring(0, 30)}...`);
-        } catch (e) { console.error("Firebase Hatası:", e); }
+        if (db) {
+            try {
+                await db.collection("kpss_sorular").add({ ...newQ, createdAt: admin.firestore.FieldValue.serverTimestamp() });
+                console.log(`☁️ Yeni Soru Buluta Mühürlendi: ${newQ.soru.substring(0, 30)}...`);
+            } catch (e) { console.error("Firebase Hatası:", e); }
+        }
         const updatedDersler = [...new Set(tumSorular.map(q => (q.ders || "").trim().toLocaleUpperCase('tr')).filter(x => x))].sort();
         io.emit('updateSubjectList', updatedDersler);
     });
