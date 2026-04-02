@@ -9,23 +9,19 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <style>
-        /* GENEL TASARIM */
         body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: #fff; text-align: center; margin: 0; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; overflow-y: auto; padding: 20px 0; }
         .container { background: rgba(255,255,255,0.95); color: #333; width: 95%; max-width: 480px; padding: 20px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); margin-bottom: 20px; }
         h1, h2, h3, h4 { margin-top: 0; color: #1e3c72; }
         input, select, button { width: 100%; padding: 12px; margin-bottom: 8px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; font-size: 1rem; }
         button { background: #1e3c72; color: white; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; }
-        button:hover { opacity: 0.9; } button.green { background: #27ae60; } button.orange { background: #e67e22; } button.red { background: #c0392b; } button.outline { background: transparent; border: 2px solid #1e3c72; color: #1e3c72; }
+        button:hover { opacity: 0.9; } button.green { background: #27ae60; } button.orange { background: #e67e22; } button.red { background: #c0392b; } button.outline { background: transparent; border: 2px solid #1e3c72; color: #1e3c72; } button.gold { background: #f1c40f; color:#333; }
         
-        /* ŞIK BUTONLARI (TAKILI KALMAYI ÖNLER) */
-        .opt-btn { background: #fff; color: #333; border: 2px solid #ddd; }
+        .opt-btn { background: #fff; color: #333; border: 2px solid #ddd; margin-bottom: 8px; text-align: left; }
         .opt-btn.selected { background: #e67e22 !important; color: #fff !important; border-color: #e67e22; }
 
-        /* AUTH EKRANI */
         .auth-form { background: rgba(0,0,0,0.04); padding: 15px; border-radius: 10px; margin-top: 15px; text-align: left; }
         .auth-switch { color: #e67e22; font-size: 0.85rem; text-decoration: underline; cursor: pointer; text-align: center; display: block; margin-top: 10px; font-weight: bold; }
 
-        /* LOBİ VE HARİTA */
         .screen { display: none; } .active { display: block; }
         #lobby-players-area { background: #e8f4f8; padding: 10px; border-radius: 8px; border: 2px dashed #3498db; margin-top: 15px; text-align: left; }
         .player-badge { display: inline-block; background: #3498db; color: white; padding: 5px 10px; border-radius: 15px; font-size: 0.8rem; margin: 3px; font-weight: bold; }
@@ -34,13 +30,19 @@
         #question-navigator.show-map { display: grid; }
         .nav-box { width: 35px; height: 35px; display: flex; justify-content: center; align-items: center; background: #eee; border: 1px solid #ccc; border-radius: 6px; font-size: 0.85rem; font-weight: bold; color:#333; cursor: pointer; }
         .nav-box.current { border: 3px solid #e67e22; transform: scale(1.1); background:#fff; }
-        .nav-box.correct { background: #27ae60 !important; color: white !important; border-color: #27ae60; }
-        .nav-box.wrong { background: #c0392b !important; color: white !important; border-color: #c0392b; }
-        .nav-box.answered { background: #3498db; color: white; border-color: #3498db; }
+        .nav-box.correct { background: #27ae60 !important; color: white !important; }
+        .nav-box.wrong { background: #c0392b !important; color: white !important; }
+        .nav-box.answered { background: #3498db; color: white; }
 
+        /* KAYMA SORUNU ÇÖZÜLEN AÇILIR MENÜ CSS KODLARI */
         .dropdown-trigger { background: #fff; color: #333; border: 2px solid #e67e22; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; text-align: left; }
-        .dropdown-content { display: none; position: absolute; background-color: #ffffff; width: 100%; border: 2px solid #1e3c72; border-radius: 8px; z-index: 1000; max-height: 200px; overflow-y: auto; left: 0; } .dropdown-content.show { display: block; }
-        .checkbox-item { display: flex; align-items: center; padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; } .checkbox-item label { color: #1e3c72; font-weight: 600; flex: 1; text-align: left; margin:0; }
+        .dropdown-content { display: none; background-color: #ffffff; width: 100%; border: 2px solid #1e3c72; border-radius: 8px; max-height: 200px; overflow-y: auto; margin-top: 5px; box-sizing: border-box; } 
+        .dropdown-content.show { display: block; }
+        .checkbox-item { display: flex; align-items: center; padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; } 
+        .checkbox-item label { color: #1e3c72; font-weight: 600; flex: 1; text-align: left; margin:0; }
+        
+        .list-item { background: #f9f9f9; border: 1px solid #eee; padding: 10px; margin-bottom: 8px; border-radius: 8px; position: relative; }
+        .list-item b { color: #1e3c72; }
     </style>
 </head>
 <body>
@@ -49,75 +51,95 @@
     <div id="screen-auth" class="screen">
         <h1 style="font-size: 3rem; margin:0;">🎓</h1>
         <h1 style="font-size: 1.4rem; color:#1e3c72;">Gazililer KPSS Bilgi Bankası</h1>
-        
         <div id="login-box" class="auth-form">
-            <label style="font-size: 0.7rem; color: #666; font-weight: bold;">GİRİŞ YAP</label>
             <input type="email" id="login-email" placeholder="E-posta">
             <input type="password" id="login-pass" placeholder="Şifre">
             <button onclick="handleLogin()" class="green">Giriş Yap</button>
-            <span class="auth-switch" onclick="switchAuth('register')">Üye değil misiniz? Kayıt Olun</span>
-            <button onclick="handleGuestLogin()" style="background:#7f8c8d; margin-top:10px;">👤 Misafir Girişi</button>
+            <span class="auth-switch" onclick="switchAuth('register')">Kayıt Ol</span>
+            <div style="display:flex; gap:8px; margin-top:15px;">
+                <button onclick="handleGoogleLogin()" style="background:#db4437; flex:1;">🌐 Google</button>
+                <button onclick="handleGuestLogin()" style="background:#7f8c8d; flex:1;">👤 Misafir</button>
+            </div>
         </div>
-
         <div id="reg-box" class="auth-form" style="display:none;">
-            <label style="font-size: 0.7rem; color: #666; font-weight: bold;">YENİ HESAP OLUŞTUR</label>
             <input type="email" id="reg-email" placeholder="E-posta">
-            <input type="text" id="reg-username" placeholder="Kullanıcı Adı (Zorunlu)">
+            <input type="text" id="reg-username" placeholder="Kullanıcı Adı">
             <input type="password" id="reg-pass" placeholder="Şifre">
-            <input type="password" id="reg-pass-confirm" placeholder="Şifreyi Tekrar Girin">
+            <input type="password" id="reg-pass-confirm" placeholder="Şifre Tekrar">
             <button onclick="handleRegister()" class="outline">Kayıt Ol</button>
-            <span class="auth-switch" onclick="switchAuth('login')">Zaten üye misiniz? Giriş Yapın</span>
+            <span class="auth-switch" onclick="switchAuth('login')">Giriş Yap</span>
         </div>
     </div>
 
     <div id="screen-main" class="screen">
-        <button onclick="logout()" class="outline" style="width:auto; margin-bottom:10px; font-size:0.8rem; padding:8px;">⬅️ Çıkış</button>
+        <button onclick="logout()" class="outline" style="width:auto; margin-bottom:10px; font-size:0.8rem;">⬅️ Çıkış</button>
         <h2 id="display-user" style="color:#e67e22;">Hoş Geldin!</h2>
         
-        <div style="display:flex; flex-direction:column; gap:10px;">
-            <button onclick="goToLobby('trial')" class="purple" style="padding:15px; font-size:1.1rem;">📝 Hızlı Deneme (Tek Kişilik)</button>
-            <button onclick="goToLobby('room')" class="orange" style="padding:15px; font-size:1.1rem;">🏠 Oda Kur / Katıl (Çok Oyunculu)</button>
+        <button onclick="goToLobby('trial')" class="purple">📝 Hızlı Deneme (Offline)</button>
+        <button onclick="goToLobby('room')" class="orange" style="margin-top:10px;">🏠 Oda Kur / Katıl</button>
+        
+        <div style="background: rgba(0,0,0,0.03); padding: 15px; border-radius: 10px; margin-top: 20px;">
+            <h4 style="margin: 0 0 10px 0; text-align: left; color:#333;">Ezber & Takip Listelerim</h4>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+                <button onclick="showLocalList('wrong')" class="red" style="font-size:0.85rem;">❌ Yanlışlar</button>
+                <button onclick="showLocalList('fav')" class="gold" style="font-size:0.85rem;">⭐ Favoriler</button>
+                <button onclick="showLocalList('blank')" class="outline" style="font-size:0.85rem;">⬜ Boşlar</button>
+                <button onclick="showLocalList('report')" class="outline" style="font-size:0.85rem; border-color:#c0392b; color:#c0392b;">🚨 Hatalı Sorular</button>
+            </div>
         </div>
+    </div>
+
+    <div id="screen-list" class="screen">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h3 id="list-title" style="margin:0;">Liste</h3>
+            <button id="pdf-btn" onclick="downloadPDF()" class="orange" style="width:auto; font-size:0.8rem; padding:8px 12px;">📄 PDF İndir</button>
+        </div>
+        <div id="list-content" style="max-height: 400px; overflow-y: auto; text-align:left; color:#333;"></div>
+        <button onclick="showScreen('screen-main')" class="outline" style="margin-top:15px;">⬅️ Ana Menüye Dön</button>
     </div>
 
     <div id="screen-lobby" class="screen">
         <button class="outline" onclick="showScreen('screen-main')" style="width:auto; margin-bottom:15px;">⬅️ Geri</button>
-        
         <div id="room-code-display" style="border-bottom:2px dashed #eee; padding-bottom:10px;">
-            <p style="font-size:0.8rem; color:#666; margin:0;">ODA KODUNUZ</p>
-            <h1 id="lobby-room-code" style="color:#e67e22; margin:5px 0;">----</h1>
+            <h1 id="lobby-room-code" style="color:#e67e22;">----</h1>
         </div>
         
         <div id="lobby-players-area">
-            <p style="margin:0 0 5px 0; font-size:0.8rem; color:#333; font-weight:bold;">👥 Odaya Gelenler:</p>
             <div id="lobby-players-list">Bekleniyor...</div>
         </div>
         
-        <div id="lobby-settings" style="text-align: left; background: #f9f9f9; padding: 15px; border-radius: 10px; position:relative; margin-top:15px;">
-            
-            <label id="lbl-sure" style="font-size:0.75rem; font-weight:bold; color:#c0392b;">SÜRE (Saniye) - ZORUNLU ALAN</label>
-            <input type="number" id="room-q-time" placeholder="Örn: 45" value="45">
+        <div id="lobby-settings" style="text-align: left; background: #f9f9f9; padding: 15px; border-radius: 10px; margin-top:15px;">
+            <label style="font-size:0.75rem; font-weight:bold; color:#c0392b;">SÜRE (Saniye)</label>
+            <input type="number" id="room-q-time" value="45">
 
             <div style="display:flex; gap:10px; margin-top:10px;">
                 <div style="flex:1;">
                     <label style="font-size:0.75rem; font-weight:bold;">ZORLUK</label>
-                    <select id="set-difficulty"><option value="HEPSI">Hepsi</option><option value="KOLAY">Kolay</option><option value="ORTA" selected>Orta</option><option value="ZOR">Zor</option></select>
+                    <select id="set-difficulty">
+                        <option value="HEPSI">Tümü</option>
+                        <option value="KOLAY">Kolay</option>
+                        <option value="ORTA" selected>Orta</option>
+                        <option value="ZOR">Zor</option>
+                    </select>
                 </div>
                 <div style="flex:1;">
                     <label style="font-size:0.75rem; font-weight:bold;">ŞIK SAYISI</label>
-                    <select id="set-options"><option value="5" selected>5 Şık</option><option value="4">4 Şık</option><option value="3">3 Şık</option></select>
+                    <select id="set-options">
+                        <option value="5" selected>5 Şık</option>
+                        <option value="4">4 Şık</option>
+                    </select>
                 </div>
             </div>
 
             <label style="font-size:0.75rem; font-weight:bold; margin-top:10px; display:block;">SORU SAYISI</label>
             <input type="number" id="set-count" value="10">
 
-            <label style="font-size:0.75rem; font-weight:bold; margin-top:10px; display:block;">DERS SEÇİMİ</label>
-            <div class="dropdown-trigger" onclick="toggleDropdown('ders-content')">Tüm Dersler ▼</div>
+            <label style="font-size:0.75rem; font-weight:bold; margin-top:10px; display:block;">KONU SEÇİMİ</label>
+            <div class="dropdown-trigger" id="ders-trigger" onclick="toggleDropdown('ders-content')">Konular Yükleniyor... ▼</div>
             <div id="ders-content" class="dropdown-content"></div>
 
             <label style="font-size:0.75rem; font-weight:bold; margin-top:10px; display:block;">KAYNAK SEÇİMİ</label>
-            <div class="dropdown-trigger" id="deneme-trigger" onclick="toggleDropdown('deneme-content')">Kaynaklar Yükleniyor...</div>
+            <div class="dropdown-trigger" id="deneme-trigger" onclick="toggleDropdown('deneme-content')">Kaynaklar Yükleniyor... ▼</div>
             <div id="deneme-content" class="dropdown-content"></div>
 
             <button onclick="startGame()" class="green" style="margin-top:20px; width:100%;">🚀 SINAVI BAŞLAT</button>
@@ -127,23 +149,27 @@
     <div id="screen-game" class="screen">
         <div style="display:flex; justify-content:space-between; align-items:center;">
             <div id="box-question" style="background:#c0392b; color:white; padding:8px 15px; border-radius:8px; font-weight:bold;">⏱️ <span id="time-q">--s</span></div>
-            <button onclick="document.getElementById('question-navigator').classList.toggle('show-map')" class="outline" style="width:auto; padding:8px; font-size:0.8rem;">🗺️ Haritayı Aç/Kapat</button>
+            <button onclick="document.getElementById('question-navigator').classList.toggle('show-map')" class="outline" style="width:auto; padding:8px;">🗺️ Harita</button>
         </div>
-
+        
         <div id="question-navigator"></div>
         
-        <div id="trial-nav-buttons" style="display:flex; justify-content:space-between; margin-top:15px; display:none;">
-            <button onclick="trialPrev()" class="outline" style="width:48%; padding:8px;">⬅️ Önceki</button>
-            <button onclick="trialNext()" class="outline" style="width:48%; padding:8px;">Sonraki ➡️</button>
+        <div id="trial-nav-buttons" style="display:none; justify-content:space-between; margin-top:15px;">
+            <button onclick="trialPrev()" class="outline" style="width:48%;">⬅️ Geri</button>
+            <button onclick="trialNext()" class="outline" style="width:48%;">İleri ➡️</button>
         </div>
-
-        <h3 id="q-text" style="text-align:left; line-height:1.4; margin:15px 0;">Soru Yükleniyor...</h3>
-        <div id="opts-area"></div>
+        
+        <div style="position:relative; margin-top:15px; min-height: 40px;">
+            <button id="btn-report" onclick="reportQuestion()" style="position:absolute; left:0; top:0; background:transparent; border:none; font-size:1.4rem; color:#c0392b; width:auto; padding:0; cursor:pointer;" title="Hatalı Soru Bildir">🚨</button>
+            <button id="btn-fav-current" onclick="toggleFavCurrent()" style="position:absolute; right:0; top:0; background:transparent; border:none; font-size:1.6rem; color:#ccc; width:auto; padding:0; cursor:pointer;">☆</button>
+            <h3 id="q-text" style="text-align:left; line-height:1.4; margin:0; padding: 0 40px;">Soru Yükleniyor...</h3>
+        </div>
+        
+        <div id="opts-area" style="margin-top:20px;"></div>
         
         <button id="btn-finish-trial" onclick="finishTrial()" class="red" style="margin-top:20px; display:none;">🛑 Sınavı Bitir</button>
-
-        <div id="live-scores-container" style="margin-top:20px; border-top:2px solid #eee; padding-top:10px;">
-            <h4 style="font-size:0.75rem; color:#1e3c72; margin:0; text-align:left;">📊 CANLI SIRALAMA</h4>
+        
+        <div id="live-scores-container" style="margin-top:20px; border-top:1px solid #eee; padding-top:10px;">
             <div id="live-scores-list"></div>
         </div>
     </div>
@@ -151,286 +177,231 @@
     <div id="screen-result" class="screen">
         <h2>🏆 SONUÇLAR</h2>
         <div id="result-board"></div>
+        <button onclick="showLocalList('wrong')" class="orange" style="margin-top:15px;">🔍 YANLIŞLARI İNCELE</button>
         <button onclick="location.reload()" class="outline" style="margin-top:10px;">ANA MENÜ</button>
     </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, updateProfile, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInAnonymously, signOut } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+    import { getAuth, onAuthStateChanged, updateProfile, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInAnonymously, signOut, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
     
-    const firebaseConfig = {
-        apiKey: "AIzaSyDkZI-LxCOaog4kyb4YSquEK6ZpLNH2pqs",
-        authDomain: "kpss-genel-kultur-soru-havuzu.firebaseapp.com",
-        projectId: "kpss-genel-kultur-soru-havuzu",
-        appId: "1:435941343639:web:3ce323e0f8386d796c04d2"
-    };
-
+    const firebaseConfig = { apiKey: "AIzaSyDkZI-LxCOaog4kyb4YSquEK6ZpLNH2pqs", authDomain: "kpss-genel-kultur-soru-havuzu.firebaseapp.com", projectId: "kpss-genel-kultur-soru-havuzu", appId: "1:435941343639:web:3ce323e0f8386d796c04d2" };
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    window.switchAuth = (target) => {
-        document.getElementById('login-box').style.display = target === 'login' ? 'block' : 'none';
-        document.getElementById('reg-box').style.display = target === 'register' ? 'block' : 'none';
-    };
-
-    // TİTREME (FLICKER) VE İSİM HATALARI ÇÖZÜLDÜ
-    window.handleLogin = async () => {
-        const email = document.getElementById('login-email').value;
-        const pass = document.getElementById('login-pass').value;
-        if(!email || !pass) return alert("E-posta ve şifre boş bırakılamaz!");
-        try { await signInWithEmailAndPassword(auth, email, pass); } 
-        catch(e) { alert("Giriş Hatası: " + e.message); }
-    };
-
+    window.switchAuth = (t) => { document.getElementById('login-box').style.display = t === 'login' ? 'block' : 'none'; document.getElementById('reg-box').style.display = t === 'register' ? 'block' : 'none'; };
+    window.handleLogin = async () => { try { await signInWithEmailAndPassword(auth, document.getElementById('login-email').value, document.getElementById('login-pass').value); } catch(e) { alert("Hata: " + e.message); } };
     window.handleRegister = async () => {
-        const email = document.getElementById('reg-email').value;
-        const user = document.getElementById('reg-username').value.trim();
-        const pass1 = document.getElementById('reg-pass').value;
-        const pass2 = document.getElementById('reg-pass-confirm').value;
-
-        if(!email || !user || !pass1) return alert("Tüm alanları doldurun.");
-        if(pass1 !== pass2) return alert("Şifreler eşleşmiyor!");
-        
-        try {
-            const res = await createUserWithEmailAndPassword(auth, email, pass1);
-            await updateProfile(res.user, { displayName: user });
-            localStorage.setItem('saved_username', user);
-            showScreen('screen-main'); // Sayfa yenilemeyi kaldırdık
-        } catch(e) { alert("Kayıt Hatası: " + e.message); }
+        const u = document.getElementById('reg-username').value, p1 = document.getElementById('reg-pass').value, p2 = document.getElementById('reg-pass-confirm').value;
+        if(p1 !== p2) return alert("Şifreler uymuyor!");
+        try { const res = await createUserWithEmailAndPassword(auth, document.getElementById('reg-email').value, p1); await updateProfile(res.user, { displayName: u }); location.reload(); } catch(e) { alert("Hata"); }
     };
-
-    window.handleGuestLogin = async () => {
-        try {
-            const res = await signInAnonymously(auth);
-            const guestName = "Misafir-" + Math.floor(Math.random() * 1000);
-            await updateProfile(res.user, { displayName: guestName });
-            localStorage.setItem('saved_username', guestName);
-            // Sayfa yenileme YOK. Flicker bitti.
-        } catch(e) { alert("Bağlantı Hatası"); }
-    };
+    window.handleGuestLogin = async () => { try { const res = await signInAnonymously(auth); await updateProfile(res.user, { displayName: "Misafir-" + Math.floor(Math.random()*1000) }); } catch(e) { alert("Hata"); } };
+    window.handleGoogleLogin = async () => { try { await signInWithPopup(auth, new GoogleAuthProvider()); } catch(e) { alert(e.message); } };
 
     onAuthStateChanged(auth, user => {
-        if (user) {
-            const disp = user.displayName || localStorage.getItem('saved_username') || "Gazi";
-            document.getElementById('display-user').innerText = "Hoş Geldin, " + disp;
-            localStorage.setItem('saved_username', disp);
-            showScreen('screen-main');
-        } else {
-            showScreen('screen-auth');
-        }
+        if (user) { document.getElementById('display-user').innerText = "Hoş Geldin, " + (user.displayName || "Gazi"); showScreen('screen-main'); } 
+        else showScreen('screen-auth');
     });
-
-    window.logout = () => { signOut(auth).then(() => { localStorage.clear(); location.reload(); }); };
+    window.logout = () => signOut(auth).then(() => location.reload());
 </script>
 
 <script>
     const socket = io();
-    let currentMode = "room"; // 'room' veya 'trial'
-    let myRoom = "", currentQIndex = 0, qInt = null;
-    
-    // DENEME MODU DEĞİŞKENLERİ
-    let trialQuestions = [];
-    let trialAnswers = [];
+    let currentMode = "room", myRoom = "", currentQIndex = 0, qInt = null, trialQuestions = [], trialAnswers = [];
+    let currentQObject = null; 
+    let currentListType = ""; 
 
-    window.showScreen = (id) => {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-    };
-
+    window.showScreen = (id) => { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); };
     window.toggleDropdown = (id) => document.getElementById(id).classList.toggle('show');
 
-    // LOBİYE GİDERKEN MODU BELİRLE
+    function saveToLocal(key, qObj) {
+        let list = JSON.parse(localStorage.getItem(key)) || [];
+        if(!list.find(x => x.soru === qObj.soru)) { list.push(qObj); localStorage.setItem(key, JSON.stringify(list)); }
+    }
+    function removeFromLocal(key, qObj) {
+        let list = JSON.parse(localStorage.getItem(key)) || [];
+        list = list.filter(x => x.soru !== qObj.soru);
+        localStorage.setItem(key, JSON.stringify(list));
+    }
+    function checkIsFav(qObj) { return (JSON.parse(localStorage.getItem('kpss_favs')) || []).some(x => x.soru === qObj.soru); }
+
+    window.toggleFavCurrent = () => {
+        if(!currentQObject) return;
+        const btn = document.getElementById('btn-fav-current');
+        if(checkIsFav(currentQObject)) { removeFromLocal('kpss_favs', currentQObject); btn.style.color = "#ccc"; btn.innerText = "☆"; } 
+        else { saveToLocal('kpss_favs', currentQObject); btn.style.color = "#f1c40f"; btn.innerText = "⭐"; }
+    };
+
+    window.reportQuestion = () => {
+        if(!currentQObject) return;
+        saveToLocal('kpss_reports', currentQObject);
+        alert("🚨 Bu soru 'Hatalı Sorular' listesine eklendi. Kontrol edeceğiz!");
+    };
+
+    window.showLocalList = (type) => {
+        currentListType = type;
+        const keys = { 'wrong': 'kpss_wrongs', 'fav': 'kpss_favs', 'blank': 'kpss_blanks', 'report': 'kpss_reports' };
+        const titles = { 'wrong': '❌ Yanlışlarım', 'fav': '⭐ Favorilerim', 'blank': '⬜ Boş Bıraktıklarım', 'report': '🚨 Hatalı Bildirdiklerim' };
+        
+        document.getElementById('list-title').innerText = titles[type];
+        const list = JSON.parse(localStorage.getItem(keys[type])) || [];
+        const contentDiv = document.getElementById('list-content');
+        
+        if(list.length === 0) contentDiv.innerHTML = "<p style='text-align:center; color:#666;'>Bu liste şu an boş.</p>";
+        else {
+            contentDiv.innerHTML = list.map((q, i) => `
+                <div class="list-item">
+                    <b>Soru ${i+1}:</b> ${q.soru} <br>
+                    <span style="color:#27ae60; font-weight:bold; font-size:0.9rem;">Cevap: ${q.siklar ? q.siklar[q.dogru] : 'Bilinmiyor'}</span>
+                    ${type === 'report' ? `<div style="margin-top:5px; font-size:0.8rem; color:#c0392b;">İnceleniyor...</div>` : ''}
+                </div>
+            `).join('');
+        }
+        showScreen('screen-list');
+    };
+
+    window.downloadPDF = () => {
+        const keys = { 'wrong': 'kpss_wrongs', 'fav': 'kpss_favs', 'blank': 'kpss_blanks', 'report': 'kpss_reports' };
+        const list = JSON.parse(localStorage.getItem(keys[currentListType])) || [];
+        if(list.length === 0) return alert("Liste boş, PDF indirilemez!");
+        
+        const win = window.open('', '', 'height=600,width=800');
+        win.document.write('<html><body style="font-family:sans-serif;"><h2>Gazililer KPSS - İnceleme Listesi</h2><hr>');
+        list.forEach((q, i) => win.document.write(`<p><b>Soru ${i+1}:</b> ${q.soru}<br><span style="color:green;">Doğru Cevap: ${q.siklar[q.dogru]}</span></p>`));
+        win.document.write('</body></html>'); win.document.close(); win.print();
+    };
+
     window.goToLobby = (mode) => {
         currentMode = mode;
-        const name = localStorage.getItem('saved_username') || "Gazi";
-        
-        if (mode === 'room') {
-            socket.emit('createRoom', { username: name });
-            document.getElementById('room-code-display').style.display = 'block';
-            document.getElementById('lobby-players-area').style.display = 'block';
-        } else {
-            // Hızlı denemede oda kodu görünmez
-            document.getElementById('room-code-display').style.display = 'none';
-            document.getElementById('lobby-players-area').style.display = 'none';
-        }
+        if (mode === 'room') socket.emit('createRoom', { username: "Gazi" });
         showScreen('screen-lobby');
     };
 
-    socket.on('roomCreated', code => { myRoom = code; document.getElementById('lobby-room-code').innerText = code; });
-
-    socket.on('updatePlayerList', players => {
-        const lobbyList = document.getElementById('lobby-players-list');
-        if(lobbyList) lobbyList.innerHTML = players.map(p => `<span class="player-badge">${p.username}</span>`).join('');
-        
-        const scoreList = document.getElementById('live-scores-list');
-        if(scoreList) scoreList.innerHTML = players.map(p => `<div style="display:flex; justify-content:space-between; padding:5px; border-bottom:1px solid #ccc;"><span>${p.username}</span><b>${p.score} P</b></div>`).join('');
+    socket.on('roomCreated', c => { myRoom = c; document.getElementById('lobby-room-code').innerText = c; });
+    socket.on('updatePlayerList', p => { const l = document.getElementById('lobby-players-list'); if(l) l.innerHTML = p.map(x => `<span class="player-badge">${x.username}</span>`).join(''); });
+    
+    socket.on('updateSubjectList', list => {
+        document.getElementById('ders-content').innerHTML = `<div class="checkbox-item" onclick="this.querySelector('input').click()"><input type="checkbox" name="ders-secim" value="HEPSI" checked onclick="event.stopPropagation()"><label>TÜMÜ</label></div>` + list.map(x => `<div class="checkbox-item" onclick="this.querySelector('input').click()"><input type="checkbox" name="ders-secim" value="${x}" checked onclick="event.stopPropagation()"><label>${x}</label></div>`).join('');
+        document.getElementById('ders-trigger').innerText = "Konular Seçildi ▼";
     });
-
-    socket.on('updateSubjectList', dersler => {
-        document.getElementById('ders-content').innerHTML = `<div class="checkbox-item" onclick="this.querySelector('input').click()"><input type="checkbox" name="ders-secim" value="HEPSI" checked onclick="event.stopPropagation()"><label>HEPSİ</label></div>` + 
-            dersler.map(k => `<div class="checkbox-item" onclick="this.querySelector('input').click()"><input type="checkbox" name="ders-secim" value="${k}" checked onclick="event.stopPropagation()"><label>${k}</label></div>`).join('');
-    });
-
+    
     socket.on('updateDenemeList', data => {
-        document.getElementById('deneme-content').innerHTML = `<div class="checkbox-item" onclick="this.querySelector('input').click()"><input type="checkbox" name="deneme-secim" value="HEPSI" checked onclick="event.stopPropagation()"><label>TÜM KAYNAKLAR</label></div>` + 
-            Object.keys(data.denemeler).map(k => `<div class="checkbox-item" onclick="this.querySelector('input').click()"><input type="checkbox" name="deneme-secim" value="${k}" onclick="event.stopPropagation()"><label>${k}</label></div>`).join('');
+        document.getElementById('deneme-content').innerHTML = `<div class="checkbox-item" onclick="this.querySelector('input').click()"><input type="checkbox" name="deneme-secim" value="HEPSI" checked onclick="event.stopPropagation()"><label>TÜMÜ</label></div>` + Object.keys(data.denemeler).map(x => `<div class="checkbox-item" onclick="this.querySelector('input').click()"><input type="checkbox" name="deneme-secim" value="${x}" onclick="event.stopPropagation()"><label>${x}</label></div>`).join('');
+        document.getElementById('deneme-trigger').innerText = "Kaynaklar Seçildi ▼";
     });
 
     window.startGame = () => {
-        let duration = parseInt(document.getElementById('room-q-time').value);
-        if(!duration || duration <= 0) return alert("HATA: Lütfen geçerli bir süre giriniz!");
-        
-        const dersler = []; document.querySelectorAll('input[name="ders-secim"]:checked').forEach(c => dersler.push(c.value));
-        const kaynaklar = []; document.querySelectorAll('input[name="deneme-secim"]:checked').forEach(c => kaynaklar.push(c.value));
-        
-        const settings = {
-            count: document.getElementById('set-count').value,
-            subject: dersler.includes("HEPSI") ? "HEPSI" : dersler,
-            deneme: kaynaklar.includes("HEPSI") ? "HEPSI" : kaynaklar,
-            difficulty: document.getElementById('set-difficulty').value,
-            optionsCount: parseInt(document.getElementById('set-options').value),
-            duration: duration
-        };
-
-        if (currentMode === 'trial') {
-            socket.emit('startTrial', settings);
-        } else {
-            socket.emit('startGame', { roomCode: myRoom, settings });
-        }
+        const dur = parseInt(document.getElementById('room-q-time').value);
+        if(!dur || dur <= 0) return alert("Süre zorunludur!");
+        const d = []; document.querySelectorAll('input[name="ders-secim"]:checked').forEach(c => d.push(c.value));
+        const k = []; document.querySelectorAll('input[name="deneme-secim"]:checked').forEach(c => k.push(c.value));
+        const s = { count: document.getElementById('set-count').value, subject: d.includes("HEPSI") ? "HEPSI" : d, deneme: k.includes("HEPSI") ? "HEPSI" : k, difficulty: document.getElementById('set-difficulty').value, optionsCount: parseInt(document.getElementById('set-options').value), duration: dur };
+        if (currentMode === 'trial') socket.emit('startTrial', s); else socket.emit('startGame', { roomCode: myRoom, settings: s });
     };
 
-    // ==========================================
-    // 1. ODA (ÇOK OYUNCULU) MODU FONKSİYONLARI
-    // ==========================================
     socket.on('newQuestion', d => {
-        setupGameScreen('room');
+        showScreen('screen-game');
+        currentQObject = d; 
+        
+        const btnFav = document.getElementById('btn-fav-current');
+        if(checkIsFav(currentQObject)) { btnFav.style.color = "#f1c40f"; btnFav.innerText = "⭐"; } 
+        else { btnFav.style.color = "#ccc"; btnFav.innerText = "☆"; }
+
+        document.getElementById('opts-area').innerHTML = "";
         currentQIndex = d.index - 1;
         document.getElementById('q-text').innerText = d.soru;
         startQuestionTimer(d.duration);
-        renderNavigator(d.total, currentQIndex, 'room'); 
-
-        const area = document.getElementById('opts-area'); area.innerHTML = "";
+        renderNavigator(d.total, currentQIndex, 'room');
         d.siklar.forEach((s, i) => {
             const b = document.createElement('button'); b.innerText = s; b.className = "opt-btn";
-            b.onclick = () => { 
-                // ŞIK İŞARETİ TAKILI KALMASINI ÖNLER
-                document.querySelectorAll('.opt-btn').forEach(btn => btn.classList.remove('selected'));
+            b.onclick = () => {
+                document.querySelectorAll('.opt-btn').forEach(x => x.classList.remove('selected'));
                 b.classList.add('selected');
-                socket.emit('submitAnswer', {roomCode: myRoom, answerIndex: i}); 
-                clearInterval(qInt); 
+                socket.emit('submitAnswer', {roomCode: myRoom, answerIndex: i});
+                clearInterval(qInt);
             };
-            area.appendChild(b);
+            document.getElementById('opts-area').appendChild(b);
         });
     });
 
     socket.on('answerResult', data => {
-        const navBox = document.getElementById('nav-box-' + currentQIndex);
-        if(navBox) {
-            navBox.classList.remove('current');
-            navBox.classList.add(data.correct ? 'correct' : 'wrong');
+        const b = document.getElementById('nav-box-' + currentQIndex);
+        if(b) b.classList.add(data.correct ? 'correct' : 'wrong');
+        if(!data.correct) {
+            if(data.selectedIndex === -1) saveToLocal('kpss_blanks', currentQObject);
+            else saveToLocal('kpss_wrongs', currentQObject);
         }
     });
 
-    socket.on('gameOver', p => {
-        showScreen('screen-result');
-        document.getElementById('result-board').innerHTML = p.map(x => `<div style="padding:10px; background:#f9f9f9; color:#333; margin-bottom:5px; border-radius:5px;"><b>${x.username}</b>: ${x.score} Puan</div>`).join('');
-        confetti({ particleCount: 150 });
-    });
-
-    // ==========================================
-    // 2. DENEME (İLERİ/GERİ) MODU FONKSİYONLARI
-    // ==========================================
     socket.on('trialStarted', data => {
-        trialQuestions = data;
-        trialAnswers = new Array(trialQuestions.length).fill(null);
-        currentQIndex = 0;
-        setupGameScreen('trial');
+        trialQuestions = data; trialAnswers = new Array(data.length).fill(null); currentQIndex = 0;
+        showScreen('screen-game');
+        document.getElementById('trial-nav-buttons').style.display = 'flex';
+        document.getElementById('btn-finish-trial').style.display = 'block';
+        document.getElementById('box-question').style.display = 'none';
         renderTrialQuestion();
     });
 
     function renderTrialQuestion() {
-        const q = trialQuestions[currentQIndex];
-        document.getElementById('q-text').innerText = `(${currentQIndex + 1}/${trialQuestions.length}) ` + q.soru;
-        renderNavigator(trialQuestions.length, currentQIndex, 'trial');
+        currentQObject = trialQuestions[currentQIndex];
         
-        const area = document.getElementById('opts-area'); area.innerHTML = "";
-        q.siklar.forEach((s, i) => {
-            const b = document.createElement('button'); b.innerText = s; 
+        const btnFav = document.getElementById('btn-fav-current');
+        if(checkIsFav(currentQObject)) { btnFav.style.color = "#f1c40f"; btnFav.innerText = "⭐"; } 
+        else { btnFav.style.color = "#ccc"; btnFav.innerText = "☆"; }
+
+        document.getElementById('q-text').innerText = `(${currentQIndex+1}/${trialQuestions.length}) ` + currentQObject.soru;
+        renderNavigator(trialQuestions.length, currentQIndex, 'trial');
+        const a = document.getElementById('opts-area'); a.innerHTML = "";
+        currentQObject.siklar.forEach((s, i) => {
+            const b = document.createElement('button'); b.innerText = s;
             b.className = "opt-btn" + (trialAnswers[currentQIndex] === i ? " selected" : "");
-            b.onclick = () => {
-                trialAnswers[currentQIndex] = i;
-                renderTrialQuestion(); // Seçimi boyamak için yeniden render at
-            };
-            area.appendChild(b);
+            b.onclick = () => { trialAnswers[currentQIndex] = i; renderTrialQuestion(); };
+            a.appendChild(b);
         });
     }
 
-    window.trialNext = () => { if(currentQIndex < trialQuestions.length - 1) { currentQIndex++; renderTrialQuestion(); } };
+    window.trialNext = () => { if(currentQIndex < trialQuestions.length-1) { currentQIndex++; renderTrialQuestion(); } };
     window.trialPrev = () => { if(currentQIndex > 0) { currentQIndex--; renderTrialQuestion(); } };
     
-    window.jumpToTrialQ = (idx) => { currentQIndex = idx; renderTrialQuestion(); };
-
     window.finishTrial = () => {
-        if(!confirm("Sınavı bitirmek istediğinize emin misiniz?")) return;
-        let score = 0; let dogru=0; let yanlis=0;
-        trialQuestions.forEach((q, i) => {
-            if(trialAnswers[i] === q.dogru) { score+=10; dogru++; }
-            else if(trialAnswers[i] !== null) { score-=5; yanlis++; }
+        let s = 0; let d = 0; let y = 0; let b = 0;
+        trialQuestions.forEach((q, i) => { 
+            if(trialAnswers[i] === q.dogru) { s+=10; d++; } 
+            else if(trialAnswers[i] !== null) { s-=5; y++; saveToLocal('kpss_wrongs', q); }
+            else { b++; saveToLocal('kpss_blanks', q); }
         });
-        showScreen('screen-result');
-        document.getElementById('result-board').innerHTML = `
-            <h3 style="color:#27ae60;">Doğru: ${dogru} | Yanlış: ${yanlis}</h3>
-            <h2>Toplam Puan: ${score}</h2>
-        `;
+        showScreen('screen-result'); 
+        document.getElementById('result-board').innerHTML = `<h3 style="color:#333;">Doğru: ${d} | Yanlış: ${y} | Boş: ${b}</h3><h2 style="color:#e67e22;">Toplam Puan: ${s}</h2>`;
         confetti({ particleCount: 150 });
     };
 
-    // ==========================================
-    // ORTAK YARDIMCI FONKSİYONLAR
-    // ==========================================
-    function setupGameScreen(mode) {
-        showScreen('screen-game');
-        document.getElementById('trial-nav-buttons').style.display = (mode === 'trial') ? 'flex' : 'none';
-        document.getElementById('btn-finish-trial').style.display = (mode === 'trial') ? 'block' : 'none';
-        document.getElementById('live-scores-container').style.display = (mode === 'room') ? 'block' : 'none';
-        document.getElementById('box-question').style.display = (mode === 'room') ? 'block' : 'none'; // Denemede sayaç yok
-    }
-
     function startQuestionTimer(s) { 
-        let t = s; if(qInt) clearInterval(qInt); 
-        qInt = setInterval(() => { 
-            t--; document.getElementById('time-q').innerText = t + "s"; 
-            if(t<=0) { clearInterval(qInt); socket.emit('submitAnswer', {roomCode: myRoom, answerIndex: -1}); }
-        }, 1000); 
+        let t = s; if(qInt) clearInterval(qInt);
+        qInt = setInterval(() => { t--; document.getElementById('time-q').innerText = t + "s"; if(t<=0) { clearInterval(qInt); socket.emit('submitAnswer', {roomCode: myRoom, answerIndex: -1}); }}, 1000);
     }
 
     function renderNavigator(total, curr, mode) {
         const div = document.getElementById('question-navigator');
-        if(div.innerHTML === "") { 
+        if(div.innerHTML === "") {
             for(let i=0; i<total; i++) {
-                const b = document.createElement('div'); 
-                b.id = 'nav-box-' + i;
-                b.className = 'nav-box'; 
-                b.innerText = i+1; 
-                // Denemede haritaya tıklayarak soruya gitme
-                if(mode === 'trial') b.onclick = () => jumpToTrialQ(i);
+                const b = document.createElement('div'); b.id = 'nav-box-'+i; b.className = 'nav-box'; b.innerText = i+1;
+                if(mode === 'trial') b.onclick = () => { currentQIndex = i; renderTrialQuestion(); };
                 div.appendChild(b);
             }
         }
-        
-        document.querySelectorAll('.nav-box').forEach(b => b.classList.remove('current'));
-        const currentBox = document.getElementById('nav-box-' + curr);
-        
-        if (mode === 'trial') {
-            // Denemede cevaplanmışları mavi yap
-            for(let i=0; i<total; i++) {
-                let box = document.getElementById('nav-box-' + i);
-                if(trialAnswers[i] !== null) box.classList.add('answered');
-                else box.classList.remove('answered');
+        document.querySelectorAll('.nav-box').forEach(x => x.classList.remove('current'));
+        const cb = document.getElementById('nav-box-' + curr);
+        if(cb) {
+            cb.classList.add('current');
+            if(mode === 'trial') {
+                for(let i=0; i<total; i++) {
+                    let box = document.getElementById('nav-box-'+i);
+                    if(trialAnswers[i] !== null) box.classList.add('answered'); else box.classList.remove('answered');
+                }
             }
         }
-        if(currentBox) currentBox.classList.add('current');
     }
 </script>
 </body>
