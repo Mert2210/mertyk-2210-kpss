@@ -1,6 +1,6 @@
 /* ==========================================================================
    GAZİLİLER KPSS BİLGİ BANKASI - SUNUCU DOSYASI (SERVER)
-   SÜREÇ: 1 SN HIZLI GEÇİŞ + DENGELİ DAĞILIM + ŞIK/ZORLUK + SÜRE MODLARI
+   SÜREÇ: 1 SN HIZLI GEÇİŞ + DENGELİ DAĞILIM + ŞIK/ZORLUK + MERKEZİ RAPOR
    ========================================================================== */
 
 const express = require("express");
@@ -33,6 +33,7 @@ app.get('/', (req, res) => {
 
 let tumSorular = [];
 const QUESTIONS_FILE = path.join(__dirname, 'questions.json');
+const REPORTS_FILE = path.join(__dirname, 'reports.json'); // Hata raporları için dosya yolu
 
 // --- SORU HAVUZU MOTORU (JSON ONARIM DESTEKLİ) ---
 function sorulariYukle() {
@@ -82,7 +83,6 @@ function shuffleOptions(q, maxOptions = 5) {
     const originalCorrectText = q.siklar[q.dogru];
     let newSiklar = [...q.siklar];
     
-    // Şık sayısını düşür (Doğru cevabı koruyarak)
     if (newSiklar.length > maxOptions) {
         const wrongOptions = newSiklar.filter((s, i) => i !== q.dogru);
         fisherYatesShuffle(wrongOptions); 
@@ -101,7 +101,6 @@ function filterBySubject(pool, selectedSubjects) {
 }
 
 function getBalancedQuestions(pool, count) {
-    // Eğitim Bilimleri eklendi (Ders yelpazesi genişletildi)
     const dersSirasi = ["TARİH", "COĞRAFYA", "VATANDAŞLIK", "GÜNCEL BİLGİLER", "EĞİTİM BİLİMLERİ"];
     const grouped = {};
     const others = [];
@@ -145,6 +144,31 @@ io.on("connection", (socket) => {
     socket.emit('updateDenemeList', { denemeler: denemeSayilari });
     socket.emit('updateSubjectList', mevcutDersler);
 
+    // --- YENİ: MERKEZİ HATA RAPORU ALICISI ---
+    socket.on("reportQuestion", (qObj) => {
+        let reports = [];
+        if (fs.existsSync(REPORTS_FILE)) {
+            try { reports = JSON.parse(fs.readFileSync(REPORTS_FILE, 'utf8')); } catch (e) { reports = []; }
+        }
+        reports.push({
+            ...qObj,
+            reportedAt: new Date().toLocaleString('tr-TR'),
+            reportedBySocket: socket.id
+        });
+        fs.writeFileSync(REPORTS_FILE, JSON.stringify(reports, null, 2));
+        console.log(`🚨 Sunucuya Hata Bildirildi: ${qObj.soru.substring(0, 40)}...`);
+    });
+
+    // --- YENİ: ADMIN İÇİN RAPORLARI GÖNDERME ---
+    socket.on("adminGetReports", () => {
+        if (fs.existsSync(REPORTS_FILE)) {
+            try {
+                const data = fs.readFileSync(REPORTS_FILE, 'utf8');
+                socket.emit("allReportsData", JSON.parse(data));
+            } catch (e) { socket.emit("allReportsData", []); }
+        } else { socket.emit("allReportsData", []); }
+    });
+
     // Oda Oluşturma
     socket.on("createRoom", (data) => {
         const username = (typeof data === 'object') ? data.username : (data || "Gazi");
@@ -171,11 +195,9 @@ io.on("connection", (socket) => {
         io.to(roomCode).emit("updatePlayerList", Object.values(rooms[roomCode].players));
     });
 
-    // HIZLI DENEME BAŞLATMA (İleri/Geri İçin + SÜRE MODU EKLENDİ)
+    // HIZLI DENEME BAŞLATMA
     socket.on("startTrial", (settings) => {
         let pool = [...tumSorular];
-        
-        // Filtrelemeler
         if (settings.deneme && settings.deneme !== "HEPSI") {
             const secilenler = Array.isArray(settings.deneme) ? settings.deneme : [settings.deneme];
             pool = pool.filter(q => secilenler.includes(q.deneme));
@@ -188,10 +210,8 @@ io.on("connection", (socket) => {
 
         fisherYatesShuffle(pool);
         const limit = parseInt(settings.count) || 10;
-        // Şık sayısını ayarla
         const trialQuestions = pool.slice(0, limit).map(q => shuffleOptions(q, settings.optionsCount));
         
-        // Frontend'in sayacı açabilmesi için ayarları da yolluyoruz
         socket.emit("trialStarted", {
             questions: trialQuestions,
             timerMode: settings.timerMode,
@@ -207,7 +227,6 @@ io.on("connection", (socket) => {
         let pool = [...tumSorular];
         const limit = parseInt(settings.count) || 10;
 
-        // Filtrelemeler
         if (settings.deneme && settings.deneme !== "HEPSI") {
             const secilenler = Array.isArray(settings.deneme) ? settings.deneme : [settings.deneme];
             pool = pool.filter(q => secilenler.includes(q.deneme));
@@ -221,16 +240,12 @@ io.on("connection", (socket) => {
         }
 
         fisherYatesShuffle(pool);
-        // Şık sayısını ayarla
         room.questions = pool.slice(0, limit).map(q => shuffleOptions(q, settings.optionsCount));
-
-        // YENİ EKLENEN: Süre modunu (Dakika veya Saniye) odaya işle
         room.settings = settings;
         room.timerMode = settings.timerMode || 'question';
         room.gameStarted = true;
         room.currentQuestionIndex = 0;
 
-        // TOPLAM DENEME SÜRESİ (DAKİKA) SEÇİLDİYSE SUNUCU KRONOMETRESİ BAŞLAR
         if (room.timerMode === 'general') {
             const dak = parseInt(settings.duration) || 15;
             room.endTime = Date.now() + (dak * 60 * 1000);
@@ -261,14 +276,12 @@ io.on("connection", (socket) => {
                 player.score += earnedPoints;
             } else if (answerIndex !== -1) { player.score -= 5; }
             
-            // Harita boyaması için sonucu gönder
             socket.emit("answerResult", { 
                 correct: isCorrect, correctIndex: currentQ.dogru, selectedIndex: answerIndex, points: earnedPoints 
             });
 
             io.to(roomCode).emit("updatePlayerList", Object.values(room.players));
 
-            // ÖNEMLİ: Soru Başına (question) modu seçiliyse, herkes cevap verince 1 saniye sonra geç
             if (room.answerCount >= Object.keys(room.players).length && room.timerMode === 'question') {
                 clearTimeout(room.timerId);
                 setTimeout(() => {
@@ -304,14 +317,12 @@ function sendQuestionToRoom(roomCode) {
     const q = room.questions[room.currentQuestionIndex];
     let remaining = room.timerMode === 'general' ? Math.max(0, Math.floor((room.endTime - Date.now()) / 1000)) : 0;
 
-    // timerMode bilgisi de frontend'e gönderilir ki doğru sayaç (mavi/kırmızı) açılsın
     io.to(roomCode).emit("newQuestion", {
         soru: q.soru, siklar: q.siklar, ders: q.ders,
         index: room.currentQuestionIndex + 1, total: room.questions.length,
         duration: parseInt(room.settings.duration), timerMode: room.timerMode, remainingTime: remaining
     });
     
-    // Süre Modu "Soru Başına" ise veya 0'dan büyükse timer kur (Süresiz ise kurma)
     if (room.timerMode === 'question' && room.settings.duration > 0) {
         if(room.timerId) clearTimeout(room.timerId);
         room.timerId = setTimeout(() => { 
@@ -324,4 +335,4 @@ function sendQuestionToRoom(roomCode) {
 }
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`🚀 Gazililer Sunucusu ${PORT} portunda tam yetkiyle aktif.`));
+server.listen(PORT, () => console.log(`🚀 Gazililer Sunucusu ${PORT} portunda aktif.`));
