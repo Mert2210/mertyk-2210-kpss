@@ -1,5 +1,5 @@
 {
-  "name": "mert-2210-final",
+  "name": "gazililer-kpss",
   "version": "1.0.0",
   "description": "Gazililer KPSS Bilgi Bankası",
   "main": "index.js",
@@ -7,10 +7,10 @@
     "start": "node index.js"
   },
   "dependencies": {
-    "express": "^4.21.2",
-    "socket.io": "^4.8.1"
-  },
-  "engines": {
-    "node": ">=18.0.0"
+    "@google/generative-ai": "^0.2.0",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "firebase-admin": "^12.0.0",
+    "socket.io": "^4.7.4"
   }
 }
