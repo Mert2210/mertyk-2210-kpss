@@ -12,7 +12,7 @@
         body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: #fff; text-align: center; margin: 0; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; overflow-y: auto; padding: 20px 0; }
         .container { background: rgba(255,255,255,0.95); color: #333; width: 95%; max-width: 480px; padding: 20px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); margin-bottom: 20px; }
         h1, h2, h3, h4 { margin-top: 0; color: #1e3c72; }
-        input, select, button { width: 100%; padding: 12px; margin-bottom: 8px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; font-size: 1rem; }
+        input, select, button, textarea { width: 100%; padding: 12px; margin-bottom: 8px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; font-size: 1rem; font-family: inherit; }
         button { background: #1e3c72; color: white; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; }
         button:hover { opacity: 0.9; } button.green { background: #27ae60; } button.orange { background: #e67e22; } button.red { background: #c0392b; } button.outline { background: transparent; border: 2px solid #1e3c72; color: #1e3c72; } button.gold { background: #f1c40f; color:#333; }
         
@@ -34,8 +34,10 @@
         .nav-box.wrong { background: #c0392b !important; color: white !important; }
         .nav-box.answered { background: #3498db; color: white; }
 
+        /* KAYMA SORUNUNU ÇÖZEN EKLENTİLER */
+        .dropdown-wrapper { position: relative; width: 100%; margin-bottom: 10px; }
         .dropdown-trigger { background: #fff; color: #333; border: 2px solid #e67e22; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; text-align: left; }
-        .dropdown-content { display: none; background-color: #ffffff; width: 100%; border: 2px solid #1e3c72; border-radius: 8px; max-height: 200px; overflow-y: auto; margin-top: 5px; box-sizing: border-box; } 
+        .dropdown-content { display: none; position: absolute; top: 100%; left: 0; z-index: 1000; background-color: #ffffff; width: 100%; border: 2px solid #1e3c72; border-radius: 8px; max-height: 200px; overflow-y: auto; margin-top: 5px; box-sizing: border-box; box-shadow: 0 5px 15px rgba(0,0,0,0.1); } 
         .dropdown-content.show { display: block; }
         .checkbox-item { display: flex; align-items: center; padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; } 
         .checkbox-item label { color: #1e3c72; font-weight: 600; flex: 1; text-align: left; margin:0; }
@@ -45,9 +47,19 @@
 
         .timer-container { display: flex; justify-content: space-between; gap: 10px; }
         .timer-box { flex: 1; padding: 8px 15px; border-radius: 8px; font-weight: bold; color: #fff; display: none; }
+
+        /* YENİ EKLENEN STİLLER: BİLDİRİM VE AI KUTUSU */
+        #notification-toast { position: fixed; top: 20px; right: 20px; background: #2c3e50; color: white; padding: 15px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 9999; transform: translateX(150%); transition: 0.5s; border-left: 5px solid #e67e22; max-width: 250px; display: flex; align-items: center; gap: 10px; }
+        #notification-toast.show { transform: translateX(0); }
+        .ai-box { background: #f1f9ff; border-left: 5px solid #3498db; padding: 15px; margin-top: 15px; font-size: 0.9rem; display: none; text-align: left; line-height: 1.5; color: #333; border-radius: 0 8px 8px 0; }
     </style>
 </head>
 <body>
+
+<div id="notification-toast">
+    <span style="font-size:1.5rem;">🔔</span>
+    <div id="toast-message" style="text-align:left; font-size:0.9rem; font-weight:600;"></div>
+</div>
 
 <div class="container">
     <div id="screen-auth" class="screen">
@@ -69,7 +81,14 @@
             <input type="text" id="reg-username" placeholder="Kullanıcı Adı">
             <input type="password" id="reg-pass" placeholder="Şifre">
             <input type="password" id="reg-pass-confirm" placeholder="Şifre Tekrar">
-            <button onclick="handleRegister()" class="outline">Kayıt Ol</button>
+            
+            <select id="reg-role" onchange="toggleTeacherCode()" style="border: 2px solid #3498db; margin-top: 5px;">
+                <option value="student">Öğrenciyim</option>
+                <option value="teacher">Öğretmenim / Eğitmenim</option>
+            </select>
+            <input type="password" id="reg-teacher-code" placeholder="Eğitmen Kodu (Örn: GAZI2026)" style="display:none; border: 2px solid #c0392b;">
+
+            <button onclick="handleRegister()" class="outline" style="margin-top:10px;">Kayıt Ol</button>
             <span class="auth-switch" onclick="switchAuth('login')">Giriş Yap</span>
         </div>
     </div>
@@ -78,9 +97,38 @@
         <button onclick="logout()" class="outline" style="width:auto; margin-bottom:10px; font-size:0.8rem;">⬅️ Çıkış</button>
         <h2 id="display-user" style="color:#e67e22;">Hoş Geldin!</h2>
         
+        <div id="student-class-area" style="background:#e8f4f8; padding:10px; border-radius:10px; margin-bottom:15px; border:1px dashed #3498db; display:flex; gap:5px;">
+            <input type="text" id="class-code-input" placeholder="Sınıf Kodu Gir (Örn: GZ123)" style="margin:0; flex:2;">
+            <button onclick="joinClass()" class="blue" style="margin:0; flex:1; font-size:0.9rem;">Sınıfa Katıl</button>
+        </div>
+
         <button onclick="goToLobby('trial')" class="purple">📝 Hızlı Deneme (Offline)</button>
         <button onclick="goToLobby('room')" class="orange" style="margin-top:10px;">🏠 Oda Kur / Katıl</button>
         
+        <div id="instructor-panel" style="display:none; background: #f1f2f6; padding: 15px; border-radius: 10px; margin-top: 15px; border: 2px solid #1e3c72;">
+            <h4 style="margin:0 0 10px 0; color:#1e3c72;">📢 Eğitmen Kontrol Merkezi</h4>
+            
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <button onclick="createClass()" class="green" style="font-size:0.8rem; width:auto; padding:8px 15px;">Sınıf Kodu Üret</button>
+                <span id="generated-code" style="font-weight:bold; color:#c0392b;"></span>
+            </div>
+
+            <input type="text" id="alert-text" placeholder="Tüm öğrencilere duyuru gönder...">
+            <button onclick="publishAlert()" class="orange" style="font-size:0.85rem; margin-bottom:15px;">Hemen Yayınla</button>
+
+            <div style="border-top:1px solid #ccc; padding-top:10px; text-align:left;">
+                <h4 style="font-size:0.9rem; margin-top:0;">➕ Yeni Soru Ekle</h4>
+                <textarea id="new-q-text" placeholder="Soru metni..."></textarea>
+                <input type="text" id="new-q-opts" placeholder="Şıkları virgülle ayır (A,B,C,D,E)">
+                <input type="number" id="new-q-correct" placeholder="Doğru Şık İndeksi (0'dan başlar)">
+                <div style="display:flex; gap:5px;">
+                    <input type="text" id="new-q-ders" placeholder="Ders (Tarih vb.)">
+                    <input type="text" id="new-q-deneme" placeholder="Kaynak Adı">
+                </div>
+                <button onclick="uploadQuestion()" class="outline" style="background:#fff; color:#1e3c72; border-color:#1e3c72;">📥 Soru Havuzuna Gönder</button>
+            </div>
+        </div>
+
         <div style="background: rgba(0,0,0,0.03); padding: 15px; border-radius: 10px; margin-top: 20px;">
             <h4 style="margin: 0 0 10px 0; text-align: left; color:#333;">Ezber & Takip Listelerim</h4>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
@@ -144,12 +192,16 @@
             <input type="number" id="set-count" value="10">
 
             <label style="font-size:0.75rem; font-weight:bold; margin-top:10px; display:block;">KONU SEÇİMİ</label>
-            <div class="dropdown-trigger" id="ders-trigger" onclick="toggleDropdown('ders-content')">Konular Yükleniyor... ▼</div>
-            <div id="ders-content" class="dropdown-content"></div>
+            <div class="dropdown-wrapper">
+                <div class="dropdown-trigger" id="ders-trigger" onclick="toggleDropdown('ders-content')">Konular Yükleniyor... ▼</div>
+                <div id="ders-content" class="dropdown-content"></div>
+            </div>
 
             <label style="font-size:0.75rem; font-weight:bold; margin-top:10px; display:block;">KAYNAK SEÇİMİ</label>
-            <div class="dropdown-trigger" id="deneme-trigger" onclick="toggleDropdown('deneme-content')">Kaynaklar Yükleniyor... ▼</div>
-            <div id="deneme-content" class="dropdown-content"></div>
+            <div class="dropdown-wrapper">
+                <div class="dropdown-trigger" id="deneme-trigger" onclick="toggleDropdown('deneme-content')">Kaynaklar Yükleniyor... ▼</div>
+                <div id="deneme-content" class="dropdown-content"></div>
+            </div>
 
             <button onclick="startGame()" class="green" style="margin-top:20px; width:100%;">🚀 SINAVI BAŞLAT</button>
         </div>
@@ -178,6 +230,9 @@
         </div>
         
         <div id="opts-area" style="margin-top:20px;"></div>
+
+        <button onclick="askGemini()" style="background:#3498db; margin-top:15px; width:100%;">🤖 Gemini AI'dan Yardım Al</button>
+        <div id="ai-response" class="ai-box"></div>
         
         <button id="btn-finish-trial" onclick="finishTrial()" class="red" style="margin-top:20px; display:none;">🛑 Sınavı Bitir</button>
         
@@ -202,7 +257,6 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    // YENİ EKLENEN: TÜRKÇE HATA ÇEVİRİ MOTORU
     function getTurkishError(error) {
         switch (error.code) {
             case 'auth/invalid-credential': return "❌ Giriş Başarısız: E-posta veya şifre hatalı.";
@@ -219,7 +273,11 @@
 
     window.switchAuth = (t) => { document.getElementById('login-box').style.display = t === 'login' ? 'block' : 'none'; document.getElementById('reg-box').style.display = t === 'register' ? 'block' : 'none'; };
     
-    // TÜRKÇE HATA MOTORU ENTEGRE EDİLDİ
+    // ROL VE ÖĞRETMEN KODU AÇ/KAPA
+    window.toggleTeacherCode = () => {
+        document.getElementById('reg-teacher-code').style.display = (document.getElementById('reg-role').value === 'teacher') ? 'block' : 'none';
+    };
+
     window.handleLogin = async () => { 
         try { await signInWithEmailAndPassword(auth, document.getElementById('login-email').value.trim(), document.getElementById('login-pass').value); } 
         catch(e) { alert(getTurkishError(e)); } 
@@ -230,11 +288,15 @@
         const u = document.getElementById('reg-username').value;
         const p1 = document.getElementById('reg-pass').value;
         const p2 = document.getElementById('reg-pass-confirm').value;
+        const role = document.getElementById('reg-role').value;
+        const tCode = document.getElementById('reg-teacher-code').value;
+
         if(p1 !== p2) return alert("❌ Şifreler uymuyor!");
+        if(role === 'teacher' && tCode !== "GAZI2026") return alert("❌ Hatalı Eğitmen Kodu!");
+
         try { 
             const res = await createUserWithEmailAndPassword(auth, e, p1); 
-            await updateProfile(res.user, { displayName: u }); 
-            // DOĞRULAMA MAİLİ GÖNDERME
+            await updateProfile(res.user, { displayName: u + "|" + role }); 
             await sendEmailVerification(res.user);
             alert("✅ Kayıt başarılı! Aktivasyon linki e-postanıza gönderildi. Lütfen onaylayıp giriş yapın.");
             await signOut(auth); 
@@ -242,17 +304,15 @@
         } catch(e) { alert(getTurkishError(e)); }
     };
 
-    // UNIQUE (BENZERSİZ) MİSAFİR SİSTEMİ
     window.handleGuestLogin = async () => { 
         try { 
             const guestName = "Misafir-" + Math.floor(1000 + Math.random() * 9000);
             const res = await signInAnonymously(auth); 
-            await updateProfile(res.user, { displayName: guestName });
+            await updateProfile(res.user, { displayName: guestName + "|student" });
             location.reload();
         } catch(e) { alert("Bağlantı Hatası"); } 
     };
 
-    // ŞİFRE SIFIRLAMA FONKSİYONU
     window.handleResetPassword = async () => {
         const email = document.getElementById('login-email').value.trim();
         if(!email) return alert("❌ Lütfen önce e-posta adresinizi yazın.");
@@ -266,10 +326,27 @@
 
     onAuthStateChanged(auth, user => {
         const adminBtn = document.getElementById('admin-report-btn');
+        const instPanel = document.getElementById('instructor-panel');
+
         if (user) { 
-            document.getElementById('display-user').innerText = "Hoş Geldin, " + (user.displayName || "Gazi");
-            // SADECE KAYAMERT319@GMAİL.COM İÇİN ADMIN BUTONU GÖSTERİMİ
-            if (user.email === "kayamert319@gmail.com") { adminBtn.style.display = "block"; } else { adminBtn.style.display = "none"; }
+            const nameParts = (user.displayName || "Gazi|student").split('|');
+            const realName = nameParts[0];
+            const role = nameParts[1] || "student";
+
+            document.getElementById('display-user').innerText = "Hoş Geldin, " + realName;
+            
+            // YETKİ KONTROLÜ MÜHÜRLENDİ
+            if (user.email === "kayamert319@gmail.com") {
+                adminBtn.style.display = "block";
+                instPanel.style.display = "block";
+            } else if (role === "teacher") {
+                instPanel.style.display = "block";
+                adminBtn.style.display = "none";
+            } else {
+                adminBtn.style.display = "none";
+                instPanel.style.display = "none";
+            }
+
             showScreen('screen-main'); 
         } 
         else showScreen('screen-auth');
@@ -294,6 +371,72 @@
         document.getElementById('room-q-time').placeholder = mode === 'question' ? 'Örn: 45 (Saniye)' : 'Örn: 15 (Dakika)';
     };
 
+    // --- YENİ: EĞİTMEN VE AI FONKSİYONLARI ---
+    window.askGemini = () => {
+        if(!currentQObject) return;
+        document.getElementById('ai-response').style.display = "block";
+        document.getElementById('ai-response').innerText = "🤖 Gemini düşünüyor...";
+        socket.emit("askGemini", currentQObject);
+    };
+
+    socket.on("geminiResponse", (text) => {
+        document.getElementById('ai-response').innerText = text;
+    });
+
+    window.createClass = () => {
+        const name = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "");
+        socket.emit("createClass", name);
+    };
+
+    socket.on("classCreated", (code) => {
+        document.getElementById('generated-code').innerText = "KODUNUZ: " + code;
+    });
+
+    window.joinClass = () => {
+        const code = document.getElementById('class-code-input').value.trim().toUpperCase();
+        const name = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "");
+        if(!code) return alert("Sınıf kodu girin!");
+        socket.emit("joinClass", { code, studentName: name });
+    };
+
+    socket.on("classJoined", (res) => {
+        if(res.success) alert("✅ " + res.teacher + " hocanın sınıfına katıldın!");
+        else alert("❌ Geçersiz Sınıf Kodu!");
+    });
+
+    window.publishAlert = () => {
+        const msg = document.getElementById('alert-text').value.trim();
+        if(!msg) return alert("Boş duyuru gönderilemez!");
+        const name = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "");
+        socket.emit("sendGlobalAlert", { message: msg, sender: name });
+        document.getElementById('alert-text').value = "";
+        alert("🚀 Duyuru tüm kullanıcılara gönderildi!");
+    };
+
+    socket.on("receiveGlobalAlert", (data) => {
+        const toast = document.getElementById('notification-toast');
+        const msgBox = document.getElementById('toast-message');
+        msgBox.innerHTML = `<span style="color:#e67e22;">${data.sender}:</span><br>${data.message}`;
+        toast.classList.add('show');
+        setTimeout(() => { toast.classList.remove('show'); }, 6000);
+    });
+
+    window.uploadQuestion = () => {
+        const q = {
+            soru: document.getElementById('new-q-text').value,
+            siklar: document.getElementById('new-q-opts').value.split(','),
+            dogru: parseInt(document.getElementById('new-q-correct').value),
+            ders: document.getElementById('new-q-ders').value,
+            deneme: document.getElementById('new-q-deneme').value
+        };
+        if(!q.soru || q.siklar.length < 2) return alert("Lütfen tüm alanları doldurun.");
+        socket.emit("addNewQuestion", q);
+        document.getElementById('new-q-text').value = "";
+        document.getElementById('new-q-opts').value = "";
+        alert("✅ Soru sunucuya gönderildi!");
+    };
+
+    // --- STANDART İŞLEMLER KORUNDU ---
     function saveToLocal(key, qObj) { let list = JSON.parse(localStorage.getItem(key)) || []; if(!list.find(x => x.soru === qObj.soru)) { list.push(qObj); localStorage.setItem(key, JSON.stringify(list)); } }
     function removeFromLocal(key, qObj) { let list = JSON.parse(localStorage.getItem(key)) || []; list = list.filter(x => x.soru !== qObj.soru); localStorage.setItem(key, JSON.stringify(list)); }
     function checkIsFav(qObj) { return (JSON.parse(localStorage.getItem('kpss_favs')) || []).some(x => x.soru === qObj.soru); }
@@ -388,6 +531,7 @@
         showScreen('screen-game');
         currentQObject = d; 
         document.getElementById('opts-area').innerHTML = "";
+        document.getElementById('ai-response').style.display = "none"; // Yeni soruda AI cevabını gizle
         currentQIndex = d.index - 1;
         document.getElementById('q-text').innerText = d.soru;
         document.getElementById('box-question').style.display = (d.timerMode === 'question') ? 'block' : 'none';
@@ -430,6 +574,7 @@
     function renderTrialQuestion() {
         currentQObject = trialQuestions[currentQIndex];
         document.getElementById('q-text').innerText = `(${currentQIndex+1}/${trialQuestions.length}) ` + currentQObject.soru;
+        document.getElementById('ai-response').style.display = "none"; // Yeni soruda AI cevabını gizle
         renderNavigator(trialQuestions.length, currentQIndex, 'trial');
         const a = document.getElementById('opts-area'); a.innerHTML = "";
         currentQObject.siklar.forEach((s, i) => {
