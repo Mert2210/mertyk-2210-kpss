@@ -14,7 +14,7 @@
         h1, h2, h3, h4 { margin-top: 0; color: #1e3c72; }
         input, select, button, textarea { width: 100%; padding: 12px; margin-bottom: 8px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; font-size: 1rem; font-family: inherit; }
         button { background: #1e3c72; color: white; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; }
-        button:hover { opacity: 0.9; } button.green { background: #27ae60; } button.orange { background: #e67e22; } button.red { background: #c0392b; } button.outline { background: transparent; border: 2px solid #1e3c72; color: #1e3c72; } button.gold { background: #f1c40f; color:#333; }
+        button:hover { opacity: 0.9; } button.green { background: #27ae60; } button.orange { background: #e67e22; } button.red { background: #c0392b; } button.outline { background: transparent; border: 2px solid #1e3c72; color: #1e3c72; } button.gold { background: #f1c40f; color:#333; } button.blue { background: #3498db; }
         
         .opt-btn { background: #fff; color: #333; border: 2px solid #ddd; margin-bottom: 8px; text-align: left; }
         .opt-btn.selected { background: #e67e22 !important; color: #fff !important; border-color: #e67e22; }
@@ -48,7 +48,7 @@
         .timer-container { display: flex; justify-content: space-between; gap: 10px; }
         .timer-box { flex: 1; padding: 8px 15px; border-radius: 8px; font-weight: bold; color: #fff; display: none; }
 
-        /* YENİ EKLENEN STİLLER: BİLDİRİM VE AI KUTUSU */
+        /* BİLDİRİM VE AI KUTUSU */
         #notification-toast { position: fixed; top: 20px; right: 20px; background: #2c3e50; color: white; padding: 15px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 9999; transform: translateX(150%); transition: 0.5s; border-left: 5px solid #e67e22; max-width: 250px; display: flex; align-items: center; gap: 10px; }
         #notification-toast.show { transform: translateX(0); }
         .ai-box { background: #f1f9ff; border-left: 5px solid #3498db; padding: 15px; margin-top: 15px; font-size: 0.9rem; display: none; text-align: left; line-height: 1.5; color: #333; border-radius: 0 8px 8px 0; }
@@ -62,9 +62,18 @@
 </div>
 
 <div class="container">
+    <div id="screen-welcome" class="screen">
+        <h1 style="font-size: 4rem; margin:0;">🎓</h1>
+        <h1 style="font-size: 1.8rem; color:#1e3c72; margin-bottom: 5px;">Gazililer</h1>
+        <h2 style="font-size: 1.2rem; color:#e67e22; margin-top: 0;">KPSS Bilgi Bankası</h2>
+        <p style="color:#666; font-weight:bold; margin-bottom: 20px;">Lütfen profilinizi seçin:</p>
+        <button onclick="chooseRole('student')" class="green" style="padding: 20px; font-size: 1.2rem; margin-bottom: 15px;">🧑‍🎓 Ben Öğrenciyim</button>
+        <button onclick="chooseRole('teacher')" class="outline" style="padding: 20px; font-size: 1.2rem; border-color:#e67e22; color:#e67e22;">👨‍🏫 Ben Öğretmenim</button>
+    </div>
+
     <div id="screen-auth" class="screen">
-        <h1 style="font-size: 3rem; margin:0;">🎓</h1>
-        <h1 style="font-size: 1.4rem; color:#1e3c72;">Gazililer KPSS Bilgi Bankası</h1>
+        <button onclick="showScreen('screen-welcome')" class="outline" style="width:auto; margin-bottom:15px; font-size:0.8rem; padding: 8px 12px;">⬅️ Geri Dön</button>
+        <h1 id="auth-portal-title" style="font-size: 1.6rem; color:#1e3c72;">Portal</h1>
         <div id="login-box" class="auth-form">
             <input type="email" id="login-email" placeholder="E-posta">
             <input type="password" id="login-pass" placeholder="Şifre">
@@ -78,17 +87,11 @@
         </div>
         <div id="reg-box" class="auth-form" style="display:none;">
             <input type="email" id="reg-email" placeholder="E-posta">
-            <input type="text" id="reg-username" placeholder="Kullanıcı Adı">
+            <input type="text" id="reg-username" placeholder="İsim Soyisim / Kullanıcı Adı">
             <input type="password" id="reg-pass" placeholder="Şifre">
             <input type="password" id="reg-pass-confirm" placeholder="Şifre Tekrar">
-            
-            <select id="reg-role" onchange="toggleTeacherCode()" style="border: 2px solid #3498db; margin-top: 5px;">
-                <option value="student">Öğrenciyim</option>
-                <option value="teacher">Öğretmenim / Eğitmenim</option>
-            </select>
-            <input type="password" id="reg-teacher-code" placeholder="Eğitmen Kodu (Örn: GAZI2026)" style="display:none; border: 2px solid #c0392b;">
-
-            <button onclick="handleRegister()" class="outline" style="margin-top:10px;">Kayıt Ol</button>
+            <input type="password" id="reg-teacher-code" placeholder="Eğitmen Kodu (Örn: GAZI2026)" style="display:none; border: 2px solid #c0392b; background:#fdf2f2; margin-top: 10px;">
+            <button onclick="handleRegister()" class="orange" style="margin-top:10px;">Kayıt Ol</button>
             <span class="auth-switch" onclick="switchAuth('login')">Giriş Yap</span>
         </div>
     </div>
@@ -102,6 +105,8 @@
             <button onclick="joinClass()" class="blue" style="margin:0; flex:1; font-size:0.9rem;">Sınıfa Katıl</button>
         </div>
 
+        <button onclick="fetchMyStats()" class="blue" style="margin-bottom:15px; width:100%;">📊 Gelişim Raporum (Karnem)</button>
+
         <button onclick="goToLobby('trial')" class="purple">📝 Hızlı Deneme (Offline)</button>
         <button onclick="goToLobby('room')" class="orange" style="margin-top:10px;">🏠 Oda Kur / Katıl</button>
         
@@ -113,19 +118,32 @@
                 <span id="generated-code" style="font-weight:bold; color:#c0392b;"></span>
             </div>
 
+            <button onclick="fetchTeacherReports()" class="outline" style="font-size:0.85rem; margin-bottom:15px; width:100%;">📊 Sınıfımın Başarı Raporları</button>
+
             <input type="text" id="alert-text" placeholder="Tüm öğrencilere duyuru gönder...">
             <button onclick="publishAlert()" class="orange" style="font-size:0.85rem; margin-bottom:15px;">Hemen Yayınla</button>
 
             <div style="border-top:1px solid #ccc; padding-top:10px; text-align:left;">
                 <h4 style="font-size:0.9rem; margin-top:0;">➕ Yeni Soru Ekle</h4>
-                <textarea id="new-q-text" placeholder="Soru metni..."></textarea>
+                
+                <input type="file" id="img-upload" accept="image/*" capture="environment" style="background:#fff; border:2px dashed #1e3c72; padding:15px; cursor:pointer;" onchange="processImageUpload(event)">
+                <img id="img-preview" src="" style="width:100%; max-height:200px; object-fit:contain; display:none; margin-bottom:10px; border-radius:8px;">
+                
+                <div style="margin-bottom:10px; background:#e8f4f8; padding:10px; border-radius:8px; display:flex; align-items:center; gap:8px;">
+                    <input type="checkbox" id="ai-parse-check" style="width:auto; transform:scale(1.3); cursor:pointer;">
+                    <label for="ai-parse-check" style="font-size:0.85rem; font-weight:bold; color:#1e3c72; cursor:pointer;">Resmi Yapay Zekayla Metne Çevir (Gemini)</label>
+                </div>
+
+                <div style="display:flex; gap:5px;">
+                    <input type="text" id="new-q-ders" placeholder="Ders Adı (Örn: Tarih)">
+                    <input type="text" id="new-q-deneme" placeholder="Konu/Kaynak (Örn: TG-1)">
+                </div>
+
+                <textarea id="new-q-text" placeholder="Soru metni... (Veya sadece resim yükle)"></textarea>
                 <input type="text" id="new-q-opts" placeholder="Şıkları virgülle ayır (A,B,C,D,E)">
                 <input type="number" id="new-q-correct" placeholder="Doğru Şık İndeksi (0'dan başlar)">
-                <div style="display:flex; gap:5px;">
-                    <input type="text" id="new-q-ders" placeholder="Ders (Tarih vb.)">
-                    <input type="text" id="new-q-deneme" placeholder="Kaynak Adı">
-                </div>
-                <button onclick="uploadQuestion()" class="outline" style="background:#fff; color:#1e3c72; border-color:#1e3c72;">📥 Soru Havuzuna Gönder</button>
+                
+                <button onclick="uploadQuestion()" class="outline" style="background:#fff; color:#1e3c72; border-color:#1e3c72;">📥 İzole Kütüphaneme Kaydet</button>
             </div>
         </div>
 
@@ -139,6 +157,14 @@
                 <button id="admin-report-btn" onclick="fetchAdminReports()" class="red" style="grid-column: span 2; font-size:0.85rem; background:#000; margin-top:5px; display:none;">👑 Tüm Hata Raporlarını Oku (Admin)</button>
             </div>
         </div>
+    </div>
+
+    <div id="screen-stats" class="screen">
+        <button onclick="showScreen('screen-main')" class="outline" style="width:auto; margin-bottom:15px;">⬅️ Ana Menüye Dön</button>
+        <h2>📊 Gelişim Raporum</h2>
+        <div id="stats-summary" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:20px; color:white;"></div>
+        <h3 style="text-align:left; border-bottom:1px solid #ccc; padding-bottom:5px; color:#1e3c72;">Geçmiş Denemelerim</h3>
+        <div id="stats-history" style="max-height: 250px; overflow-y: auto; text-align:left; color:#333;"></div>
     </div>
 
     <div id="screen-list" class="screen">
@@ -226,7 +252,9 @@
         <div style="position:relative; margin-top:15px; min-height: 40px;">
             <button onclick="reportQuestion()" style="position:absolute; left:0; top:0; background:transparent; border:none; font-size:1.4rem; color:#c0392b; width:auto; padding:0; cursor:pointer;" title="Hatalı Soru Bildir">🚨</button>
             <button id="btn-fav-current" onclick="toggleFavCurrent()" style="position:absolute; right:0; top:0; background:transparent; border:none; font-size:1.6rem; color:#ccc; width:auto; padding:0; cursor:pointer;">☆</button>
-            <h3 id="q-text" style="text-align:left; line-height:1.4; margin:0; padding: 0 40px;">Soru Yükleniyor...</h3>
+            
+            <img id="q-image-display" src="" style="width:100%; border-radius:10px; margin-top:30px; display:none;">
+            <h3 id="q-text" style="text-align:left; line-height:1.4; margin:10px 0 0 0; padding: 0 40px;">Soru Yükleniyor...</h3>
         </div>
         
         <div id="opts-area" style="margin-top:20px;"></div>
@@ -273,9 +301,12 @@
 
     window.switchAuth = (t) => { document.getElementById('login-box').style.display = t === 'login' ? 'block' : 'none'; document.getElementById('reg-box').style.display = t === 'register' ? 'block' : 'none'; };
     
-    // ROL VE ÖĞRETMEN KODU AÇ/KAPA
-    window.toggleTeacherCode = () => {
-        document.getElementById('reg-teacher-code').style.display = (document.getElementById('reg-role').value === 'teacher') ? 'block' : 'none';
+    let selectedRole = 'student';
+    window.chooseRole = (role) => {
+        selectedRole = role;
+        document.getElementById('auth-portal-title').innerText = role === 'teacher' ? '👨‍🏫 Eğitmen Portalı' : '🧑‍🎓 Öğrenci Portalı';
+        document.getElementById('reg-teacher-code').style.display = role === 'teacher' ? 'block' : 'none';
+        showScreen('screen-auth');
     };
 
     window.handleLogin = async () => { 
@@ -284,19 +315,16 @@
     };
 
     window.handleRegister = async () => {
-        const e = document.getElementById('reg-email').value.trim();
-        const u = document.getElementById('reg-username').value;
-        const p1 = document.getElementById('reg-pass').value;
-        const p2 = document.getElementById('reg-pass-confirm').value;
-        const role = document.getElementById('reg-role').value;
+        const e = document.getElementById('reg-email').value.trim(); const u = document.getElementById('reg-username').value;
+        const p1 = document.getElementById('reg-pass').value; const p2 = document.getElementById('reg-pass-confirm').value;
         const tCode = document.getElementById('reg-teacher-code').value;
 
         if(p1 !== p2) return alert("❌ Şifreler uymuyor!");
-        if(role === 'teacher' && tCode !== "GAZI2026") return alert("❌ Hatalı Eğitmen Kodu!");
+        if(selectedRole === 'teacher' && tCode !== "GAZI2026") return alert("❌ Hatalı Eğitmen Kodu!");
 
         try { 
             const res = await createUserWithEmailAndPassword(auth, e, p1); 
-            await updateProfile(res.user, { displayName: u + "|" + role }); 
+            await updateProfile(res.user, { displayName: u + "|" + selectedRole }); 
             await sendEmailVerification(res.user);
             alert("✅ Kayıt başarılı! Aktivasyon linki e-postanıza gönderildi. Lütfen onaylayıp giriş yapın.");
             await signOut(auth); 
@@ -335,21 +363,24 @@
 
             document.getElementById('display-user').innerText = "Hoş Geldin, " + realName;
             
-            // YETKİ KONTROLÜ MÜHÜRLENDİ
             if (user.email === "kayamert319@gmail.com") {
                 adminBtn.style.display = "block";
                 instPanel.style.display = "block";
+                socket.emit("getTeacherClass", user.email);
             } else if (role === "teacher") {
                 instPanel.style.display = "block";
                 adminBtn.style.display = "none";
+                socket.emit("getTeacherClass", user.email);
             } else {
                 adminBtn.style.display = "none";
                 instPanel.style.display = "none";
             }
 
+            socket.emit("getFilters", myClassCode);
+
             showScreen('screen-main'); 
         } 
-        else showScreen('screen-auth');
+        else showScreen('screen-welcome');
     });
     window.logout = () => signOut(auth).then(() => location.reload());
 </script>
@@ -357,9 +388,9 @@
 <script>
     const socket = io();
     let currentMode = "room", myRoom = "", currentQIndex = 0, qInt = null, totalInt = null, trialQuestions = [], trialAnswers = [];
-    let currentQObject = null; 
-    let currentListType = ""; 
-    let selectedTimerMode = "question";
+    let currentQObject = null, currentListType = "", selectedTimerMode = "question";
+    let myClassCode = localStorage.getItem("gazi_class_code") || "";
+    let uploadedImageBase64 = null;
 
     window.showScreen = (id) => { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); };
     window.toggleDropdown = (id) => document.getElementById(id).classList.toggle('show');
@@ -371,7 +402,172 @@
         document.getElementById('room-q-time').placeholder = mode === 'question' ? 'Örn: 45 (Saniye)' : 'Örn: 15 (Dakika)';
     };
 
-    // --- YENİ: EĞİTMEN VE AI FONKSİYONLARI ---
+    // --- DİNAMİK FİLTRE YAKALAMA (CANLI GÜNCELLEME) ---
+    socket.on("filtersChanged", () => { socket.emit("getFilters", myClassCode); });
+
+    socket.on('updateFilters', data => {
+        const dersContent = document.getElementById('ders-content');
+        if(dersContent) {
+            dersContent.innerHTML = `<div class="checkbox-item" onclick="this.querySelector('input').click()"><input type="checkbox" name="ders-secim" value="HEPSI" checked onclick="event.stopPropagation()"><label>TÜMÜ</label></div>` + 
+                data.dersler.map(x => `<div class="checkbox-item" onclick="this.querySelector('input').click()"><input type="checkbox" name="ders-secim" value="${x}" checked onclick="event.stopPropagation()"><label>${x}</label></div>`).join('');
+            document.getElementById('ders-trigger').innerText = "Konular Seçildi ▼";
+        }
+        const denemeContent = document.getElementById('deneme-content');
+        if(denemeContent) {
+            denemeContent.innerHTML = `<div class="checkbox-item" onclick="this.querySelector('input').click()"><input type="checkbox" name="deneme-secim" value="HEPSI" checked onclick="event.stopPropagation()"><label>TÜMÜ</label></div>` + 
+                Object.keys(data.denemeler).map(x => `<div class="checkbox-item" onclick="this.querySelector('input').click()"><input type="checkbox" name="deneme-secim" value="${x}" onclick="event.stopPropagation()"><label>${x}</label></div>`).join('');
+            document.getElementById('deneme-trigger').innerText = "Kaynaklar Seçildi ▼";
+        }
+    });
+
+    socket.on('updateSubjectList', list => {
+        if(!document.getElementById('ders-content').innerHTML.includes('checkbox')) {
+            document.getElementById('ders-content').innerHTML = `<div class="checkbox-item" onclick="this.querySelector('input').click()"><input type="checkbox" name="ders-secim" value="HEPSI" checked onclick="event.stopPropagation()"><label>TÜMÜ</label></div>` + list.map(x => `<div class="checkbox-item" onclick="this.querySelector('input').click()"><input type="checkbox" name="ders-secim" value="${x}" checked onclick="event.stopPropagation()"><label>${x}</label></div>`).join('');
+            document.getElementById('ders-trigger').innerText = "Konular Seçildi ▼";
+        }
+    });
+    
+    socket.on('updateDenemeList', data => {
+        if(!document.getElementById('deneme-content').innerHTML.includes('checkbox')) {
+            document.getElementById('deneme-content').innerHTML = `<div class="checkbox-item" onclick="this.querySelector('input').click()"><input type="checkbox" name="deneme-secim" value="HEPSI" checked onclick="event.stopPropagation()"><label>TÜMÜ</label></div>` + Object.keys(data.denemeler).map(x => `<div class="checkbox-item" onclick="this.querySelector('input').click()"><input type="checkbox" name="deneme-secim" value="${x}" onclick="event.stopPropagation()"><label>${x}</label></div>`).join('');
+            document.getElementById('deneme-trigger').innerText = "Kaynaklar Seçildi ▼";
+        }
+    });
+
+    // --- ÖĞRENCİ İSTATİSTİK MOTORU (KARNEM) ---
+    window.fetchMyStats = () => {
+        const name = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "");
+        socket.emit("getMyStats", name);
+    };
+
+    socket.on("myStatsData", (history) => {
+        let totalExams = history.length;
+        let tCorrect = 0, tWrong = 0, tBlank = 0, tScore = 0;
+        
+        history.forEach(r => {
+            tCorrect += r.correct || 0; tWrong += r.wrong || 0; tBlank += r.blank || 0; tScore += r.score || 0;
+        });
+
+        const totalQs = tCorrect + tWrong + tBlank;
+        const successRate = totalQs > 0 ? Math.round((tCorrect / totalQs) * 100) : 0;
+
+        document.getElementById('stats-summary').innerHTML = `
+            <div style="background:#27ae60; padding:15px; border-radius:10px;">
+                <div style="font-size:2rem; font-weight:bold;">%${successRate}</div>
+                <div style="font-size:0.8rem;">Başarı Oranı</div>
+            </div>
+            <div style="background:#2980b9; padding:15px; border-radius:10px;">
+                <div style="font-size:2rem; font-weight:bold;">${totalExams}</div>
+                <div style="font-size:0.8rem;">Çözülen Deneme</div>
+            </div>
+            <div style="background:#e67e22; padding:10px; border-radius:10px; grid-column: span 2;">
+                <div style="font-size:1.1rem; font-weight:bold;">Toplam: ${tCorrect} Doğru | ${tWrong} Yanlış</div>
+            </div>
+        `;
+
+        const histDiv = document.getElementById('stats-history');
+        if(history.length === 0) { histDiv.innerHTML = "<p>Henüz çözülmüş bir deneme yok.</p>"; } 
+        else {
+            histDiv.innerHTML = history.slice(0,10).map(r => `
+                <div class="list-item" style="border-left: 5px solid #2980b9;">
+                    <span style="float:right; color:#666; font-size:0.8rem;">${r.date}</span>
+                    <b style="color:#1e3c72;">Puan: ${r.score}</b> <br>
+                    <small style="color:#27ae60; font-weight:bold;">Doğru: ${r.correct}</small> | 
+                    <small style="color:#c0392b; font-weight:bold;">Yanlış: ${r.wrong}</small>
+                </div>
+            `).join('');
+        }
+        showScreen('screen-stats');
+    });
+
+    // --- FOTOĞRAF İŞLEME MOTORU VE AI ---
+    window.processImageUpload = (e) => {
+        const file = e.target.files[0]; if(!file) return;
+        document.getElementById('img-preview').style.display = 'block';
+        document.getElementById('img-preview').src = "https://i.gifer.com/ZKZg.gif"; 
+        
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas'); const MAX_WIDTH = 800; const scale = MAX_WIDTH / img.width;
+                canvas.width = MAX_WIDTH; canvas.height = img.height * scale;
+                const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                uploadedImageBase64 = canvas.toDataURL('image/jpeg', 0.8);
+                document.getElementById('img-preview').src = uploadedImageBase64;
+                
+                if(document.getElementById('ai-parse-check').checked) {
+                    document.getElementById('new-q-text').value = "Yapay Zeka Okuyor...";
+                    socket.emit("parseImageWithGemini", { imageBase64: uploadedImageBase64 });
+                }
+            };
+            img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+    };
+
+    socket.on("geminiParsedData", (text) => {
+        if(text === "HATA") { alert("Görsel okunamadı, manuel yazınız."); document.getElementById('new-q-text').value = ""; return; }
+        try {
+            const qMatch = text.match(/SORU_METNI:\s*(.*?)(?=SIKLAR:)/s);
+            const optMatch = text.match(/SIKLAR:\s*(.*?)(?=DOGRU_INDEKS:)/s);
+            const idxMatch = text.match(/DOGRU_INDEKS:\s*(\d+)/s);
+            
+            if(qMatch) document.getElementById('new-q-text').value = qMatch[1].trim();
+            if(optMatch) {
+                const s = optMatch[1].split('|').map(x => x.trim()).filter(x => x);
+                if(s.length > 0) document.getElementById('new-q-opts').value = s.join(',');
+            }
+            if(idxMatch) document.getElementById('new-q-correct').value = idxMatch[1].trim();
+            alert("✨ Yapay Zeka soruyu başarıyla okudu!");
+        } catch(e) { document.getElementById('new-q-text').value = text; }
+    });
+
+    // --- İZOLE SORU KAYDETME (SERBEST GİRİŞLİ) ---
+    window.uploadQuestion = () => {
+        const qDers = document.getElementById('new-q-ders').value.trim();
+        const qKonu = document.getElementById('new-q-deneme').value.trim();
+        const qSoru = document.getElementById('new-q-text').value.trim() || "Aşağıdaki görseli inceleyiniz.";
+        const qSiklar = document.getElementById('new-q-opts').value ? document.getElementById('new-q-opts').value.split(',').map(s => s.trim()) : ["A", "B", "C", "D", "E"];
+        const qDogru = parseInt(document.getElementById('new-q-correct').value) || 0;
+
+        if(!qDers || !qKonu) return alert("Lütfen Ders ve Konu alanlarını doldurun!");
+        if(!myClassCode) return alert("⚠️ Lütfen önce bir 'Sınıf Kodu Üret' butonuna basarak kütüphanenizi oluşturun!");
+
+        const q = {
+            soru: qSoru,
+            siklar: qSiklar,
+            dogru: qDogru,
+            ders: qDers.toUpperCase(),
+            deneme: qKonu,
+            image: !document.getElementById('ai-parse-check').checked ? uploadedImageBase64 : null,
+            classCode: myClassCode 
+        };
+        
+        socket.emit("addNewQuestion", q);
+        
+        document.getElementById('new-q-text').value = ""; document.getElementById('new-q-opts').value = "";
+        document.getElementById('new-q-ders').value = ""; document.getElementById('new-q-deneme').value = "";
+        document.getElementById('img-preview').style.display = "none"; uploadedImageBase64 = null;
+        alert(`✅ Soru "${qDers}" dersi "${qKonu}" konusu olarak kütüphanenize eklendi!`);
+    };
+
+    window.fetchTeacherReports = () => {
+        const code = prompt("Lütfen Sınıf Kodunuzu Giriniz (Örn: GZ123):", myClassCode);
+        if(code) socket.emit("getTeacherReports", code.toUpperCase());
+    };
+
+    socket.on("teacherReportsData", (reports) => {
+        currentListType = "teacher_report"; document.getElementById('list-title').innerText = "📊 Sınıf Başarı Raporları";
+        const div = document.getElementById('list-content');
+        if(reports.length === 0) div.innerHTML = "<p>Bu sınıfa ait sınav sonucu bulunamadı.</p>";
+        else {
+            div.innerHTML = reports.map(r => `<div class="list-item" style="border-left: 5px solid #2980b9;"><b>Öğrenci:</b> ${r.name} <br><b>Puan:</b> <span style="color:#27ae60;font-weight:bold;">${r.score}</span> (D: ${r.correct}, Y: ${r.wrong}, B: ${r.blank})<br><small>${r.date}</small></div>`).join('');
+        }
+        showScreen('screen-list');
+    });
+
+    // --- STANDART FONKSİYONLAR ---
     window.askGemini = () => {
         if(!currentQObject) return;
         document.getElementById('ai-response').style.display = "block";
@@ -390,6 +586,16 @@
 
     socket.on("classCreated", (code) => {
         document.getElementById('generated-code').innerText = "KODUNUZ: " + code;
+        myClassCode = code;
+        localStorage.setItem("gazi_class_code", code);
+        socket.emit("getFilters", myClassCode); 
+    });
+
+    socket.on("teacherClassFound", (code) => {
+        document.getElementById('generated-code').innerText = "KODUNUZ: " + code;
+        myClassCode = code;
+        localStorage.setItem("gazi_class_code", code);
+        socket.emit("getFilters", myClassCode);
     });
 
     window.joinClass = () => {
@@ -400,8 +606,12 @@
     };
 
     socket.on("classJoined", (res) => {
-        if(res.success) alert("✅ " + res.teacher + " hocanın sınıfına katıldın!");
-        else alert("❌ Geçersiz Sınıf Kodu!");
+        if(res.success) {
+            myClassCode = res.code;
+            localStorage.setItem("gazi_class_code", res.code);
+            socket.emit("getFilters", myClassCode); 
+            alert("✅ Sınıfa katıldın! Listeler güncellendi.");
+        } else alert("❌ Geçersiz Sınıf Kodu!");
     });
 
     window.publishAlert = () => {
@@ -421,22 +631,6 @@
         setTimeout(() => { toast.classList.remove('show'); }, 6000);
     });
 
-    window.uploadQuestion = () => {
-        const q = {
-            soru: document.getElementById('new-q-text').value,
-            siklar: document.getElementById('new-q-opts').value.split(','),
-            dogru: parseInt(document.getElementById('new-q-correct').value),
-            ders: document.getElementById('new-q-ders').value,
-            deneme: document.getElementById('new-q-deneme').value
-        };
-        if(!q.soru || q.siklar.length < 2) return alert("Lütfen tüm alanları doldurun.");
-        socket.emit("addNewQuestion", q);
-        document.getElementById('new-q-text').value = "";
-        document.getElementById('new-q-opts').value = "";
-        alert("✅ Soru sunucuya gönderildi!");
-    };
-
-    // --- STANDART İŞLEMLER KORUNDU ---
     function saveToLocal(key, qObj) { let list = JSON.parse(localStorage.getItem(key)) || []; if(!list.find(x => x.soru === qObj.soru)) { list.push(qObj); localStorage.setItem(key, JSON.stringify(list)); } }
     function removeFromLocal(key, qObj) { let list = JSON.parse(localStorage.getItem(key)) || []; list = list.filter(x => x.soru !== qObj.soru); localStorage.setItem(key, JSON.stringify(list)); }
     function checkIsFav(qObj) { return (JSON.parse(localStorage.getItem('kpss_favs')) || []).some(x => x.soru === qObj.soru); }
@@ -507,23 +701,24 @@
 
     socket.on('roomCreated', c => { myRoom = c; document.getElementById('lobby-room-code').innerText = c; });
     socket.on('updatePlayerList', p => { const l = document.getElementById('lobby-players-list'); if(l) l.innerHTML = p.map(x => `<span class="player-badge">${x.username}</span>`).join(''); });
-    
-    socket.on('updateSubjectList', list => {
-        document.getElementById('ders-content').innerHTML = `<div class="checkbox-item" onclick="this.querySelector('input').click()"><input type="checkbox" name="ders-secim" value="HEPSI" checked onclick="event.stopPropagation()"><label>TÜMÜ</label></div>` + list.map(x => `<div class="checkbox-item" onclick="this.querySelector('input').click()"><input type="checkbox" name="ders-secim" value="${x}" checked onclick="event.stopPropagation()"><label>${x}</label></div>`).join('');
-        document.getElementById('ders-trigger').innerText = "Konular Seçildi ▼";
-    });
-    
-    socket.on('updateDenemeList', data => {
-        document.getElementById('deneme-content').innerHTML = `<div class="checkbox-item" onclick="this.querySelector('input').click()"><input type="checkbox" name="deneme-secim" value="HEPSI" checked onclick="event.stopPropagation()"><label>TÜMÜ</label></div>` + Object.keys(data.denemeler).map(x => `<div class="checkbox-item" onclick="this.querySelector('input').click()"><input type="checkbox" name="deneme-secim" value="${x}" onclick="event.stopPropagation()"><label>${x}</label></div>`).join('');
-        document.getElementById('deneme-trigger').innerText = "Kaynaklar Seçildi ▼";
-    });
 
     window.startGame = () => {
         const dur = parseInt(document.getElementById('room-q-time').value);
         if(!dur || dur <= 0) return alert("Süre zorunludur!");
         const d = []; document.querySelectorAll('input[name="ders-secim"]:checked').forEach(c => d.push(c.value));
         const k = []; document.querySelectorAll('input[name="deneme-secim"]:checked').forEach(c => k.push(c.value));
-        const s = { count: document.getElementById('set-count').value, subject: d.includes("HEPSI") ? "HEPSI" : d, deneme: k.includes("HEPSI") ? "HEPSI" : k, difficulty: document.getElementById('set-difficulty').value, optionsCount: parseInt(document.getElementById('set-options').value), timerMode: selectedTimerMode, duration: dur };
+        
+        const s = { 
+            count: document.getElementById('set-count').value, 
+            subject: d.includes("HEPSI") ? "HEPSI" : d, 
+            deneme: k.includes("HEPSI") ? "HEPSI" : k, 
+            difficulty: document.getElementById('set-difficulty').value, 
+            optionsCount: parseInt(document.getElementById('set-options').value), 
+            timerMode: selectedTimerMode, 
+            duration: dur,
+            classCode: myClassCode 
+        };
+        
         if (currentMode === 'trial') socket.emit('startTrial', s); else socket.emit('startGame', { roomCode: myRoom, settings: s });
     };
 
@@ -531,9 +726,13 @@
         showScreen('screen-game');
         currentQObject = d; 
         document.getElementById('opts-area').innerHTML = "";
-        document.getElementById('ai-response').style.display = "none"; // Yeni soruda AI cevabını gizle
+        document.getElementById('ai-response').style.display = "none"; 
         currentQIndex = d.index - 1;
         document.getElementById('q-text').innerText = d.soru;
+        
+        const imgDisp = document.getElementById('q-image-display');
+        if(d.image) { imgDisp.src = d.image; imgDisp.style.display = "block"; } else { imgDisp.style.display = "none"; }
+
         document.getElementById('box-question').style.display = (d.timerMode === 'question') ? 'block' : 'none';
         document.getElementById('box-total').style.display = (d.timerMode === 'general') ? 'block' : 'none';
         if(d.timerMode === 'general' && d.index === 1) startTotalTimer(d.duration);
@@ -562,6 +761,7 @@
 
     socket.on('trialStarted', data => {
         trialQuestions = data.questions || data; 
+        if(trialQuestions.length === 0) return alert("Bu kritere uygun soru bulunamadı! Lütfen farklı bir ders veya kaynak seçin.");
         trialAnswers = new Array(trialQuestions.length).fill(null); 
         currentQIndex = 0;
         showScreen('screen-game');
@@ -574,7 +774,11 @@
     function renderTrialQuestion() {
         currentQObject = trialQuestions[currentQIndex];
         document.getElementById('q-text').innerText = `(${currentQIndex+1}/${trialQuestions.length}) ` + currentQObject.soru;
-        document.getElementById('ai-response').style.display = "none"; // Yeni soruda AI cevabını gizle
+        
+        const imgDisp = document.getElementById('q-image-display');
+        if(currentQObject.image) { imgDisp.src = currentQObject.image; imgDisp.style.display = "block"; } else { imgDisp.style.display = "none"; }
+
+        document.getElementById('ai-response').style.display = "none"; 
         renderNavigator(trialQuestions.length, currentQIndex, 'trial');
         const a = document.getElementById('opts-area'); a.innerHTML = "";
         currentQObject.siklar.forEach((s, i) => {
@@ -596,6 +800,10 @@
             else if(trialAnswers[i] !== null) { s-=5; y++; saveToLocal('kpss_wrongs', q); }
             else { b++; saveToLocal('kpss_blanks', q); }
         });
+        
+        const studentName = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "");
+        socket.emit("saveStudentResult", { name: studentName, classCode: myClassCode, score: s, correct: d, wrong: y, blank: b });
+
         showScreen('screen-result'); 
         document.getElementById('result-board').innerHTML = `<h3 style="color:#333;">Doğru: ${d} | Yanlış: ${y} | Boş: ${b}</h3><h2>Puan: ${s}</h2>`;
         confetti({ particleCount: 150 });
