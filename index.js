@@ -1,6 +1,5 @@
 /* ==========================================================================
-   GAZİLİLER KPSS BİLGİ BANKASI - SUNUCU DOSYASI (SERVER)
-   SÜREÇ: AI + SINIF SİSTEMİ + DUYURU + DENGELİ DAĞILIM + JSON ONARIM
+   GAZİLİLER KPSS BİLGİ BANKASI - SUNUCU DOSYASI (SERVER) - FULL VERSION
    ========================================================================== */
 
 const express = require("express");
@@ -8,24 +7,45 @@ const http = require("http");
 const { Server } = require("socket.io");
 const fs = require("fs");
 const path = require("path");
-const cors = require("cors"); // Tarayıcı engellerini aşmak için mühürlendi
-
-// --- YENİ: GEMINI AI IMPORT ---
+const cors = require("cors");
+const admin = require("firebase-admin");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 const app = express();
 const server = http.createServer(app);
 
 // Erişim Ayarları
-app.use(cors()); 
+app.use(cors());
 const io = new Server(server, {
     cors: { origin: "*", methods: ["GET", "POST"] },
     transports: ["polling", "websocket"]
 });
 
-// Statik Dosya Yönetimi
-app.use(express.static(path.join(__dirname))); 
+app.use(express.static(path.join(__dirname)));
 app.use(express.static(path.join(__dirname, "public")));
+
+// --- FIREBASE ADMIN MÜHÜRLEME (GÜVENLİ YÖNTEM) ---
+let serviceAccount;
+try {
+    // Render'ın gizli kasasından (Environment Variables) JSON'ı çekiyoruz
+    serviceAccount = JSON.parse(process.env.FIREBASE_CREDENTIALS);
+} catch (error) {
+    console.error("⚠️ UYARI: Firebase Kimlik Bilgileri bulunamadı!");
+}
+
+if (serviceAccount) {
+    admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount)
+    });
+    console.log("🔥 Firebase Admin: Bulut bağlantısı GÜVENLİ ŞEKİLDE mühürlendi.");
+}
+const db = admin.apps.length ? admin.firestore() : null;
+
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+});
+const db = admin.firestore();
+console.log("🔥 Firebase Admin: Bulut bağlantısı başarıyla mühürlendi.");
 
 app.get('/', (req, res) => {
     const indexPath = fs.existsSync(path.join(__dirname, 'public', 'index.html')) 
@@ -34,17 +54,17 @@ app.get('/', (req, res) => {
     res.sendFile(indexPath);
 });
 
+// --- DEĞİŞKENLER ---
 let tumSorular = [];
 const QUESTIONS_FILE = path.join(__dirname, 'questions.json');
 const REPORTS_FILE = path.join(__dirname, 'reports.json'); 
-const CLASSES_FILE = path.join(__dirname, 'classes.json'); // YENİ: Sınıf verileri
+const CLASSES_FILE = path.join(__dirname, 'classes.json');
 
-// --- YENİ: GEMINI AI AYARI ---
-// BURAYA KENDİ API KEY'İNİ YAZMALISIN
-const genAI = new GoogleGenerativeAI("BURAYA_GEMINI_API_KEY_GELECEK");
+// --- GEMINI AI AYARI ---
+const genAI = new GoogleGenerativeAI("AIzaSyBHTuCyaJ34zwdnENuL4i7-PSP5d-c0M50");
 const aiModel = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-// --- SORU HAVUZU MOTORU (JSON ONARIM DESTEKLİ) ---
+// --- SORU HAVUZU MOTORU ---
 function sorulariYukle() {
     console.log("📂 Gazililer Soru Havuzu kontrol ediliyor...");
     if (fs.existsSync(QUESTIONS_FILE)) {
@@ -198,12 +218,14 @@ io.on("connection", (socket) => {
         });
     });
 
-    // --- YENİ: DİNAMİK SORU EKLEME ---
-    socket.on("addNewQuestion", (newQ) => {
+    // --- YENİ: DİNAMİK SORU EKLEME VE FIREBASE ---
+    socket.on("addNewQuestion", async (newQ) => {
         tumSorular.push(newQ);
         fs.writeFileSync(QUESTIONS_FILE, JSON.stringify(tumSorular, null, 2));
-        console.log(`📥 Yeni Soru Eklendi: ${newQ.soru.substring(0, 30)}...`);
-        // Listeleri güncelle
+        try {
+            await db.collection("kpss_sorular").add({ ...newQ, createdAt: admin.firestore.FieldValue.serverTimestamp() });
+            console.log(`☁️ Yeni Soru Buluta Mühürlendi: ${newQ.soru.substring(0, 30)}...`);
+        } catch (e) { console.error("Firebase Hatası:", e); }
         const updatedDersler = [...new Set(tumSorular.map(q => (q.ders || "").trim().toLocaleUpperCase('tr')).filter(x => x))].sort();
         io.emit('updateSubjectList', updatedDersler);
     });
