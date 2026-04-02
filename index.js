@@ -1,6 +1,6 @@
 /* ==========================================================================
    GAZİLİLER KPSS BİLGİ BANKASI - SUNUCU DOSYASI (SERVER)
-   SÜREÇ: 1 SN HIZLI GEÇİŞ + DENGELİ DAĞILIM + ŞIK/ZORLUK + HIZLI DENEME
+   SÜREÇ: 1 SN HIZLI GEÇİŞ + DENGELİ DAĞILIM + ŞIK/ZORLUK + SÜRE MODLARI
    ========================================================================== */
 
 const express = require("express");
@@ -76,7 +76,7 @@ function fisherYatesShuffle(array) {
     return array;
 }
 
-// ŞIK KIRPMA ALGORİTMASI (Yeni Eklendi)
+// ŞIK KIRPMA ALGORİTMASI 
 function shuffleOptions(q, maxOptions = 5) {
     if (!q || !q.siklar) return q;
     const originalCorrectText = q.siklar[q.dogru];
@@ -94,12 +94,52 @@ function shuffleOptions(q, maxOptions = 5) {
     return { ...q, siklar: newSiklar, dogru: newCorrectIndex };
 }
 
+function filterBySubject(pool, selectedSubjects) {
+    if (!selectedSubjects || selectedSubjects === "HEPSI") return pool;
+    const targets = (Array.isArray(selectedSubjects) ? selectedSubjects : [selectedSubjects]).map(s => s.trim().toLocaleUpperCase('tr'));
+    return pool.filter(q => targets.includes((q.ders || "GENEL").trim().toLocaleUpperCase('tr')));
+}
+
+function getBalancedQuestions(pool, count) {
+    // Eğitim Bilimleri eklendi (Ders yelpazesi genişletildi)
+    const dersSirasi = ["TARİH", "COĞRAFYA", "VATANDAŞLIK", "GÜNCEL BİLGİLER", "EĞİTİM BİLİMLERİ"];
+    const grouped = {};
+    const others = [];
+
+    pool.forEach(q => {
+        const dersAdi = (q.ders || "GENEL").trim().toLocaleUpperCase('tr');
+        let foundKey = dersSirasi.find(k => dersAdi.includes(k));
+        if (foundKey) {
+            if (!grouped[foundKey]) grouped[foundKey] = [];
+            grouped[foundKey].push(q);
+        } else { others.push(q); }
+    });
+
+    const activeSubjects = Object.keys(grouped);
+    let selectedQuestions = [];
+    
+    if (activeSubjects.length > 0) {
+        const baseCount = Math.floor(count / activeSubjects.length); 
+        let remainder = count % activeSubjects.length; 
+
+        activeSubjects.forEach(ders => {
+            const shuffledSubjectPool = fisherYatesShuffle(grouped[ders]);
+            let take = baseCount + (remainder > 0 ? 1 : 0);
+            if (remainder > 0) remainder--;
+            selectedQuestions = selectedQuestions.concat(shuffledSubjectPool.slice(0, take));
+        });
+    } else {
+        selectedQuestions = fisherYatesShuffle(others).slice(0, count);
+    }
+    return selectedQuestions.map(q => shuffleOptions(q));
+}
+
 // --- SOCKET İLETİŞİMİ ---
 io.on("connection", (socket) => {
     
     // Kaynak ve Ders Listesi
     const denemeSayilari = {};
-    const mevcutDersler = [...new Set(tumSorular.map(q => (q.ders || "GENEL").trim().toLocaleUpperCase('tr')))].sort();
+    const mevcutDersler = [...new Set(tumSorular.map(q => (q.ders || "").trim().toLocaleUpperCase('tr')).filter(x => x))].sort();
     tumSorular.forEach(q => { if (q.deneme) denemeSayilari[q.deneme] = (denemeSayilari[q.deneme] || 0) + 1; });
 
     socket.emit('updateDenemeList', { denemeler: denemeSayilari });
@@ -131,13 +171,19 @@ io.on("connection", (socket) => {
         io.to(roomCode).emit("updatePlayerList", Object.values(rooms[roomCode].players));
     });
 
-    // HIZLI DENEME BAŞLATMA (YENİ EKLENDİ - İleri/Geri İçin)
+    // HIZLI DENEME BAŞLATMA (İleri/Geri İçin + SÜRE MODU EKLENDİ)
     socket.on("startTrial", (settings) => {
         let pool = [...tumSorular];
         
         // Filtrelemeler
-        if (settings.deneme && settings.deneme !== "HEPSI") pool = pool.filter(q => settings.deneme.includes(q.deneme));
-        if (settings.subject && settings.subject !== "HEPSI") pool = pool.filter(q => settings.subject.includes((q.ders || "GENEL").trim().toLocaleUpperCase('tr')));
+        if (settings.deneme && settings.deneme !== "HEPSI") {
+            const secilenler = Array.isArray(settings.deneme) ? settings.deneme : [settings.deneme];
+            pool = pool.filter(q => secilenler.includes(q.deneme));
+        }
+        if (settings.subject && settings.subject !== "HEPSI") {
+            const hedefler = Array.isArray(settings.subject) ? settings.subject : [settings.subject];
+            pool = pool.filter(q => hedefler.includes((q.ders || "GENEL").trim().toLocaleUpperCase('tr')));
+        }
         if (settings.difficulty && settings.difficulty !== "HEPSI") pool = pool.filter(q => (q.zorluk || "ORTA").toLocaleUpperCase('tr') === settings.difficulty);
 
         fisherYatesShuffle(pool);
@@ -145,7 +191,12 @@ io.on("connection", (socket) => {
         // Şık sayısını ayarla
         const trialQuestions = pool.slice(0, limit).map(q => shuffleOptions(q, settings.optionsCount));
         
-        socket.emit("trialStarted", trialQuestions);
+        // Frontend'in sayacı açabilmesi için ayarları da yolluyoruz
+        socket.emit("trialStarted", {
+            questions: trialQuestions,
+            timerMode: settings.timerMode,
+            duration: settings.duration
+        });
     });
 
     // ÇOK OYUNCULU OYUNU BAŞLATMA
@@ -173,11 +224,13 @@ io.on("connection", (socket) => {
         // Şık sayısını ayarla
         room.questions = pool.slice(0, limit).map(q => shuffleOptions(q, settings.optionsCount));
 
+        // YENİ EKLENEN: Süre modunu (Dakika veya Saniye) odaya işle
         room.settings = settings;
         room.timerMode = settings.timerMode || 'question';
         room.gameStarted = true;
         room.currentQuestionIndex = 0;
 
+        // TOPLAM DENEME SÜRESİ (DAKİKA) SEÇİLDİYSE SUNUCU KRONOMETRESİ BAŞLAR
         if (room.timerMode === 'general') {
             const dak = parseInt(settings.duration) || 15;
             room.endTime = Date.now() + (dak * 60 * 1000);
@@ -215,7 +268,7 @@ io.on("connection", (socket) => {
 
             io.to(roomCode).emit("updatePlayerList", Object.values(room.players));
 
-            // ÖNEMLİ: Tam 1 saniye sonra geçiş yapar
+            // ÖNEMLİ: Soru Başına (question) modu seçiliyse, herkes cevap verince 1 saniye sonra geç
             if (room.answerCount >= Object.keys(room.players).length && room.timerMode === 'question') {
                 clearTimeout(room.timerId);
                 setTimeout(() => {
@@ -251,13 +304,14 @@ function sendQuestionToRoom(roomCode) {
     const q = room.questions[room.currentQuestionIndex];
     let remaining = room.timerMode === 'general' ? Math.max(0, Math.floor((room.endTime - Date.now()) / 1000)) : 0;
 
+    // timerMode bilgisi de frontend'e gönderilir ki doğru sayaç (mavi/kırmızı) açılsın
     io.to(roomCode).emit("newQuestion", {
         soru: q.soru, siklar: q.siklar, ders: q.ders,
         index: room.currentQuestionIndex + 1, total: room.questions.length,
         duration: parseInt(room.settings.duration), timerMode: room.timerMode, remainingTime: remaining
     });
     
-    // Süresiz modu destekleyen timer kontrolü
+    // Süre Modu "Soru Başına" ise veya 0'dan büyükse timer kur (Süresiz ise kurma)
     if (room.timerMode === 'question' && room.settings.duration > 0) {
         if(room.timerId) clearTimeout(room.timerId);
         room.timerId = setTimeout(() => { 
