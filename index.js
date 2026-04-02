@@ -1,6 +1,6 @@
 /* ==========================================================================
    GAZİLİLER KPSS BİLGİ BANKASI - SUNUCU DOSYASI (SERVER)
-   SÜREÇ: 1 SN HIZLI GEÇİŞ + DENGELİ DERS DAĞILIMI + TAM YETKİ
+   SÜREÇ: 1 SN HIZLI GEÇİŞ + DENGELİ DAĞILIM + ŞIK/ZORLUK + HIZLI DENEME
    ========================================================================== */
 
 const express = require("express");
@@ -76,52 +76,22 @@ function fisherYatesShuffle(array) {
     return array;
 }
 
-function shuffleOptions(q) {
+// ŞIK KIRPMA ALGORİTMASI (Yeni Eklendi)
+function shuffleOptions(q, maxOptions = 5) {
     if (!q || !q.siklar) return q;
     const originalCorrectText = q.siklar[q.dogru];
-    const shuffledSiklar = [...q.siklar].sort(() => Math.random() - 0.5);
-    const newCorrectIndex = shuffledSiklar.indexOf(originalCorrectText);
-    return { ...q, siklar: shuffledSiklar, dogru: newCorrectIndex };
-}
-
-function filterBySubject(pool, selectedSubjects) {
-    if (!selectedSubjects || selectedSubjects === "HEPSI") return pool;
-    const targets = (Array.isArray(selectedSubjects) ? selectedSubjects : [selectedSubjects]).map(s => s.trim().toLocaleUpperCase('tr'));
-    return pool.filter(q => targets.includes((q.ders || "GENEL").trim().toLocaleUpperCase('tr')));
-}
-
-function getBalancedQuestions(pool, count) {
-    // Eğitim Bilimleri eklendi (Ders yelpazesi genişletildi)
-    const dersSirasi = ["TARİH", "COĞRAFYA", "VATANDAŞLIK", "GÜNCEL BİLGİLER", "EĞİTİM BİLİMLERİ"];
-    const grouped = {};
-    const others = [];
-
-    pool.forEach(q => {
-        const dersAdi = (q.ders || "GENEL").trim().toLocaleUpperCase('tr');
-        let foundKey = dersSirasi.find(k => dersAdi.includes(k));
-        if (foundKey) {
-            if (!grouped[foundKey]) grouped[foundKey] = [];
-            grouped[foundKey].push(q);
-        } else { others.push(q); }
-    });
-
-    const activeSubjects = Object.keys(grouped);
-    let selectedQuestions = [];
+    let newSiklar = [...q.siklar];
     
-    if (activeSubjects.length > 0) {
-        const baseCount = Math.floor(count / activeSubjects.length); 
-        let remainder = count % activeSubjects.length; 
-
-        activeSubjects.forEach(ders => {
-            const shuffledSubjectPool = fisherYatesShuffle(grouped[ders]);
-            let take = baseCount + (remainder > 0 ? 1 : 0);
-            if (remainder > 0) remainder--;
-            selectedQuestions = selectedQuestions.concat(shuffledSubjectPool.slice(0, take));
-        });
-    } else {
-        selectedQuestions = fisherYatesShuffle(others).slice(0, count);
+    // Şık sayısını düşür (Doğru cevabı koruyarak)
+    if (newSiklar.length > maxOptions) {
+        const wrongOptions = newSiklar.filter((s, i) => i !== q.dogru);
+        fisherYatesShuffle(wrongOptions); 
+        newSiklar = [originalCorrectText, ...wrongOptions.slice(0, maxOptions - 1)]; 
     }
-    return selectedQuestions.map(q => shuffleOptions(q));
+
+    fisherYatesShuffle(newSiklar);
+    const newCorrectIndex = newSiklar.indexOf(originalCorrectText);
+    return { ...q, siklar: newSiklar, dogru: newCorrectIndex };
 }
 
 // --- SOCKET İLETİŞİMİ ---
@@ -129,7 +99,7 @@ io.on("connection", (socket) => {
     
     // Kaynak ve Ders Listesi
     const denemeSayilari = {};
-    const mevcutDersler = [...new Set(tumSorular.map(q => (q.ders || "").trim().toLocaleUpperCase('tr')).filter(x => x))].sort();
+    const mevcutDersler = [...new Set(tumSorular.map(q => (q.ders || "GENEL").trim().toLocaleUpperCase('tr')))].sort();
     tumSorular.forEach(q => { if (q.deneme) denemeSayilari[q.deneme] = (denemeSayilari[q.deneme] || 0) + 1; });
 
     socket.emit('updateDenemeList', { denemeler: denemeSayilari });
@@ -161,7 +131,24 @@ io.on("connection", (socket) => {
         io.to(roomCode).emit("updatePlayerList", Object.values(rooms[roomCode].players));
     });
 
-    // Oyunu Başlatma
+    // HIZLI DENEME BAŞLATMA (YENİ EKLENDİ - İleri/Geri İçin)
+    socket.on("startTrial", (settings) => {
+        let pool = [...tumSorular];
+        
+        // Filtrelemeler
+        if (settings.deneme && settings.deneme !== "HEPSI") pool = pool.filter(q => settings.deneme.includes(q.deneme));
+        if (settings.subject && settings.subject !== "HEPSI") pool = pool.filter(q => settings.subject.includes((q.ders || "GENEL").trim().toLocaleUpperCase('tr')));
+        if (settings.difficulty && settings.difficulty !== "HEPSI") pool = pool.filter(q => (q.zorluk || "ORTA").toLocaleUpperCase('tr') === settings.difficulty);
+
+        fisherYatesShuffle(pool);
+        const limit = parseInt(settings.count) || 10;
+        // Şık sayısını ayarla
+        const trialQuestions = pool.slice(0, limit).map(q => shuffleOptions(q, settings.optionsCount));
+        
+        socket.emit("trialStarted", trialQuestions);
+    });
+
+    // ÇOK OYUNCULU OYUNU BAŞLATMA
     socket.on("startGame", ({ roomCode, settings }) => {
         const room = rooms[roomCode];
         if (!room) return;
@@ -169,12 +156,22 @@ io.on("connection", (socket) => {
         let pool = [...tumSorular];
         const limit = parseInt(settings.count) || 10;
 
+        // Filtrelemeler
         if (settings.deneme && settings.deneme !== "HEPSI") {
             const secilenler = Array.isArray(settings.deneme) ? settings.deneme : [settings.deneme];
             pool = pool.filter(q => secilenler.includes(q.deneme));
         }
-        pool = filterBySubject(pool, settings.subject);
-        room.questions = getBalancedQuestions(pool, limit);
+        if (settings.subject && settings.subject !== "HEPSI") {
+            const hedefler = Array.isArray(settings.subject) ? settings.subject : [settings.subject];
+            pool = pool.filter(q => hedefler.includes((q.ders || "GENEL").trim().toLocaleUpperCase('tr')));
+        }
+        if (settings.difficulty && settings.difficulty !== "HEPSI") {
+            pool = pool.filter(q => (q.zorluk || "ORTA").toLocaleUpperCase('tr') === settings.difficulty);
+        }
+
+        fisherYatesShuffle(pool);
+        // Şık sayısını ayarla
+        room.questions = pool.slice(0, limit).map(q => shuffleOptions(q, settings.optionsCount));
 
         room.settings = settings;
         room.timerMode = settings.timerMode || 'question';
@@ -192,7 +189,7 @@ io.on("connection", (socket) => {
         sendQuestionToRoom(roomCode);
     });
 
-    // Cevaplama ve 1 Saniyelik Hızlı Geçiş
+    // CEVAPLAMA VE 1 SANİYELİK HIZLI GEÇİŞ
     socket.on("submitAnswer", ({ roomCode, answerIndex }) => {
         const room = rooms[roomCode];
         if (!room || !room.gameStarted) return;
@@ -211,13 +208,14 @@ io.on("connection", (socket) => {
                 player.score += earnedPoints;
             } else if (answerIndex !== -1) { player.score -= 5; }
             
+            // Harita boyaması için sonucu gönder
             socket.emit("answerResult", { 
                 correct: isCorrect, correctIndex: currentQ.dogru, selectedIndex: answerIndex, points: earnedPoints 
             });
 
             io.to(roomCode).emit("updatePlayerList", Object.values(room.players));
 
-            // ÖNEMLİ: 1.5 saniye değil, tam 1 saniye sonra geçiş yapar
+            // ÖNEMLİ: Tam 1 saniye sonra geçiş yapar
             if (room.answerCount >= Object.keys(room.players).length && room.timerMode === 'question') {
                 clearTimeout(room.timerId);
                 setTimeout(() => {
@@ -259,7 +257,8 @@ function sendQuestionToRoom(roomCode) {
         duration: parseInt(room.settings.duration), timerMode: room.timerMode, remainingTime: remaining
     });
     
-    if (room.timerMode === 'question') {
+    // Süresiz modu destekleyen timer kontrolü
+    if (room.timerMode === 'question' && room.settings.duration > 0) {
         if(room.timerId) clearTimeout(room.timerId);
         room.timerId = setTimeout(() => { 
             if (rooms[roomCode] && room.gameStarted) {
