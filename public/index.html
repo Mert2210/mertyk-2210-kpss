@@ -57,7 +57,7 @@
             <input type="email" id="login-email" placeholder="E-posta">
             <input type="password" id="login-pass" placeholder="Şifre">
             <button onclick="handleLogin()" class="green">Giriş Yap</button>
-            <span class="auth-switch" onclick="handleResetPassword()" style="color:#2980b9; font-size:0.75rem;">Şifremi Unuttum?</span>
+            <span class="auth-switch" onclick="handleResetPassword()" style="color:#2980b9; font-size:0.75rem; margin-bottom:5px;">Şifremi Unuttum?</span>
             <span class="auth-switch" onclick="switchAuth('register')">Kayıt Ol</span>
             <div style="display:flex; gap:8px; margin-top:15px;">
                 <button onclick="handleGoogleLogin()" style="background:#db4437; flex:1;">🌐 Google</button>
@@ -202,7 +202,7 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    // TÜRKÇE HATA ÇEVİRİ MOTORU
+    // YENİ EKLENEN: TÜRKÇE HATA ÇEVİRİ MOTORU
     function getTurkishError(error) {
         switch (error.code) {
             case 'auth/invalid-credential': return "❌ Giriş Başarısız: E-posta veya şifre hatalı.";
@@ -212,12 +212,14 @@
             case 'auth/weak-password': return "❌ Şifre çok zayıf (En az 6 karakter).";
             case 'auth/invalid-email': return "❌ Geçersiz e-posta formatı.";
             case 'auth/network-request-failed': return "❌ Ağ bağlantı hatası. İnternetinizi kontrol edin.";
+            case 'auth/too-many-requests': return "❌ Çok fazla deneme yaptınız. Biraz bekleyip tekrar deneyin.";
             default: return "❌ Bir hata oluştu: " + error.message;
         }
     }
 
     window.switchAuth = (t) => { document.getElementById('login-box').style.display = t === 'login' ? 'block' : 'none'; document.getElementById('reg-box').style.display = t === 'register' ? 'block' : 'none'; };
     
+    // TÜRKÇE HATA MOTORU ENTEGRE EDİLDİ
     window.handleLogin = async () => { 
         try { await signInWithEmailAndPassword(auth, document.getElementById('login-email').value.trim(), document.getElementById('login-pass').value); } 
         catch(e) { alert(getTurkishError(e)); } 
@@ -232,12 +234,15 @@
         try { 
             const res = await createUserWithEmailAndPassword(auth, e, p1); 
             await updateProfile(res.user, { displayName: u }); 
+            // DOĞRULAMA MAİLİ GÖNDERME
             await sendEmailVerification(res.user);
-            alert("✅ Kayıt başarılı! Doğrulama linki e-postanıza gönderildi.");
+            alert("✅ Kayıt başarılı! Aktivasyon linki e-postanıza gönderildi. Lütfen onaylayıp giriş yapın.");
+            await signOut(auth); 
             location.reload(); 
         } catch(e) { alert(getTurkishError(e)); }
     };
 
+    // UNIQUE (BENZERSİZ) MİSAFİR SİSTEMİ
     window.handleGuestLogin = async () => { 
         try { 
             const guestName = "Misafir-" + Math.floor(1000 + Math.random() * 9000);
@@ -247,7 +252,7 @@
         } catch(e) { alert("Bağlantı Hatası"); } 
     };
 
-    // ŞİFRE SIFIRLAMA
+    // ŞİFRE SIFIRLAMA FONKSİYONU
     window.handleResetPassword = async () => {
         const email = document.getElementById('login-email').value.trim();
         if(!email) return alert("❌ Lütfen önce e-posta adresinizi yazın.");
@@ -263,7 +268,7 @@
         const adminBtn = document.getElementById('admin-report-btn');
         if (user) { 
             document.getElementById('display-user').innerText = "Hoş Geldin, " + (user.displayName || "Gazi");
-            // ADMIN BUTONU KONTROLÜ
+            // SADECE KAYAMERT319@GMAİL.COM İÇİN ADMIN BUTONU GÖSTERİMİ
             if (user.email === "kayamert319@gmail.com") { adminBtn.style.display = "block"; } else { adminBtn.style.display = "none"; }
             showScreen('screen-main'); 
         } 
@@ -339,7 +344,7 @@
         const list = JSON.parse(localStorage.getItem(keys[currentListType])) || [];
         if(list.length === 0) return alert("Liste boş!");
         const win = window.open('', '', 'height=600,width=800');
-        win.document.write('<html><body style="font-family:sans-serif;"><h2>Gazililer KPSS</h2><hr>');
+        win.document.write('<html><body style="font-family:sans-serif;"><h2>Gazililer KPSS Bilgi Bankası</h2><hr>');
         list.forEach((q, i) => win.document.write(`<p><b>Soru ${i+1}:</b> ${q.soru}<br><span style="color:green;">Cevap: ${q.siklar[q.dogru]}</span></p>`));
         win.document.write('</body></html>'); win.document.close(); win.print();
     };
