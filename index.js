@@ -1,6 +1,6 @@
 /* ==========================================================================
    GAZİLİLER KPSS BİLGİ BANKASI - SUNUCU DOSYASI (SERVER)
-   SÜREÇ: 1 SN HIZLI GEÇİŞ + DENGELİ DAĞILIM + ŞIK/ZORLUK + MERKEZİ RAPOR
+   SÜREÇ: AI + SINIF SİSTEMİ + DUYURU + DENGELİ DAĞILIM + JSON ONARIM
    ========================================================================== */
 
 const express = require("express");
@@ -9,6 +9,9 @@ const { Server } = require("socket.io");
 const fs = require("fs");
 const path = require("path");
 const cors = require("cors"); // Tarayıcı engellerini aşmak için mühürlendi
+
+// --- YENİ: GEMINI AI IMPORT ---
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 const app = express();
 const server = http.createServer(app);
@@ -33,7 +36,13 @@ app.get('/', (req, res) => {
 
 let tumSorular = [];
 const QUESTIONS_FILE = path.join(__dirname, 'questions.json');
-const REPORTS_FILE = path.join(__dirname, 'reports.json'); // Hata raporları için dosya yolu
+const REPORTS_FILE = path.join(__dirname, 'reports.json'); 
+const CLASSES_FILE = path.join(__dirname, 'classes.json'); // YENİ: Sınıf verileri
+
+// --- YENİ: GEMINI AI AYARI ---
+// BURAYA KENDİ API KEY'İNİ YAZMALISIN
+const genAI = new GoogleGenerativeAI("BURAYA_GEMINI_API_KEY_GELECEK");
+const aiModel = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 // --- SORU HAVUZU MOTORU (JSON ONARIM DESTEKLİ) ---
 function sorulariYukle() {
@@ -41,7 +50,6 @@ function sorulariYukle() {
     if (fs.existsSync(QUESTIONS_FILE)) {
         try {
             let rawData = fs.readFileSync(QUESTIONS_FILE, 'utf8');
-            // Kritik Temizlik: Fazla köşeli parantezleri onarır
             rawData = rawData.replace(/\]\s*\[/g, ",");
             rawData = rawData.replace(/\]\s*,\s*\[/g, ",");
             while (rawData.startsWith("[[")) { rawData = rawData.replace("[[", "["); }
@@ -77,7 +85,6 @@ function fisherYatesShuffle(array) {
     return array;
 }
 
-// ŞIK KIRPMA ALGORİTMASI 
 function shuffleOptions(q, maxOptions = 5) {
     if (!q || !q.siklar) return q;
     const originalCorrectText = q.siklar[q.dogru];
@@ -136,7 +143,7 @@ function getBalancedQuestions(pool, count) {
 // --- SOCKET İLETİŞİMİ ---
 io.on("connection", (socket) => {
     
-    // Kaynak ve Ders Listesi
+    // Kaynak ve Ders Listesi Gönderimi
     const denemeSayilari = {};
     const mevcutDersler = [...new Set(tumSorular.map(q => (q.ders || "").trim().toLocaleUpperCase('tr')).filter(x => x))].sort();
     tumSorular.forEach(q => { if (q.deneme) denemeSayilari[q.deneme] = (denemeSayilari[q.deneme] || 0) + 1; });
@@ -144,7 +151,64 @@ io.on("connection", (socket) => {
     socket.emit('updateDenemeList', { denemeler: denemeSayilari });
     socket.emit('updateSubjectList', mevcutDersler);
 
-    // --- YENİ: MERKEZİ HATA RAPORU ALICISI ---
+    // --- YENİ: GEMINI AI SORGUSU ---
+    socket.on("askGemini", async (qObj) => {
+        try {
+            const prompt = `Sen uzman bir KPSS hocasısın. Aşağıdaki soruyu analiz et, doğru cevabı şıkkıyla belirt ve nedenini çok kısa, net şekilde açıkla: \n\nSoru: ${qObj.soru} \nŞıklar: ${qObj.siklar.join(", ")}`;
+            const result = await aiModel.generateContent(prompt);
+            socket.emit("geminiResponse", result.response.text());
+        } catch (e) {
+            console.error("AI Hatası:", e);
+            socket.emit("geminiResponse", "⚠️ AI şu an yanıt veremiyor, lütfen daha sonra tekrar dene.");
+        }
+    });
+
+    // --- YENİ: SINIF SİSTEMİ OLAYLARI ---
+    socket.on("createClass", (teacherEmail) => {
+        const classCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+        let classes = {};
+        if (fs.existsSync(CLASSES_FILE)) {
+            try { classes = JSON.parse(fs.readFileSync(CLASSES_FILE, 'utf8')); } catch (e) { classes = {}; }
+        }
+        classes[classCode] = { teacher: teacherEmail, students: [], createdAt: new Date().toISOString() };
+        fs.writeFileSync(CLASSES_FILE, JSON.stringify(classes, null, 2));
+        socket.emit("classCreated", classCode);
+    });
+
+    socket.on("joinClass", ({ code, studentName }) => {
+        if (fs.existsSync(CLASSES_FILE)) {
+            let classes = JSON.parse(fs.readFileSync(CLASSES_FILE, 'utf8'));
+            if (classes[code]) {
+                if (!classes[code].students.find(s => s.name === studentName)) {
+                    classes[code].students.push({ name: studentName, joinedAt: new Date().toLocaleString('tr-TR') });
+                    fs.writeFileSync(CLASSES_FILE, JSON.stringify(classes, null, 2));
+                }
+                socket.emit("classJoined", { success: true, teacher: classes[code].teacher });
+            } else {
+                socket.emit("classJoined", { success: false });
+            }
+        }
+    });
+
+    // --- YENİ: GLOBAL DUYURU ---
+    socket.on("sendGlobalAlert", (data) => {
+        io.emit("receiveGlobalAlert", {
+            message: data.message,
+            sender: data.sender || "Eğitmen"
+        });
+    });
+
+    // --- YENİ: DİNAMİK SORU EKLEME ---
+    socket.on("addNewQuestion", (newQ) => {
+        tumSorular.push(newQ);
+        fs.writeFileSync(QUESTIONS_FILE, JSON.stringify(tumSorular, null, 2));
+        console.log(`📥 Yeni Soru Eklendi: ${newQ.soru.substring(0, 30)}...`);
+        // Listeleri güncelle
+        const updatedDersler = [...new Set(tumSorular.map(q => (q.ders || "").trim().toLocaleUpperCase('tr')).filter(x => x))].sort();
+        io.emit('updateSubjectList', updatedDersler);
+    });
+
+    // --- MERKEZİ HATA RAPORU ---
     socket.on("reportQuestion", (qObj) => {
         let reports = [];
         if (fs.existsSync(REPORTS_FILE)) {
@@ -156,10 +220,10 @@ io.on("connection", (socket) => {
             reportedBySocket: socket.id
         });
         fs.writeFileSync(REPORTS_FILE, JSON.stringify(reports, null, 2));
-        console.log(`🚨 Sunucuya Hata Bildirildi: ${qObj.soru.substring(0, 40)}...`);
+        console.log(`🚨 Hata Raporu Kaydedildi.`);
     });
 
-    // --- YENİ: ADMIN İÇİN RAPORLARI GÖNDERME ---
+    // --- ADMIN RAPOR ÇEKME ---
     socket.on("adminGetReports", () => {
         if (fs.existsSync(REPORTS_FILE)) {
             try {
