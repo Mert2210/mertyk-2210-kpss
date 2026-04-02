@@ -43,6 +43,10 @@
         
         .list-item { background: #f9f9f9; border: 1px solid #eee; padding: 10px; margin-bottom: 8px; border-radius: 8px; position: relative; }
         .list-item b { color: #1e3c72; }
+
+        /* YENİ EKLENEN: SAYAÇ KUTULARI İÇİN CSS */
+        .timer-container { display: flex; justify-content: space-between; gap: 10px; }
+        .timer-box { flex: 1; padding: 8px 15px; border-radius: 8px; font-weight: bold; color: #fff; display: none; }
     </style>
 </head>
 <body>
@@ -109,8 +113,14 @@
         </div>
         
         <div id="lobby-settings" style="text-align: left; background: #f9f9f9; padding: 15px; border-radius: 10px; margin-top:15px;">
-            <label style="font-size:0.75rem; font-weight:bold; color:#c0392b;">SÜRE (Saniye)</label>
-            <input type="number" id="room-q-time" value="45">
+            
+            <label style="font-size:0.75rem; font-weight:bold; color:#c0392b;">SÜRE MODU</label>
+            <div style="display:flex; gap:10px; margin-bottom:10px;">
+                <button id="btn-mode-sec" onclick="setTimerMode('question')" class="green" style="flex:1; font-size:0.8rem;">Soru Başına (Sn)</button>
+                <button id="btn-mode-min" onclick="setTimerMode('general')" class="outline" style="flex:1; font-size:0.8rem;">Toplam Deneme (Dk)</button>
+            </div>
+            
+            <input type="number" id="room-q-time" placeholder="Örn: 45 (Saniye)" value="45">
 
             <div style="display:flex; gap:10px; margin-top:10px;">
                 <div style="flex:1;">
@@ -148,8 +158,11 @@
 
     <div id="screen-game" class="screen">
         <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div id="box-question" style="background:#c0392b; color:white; padding:8px 15px; border-radius:8px; font-weight:bold;">⏱️ <span id="time-q">--s</span></div>
-            <button onclick="document.getElementById('question-navigator').classList.toggle('show-map')" class="outline" style="width:auto; padding:8px;">🗺️ Harita</button>
+            <div class="timer-container" style="flex:1;">
+                <div id="box-total" class="timer-box" style="background:#2980b9;">⌛ <span id="time-total">--:--</span></div>
+                <div id="box-question" class="timer-box" style="background:#c0392b; display:block;">⏱️ <span id="time-q">--s</span></div>
+            </div>
+            <button onclick="document.getElementById('question-navigator').classList.toggle('show-map')" class="outline" style="width:auto; padding:8px; margin-left:10px;">🗺️ Harita</button>
         </div>
         
         <div id="question-navigator"></div>
@@ -209,12 +222,22 @@
 
 <script>
     const socket = io();
-    let currentMode = "room", myRoom = "", currentQIndex = 0, qInt = null, trialQuestions = [], trialAnswers = [];
+    // YENİ EKLENEN: totalInt ve selectedTimerMode eklendi
+    let currentMode = "room", myRoom = "", currentQIndex = 0, qInt = null, totalInt = null, trialQuestions = [], trialAnswers = [];
     let currentQObject = null; 
     let currentListType = ""; 
+    let selectedTimerMode = "question";
 
     window.showScreen = (id) => { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); };
     window.toggleDropdown = (id) => document.getElementById(id).classList.toggle('show');
+
+    // YENİ EKLENEN: Süre modunu ve UI rengini ayarlayan fonksiyon
+    window.setTimerMode = (mode) => {
+        selectedTimerMode = mode;
+        document.getElementById('btn-mode-sec').className = mode === 'question' ? 'green' : 'outline';
+        document.getElementById('btn-mode-min').className = mode === 'general' ? 'green' : 'outline';
+        document.getElementById('room-q-time').placeholder = mode === 'question' ? 'Örn: 45 (Saniye)' : 'Örn: 15 (Dakika)';
+    };
 
     function saveToLocal(key, qObj) {
         let list = JSON.parse(localStorage.getItem(key)) || [];
@@ -297,7 +320,9 @@
         if(!dur || dur <= 0) return alert("Süre zorunludur!");
         const d = []; document.querySelectorAll('input[name="ders-secim"]:checked').forEach(c => d.push(c.value));
         const k = []; document.querySelectorAll('input[name="deneme-secim"]:checked').forEach(c => k.push(c.value));
-        const s = { count: document.getElementById('set-count').value, subject: d.includes("HEPSI") ? "HEPSI" : d, deneme: k.includes("HEPSI") ? "HEPSI" : k, difficulty: document.getElementById('set-difficulty').value, optionsCount: parseInt(document.getElementById('set-options').value), duration: dur };
+        
+        // YENİ EKLENEN: timerMode: selectedTimerMode bilgisi eklendi
+        const s = { count: document.getElementById('set-count').value, subject: d.includes("HEPSI") ? "HEPSI" : d, deneme: k.includes("HEPSI") ? "HEPSI" : k, difficulty: document.getElementById('set-difficulty').value, optionsCount: parseInt(document.getElementById('set-options').value), timerMode: selectedTimerMode, duration: dur };
         if (currentMode === 'trial') socket.emit('startTrial', s); else socket.emit('startGame', { roomCode: myRoom, settings: s });
     };
 
@@ -312,7 +337,14 @@
         document.getElementById('opts-area').innerHTML = "";
         currentQIndex = d.index - 1;
         document.getElementById('q-text').innerText = d.soru;
-        startQuestionTimer(d.duration);
+        
+        // YENİ EKLENEN: Süre Moduna göre hangi sayacın gösterileceğinin ayarı
+        document.getElementById('box-question').style.display = (d.timerMode === 'question') ? 'block' : 'none';
+        document.getElementById('box-total').style.display = (d.timerMode === 'general') ? 'block' : 'none';
+        
+        if(d.timerMode === 'general' && d.index === 1) startTotalTimer(d.duration);
+        if(d.timerMode === 'question') startQuestionTimer(d.duration);
+
         renderNavigator(d.total, currentQIndex, 'room');
         d.siklar.forEach((s, i) => {
             const b = document.createElement('button'); b.innerText = s; b.className = "opt-btn";
@@ -336,11 +368,24 @@
     });
 
     socket.on('trialStarted', data => {
-        trialQuestions = data; trialAnswers = new Array(data.length).fill(null); currentQIndex = 0;
+        // YENİ EKLENEN: Sunucudan gelen data objesine uyum sağlandı (data.questions)
+        trialQuestions = data.questions || data; 
+        trialAnswers = new Array(trialQuestions.length).fill(null); 
+        currentQIndex = 0;
         showScreen('screen-game');
         document.getElementById('trial-nav-buttons').style.display = 'flex';
         document.getElementById('btn-finish-trial').style.display = 'block';
-        document.getElementById('box-question').style.display = 'none';
+        
+        // YENİ EKLENEN: Deneme modu için süre kutusu gösterimi
+        if(data.timerMode === 'general') {
+            document.getElementById('box-question').style.display = 'none';
+            document.getElementById('box-total').style.display = 'block';
+            startTotalTimer(data.duration);
+        } else {
+            document.getElementById('box-question').style.display = 'none';
+            document.getElementById('box-total').style.display = 'none';
+        }
+
         renderTrialQuestion();
     });
 
@@ -366,6 +411,7 @@
     window.trialPrev = () => { if(currentQIndex > 0) { currentQIndex--; renderTrialQuestion(); } };
     
     window.finishTrial = () => {
+        if(totalInt) clearInterval(totalInt); // YENİ EKLENEN: Genel süreyi durdur
         let s = 0; let d = 0; let y = 0; let b = 0;
         trialQuestions.forEach((q, i) => { 
             if(trialAnswers[i] === q.dogru) { s+=10; d++; } 
@@ -380,6 +426,19 @@
     function startQuestionTimer(s) { 
         let t = s; if(qInt) clearInterval(qInt);
         qInt = setInterval(() => { t--; document.getElementById('time-q').innerText = t + "s"; if(t<=0) { clearInterval(qInt); socket.emit('submitAnswer', {roomCode: myRoom, answerIndex: -1}); }}, 1000);
+    }
+
+    // YENİ EKLENEN: Toplam Deneme Süresi (Dakika) için çalışan özel sayaç fonksiyonu
+    function startTotalTimer(minutes) {
+        let t = minutes * 60; if(totalInt) clearInterval(totalInt);
+        totalInt = setInterval(() => {
+            t--; let m = Math.floor(t/60), sec = t%60;
+            document.getElementById('time-total').innerText = `${m}:${sec<10?'0'+sec:sec}`;
+            if(t<=0) {
+                clearInterval(totalInt);
+                if(currentMode === 'trial') window.finishTrial();
+            }
+        }, 1000);
     }
 
     function renderNavigator(total, curr, mode) {
