@@ -56,7 +56,6 @@ const REPORTS_FILE = path.join(__dirname, 'reports.json');
 const CLASSES_FILE = path.join(__dirname, 'classes.json');
 
 // --- GEMINI AI AYARI (GÜVENLİ YÖNTEM) ---
-// API Anahtarı artık kodda değil, sunucunun gizli kasasından (Environment Variables) çekiliyor.
 const geminiApiKey = process.env.GEMINI_API_KEY || "ANAHTAR_YOK";
 const genAI = new GoogleGenerativeAI(geminiApiKey);
 const aiModel = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
@@ -168,7 +167,7 @@ io.on("connection", (socket) => {
     socket.emit('updateDenemeList', { denemeler: denemeSayilari });
     socket.emit('updateSubjectList', mevcutDersler);
 
-    // --- YENİ: GEMINI AI SORGUSU ---
+    // --- GEMINI AI SORGUSU ---
     socket.on("askGemini", async (qObj) => {
         try {
             if(geminiApiKey === "ANAHTAR_YOK") {
@@ -184,7 +183,18 @@ io.on("connection", (socket) => {
         }
     });
 
-    // --- YENİ: SINIF SİSTEMİ OLAYLARI ---
+    // --- YENİ: GEMINI VISION GÖRSEL OKUMA MOTORU ---
+    socket.on("parseImageWithGemini", async ({ imageBase64 }) => {
+        try {
+            const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, "");
+            const imageParts = [{ inlineData: { data: base64Data, mimeType: "image/jpeg" } }];
+            const prompt = "Bu bir KPSS sorusudur. Resmi analiz et. Soru metnini ve şıkları ayrı ayrı çıkar. Formatın şu olsun:\nSORU_METNI: [soruyu buraya yaz]\nSIKLAR: [A şıkkı] | [B şıkkı] | [C şıkkı] | [D şıkkı] | [E şıkkı]\nDOGRU_INDEKS: [sence doğru cevap hangisiyse 0'dan başlayarak sadece rakam yaz (A=0, B=1...)]";
+            const result = await aiModel.generateContent([prompt, ...imageParts]);
+            socket.emit("geminiParsedData", result.response.text());
+        } catch(e) { socket.emit("geminiParsedData", "HATA"); }
+    });
+
+    // --- SINIF SİSTEMİ OLAYLARI ---
     socket.on("createClass", (teacherEmail) => {
         const classCode = Math.random().toString(36).substring(2, 8).toUpperCase();
         let classes = {};
@@ -204,14 +214,41 @@ io.on("connection", (socket) => {
                     classes[code].students.push({ name: studentName, joinedAt: new Date().toLocaleString('tr-TR') });
                     fs.writeFileSync(CLASSES_FILE, JSON.stringify(classes, null, 2));
                 }
-                socket.emit("classJoined", { success: true, teacher: classes[code].teacher });
+                socket.emit("classJoined", { success: true, teacher: classes[code].teacher, code: code });
             } else {
                 socket.emit("classJoined", { success: false });
             }
         }
     });
 
-    // --- YENİ: GLOBAL DUYURU ---
+    // --- YENİ: ÖĞRENCİ SONUÇLARINI KAYDETME VE ÇEKME ---
+    socket.on("saveStudentResult", async (data) => {
+        if(db) {
+            try { await db.collection("kpss_results").add({ ...data, date: new Date().toLocaleString('tr-TR'), serverTime: admin.firestore.FieldValue.serverTimestamp() }); } catch(e){}
+        }
+    });
+
+    socket.on("getMyStats", async (studentName) => {
+        if(db && studentName) {
+            try {
+                const snap = await db.collection("kpss_results").where("name", "==", studentName).orderBy("serverTime", "desc").get();
+                const reports = snap.docs.map(doc => doc.data());
+                socket.emit("myStatsData", reports);
+            } catch(e) { socket.emit("myStatsData", []); }
+        } else { socket.emit("myStatsData", []); }
+    });
+
+    socket.on("getTeacherReports", async (classCode) => {
+        if(db && classCode) {
+            try {
+                const snap = await db.collection("kpss_results").where("classCode", "==", classCode).orderBy("serverTime", "desc").get();
+                const reports = snap.docs.map(doc => doc.data());
+                socket.emit("teacherReportsData", reports);
+            } catch(e) { socket.emit("teacherReportsData", []); }
+        } else { socket.emit("teacherReportsData", []); }
+    });
+
+    // --- GLOBAL DUYURU ---
     socket.on("sendGlobalAlert", (data) => {
         io.emit("receiveGlobalAlert", {
             message: data.message,
@@ -219,7 +256,7 @@ io.on("connection", (socket) => {
         });
     });
 
-    // --- YENİ: DİNAMİK SORU EKLEME VE FIREBASE ---
+    // --- DİNAMİK SORU EKLEME VE FIREBASE ---
     socket.on("addNewQuestion", async (newQ) => {
         tumSorular.push(newQ);
         fs.writeFileSync(QUESTIONS_FILE, JSON.stringify(tumSorular, null, 2));
@@ -248,7 +285,6 @@ io.on("connection", (socket) => {
         console.log(`🚨 Hata Raporu Kaydedildi.`);
     });
 
-    // --- ADMIN RAPOR ÇEKME ---
     socket.on("adminGetReports", () => {
         if (fs.existsSync(REPORTS_FILE)) {
             try {
@@ -407,7 +443,7 @@ function sendQuestionToRoom(roomCode) {
     let remaining = room.timerMode === 'general' ? Math.max(0, Math.floor((room.endTime - Date.now()) / 1000)) : 0;
 
     io.to(roomCode).emit("newQuestion", {
-        soru: q.soru, siklar: q.siklar, ders: q.ders,
+        soru: q.soru, siklar: q.siklar, ders: q.ders, image: q.image,
         index: room.currentQuestionIndex + 1, total: room.questions.length,
         duration: parseInt(room.settings.duration), timerMode: room.timerMode, remainingTime: remaining
     });
