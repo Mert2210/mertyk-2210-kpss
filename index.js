@@ -156,10 +156,22 @@ function getBalancedQuestions(pool, count) {
     return selectedQuestions.map(q => shuffleOptions(q));
 }
 
+// --- YENİ: LİSTE GÜNCELLEME MOTORU (CANLI YAYIN) ---
+function listeleriHerkesinEkranindaGuncelle() {
+    const denemeler = {};
+    const dersler = [...new Set(tumSorular.map(q => (q.ders || "Genel").trim().toLocaleUpperCase('tr')).filter(x => x))].sort();
+    tumSorular.forEach(q => { 
+        if (q.deneme) denemeler[q.deneme] = (denemeler[q.deneme] || 0) + 1; 
+    });
+    // Tüm bağlı kullanıcılara yeni listeleri (Dersler ve Konular) anında yolla
+    io.emit('updateDenemeList', { denemeler });
+    io.emit('updateSubjectList', dersler);
+}
+
 // --- SOCKET İLETİŞİMİ ---
 io.on("connection", (socket) => {
     
-    // Kaynak ve Ders Listesi Gönderimi
+    // Kaynak ve Ders Listesi Gönderimi (Bağlanana ilk listeyi gönder)
     const denemeSayilari = {};
     const mevcutDersler = [...new Set(tumSorular.map(q => (q.ders || "").trim().toLocaleUpperCase('tr')).filter(x => x))].sort();
     tumSorular.forEach(q => { if (q.deneme) denemeSayilari[q.deneme] = (denemeSayilari[q.deneme] || 0) + 1; });
@@ -256,7 +268,7 @@ io.on("connection", (socket) => {
         });
     });
 
-    // --- DİNAMİK SORU EKLEME VE FIREBASE ---
+    // --- DİNAMİK SORU EKLEME VE FIREBASE (GÜNCELLENDİ) ---
     socket.on("addNewQuestion", async (newQ) => {
         tumSorular.push(newQ);
         fs.writeFileSync(QUESTIONS_FILE, JSON.stringify(tumSorular, null, 2));
@@ -266,8 +278,9 @@ io.on("connection", (socket) => {
                 console.log(`☁️ Yeni Soru Buluta Mühürlendi: ${newQ.soru.substring(0, 30)}...`);
             } catch (e) { console.error("Firebase Hatası:", e); }
         }
-        const updatedDersler = [...new Set(tumSorular.map(q => (q.ders || "").trim().toLocaleUpperCase('tr')).filter(x => x))].sort();
-        io.emit('updateSubjectList', updatedDersler);
+        
+        // ÖNEMLİ: Hoca yeni soru eklediğinde sistem tüm kullanıcıların ders ve konu listelerini anında günceller.
+        listeleriHerkesinEkranindaGuncelle();
     });
 
     // --- MERKEZİ HATA RAPORU ---
