@@ -462,4 +462,4 @@ function sendQuestionToRoom(roomCode) {
 }
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`🚀 Gazililer Yanlış Soru Kumbaram Sunucusu ${PORT} portunda aktif.`));
+server.listen(PORT, () => console.log(`🚀 Gazililer Eğitim Platformu Sunucusu ${PORT} portunda aktif.`));
