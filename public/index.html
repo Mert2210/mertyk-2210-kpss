@@ -33,6 +33,8 @@
         .grade-btn.selected { background: #e67e22; color: #fff; border-color: #e67e22; box-shadow: 0 4px 10px rgba(230,126,34,0.3); }
 
         .screen { display: none; } .active { display: block; }
+        .hidden-panel { display: none !important; }
+        
         #lobby-players-area { background: #e8f4f8; padding: 10px; border-radius: 8px; border: 2px dashed #3498db; margin-top: 15px; text-align: left; }
         .player-badge { display: inline-block; background: #3498db; color: white; padding: 5px 10px; border-radius: 15px; font-size: 0.8rem; margin: 3px; font-weight: bold; }
         
@@ -87,6 +89,7 @@
 </div>
 
 <div class="container">
+    
     <div id="screen-auth" class="screen active">
         <div class="role-toggle">
             <div id="btn-main-student" class="role-btn active" onclick="setMainRole('student')">🧑‍🎓 Öğrenci</div>
@@ -121,9 +124,27 @@
             <input type="password" id="reg-pass" placeholder="Şifre Belirleyin">
             <input type="password" id="reg-pass-confirm" placeholder="Şifre Tekrar">
             
+            <div id="reg-student-options" style="background:#f9f9f9; padding:10px; border-radius:8px; margin-top:10px; border:1px solid #ddd;">
+                <label style="font-size:0.75rem; font-weight:bold; color:#1e3c72; display:block; margin-bottom:5px;">Hedef Sınavınız:</label>
+                <select id="reg-exam-type" style="margin-bottom:10px; font-weight:bold; border-color:#3498db;" onchange="updateRegGradeDropdown()">
+                    <option value="kpss_lisans">KPSS Lisans</option>
+                    <option value="kpss_onlisans">KPSS Ön Lisans</option>
+                    <option value="kpss_ortaogretim">Ortaöğretim</option>
+                    <option value="kpss_egitim">KPSS Eğitim Bilimleri</option>
+                    <option value="yks_tyt">YKS - TYT</option>
+                    <option value="yks_ayt">YKS - AYT</option>
+                    <option value="lise_okul">Lise (Okul Dersleri)</option>
+                    <option value="ortaokul">Ortaokul (LGS)</option>
+                </select>
+                <div id="reg-grade-area" style="display:none;">
+                    <label style="font-size:0.75rem; font-weight:bold; color:#c0392b; margin-bottom:5px; display:block;">Sınıfınız:</label>
+                    <select id="reg-grade" style="font-weight:bold; border-color:#c0392b; color:#c0392b;"></select>
+                </div>
+            </div>
+
             <p id="teacher-info-text" style="display:none; font-size:0.8rem; color:#c0392b; font-weight:bold; text-align:center; background:#fff3f3; padding:10px; border-radius:8px; border:1px solid #f5c6cb;">⚠️ Öğretmen kayıtları, yönetici onayından sonra aktifleşir.</p>
             
-            <button onclick="handleRegister()" class="orange" style="margin-top:10px; padding:15px; font-size:1.1rem;">Kayıt İşlemini Tamamla</button>
+            <button onclick="handleRegister()" class="orange" style="margin-top:15px; padding:15px; font-size:1.1rem;">Kayıt İşlemini Tamamla</button>
             <div style="text-align:center; margin-top:20px;">
                 <span class="auth-switch" onclick="switchAuth('login')">⬅️ Zaten hesabım var, Giriş Yap</span>
             </div>
@@ -134,6 +155,7 @@
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
             <button onclick="logout()" class="outline" style="width:auto; font-size:0.8rem; padding:8px;">⬅️ Çıkış</button>
             <button id="pwa-install-btn" onclick="installPWA()" class="green" style="display:none; width:auto; font-size:0.8rem; padding:8px;">📲 Uygulamayı İndir</button>
+            <button id="pwa-help-btn" onclick="alert('iPhone Kullanıyorsanız:\nTarayıcının altındaki (Kare ve Ok) Paylaş tuşuna basın, ardından Ana Ekrana Ekle seçeneğine dokunun.\n\nAndroid Kullanıyorsanız:\nTarayıcınızın sağ üstündeki 3 noktaya basıp Uygulamayı Yükle veya Ana Ekrana Ekle diyebilirsiniz.')" class="outline" style="width:auto; font-size:0.8rem; padding:8px; border-color:#27ae60; color:#27ae60;">❓ Nasıl İndiririm?</button>
             <button onclick="openSettingsPanel()" class="outline" style="width:auto; font-size:0.8rem; padding:8px; border-color:#8e44ad; color:#8e44ad;">⚙️ Profil & Ayarlar</button>
         </div>
 
@@ -152,59 +174,65 @@
         </div>
 
         <div id="student-library-panel" style="display:none; background: #fdf2e9; padding: 15px; border-radius: 10px; margin-bottom: 15px; border: 2px solid #e67e22;">
-            <h4 style="margin:0 0 10px 0; color:#e67e22;">☁️ Yanlış Soru Kumbaram</h4>
             
-            <div style="display:flex; gap:5px; margin-bottom:15px;">
-                <button onclick="fetchStudentLibrary('cloud', false)" class="outline" style="flex:1; font-size:0.75rem; border-color:#e67e22; color:#e67e22; padding:8px;">☁️ Buluttan Aç</button>
-                <button onclick="fetchStudentLibrary('local', false)" class="outline" style="flex:1; font-size:0.75rem; border-color:#3498db; color:#3498db; padding:8px;">💾 Cihazdan Aç</button>
-                <button onclick="startLibraryTest()" class="orange" style="flex:1.2; font-size:0.75rem; padding:8px;">🚀 Test Çöz</button>
+            <div style="display:flex; justify-content:space-between; align-items:center; cursor:pointer; margin-bottom:10px;" onclick="document.getElementById('library-content-wrapper').classList.toggle('hidden-panel')">
+                <h4 style="margin:0; color:#e67e22;">☁️ Yanlış Soru Kumbaram</h4>
+                <span style="color:#e67e22; font-size:0.8rem; font-weight:bold; background:#fff; padding:3px 8px; border-radius:5px; border:1px solid #e67e22;">🔽 GİZLE / GÖSTER</span>
             </div>
 
-            <div style="border-top:1px solid #e67e22; padding-top:15px; text-align:left;">
-                <h4 style="font-size:0.9rem; margin-top:0; color:#333;">➕ Yapamadığın Soruyu Ekle</h4>
-                
-                <div style="display:flex; gap:10px; margin-bottom:10px;">
-                    <button type="button" class="outline" style="flex:1; font-size:0.85rem; padding:8px;" onclick="document.getElementById('std-img-upload-camera').click()">📸 Soru Çek</button>
-                    <button type="button" class="outline" style="flex:1; font-size:0.85rem; padding:8px;" onclick="document.getElementById('std-img-upload-file').click()">📁 Galeriden</button>
+            <div id="library-content-wrapper" class="">
+                <div style="display:flex; gap:5px; margin-bottom:15px;">
+                    <button onclick="fetchStudentLibrary('cloud', false)" class="outline" style="flex:1; font-size:0.75rem; border-color:#e67e22; color:#e67e22; padding:8px;">☁️ Buluttan Aç</button>
+                    <button onclick="fetchStudentLibrary('local', false)" class="outline" style="flex:1; font-size:0.75rem; border-color:#3498db; color:#3498db; padding:8px;">💾 Cihazdan Aç</button>
+                    <button onclick="startLibraryTest()" class="orange" style="flex:1.2; font-size:0.75rem; padding:8px;">🚀 Test Çöz</button>
                 </div>
-                
-                <input type="file" id="std-img-upload-camera" accept="image/*" capture="environment" style="display:none;" onchange="processStudentImageUpload(event, 'image')">
-                <input type="file" id="std-img-upload-file" accept="image/*" style="display:none;" onchange="processStudentImageUpload(event, 'image')">
-                
-                <img id="std-img-preview" src="" style="width:100%; max-height:200px; object-fit:contain; display:none; margin-bottom:10px; border-radius:8px; border: 2px solid #3498db;">
-                
-                <div style="display:flex; gap:5px; margin-bottom:8px;">
-                    <select id="std-q-ders" style="flex:1; font-weight:bold; border-color:#ccc;"><option value="Genel">Genel</option></select>
-                    <input type="text" id="std-q-konu" placeholder="Alt Konu" style="flex:1; margin:0;">
-                </div>
-                <input type="text" id="std-q-kitap" placeholder="Kitap / Kaynak / Yıl">
 
-                <textarea id="std-q-text" placeholder="Soru metni veya kendine notun..."></textarea>
-                
-                <div style="background: #e8f4f8; padding: 12px; border-radius: 8px; margin-bottom:10px; border: 1px dashed #3498db;">
-                    <label style="font-size:0.75rem; font-weight:bold; color:#1e3c72; margin-bottom:5px; display:block;">✏️ ÇÖZÜM EKLE (İsteğe Bağlı)</label>
-                    <button type="button" class="outline" style="width:100%; font-size:0.8rem; padding:8px; margin-bottom:8px; border-color:#27ae60; color:#27ae60;" onclick="document.getElementById('std-solution-file').click()">📸 Çözüm Fotoğrafı Ekle</button>
-                    <input type="file" id="std-solution-file" accept="image/*" style="display:none;" onchange="processStudentImageUpload(event, 'solution')">
+                <div style="border-top:1px solid #e67e22; padding-top:15px; text-align:left;">
+                    <h4 style="font-size:0.9rem; margin-top:0; color:#333;">➕ Yapamadığın Soruyu Ekle</h4>
                     
-                    <textarea id="std-q-sol-text" placeholder="Varsa yazılı çözüm notunuz..."></textarea>
+                    <div style="display:flex; gap:10px; margin-bottom:10px;">
+                        <button type="button" class="outline" style="flex:1; font-size:0.85rem; padding:8px;" onclick="document.getElementById('std-img-upload-camera').click()">📸 Soru Çek</button>
+                        <button type="button" class="outline" style="flex:1; font-size:0.85rem; padding:8px;" onclick="document.getElementById('std-img-upload-file').click()">📁 Galeriden</button>
+                    </div>
                     
-                    <label style="font-size:0.75rem; font-weight:bold; color:#1e3c72; margin-top:5px; display:block;">✅ DOĞRU ŞIK HANGİSİ?</label>
-                    <select id="std-q-correct-idx" style="font-weight:bold; border-color:#27ae60;">
-                        <option value="0">A Şıkkı</option><option value="1">B Şıkkı</option><option value="2">C Şıkkı</option><option value="3">D Şıkkı</option><option value="4">E Şıkkı</option>
+                    <input type="file" id="std-img-upload-camera" accept="image/*" capture="environment" style="display:none;" onchange="processStudentImageUpload(event, 'image')">
+                    <input type="file" id="std-img-upload-file" accept="image/*" style="display:none;" onchange="processStudentImageUpload(event, 'image')">
+                    
+                    <img id="std-img-preview" src="" style="width:100%; max-height:200px; object-fit:contain; display:none; margin-bottom:10px; border-radius:8px; border: 2px solid #3498db;">
+                    
+                    <div style="display:flex; gap:5px; margin-bottom:8px;">
+                        <select id="std-q-ders" style="flex:1; font-weight:bold; border-color:#ccc;"><option value="Genel">Genel</option></select>
+                        <input type="text" id="std-q-konu" placeholder="Alt Konu" style="flex:1; margin:0;">
+                    </div>
+                    <input type="text" id="std-q-kitap" placeholder="Kitap / Kaynak / Yıl">
+
+                    <textarea id="std-q-text" placeholder="Soru metni veya kendine notun..."></textarea>
+                    
+                    <div style="background: #e8f4f8; padding: 12px; border-radius: 8px; margin-bottom:10px; border: 1px dashed #3498db;">
+                        <label style="font-size:0.75rem; font-weight:bold; color:#1e3c72; margin-bottom:5px; display:block;">✏️ ÇÖZÜM EKLE (İsteğe Bağlı)</label>
+                        <button type="button" class="outline" style="width:100%; font-size:0.8rem; padding:8px; margin-bottom:8px; border-color:#27ae60; color:#27ae60;" onclick="document.getElementById('std-solution-file').click()">📸 Çözüm Fotoğrafı Ekle</button>
+                        <input type="file" id="std-solution-file" accept="image/*" style="display:none;" onchange="processStudentImageUpload(event, 'solution')">
+                        
+                        <textarea id="std-q-sol-text" placeholder="Varsa yazılı çözüm notunuz..."></textarea>
+                        
+                        <label style="font-size:0.75rem; font-weight:bold; color:#1e3c72; margin-top:5px; display:block;">✅ DOĞRU ŞIK HANGİSİ?</label>
+                        <select id="std-q-correct-idx" style="font-weight:bold; border-color:#27ae60;">
+                            <option value="0">A Şıkkı</option><option value="1">B Şıkkı</option><option value="2">C Şıkkı</option><option value="3">D Şıkkı</option><option value="4">E Şıkkı</option>
+                        </select>
+                    </div>
+
+                    <label style="font-size:0.75rem; font-weight:bold; color:#1e3c72; margin-top:5px; display:block;">⏰ HATIRLATMA SIKLIĞI</label>
+                    <select id="std-q-reminder" style="margin-bottom:15px; border-color:#e67e22; color:#e67e22; font-weight:bold;">
+                        <option value="1">Yarın Hatırlat (1 Gün Sonra)</option>
+                        <option value="3">3 Gün Sonra Hatırlat</option>
+                        <option value="7">1 Hafta Sonra Hatırlat</option>
+                        <option value="30">1 Ay Sonra Hatırlat</option>
                     </select>
-                </div>
 
-                <label style="font-size:0.75rem; font-weight:bold; color:#1e3c72; margin-top:5px; display:block;">⏰ HATIRLATMA SIKLIĞI</label>
-                <select id="std-q-reminder" style="margin-bottom:15px; border-color:#e67e22; color:#e67e22; font-weight:bold;">
-                    <option value="1">Yarın Hatırlat (1 Gün Sonra)</option>
-                    <option value="3">3 Gün Sonra Hatırlat</option>
-                    <option value="7">1 Hafta Sonra Hatırlat</option>
-                    <option value="30">1 Ay Sonra Hatırlat</option>
-                </select>
-
-                <div style="display:flex; gap:5px;">
-                    <button onclick="uploadStudentQuestion('cloud')" class="orange" style="flex:1; padding:15px; font-size:0.9rem;">☁️ Buluta Kaydet</button>
-                    <button onclick="uploadStudentQuestion('local')" class="blue" style="flex:1; padding:15px; font-size:0.9rem;">💾 Cihaza Kaydet</button>
+                    <div style="display:flex; gap:5px;">
+                        <button onclick="uploadStudentQuestion('cloud')" class="orange" style="flex:1; padding:15px; font-size:0.9rem;">☁️ Buluta Kaydet</button>
+                        <button onclick="uploadStudentQuestion('local')" class="blue" style="flex:1; padding:15px; font-size:0.9rem;">💾 Cihaza Kaydet</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -230,15 +258,10 @@
                     <button type="button" class="outline" style="flex:1; font-size:0.85rem; padding:8px; border-color:#fff; color:#fff;" onclick="document.getElementById('img-upload-camera').click()">📸 Fotoğraf Çek</button>
                     <button type="button" class="outline" style="flex:1; font-size:0.85rem; padding:8px; border-color:#fff; color:#fff;" onclick="document.getElementById('img-upload-file').click()">📁 Galeriden Seç</button>
                 </div>
-                <input type="file" id="img-upload-camera" accept="image/*" capture="environment" style="display:none;" onchange="processImageUpload(event)">
-                <input type="file" id="img-upload-file" accept="image/*" style="display:none;" onchange="processImageUpload(event)">
+                <input type="file" id="img-upload-camera" accept="image/*" capture="environment" style="display:none;" onchange="processImageUpload(event, 'question')">
+                <input type="file" id="img-upload-file" accept="image/*" style="display:none;" onchange="processImageUpload(event, 'question')">
                 <img id="img-preview" src="" style="width:100%; max-height:200px; object-fit:contain; display:none; margin-bottom:10px; border-radius:8px;">
                 
-                <div style="margin-bottom:10px; background:rgba(255,255,255,0.1); padding:10px; border-radius:8px; display:flex; align-items:center; gap:8px;">
-                    <input type="checkbox" id="ai-parse-check" style="width:auto; transform:scale(1.3); cursor:pointer;">
-                    <label for="ai-parse-check" style="font-size:0.85rem; font-weight:bold; cursor:pointer;">Resmi Yapay Zekayla Metne Çevir</label>
-                </div>
-
                 <div style="display:flex; gap:5px;">
                     <input type="text" id="new-q-ders" placeholder="Ders Adı (Örn: Tarih)">
                     <input type="text" id="new-q-deneme" placeholder="Konu/Kaynak (Örn: TG-1)">
@@ -247,6 +270,15 @@
                 <textarea id="new-q-text" placeholder="Soru metni... (Veya sadece resim yükle)"></textarea>
                 <input type="text" id="new-q-opts" placeholder="Şıkları virgülle ayır (A,B,C,D,E)">
                 <input type="number" id="new-q-correct" placeholder="Doğru Şık İndeksi (0'dan başlar)">
+                
+                <div style="margin-bottom:10px; background:rgba(255,255,255,0.1); padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,0.3);">
+                    <label style="font-size:0.8rem; font-weight:bold; margin-bottom:5px; display:block;">✏️ Öğrenciler İçin Çözüm (İsteğe Bağlı)</label>
+                    <button type="button" class="outline" style="width:100%; font-size:0.8rem; padding:8px; border-color:#f1c40f; color:#f1c40f; margin-bottom:8px;" onclick="document.getElementById('img-upload-solution').click()">📸 Çözüm Fotoğrafı Ekle</button>
+                    <input type="file" id="img-upload-solution" accept="image/*" style="display:none;" onchange="processImageUpload(event, 'solution')">
+                    <img id="img-preview-solution" src="" style="width:100%; max-height:200px; object-fit:contain; display:none; margin-bottom:10px; border-radius:8px;">
+                    <textarea id="new-q-sol-text" placeholder="Varsa çözüm açıklaması..." style="margin-bottom:0;"></textarea>
+                </div>
+
                 <button onclick="uploadQuestion()" class="outline" style="background:#fff; color:#1e3c72; border-color:#1e3c72;">📥 İzole Kütüphaneme Kaydet</button>
             </div>
         </div>
@@ -399,9 +431,6 @@
         </div>
         
         <div id="opts-area" style="margin-top:20px;"></div>
-
-        <button onclick="askGemini()" style="background:#3498db; margin-top:15px; width:100%;">🤖 Gemini AI'dan Yardım Al</button>
-        <div id="ai-response" class="ai-box"></div>
         
         <button id="btn-finish-trial" onclick="finishTrial()" class="red" style="margin-top:20px; display:none;">🛑 Sınavı Bitir</button>
     </div>
@@ -452,6 +481,25 @@
         document.getElementById('login-box').style.display = t === 'login' ? 'block' : 'none'; 
         document.getElementById('reg-box').style.display = t === 'register' ? 'block' : 'none'; 
     };
+
+    window.updateRegGradeDropdown = () => {
+        const type = document.getElementById('reg-exam-type').value;
+        const area = document.getElementById('reg-grade-area');
+        const select = document.getElementById('reg-grade');
+        select.innerHTML = '';
+        
+        let grades = [];
+        if(type === 'lise_okul') grades = ['9. Sınıf', '10. Sınıf', '11. Sınıf', '12. Sınıf', 'Mezun'];
+        else if (type === 'ortaokul') grades = ['5. Sınıf', '6. Sınıf', '7. Sınıf', '8. Sınıf (LGS)'];
+        
+        if(grades.length > 0) {
+            area.style.display = 'block';
+            grades.forEach(val => select.innerHTML += `<option value="${val}">${val}</option>`);
+        } else {
+            area.style.display = 'none';
+        }
+    };
+    window.onload = () => { window.updateRegGradeDropdown(); };
 
     window.updateGradeDropdown = () => {
         const type = document.getElementById('profile-exam-type').value;
@@ -550,10 +598,20 @@
         const e = document.getElementById('reg-email').value.trim(); const u = document.getElementById('reg-username').value;
         const p1 = document.getElementById('reg-pass').value; const p2 = document.getElementById('reg-pass-confirm').value;
         if(p1 !== p2) return alert("❌ Şifreler uymuyor!");
+        
+        const regExamType = document.getElementById('reg-exam-type').value;
+        const regGrade = document.getElementById('reg-grade').value;
+
         try { 
             const res = await createUserWithEmailAndPassword(auth, e, p1); 
             await updateProfile(res.user, { displayName: u + "|" + selectedRole }); 
             await sendEmailVerification(res.user);
+            
+            if(selectedRole === 'student') {
+                localStorage.setItem('gazi_exam_type', regExamType);
+                if(regGrade) localStorage.setItem('gazi_grade', regGrade);
+            }
+
             alert("✅ Kayıt başarılı! Lütfen doğrulama maili için Gelen Kutunuzu ve SPAM (Gereksiz) klasörünü kontrol etmeyi unutmayın!");
             await signOut(auth); location.reload(); 
         } catch(e) { alert("❌ Kayıt Hatası: İşlem tamamlanamadı."); }
@@ -626,7 +684,14 @@
     try { socket = io(); } catch(e) { console.warn("Socket sunucusu yok."); }
     let currentMode = "room", myRoom = "", currentQIndex = 0, qInt = null, totalInt = null, trialQuestions = [], trialAnswers = [];
     let currentQObject = null, currentListType = "", selectedTimerMode = "question";
-    let uploadedImageBase64 = null; let stdUploadedImageBase64 = null; let stdSolutionBase64 = null; window.tempStdQuestions = []; 
+    
+    // 🚨 YENİ: ÇÖZÜM GÖRSELİ DEĞİŞKENİ EKLENDİ 🚨
+    let uploadedImageBase64 = null; 
+    let uploadedSolutionBase64 = null; 
+    
+    let stdUploadedImageBase64 = null; 
+    let stdSolutionBase64 = null; 
+    window.tempStdQuestions = []; 
 
     window.setTimerMode = (mode) => {
         selectedTimerMode = mode;
@@ -691,15 +756,25 @@
         });
     }
 
-    window.processImageUpload = (e) => {
+    // 🚨 YENİ: ÖĞRETMEN ÇÖZÜM FOTOĞRAFI YÜKLEME 🚨
+    window.processImageUpload = (e, type = 'question') => {
         const file = e.target.files[0]; if(!file) return;
-        document.getElementById('img-preview').style.display = 'block'; document.getElementById('img-preview').src = "https://i.gifer.com/ZKZg.gif"; 
+        const previewId = type === 'question' ? 'img-preview' : 'img-preview-solution';
+        document.getElementById(previewId).style.display = 'block'; 
+        document.getElementById(previewId).src = "https://i.gifer.com/ZKZg.gif"; 
+        
         const reader = new FileReader();
         reader.onload = (event) => {
             const img = new Image(); img.onload = () => {
                 const canvas = document.createElement('canvas'); const MAX_WIDTH = 800; const scale = MAX_WIDTH / img.width;
                 canvas.width = MAX_WIDTH; canvas.height = img.height * scale; const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                uploadedImageBase64 = canvas.toDataURL('image/jpeg', 0.8); document.getElementById('img-preview').src = uploadedImageBase64;
+                if (type === 'question') {
+                    uploadedImageBase64 = canvas.toDataURL('image/jpeg', 0.8); 
+                    document.getElementById(previewId).src = uploadedImageBase64;
+                } else {
+                    uploadedSolutionBase64 = canvas.toDataURL('image/jpeg', 0.8); 
+                    document.getElementById(previewId).src = uploadedSolutionBase64;
+                }
             }; img.src = event.target.result;
         }; reader.readAsDataURL(file);
     };
@@ -718,31 +793,31 @@
         }; reader.readAsDataURL(file);
     };
 
-    if(socket) {
-        socket.on("geminiParsedData", (text) => {
-            if(text.startsWith("HATA") || text.startsWith("⚠️")) { alert(text); document.getElementById('new-q-text').value = ""; return; }
-            try {
-                const qMatch = text.match(/SORU_METNI:\s*(.*?)(?=SIKLAR:)/s); const optMatch = text.match(/SIKLAR:\s*(.*?)(?=DOGRU_INDEKS:)/s); const idxMatch = text.match(/DOGRU_INDEKS:\s*(\d+)/s);
-                if(qMatch) document.getElementById('new-q-text').value = qMatch[1].trim();
-                if(optMatch) { const s = optMatch[1].split('|').map(x => x.trim()).filter(x => x); if(s.length > 0) document.getElementById('new-q-opts').value = s.join(','); }
-                if(idxMatch) document.getElementById('new-q-correct').value = idxMatch[1].trim();
-                alert("✨ Yapay Zeka soruyu başarıyla okudu!");
-            } catch(e) { document.getElementById('new-q-text').value = text; }
-        });
-    }
-
+    // 🚨 YENİ: ÖĞRETMEN ÇÖZÜMÜ İLE BİRLİKTE KAYIT ETME 🚨
     window.uploadQuestion = () => {
         if(!socket) return alert("Sunucuya bağlanılamadı!");
         const qDers = document.getElementById('new-q-ders').value.trim(); const qKonu = document.getElementById('new-q-deneme').value.trim();
         const qSoru = document.getElementById('new-q-text').value.trim() || "Aşağıdaki görseli inceleyiniz.";
         const qSiklar = document.getElementById('new-q-opts').value ? document.getElementById('new-q-opts').value.split(',').map(s => s.trim()) : ["A", "B", "C", "D", "E"];
         const qDogru = parseInt(document.getElementById('new-q-correct').value) || 0;
+        const qSolText = document.getElementById('new-q-sol-text').value.trim();
+        
         if(!qDers || !qKonu) return alert("Lütfen Ders ve Konu alanlarını doldurun!");
         if(!window.myClassCode) return alert("⚠️ Lütfen önce 'Sınıf Kodu Üret' diyerek kütüphanenizi oluşturun!");
-        const q = { soru: qSoru, siklar: qSiklar, dogru: qDogru, ders: qDers.toUpperCase(), deneme: qKonu, image: uploadedImageBase64, classCode: window.myClassCode };
+        
+        const q = { 
+            soru: qSoru, siklar: qSiklar, dogru: qDogru, ders: qDers.toUpperCase(), deneme: qKonu, 
+            image: uploadedImageBase64, classCode: window.myClassCode,
+            solutionText: qSolText, solutionImage: uploadedSolutionBase64 
+        };
         socket.emit("addNewQuestion", q);
-        document.getElementById('new-q-text').value = ""; document.getElementById('new-q-opts').value = ""; document.getElementById('new-q-ders').value = ""; document.getElementById('new-q-deneme').value = ""; document.getElementById('img-preview').style.display = "none"; uploadedImageBase64 = null;
-        alert(`✅ Soru kütüphanenize eklendi!`);
+        
+        // Formu temizle
+        document.getElementById('new-q-text').value = ""; document.getElementById('new-q-opts').value = ""; document.getElementById('new-q-ders').value = ""; document.getElementById('new-q-deneme').value = ""; 
+        document.getElementById('img-preview').style.display = "none"; uploadedImageBase64 = null;
+        document.getElementById('new-q-sol-text').value = ""; document.getElementById('img-preview-solution').style.display = "none"; uploadedSolutionBase64 = null;
+        
+        alert(`✅ Soru (ve varsa çözümü) kütüphanenize eklendi!`);
     };
 
     window.uploadStudentQuestion = (target = 'cloud') => {
@@ -891,7 +966,17 @@
 
         socket.on("teacherLibraryData", (data) => {
             window.tempStdQuestions = data; currentListType = "teacher_library"; document.getElementById('list-title').innerText = "📚 Soru Kütüphanem"; const div = document.getElementById('list-content');
-            if(data.length === 0) div.innerHTML = "<p style='text-align:center;'>Kütüphanenizde henüz soru bulunmuyor.</p>"; else div.innerHTML = data.map((q, i) => `<div class="list-item" style="border-left: 5px solid #e67e22;"><b>Soru:</b> ${q.soru} <br><span style="color:#27ae60;"><b>Cevap:</b> ${q.siklar ? q.siklar[q.dogru] : 'Bilinmiyor'}</span> <br><small>Ders: ${q.ders} | Konu: ${q.deneme}</small><br>${q.image ? `<img src="${q.image}" style="width:100%; border-radius:5px; margin-top:10px;">` : ''}<button onclick="reportQuestionFromLibrary(${i})" class="outline" style="margin-top:10px; font-size:0.75rem; border-color:#c0392b; color:#c0392b;">🚨 Hatalı Bildir</button></div>`).join(''); showScreen('screen-list');
+            if(data.length === 0) div.innerHTML = "<p style='text-align:center;'>Kütüphanenizde henüz soru bulunmuyor.</p>"; 
+            else div.innerHTML = data.map((q, i) => `
+                <div class="list-item" style="border-left: 5px solid #e67e22;">
+                    <b>Soru:</b> ${q.soru} <br>
+                    <span style="color:#27ae60;"><b>Cevap:</b> ${q.siklar ? q.siklar[q.dogru] : 'Bilinmiyor'}</span> <br>
+                    <small>Ders: ${q.ders} | Konu: ${q.deneme}</small><br>
+                    ${q.image ? `<img src="${q.image}" style="width:100%; border-radius:5px; margin-top:10px;">` : ''}
+                    ${q.solutionText || q.solutionImage ? `<div style="background:#e8f4f8; padding:8px; border-radius:5px; margin-top:5px; font-size:0.8rem; color:#1e3c72;"><b>👨‍🏫 Çözüm:</b> ${q.solutionText || ''} ${q.solutionImage ? '<br><span style="color:#27ae60;">[Görsel Ekli]</span>' : ''}</div>` : ''}
+                    <button onclick="reportQuestionFromLibrary(${i})" class="outline" style="margin-top:10px; font-size:0.75rem; border-color:#c0392b; color:#c0392b;">🚨 Hatalı Bildir</button>
+                </div>`).join(''); 
+            showScreen('screen-list');
         });
 
         socket.on("notebookReviewsCount", (count) => { const box = document.getElementById('notebook-alert-box'); if(count > 0) box.style.display = 'block'; else box.style.display = 'none'; });
@@ -914,8 +999,6 @@
 
     window.showHomeworkList = () => { document.getElementById('list-title').innerText = "📒 Bekleyen Ödevlerin"; document.getElementById('list-content').innerHTML = homeworks.map(hw => `<div class="list-item"><b>${hw.title}</b><br>Soru: ${hw.count} | Son Tarih: ${hw.dueDate || 'Yok'}</div>`).join(''); showScreen('screen-list'); };
     window.startReviewSession = () => { if(reviews.length === 0) return; trialQuestions = reviews.map(r => r.question); trialAnswers = new Array(trialQuestions.length).fill(null); currentQIndex = 0; showScreen('screen-game'); renderTrialQuestion(); };
-    window.askGemini = () => { if(!currentQObject || !socket) return; document.getElementById('ai-response').style.display = "block"; document.getElementById('ai-response').innerText = "🤖 Gemini düşünüyor..."; socket.emit("askGemini", currentQObject); };
-    if(socket) socket.on("geminiResponse", (text) => { if(text.startsWith("⚠️")) alert(text); document.getElementById('ai-response').innerText = text; });
 
     window.createClass = () => { if(socket) { const name = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", ""); socket.emit("createClass", name); } };
     if(socket) { socket.on("classCreated", (code) => { document.getElementById('generated-code').innerText = "KODUNUZ: " + code; window.myClassCode = code; localStorage.setItem("gazi_class_code", code); socket.emit("getFilters", window.myClassCode); }); socket.on("teacherClassFound", (code) => { document.getElementById('generated-code').innerText = "KODUNUZ: " + code; window.myClassCode = code; localStorage.setItem("gazi_class_code", code); socket.emit("getFilters", window.myClassCode); }); }
@@ -962,7 +1045,7 @@
 
     if(socket) {
         socket.on('newQuestion', d => {
-            showScreen('screen-game'); currentQObject = d; document.getElementById('opts-area').innerHTML = ""; document.getElementById('ai-response').style.display = "none"; currentQIndex = d.index - 1; document.getElementById('q-text').innerText = d.soru;
+            showScreen('screen-game'); currentQObject = d; document.getElementById('opts-area').innerHTML = ""; currentQIndex = d.index - 1; document.getElementById('q-text').innerText = d.soru;
             const imgDisp = document.getElementById('q-image-display'); if(d.image) { imgDisp.src = d.image; imgDisp.style.display = "block"; } else { imgDisp.style.display = "none"; }
             document.getElementById('box-question').style.display = (d.timerMode === 'question') ? 'block' : 'none'; document.getElementById('box-total').style.display = (d.timerMode === 'general') ? 'block' : 'none';
             if(d.timerMode === 'general' && d.index === 1) startTotalTimer(d.duration); if(d.timerMode === 'question') startQuestionTimer(d.duration);
@@ -988,22 +1071,41 @@
         });
     }
 
+    // 🚨 YENİ: ÇÖZÜMLÜ VE AKILLI TEST MOTORU 🚨
     function renderTrialQuestion() {
         currentQObject = trialQuestions[currentQIndex]; document.getElementById('q-text').innerText = `(${currentQIndex+1}/${trialQuestions.length}) ` + (currentQObject.soru || currentQObject.not || "Görseli inceleyiniz.");
         const imgDisp = document.getElementById('q-image-display'); if(currentQObject.image) { imgDisp.src = currentQObject.image; imgDisp.style.display = "block"; } else { imgDisp.style.display = "none"; }
-        document.getElementById('ai-response').style.display = "none"; renderNavigator(trialQuestions.length, currentQIndex, 'trial');
+        renderNavigator(trialQuestions.length, currentQIndex, 'trial');
         const a = document.getElementById('opts-area'); a.innerHTML = "";
         
         const siklarListesi = currentQObject.siklar || ["A", "B", "C", "D", "E"]; 
         siklarListesi.forEach((s, i) => { 
             const b = document.createElement('button'); 
             b.innerText = s; 
-            b.className = "opt-btn" + (trialAnswers[currentQIndex] === i ? " selected" : ""); 
+            
+            // Eğer cevaplandıysa, şıkları boya
+            if (trialAnswers[currentQIndex] !== null) {
+                if (i === currentQObject.dogru) {
+                    b.className = "opt-btn correct selected"; 
+                } else if (i === trialAnswers[currentQIndex]) {
+                    b.className = "opt-btn wrong selected"; 
+                } else {
+                    b.className = "opt-btn";
+                }
+            } else {
+                b.className = "opt-btn";
+            }
+
             b.onclick = () => { 
                 if(trialAnswers[currentQIndex] === null) { 
                     trialAnswers[currentQIndex] = i; 
                     renderTrialQuestion(); 
-                    setTimeout(() => { if(currentQIndex < trialQuestions.length - 1) trialNext(); }, 600);
+                    
+                    // 🚨 ZEKİ GEÇİŞ: Eğer öğretmenin çözümü yoksa 0.6 saniyede otomatik geçer.
+                    // Çözüm varsa öğrenci okusun diye geçmez, öğrenci kendisi "İleri" tuşuna basar.
+                    if (!(currentQObject.solutionText || currentQObject.solutionImage)) {
+                        setTimeout(() => { if(currentQIndex < trialQuestions.length - 1) trialNext(); }, 600);
+                    }
                 } else {
                     trialAnswers[currentQIndex] = i; 
                     renderTrialQuestion(); 
@@ -1011,6 +1113,24 @@
             }; 
             a.appendChild(b); 
         });
+
+        // 🚨 ÖĞRETMENİN ÇÖZÜMÜNÜ GÖSTEREN EKRAN 🚨
+        let solArea = document.getElementById('trial-solution-area');
+        if(!solArea) {
+            solArea = document.createElement('div');
+            solArea.id = 'trial-solution-area';
+            a.parentNode.appendChild(solArea);
+        }
+
+        if (trialAnswers[currentQIndex] !== null && (currentQObject.solutionText || currentQObject.solutionImage)) {
+            solArea.style.display = 'block';
+            solArea.innerHTML = `<div style="margin-top:15px; padding:15px; background:#e8f4f8; border-radius:8px; border: 1px solid #3498db; text-align:left; color:#1e3c72; font-size:0.9rem;">
+                <b>👨‍🏫 Çözüm Notu:</b><br>${currentQObject.solutionText || 'Yazılı açıklama eklenmemiş.'}<br>
+                ${currentQObject.solutionImage ? `<img src="${currentQObject.solutionImage}" style="width:100%; border-radius:5px; margin-top:10px;">` : ''}
+            </div>`;
+        } else {
+            solArea.style.display = 'none';
+        }
     }
 
     window.trialNext = () => { if(currentQIndex < trialQuestions.length-1) { currentQIndex++; renderTrialQuestion(); } };
