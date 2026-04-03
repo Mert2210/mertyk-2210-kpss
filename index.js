@@ -117,45 +117,6 @@ function shuffleOptions(q, maxOptions = 5) {
     return { ...q, siklar: newSiklar, dogru: newCorrectIndex };
 }
 
-function filterBySubject(pool, selectedSubjects) {
-    if (!selectedSubjects || selectedSubjects === "HEPSI") return pool;
-    const targets = (Array.isArray(selectedSubjects) ? selectedSubjects : [selectedSubjects]).map(s => s.trim().toLocaleUpperCase('tr'));
-    return pool.filter(q => targets.includes((q.ders || "GENEL").trim().toLocaleUpperCase('tr')));
-}
-
-function getBalancedQuestions(pool, count) {
-    const dersSirasi = ["TARİH", "COĞRAFYA", "VATANDAŞLIK", "GÜNCEL BİLGİLER", "EĞİTİM BİLİMLERİ"];
-    const grouped = {};
-    const others = [];
-
-    pool.forEach(q => {
-        const dersAdi = (q.ders || "GENEL").trim().toLocaleUpperCase('tr');
-        let foundKey = dersSirasi.find(k => dersAdi.includes(k));
-        if (foundKey) {
-            if (!grouped[foundKey]) grouped[foundKey] = [];
-            grouped[foundKey].push(q);
-        } else { others.push(q); }
-    });
-
-    const activeSubjects = Object.keys(grouped);
-    let selectedQuestions = [];
-    
-    if (activeSubjects.length > 0) {
-        const baseCount = Math.floor(count / activeSubjects.length); 
-        let remainder = count % activeSubjects.length; 
-
-        activeSubjects.forEach(ders => {
-            const shuffledSubjectPool = fisherYatesShuffle(grouped[ders]);
-            let take = baseCount + (remainder > 0 ? 1 : 0);
-            if (remainder > 0) remainder--;
-            selectedQuestions = selectedQuestions.concat(shuffledSubjectPool.slice(0, take));
-        });
-    } else {
-        selectedQuestions = fisherYatesShuffle(others).slice(0, count);
-    }
-    return selectedQuestions.map(q => shuffleOptions(q));
-}
-
 // --- YENİ: LİSTE GÜNCELLEME MOTORU (CANLI YAYIN) ---
 function listeleriHerkesinEkranindaGuncelle() {
     const denemeler = {};
@@ -163,7 +124,6 @@ function listeleriHerkesinEkranindaGuncelle() {
     tumSorular.forEach(q => { 
         if (q.deneme) denemeler[q.deneme] = (denemeler[q.deneme] || 0) + 1; 
     });
-    // Tüm bağlı kullanıcılara yeni listeleri (Dersler ve Konular) anında yolla
     io.emit('updateDenemeList', { denemeler });
     io.emit('updateSubjectList', dersler);
 }
@@ -171,7 +131,6 @@ function listeleriHerkesinEkranindaGuncelle() {
 // --- SOCKET İLETİŞİMİ ---
 io.on("connection", (socket) => {
     
-    // Kaynak ve Ders Listesi Gönderimi (Bağlanana ilk listeyi gönder)
     const denemeSayilari = {};
     const mevcutDersler = [...new Set(tumSorular.map(q => (q.ders || "").trim().toLocaleUpperCase('tr')).filter(x => x))].sort();
     tumSorular.forEach(q => { if (q.deneme) denemeSayilari[q.deneme] = (denemeSayilari[q.deneme] || 0) + 1; });
@@ -195,7 +154,7 @@ io.on("connection", (socket) => {
         }
     });
 
-    // --- YENİ: GEMINI VISION GÖRSEL OKUMA MOTORU ---
+    // --- GEMINI VISION GÖRSEL OKUMA MOTORU ---
     socket.on("parseImageWithGemini", async ({ imageBase64 }) => {
         try {
             const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, "");
@@ -233,7 +192,7 @@ io.on("connection", (socket) => {
         }
     });
 
-    // --- YENİ: ÖĞRENCİ SONUÇLARINI KAYDETME VE ÇEKME ---
+    // --- ÖĞRENCİ SONUÇLARINI KAYDETME VE ÇEKME ---
     socket.on("saveStudentResult", async (data) => {
         if(db) {
             try { await db.collection("kpss_results").add({ ...data, date: new Date().toLocaleString('tr-TR'), serverTime: admin.firestore.FieldValue.serverTimestamp() }); } catch(e){}
@@ -268,7 +227,7 @@ io.on("connection", (socket) => {
         });
     });
 
-    // --- DİNAMİK SORU EKLEME VE FIREBASE (GÜNCELLENDİ) ---
+    // --- DİNAMİK SORU EKLEME VE FIREBASE ---
     socket.on("addNewQuestion", async (newQ) => {
         tumSorular.push(newQ);
         fs.writeFileSync(QUESTIONS_FILE, JSON.stringify(tumSorular, null, 2));
@@ -278,9 +237,76 @@ io.on("connection", (socket) => {
                 console.log(`☁️ Yeni Soru Buluta Mühürlendi: ${newQ.soru.substring(0, 30)}...`);
             } catch (e) { console.error("Firebase Hatası:", e); }
         }
-        
-        // ÖNEMLİ: Hoca yeni soru eklediğinde sistem tüm kullanıcıların ders ve konu listelerini anında günceller.
         listeleriHerkesinEkranindaGuncelle();
+    });
+
+    // --- 🚨 YENİ: KÜTÜPHANEMİ GETİR (ÖĞRETMEN) 🚨 ---
+    socket.on("getTeacherLibrary", async (classCode) => {
+        if(db && classCode) {
+            try {
+                const snap = await db.collection("kpss_sorular").where("classCode", "==", classCode).get();
+                const library = snap.docs.map(doc => doc.data());
+                socket.emit("teacherLibraryData", library);
+            } catch(e) { 
+                socket.emit("teacherLibraryData", []); 
+            }
+        } else {
+            // Eğer Firebase koparsa yerel JSON'dan okur
+            const localLib = tumSorular.filter(q => q.classCode === classCode);
+            socket.emit("teacherLibraryData", localLib);
+        }
+    });
+
+    // --- 🚨 YENİ: ÖĞRETMEN ONAY BEKLEYENLERİ GETİR (ADMİN) 🚨 ---
+    socket.on("getPendingTeachers", async () => {
+        if(admin.apps.length) {
+            try {
+                const listUsersResult = await admin.auth().listUsers(1000);
+                const pending = [];
+                listUsersResult.users.forEach(userRecord => {
+                    // İsminin sonunda |teacher_pending olanları yakalar
+                    if (userRecord.displayName && userRecord.displayName.includes("|teacher_pending")) {
+                        pending.push({
+                            email: userRecord.email,
+                            name: userRecord.displayName.split("|")[0]
+                        });
+                    }
+                });
+                socket.emit("pendingTeachersData", pending);
+            } catch(e) {
+                console.error("Öğretmenleri çekerken hata:", e);
+                socket.emit("pendingTeachersData", []);
+            }
+        } else {
+            socket.emit("pendingTeachersData", []);
+        }
+    });
+
+    // --- 🚨 YENİ: ÖĞRETMEN ONAYLA (ADMİN) 🚨 ---
+    socket.on("approveTeacher", async (email) => {
+        if(admin.apps.length) {
+            try {
+                const userRecord = await admin.auth().getUserByEmail(email);
+                if(userRecord.displayName && userRecord.displayName.includes("|teacher_pending")) {
+                    const newName = userRecord.displayName.replace("teacher_pending", "teacher");
+                    
+                    // Kullanıcının ismindeki pending yazısını silerek onaylar
+                    await admin.auth().updateUser(userRecord.uid, { displayName: newName });
+                    
+                    // Listeyi hemen güncelle ve admin ekranına tekrar yansıt
+                    const listUsersResult = await admin.auth().listUsers(1000);
+                    const pending = [];
+                    listUsersResult.users.forEach(u => {
+                        if (u.displayName && u.displayName.includes("|teacher_pending")) {
+                            pending.push({ email: u.email, name: u.displayName.split("|")[0] });
+                        }
+                    });
+                    socket.emit("pendingTeachersData", pending);
+                }
+            } catch(e) {
+                console.error("Öğretmen onaylama hatası:", e);
+            }
+        }
     });
 
     // --- MERKEZİ HATA RAPORU ---
