@@ -14,7 +14,6 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 const app = express();
 const server = http.createServer(app);
 
-// CORS ve Socket.io Ayarları
 app.use(cors());
 const io = new Server(server, {
     cors: { origin: "*", methods: ["GET", "POST"] },
@@ -24,7 +23,6 @@ const io = new Server(server, {
 app.use(express.static(path.join(__dirname)));
 app.use(express.static(path.join(__dirname, "public")));
 
-// --- FIREBASE ADMIN MÜHÜRLEME (GÜVENLİ BAĞLANTI) ---
 let serviceAccount;
 try {
     if (process.env.FIREBASE_CREDENTIALS) {
@@ -38,11 +36,9 @@ if (serviceAccount) {
     admin.initializeApp({
         credential: admin.credential.cert(serviceAccount)
     });
-    console.log("🔥 Firebase Admin: Bulut bağlantısı güvenli bir şekilde sağlandı.");
 }
 const db = admin.apps.length ? admin.firestore() : null;
 
-// Ana Sayfa Yönlendirmesi
 app.get('/', (req, res) => {
     const indexPath = fs.existsSync(path.join(__dirname, 'public', 'index.html')) 
         ? path.join(__dirname, 'public', 'index.html') 
@@ -50,18 +46,15 @@ app.get('/', (req, res) => {
     res.sendFile(indexPath);
 });
 
-// --- DEĞİŞKENLER VE DOSYALAR ---
 let tumSorular = [];
 const QUESTIONS_FILE = path.join(__dirname, 'questions.json');
 const REPORTS_FILE = path.join(__dirname, 'reports.json'); 
 const CLASSES_FILE = path.join(__dirname, 'classes.json');
 
-// --- GEMINI AI AYARI VE KORUMA ZIRHI ---
 const geminiApiKey = process.env.GEMINI_API_KEY || "ANAHTAR_YOK";
 const genAI = new GoogleGenerativeAI(geminiApiKey);
-const aiModel = genAI.getGenerativeModel({ model: "gemini-pro" });
+const aiModel = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-// Soru Havuzunu Yükleme Fonksiyonu
 function sorulariYukle() {
     if (fs.existsSync(QUESTIONS_FILE)) {
         try {
@@ -70,14 +63,10 @@ function sorulariYukle() {
             rawData = rawData.replace(/\]\s*,\s*\[/g, ",");
             while (rawData.startsWith("[[")) { rawData = rawData.replace("[[", "["); }
             while (rawData.endsWith("]]")) { rawData = rawData.replace("]]", "]"); }
-
-            try {
-                tumSorular = JSON.parse(rawData);
-            } catch (parseErr) {
+            try { tumSorular = JSON.parse(rawData); } 
+            catch (parseErr) {
                 const matches = rawData.match(/\{.*?\}/gs); 
-                if (matches) {
-                    tumSorular = JSON.parse("[" + matches.join(",") + "]");
-                }
+                if (matches) tumSorular = JSON.parse("[" + matches.join(",") + "]");
             }
         } catch (err) {
             tumSorular = [{ "soru": "Sistem Hatası: Havuz Yüklenemedi", "ders": "SİSTEM", "siklar": ["Tamam"], "dogru": 0 }];
@@ -88,7 +77,6 @@ sorulariYukle();
 
 const rooms = {};
 
-// Karıştırma Algoritması
 function fisherYatesShuffle(array) {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -97,24 +85,20 @@ function fisherYatesShuffle(array) {
     return array;
 }
 
-// Şık Karıştırma ve Düzenleme
 function shuffleOptions(q, maxOptions = 5) {
     if (!q || !q.siklar) return q;
     const originalCorrectText = q.siklar[q.dogru];
     let newSiklar = [...q.siklar];
-    
     if (newSiklar.length > maxOptions) {
         const wrongOptions = newSiklar.filter((s, i) => i !== q.dogru);
         fisherYatesShuffle(wrongOptions); 
         newSiklar = [originalCorrectText, ...wrongOptions.slice(0, maxOptions - 1)]; 
     }
-
     fisherYatesShuffle(newSiklar);
     const newCorrectIndex = newSiklar.indexOf(originalCorrectText);
     return { ...q, siklar: newSiklar, dogru: newCorrectIndex };
 }
 
-// Filtre Verilerini Derleme
 function getFiltersData() {
     const denemeler = {};
     const dersler = [...new Set(tumSorular.map(q => (q.ders || "Genel").trim().toLocaleUpperCase('tr')).filter(x => x))].sort();
@@ -126,54 +110,37 @@ function listeleriHerkesinEkranindaGuncelle() {
     io.emit('updateFilters', getFiltersData());
 }
 
-// ============================================================================
-// SOCKET İLETİŞİM MOTORU (TÜM VERİ AKIŞI BURADAN GEÇER)
-// ============================================================================
 io.on("connection", (socket) => {
-    
-    // 1. Yeni bağlanan kullanıcıya güncel filtreleri gönder
     socket.emit('updateFilters', getFiltersData());
 
     socket.on("getFilters", () => {
         socket.emit('updateFilters', getFiltersData());
     });
 
-    // 2. GEMINI AI SORGULARI (HATA KORUMALI)
     socket.on("askGemini", async (qObj) => {
         try {
             if(geminiApiKey === "ANAHTAR_YOK") {
-                socket.emit("geminiResponse", "⚠️ Sunucuda GEMINI_API_KEY tanımlanmamış. Lütfen Render ayarlarından API anahtarınızı ekleyin."); 
-                return;
+                socket.emit("geminiResponse", "⚠️ Sunucuda GEMINI_API_KEY eksik."); return;
             }
-            
             const soruMetni = qObj.soru || qObj.not || "Görseli inceleyiniz.";
             const siklarText = (qObj.siklar && Array.isArray(qObj.siklar)) ? qObj.siklar.join(", ") : "A, B, C, D, E";
-
             const prompt = `Sen uzman bir eğitimcisin. Aşağıdaki soruyu analiz et, doğru cevabı şıkkıyla belirt ve nedenini çok kısa, net şekilde açıkla: \n\nSoru: ${soruMetni} \nŞıklar: ${siklarText}`;
             const result = await aiModel.generateContent(prompt);
             socket.emit("geminiResponse", result.response.text());
-        } catch (e) {
-            socket.emit("geminiResponse", "⚠️ Gemini AI Hatası: " + e.message);
-        }
+        } catch (e) { socket.emit("geminiResponse", "⚠️ Gemini AI Hatası: " + e.message); }
     });
 
     socket.on("parseImageWithGemini", async ({ imageBase64 }) => {
         try {
-            if(geminiApiKey === "ANAHTAR_YOK") {
-                socket.emit("geminiParsedData", "⚠️ Sunucuda API Anahtarı yok. (Render'ı kontrol edin)"); 
-                return;
-            }
+            if(geminiApiKey === "ANAHTAR_YOK") { socket.emit("geminiParsedData", "⚠️ Sunucuda API Anahtarı yok."); return; }
             const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, "");
             const imageParts = [{ inlineData: { data: base64Data, mimeType: "image/jpeg" } }];
             const prompt = "Bu bir sınav sorusudur. Resmi analiz et. Soru metnini ve şıkları ayrı ayrı çıkar. Formatın şu olsun:\nSORU_METNI: [soruyu buraya yaz]\nSIKLAR: [A şıkkı] | [B şıkkı] | [C şıkkı] | [D şıkkı] | [E şıkkı]\nDOGRU_INDEKS: [sence doğru cevap hangisiyse 0'dan başlayarak sadece rakam yaz (A=0, B=1...)]";
             const result = await aiModel.generateContent([prompt, ...imageParts]);
             socket.emit("geminiParsedData", result.response.text());
-        } catch(e) { 
-            socket.emit("geminiParsedData", "HATA: " + e.message); 
-        }
+        } catch(e) { socket.emit("geminiParsedData", "HATA: " + e.message); }
     });
 
-    // 3. SINIF VE ODA SİSTEMİ
     socket.on("createClass", (teacherEmail) => {
         const classCode = Math.random().toString(36).substring(2, 8).toUpperCase();
         let classes = {};
@@ -194,25 +161,19 @@ io.on("connection", (socket) => {
                     fs.writeFileSync(CLASSES_FILE, JSON.stringify(classes, null, 2));
                 }
                 socket.emit("classJoined", { success: true, teacher: classes[code].teacher, code: code });
-            } else {
-                socket.emit("classJoined", { success: false });
-            }
+            } else { socket.emit("classJoined", { success: false }); }
         }
     });
 
-    // 4. ÖĞRENCİ VE SINIF İSTATİSTİKLERİ
     socket.on("saveStudentResult", async (data) => {
-        if(db) {
-            try { await db.collection("kpss_results").add({ ...data, date: new Date().toLocaleString('tr-TR'), serverTime: admin.firestore.FieldValue.serverTimestamp() }); } catch(e){}
-        }
+        if(db) { try { await db.collection("kpss_results").add({ ...data, date: new Date().toLocaleString('tr-TR'), serverTime: admin.firestore.FieldValue.serverTimestamp() }); } catch(e){} }
     });
 
     socket.on("getMyStats", async (studentName) => {
         if(db && studentName) {
             try {
                 const snap = await db.collection("kpss_results").where("name", "==", studentName).orderBy("serverTime", "desc").get();
-                const reports = snap.docs.map(doc => doc.data());
-                socket.emit("myStatsData", reports);
+                socket.emit("myStatsData", snap.docs.map(doc => doc.data()));
             } catch(e) { socket.emit("myStatsData", []); }
         } else { socket.emit("myStatsData", []); }
     });
@@ -221,8 +182,7 @@ io.on("connection", (socket) => {
         if(db && classCode) {
             try {
                 const snap = await db.collection("kpss_results").where("classCode", "==", classCode).orderBy("serverTime", "desc").get();
-                const reports = snap.docs.map(doc => doc.data());
-                socket.emit("teacherReportsData", reports);
+                socket.emit("teacherReportsData", snap.docs.map(doc => doc.data()));
             } catch(e) { socket.emit("teacherReportsData", []); }
         } else { socket.emit("teacherReportsData", []); }
     });
@@ -231,15 +191,10 @@ io.on("connection", (socket) => {
         io.emit("receiveGlobalAlert", { message: data.message, sender: data.sender || "Eğitmen" });
     });
 
-    // 5. ÖĞRETMEN KÜTÜPHANESİ
     socket.on("addNewQuestion", async (newQ) => {
         tumSorular.push(newQ);
         fs.writeFileSync(QUESTIONS_FILE, JSON.stringify(tumSorular, null, 2));
-        if (db) {
-            try {
-                await db.collection("kpss_sorular").add({ ...newQ, createdAt: admin.firestore.FieldValue.serverTimestamp() });
-            } catch (e) { console.error("Firebase Hatası:", e); }
-        }
+        if (db) { try { await db.collection("kpss_sorular").add({ ...newQ, createdAt: admin.firestore.FieldValue.serverTimestamp() }); } catch (e) {} }
         listeleriHerkesinEkranindaGuncelle();
     });
 
@@ -247,16 +202,13 @@ io.on("connection", (socket) => {
         if(db && classCode) {
             try {
                 const snap = await db.collection("kpss_sorular").where("classCode", "==", classCode).get();
-                const library = snap.docs.map(doc => doc.data());
-                socket.emit("teacherLibraryData", library);
+                socket.emit("teacherLibraryData", snap.docs.map(doc => doc.data()));
             } catch(e) { socket.emit("teacherLibraryData", []); }
         } else {
-            const localLib = tumSorular.filter(q => q.classCode === classCode);
-            socket.emit("teacherLibraryData", localLib);
+            socket.emit("teacherLibraryData", tumSorular.filter(q => q.classCode === classCode));
         }
     });
 
-    // 🚨 YENİ: ÖĞRENCİLER İÇİN HOCANIN SORULARINI ÇEKME KÖPRÜSÜ 🚨
     socket.on("getClassQuestions", async (classCode) => {
         if(db && classCode) {
             try {
@@ -268,13 +220,8 @@ io.on("connection", (socket) => {
         }
     });
 
-    // 6. ☁️ ÖĞRENCİ BULUT KÜTÜPHANESİ VE HATIRLATMA MOTORU (SPACED REPETITION) 
     socket.on("addStudentQuestion", async (q) => {
-        if (db) {
-            try {
-                await db.collection("student_questions").add({ ...q, createdAt: admin.firestore.FieldValue.serverTimestamp() });
-            } catch (e) { console.error("Öğrenci Soru Ekleme Hatası:", e); }
-        }
+        if (db) { try { await db.collection("student_questions").add({ ...q, createdAt: admin.firestore.FieldValue.serverTimestamp() }); } catch (e) {} }
     });
 
     socket.on("checkNotebookReviews", async (studentName) => {
@@ -296,26 +243,16 @@ io.on("connection", (socket) => {
         if(db && studentName) {
             try {
                 const snap = await db.collection("student_questions").where("studentName", "==", studentName).get();
-                let library = snap.docs.map(doc => {
-                    let d = doc.data();
-                    d.id = doc.id; 
-                    return d;
-                });
-                
+                let library = snap.docs.map(doc => { let d = doc.data(); d.id = doc.id; return d; });
                 if(onlyReviews) {
                     const now = Date.now();
                     library = library.filter(q => q.nextReviewDate && q.nextReviewDate <= now);
                 } else {
                     library.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
                 }
-                
                 socket.emit("studentLibraryData", library);
-            } catch(e) { 
-                socket.emit("studentLibraryData", []); 
-            }
-        } else {
-            socket.emit("studentLibraryData", []);
-        }
+            } catch(e) { socket.emit("studentLibraryData", []); }
+        } else { socket.emit("studentLibraryData", []); }
     });
 
     socket.on("updateReviewDate", async ({ questionId, additionalDays }) => {
@@ -327,7 +264,6 @@ io.on("connection", (socket) => {
         }
     });
 
-    // 7. YÖNETİCİ: ÖĞRETMEN ONAY SİSTEMİ
     socket.on("getPendingTeachers", async () => {
         if(admin.apps.length) {
             try {
@@ -364,26 +300,20 @@ io.on("connection", (socket) => {
         }
     });
 
-    // 8. YÖNETİCİ: HATA RAPORLARI
     socket.on("reportQuestion", (qObj) => {
         let reports = [];
-        if (fs.existsSync(REPORTS_FILE)) {
-            try { reports = JSON.parse(fs.readFileSync(REPORTS_FILE, 'utf8')); } catch (e) { reports = []; }
-        }
+        if (fs.existsSync(REPORTS_FILE)) { try { reports = JSON.parse(fs.readFileSync(REPORTS_FILE, 'utf8')); } catch (e) { reports = []; } }
         reports.push({ ...qObj, reportedAt: new Date().toLocaleString('tr-TR'), reportedBySocket: socket.id });
         fs.writeFileSync(REPORTS_FILE, JSON.stringify(reports, null, 2));
     });
 
     socket.on("adminGetReports", () => {
         if (fs.existsSync(REPORTS_FILE)) {
-            try {
-                const data = fs.readFileSync(REPORTS_FILE, 'utf8');
-                socket.emit("allReportsData", JSON.parse(data));
-            } catch (e) { socket.emit("allReportsData", []); }
+            try { socket.emit("allReportsData", JSON.parse(fs.readFileSync(REPORTS_FILE, 'utf8'))); } 
+            catch (e) { socket.emit("allReportsData", []); }
         } else { socket.emit("allReportsData", []); }
     });
 
-    // 9. ÇOK OYUNCULU ODA (MULTIPLAYER) VE HIZLI DENEME MOTORU
     socket.on("createRoom", (data) => {
         const username = (typeof data === 'object') ? data.username : (data || "Öğrenci");
         const rank = data.rank || "1. Seviye";
