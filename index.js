@@ -1,5 +1,5 @@
 /* ==========================================================================
-   GAZİLİLER KPSS BİLGİ BANKASI - SUNUCU DOSYASI (SERVER)
+   GAZİLİLER KPSS BİLGİ BANKASI - SUNUCU DOSYASI (SERVER) - MASTER V3
    ========================================================================== */
 
 const express = require("express");
@@ -23,6 +23,7 @@ const io = new Server(server, {
 app.use(express.static(path.join(__dirname)));
 app.use(express.static(path.join(__dirname, "public")));
 
+// --- FIREBASE ADMIN MÜHÜRLEME ---
 let serviceAccount;
 try {
     if (process.env.FIREBASE_CREDENTIALS) {
@@ -47,11 +48,13 @@ app.get('/', (req, res) => {
     res.sendFile(indexPath);
 });
 
+// --- DEĞİŞKENLER VE DOSYALAR ---
 let tumSorular = [];
 const QUESTIONS_FILE = path.join(__dirname, 'questions.json');
 const REPORTS_FILE = path.join(__dirname, 'reports.json'); 
 const CLASSES_FILE = path.join(__dirname, 'classes.json');
 
+// --- GEMINI AI AYARI VE HATA KORUMASI ---
 const geminiApiKey = process.env.GEMINI_API_KEY || "ANAHTAR_YOK";
 const genAI = new GoogleGenerativeAI(geminiApiKey);
 const aiModel = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
@@ -117,15 +120,19 @@ function listeleriHerkesinEkranindaGuncelle() {
     io.emit('updateFilters', getFiltersData());
 }
 
+// ============================================================================
+// SOCKET İLETİŞİM MOTORU
+// ============================================================================
 io.on("connection", (socket) => {
     
+    // 1. Yeni bağlanan kullanıcıya anında güncel filtreleri yolla
     socket.emit('updateFilters', getFiltersData());
 
     socket.on("getFilters", () => {
         socket.emit('updateFilters', getFiltersData());
     });
 
-    // 🚨 GEMINI HATA RADARI GÜÇLENDİRİLDİ 🚨
+    // 2. GEMINI AI SORGULARI (HATA KORUMALI)
     socket.on("askGemini", async (qObj) => {
         try {
             if(geminiApiKey === "ANAHTAR_YOK") {
@@ -156,6 +163,7 @@ io.on("connection", (socket) => {
         }
     });
 
+    // 3. SINIF SİSTEMİ
     socket.on("createClass", (teacherEmail) => {
         const classCode = Math.random().toString(36).substring(2, 8).toUpperCase();
         let classes = {};
@@ -182,6 +190,7 @@ io.on("connection", (socket) => {
         }
     });
 
+    // 4. ÖĞRENCİ İSTATİSTİKLERİ
     socket.on("saveStudentResult", async (data) => {
         if(db) {
             try { await db.collection("kpss_results").add({ ...data, date: new Date().toLocaleString('tr-TR'), serverTime: admin.firestore.FieldValue.serverTimestamp() }); } catch(e){}
@@ -212,6 +221,7 @@ io.on("connection", (socket) => {
         io.emit("receiveGlobalAlert", { message: data.message, sender: data.sender || "Eğitmen" });
     });
 
+    // 5. ÖĞRETMEN KÜTÜPHANESİ
     socket.on("addNewQuestion", async (newQ) => {
         tumSorular.push(newQ);
         fs.writeFileSync(QUESTIONS_FILE, JSON.stringify(tumSorular, null, 2));
@@ -236,16 +246,16 @@ io.on("connection", (socket) => {
         }
     });
 
-    // 🚨 YENİ: ÖĞRENCİ BULUT KÜTÜPHANESİ VE HATIRLATMA (SPACED REPETITION) 🚨
+    // 6. 🚨 ÖĞRENCİ BULUT KÜTÜPHANESİ VE HATIRLATMA (SPACED REPETITION) 🚨
     socket.on("addStudentQuestion", async (q) => {
         if (db) {
             try {
+                // Öğrencinin HTML'den gönderdiği çözüm, şık, resim vb. tüm bilgileri kaydeder
                 await db.collection("student_questions").add({ ...q, createdAt: admin.firestore.FieldValue.serverTimestamp() });
             } catch (e) { console.error("Öğrenci Soru Ekleme Hatası:", e); }
         }
     });
 
-    // 🚨 YENİ: HATIRLATMA RADARI (Tekrar Vakti Gelenleri Sayar) 🚨
     socket.on("checkNotebookReviews", async (studentName) => {
         if(db && studentName) {
             try {
@@ -267,11 +277,10 @@ io.on("connection", (socket) => {
                 const snap = await db.collection("student_questions").where("studentName", "==", studentName).get();
                 let library = snap.docs.map(doc => {
                     let d = doc.data();
-                    d.id = doc.id; // Güncelleme ihtimaline karşı ID'yi tut
+                    d.id = doc.id; // Güncelleme işlemi (Tarih Erteleme) için ID tutuluyor
                     return d;
                 });
                 
-                // Eğer sadece tekrarları istiyorsa filtrele
                 if(onlyReviews) {
                     const now = Date.now();
                     library = library.filter(q => q.nextReviewDate && q.nextReviewDate <= now);
@@ -288,7 +297,7 @@ io.on("connection", (socket) => {
         }
     });
 
-    // 🚨 YENİ: TEKRARI YAPILAN SORUNUN TARİHİNİ İLERİYE ATMA 🚨
+    // Öğrenci soruyu doğru yapınca tarihi ileri atar
     socket.on("updateReviewDate", async ({ questionId, additionalDays }) => {
         if(db && questionId) {
             try {
@@ -298,6 +307,7 @@ io.on("connection", (socket) => {
         }
     });
 
+    // 7. ADMİN: ÖĞRETMEN ONAY SİSTEMİ
     socket.on("getPendingTeachers", async () => {
         if(admin.apps.length) {
             try {
@@ -334,6 +344,7 @@ io.on("connection", (socket) => {
         }
     });
 
+    // 8. ADMİN: HATA RAPORLARI
     socket.on("reportQuestion", (qObj) => {
         let reports = [];
         if (fs.existsSync(REPORTS_FILE)) {
@@ -352,6 +363,7 @@ io.on("connection", (socket) => {
         } else { socket.emit("allReportsData", []); }
     });
 
+    // 9. ÇOK OYUNCULU & HIZLI DENEME MOTORU
     socket.on("createRoom", (data) => {
         const username = (typeof data === 'object') ? data.username : (data || "Gazi");
         const rank = data.rank || "1. Seviye";
