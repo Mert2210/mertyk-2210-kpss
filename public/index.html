@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gazililer KPSS Bilgi Bankası</title>
+    <title>Gazililer Eğitim Platformu</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#1e3c72">
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -22,12 +24,10 @@
         .auth-form { background: #fff; padding: 20px; border-radius: 12px; margin-top: 10px; text-align: left; box-shadow: 0 5px 15px rgba(0,0,0,0.05); border: 1px solid #eee; }
         .auth-switch { color: #e67e22; font-size: 0.85rem; text-decoration: underline; cursor: pointer; text-align: center; display: block; margin-top: 10px; font-weight: bold; }
 
-        /* 🚨 KURUMSAL ROL SEÇİM SEKME (TAB) TASARIMI 🚨 */
         .role-toggle { display: flex; background: #e8f4f8; border-radius: 10px; padding: 5px; margin-bottom: 20px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.05); }
         .role-btn { flex: 1; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; text-align: center; color: #1e3c72; transition: 0.3s; font-size: 0.95rem; }
         .role-btn.active { background: #1e3c72; color: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
 
-        /* 🚨 KUTUCUKLU SINIF SEÇİM TASARIMI 🚨 */
         .grade-btn { flex: 1; min-width: 30%; background: #f1f2f6; color: #333; border: 2px solid #ddd; padding: 12px 5px; border-radius: 8px; text-align: center; font-weight: bold; cursor: pointer; font-size: 0.85rem; transition: 0.2s; }
         .grade-btn:hover { background: #e8f4f8; border-color: #3498db; }
         .grade-btn.selected { background: #e67e22; color: #fff; border-color: #e67e22; box-shadow: 0 4px 10px rgba(230,126,34,0.3); }
@@ -71,6 +71,9 @@
         .abcde-btn.correct { background: #27ae60 !important; color: white !important; border-color: #27ae60 !important; }
         .abcde-btn.wrong { background: #c0392b !important; color: white !important; border-color: #c0392b !important; }
 
+        .opt-btn { background: #fff; color: #333; border: 2px solid #ddd; margin-bottom: 8px; text-align: left; }
+        .opt-btn.selected { background: #e67e22 !important; color: #fff !important; border-color: #e67e22; }
+
         .subject-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; background: #fff; padding: 8px; border-radius: 8px; border: 1px solid #eee; }
         .subject-row label { width: 110px; font-weight: bold; color: #1e3c72; font-size: 0.85rem; text-align: left; margin: 0; }
         .subject-row input[type="text"] { flex: 1; margin: 0; padding: 8px; font-size: 0.8rem; border: 1px solid #ccc; border-radius: 6px; }
@@ -84,15 +87,16 @@
 </div>
 
 <div class="container">
+    
     <div id="screen-auth" class="screen active">
-        <h1 style="font-size: 3rem; margin:0;">🎓</h1>
-        <h1 style="font-size: 1.8rem; color:#1e3c72; margin-bottom: 5px;">Gazililer</h1>
-        <h2 style="font-size: 1.1rem; color:#e67e22; margin-top: 0; margin-bottom:20px; font-weight:600;">Eğitim Platformu</h2>
-
         <div class="role-toggle">
             <div id="btn-main-student" class="role-btn active" onclick="setMainRole('student')">🧑‍🎓 Öğrenci</div>
             <div id="btn-main-teacher" class="role-btn" onclick="setMainRole('teacher_pending')">👨‍🏫 Öğretmen</div>
         </div>
+
+        <h1 style="font-size: 3rem; margin:0;">🎓</h1>
+        <h1 style="font-size: 1.8rem; color:#1e3c72; margin-bottom: 5px;">Gazililer</h1>
+        <h2 style="font-size: 1.1rem; color:#e67e22; margin-top: 0; margin-bottom:20px; font-weight:600;">Eğitim Platformu</h2>
         
         <div id="login-box" class="auth-form">
             <h3 style="margin-top:0; color:#1e3c72; text-align:center; font-size:1.2rem;">Hesabınıza Giriş Yapın</h3>
@@ -130,26 +134,31 @@
     <div id="screen-main" class="screen">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
             <button onclick="logout()" class="outline" style="width:auto; font-size:0.8rem; padding:8px;">⬅️ Çıkış</button>
+            <button id="pwa-install-btn" onclick="installPWA()" class="green" style="display:none; width:auto; font-size:0.8rem; padding:8px;">📲 Uygulamayı İndir</button>
             <button onclick="openSettingsPanel()" class="outline" style="width:auto; font-size:0.8rem; padding:8px; border-color:#8e44ad; color:#8e44ad;">⚙️ Profil & Ayarlar</button>
         </div>
 
         <h2 id="display-user" style="color:#e67e22; margin-top:0;">Hoş Geldin!</h2>
         
-        <div id="notebook-alert-box" style="display:none; background:#f39c12; color:white; padding:15px; border-radius:10px; margin-bottom:10px; cursor:pointer; box-shadow: 0 4px 10px rgba(243,156,18,0.3);" onclick="fetchStudentLibrary(true)">
+        <div id="notebook-alert-box" style="display:none; background:#f39c12; color:white; padding:15px; border-radius:10px; margin-bottom:10px; cursor:pointer; box-shadow: 0 4px 10px rgba(243,156,18,0.3);" onclick="fetchStudentLibrary('cloud', true)">
             <b style="font-size:1.1rem;">🧠 Hata Defterinde Tekrar Vakti!</b><br><small>Bugün göz atman gereken sorular var. Görmek için tıkla.</small>
         </div>
 
-        <div id="student-class-area" style="background:#e8f4f8; padding:10px; border-radius:10px; margin-bottom:15px; border:1px dashed #3498db; display:flex; gap:5px;">
-            <input type="text" id="class-code-input" placeholder="Sınıf Kodu Gir (Örn: GZ123)" style="margin:0; flex:2;">
-            <button onclick="joinClass()" class="blue" style="margin:0; flex:1; font-size:0.9rem;">Sınıfa Katıl</button>
+        <div id="student-class-area" style="background:#e8f4f8; padding:10px; border-radius:10px; margin-bottom:15px; border:1px dashed #3498db;">
+            <div style="display:flex; gap:5px;">
+                <input type="text" id="class-code-input" placeholder="Sınıf Kodu Gir" style="margin:0; flex:2;">
+                <button onclick="joinClass()" class="blue" style="margin:0; flex:1; font-size:0.9rem;">Katıl</button>
+            </div>
+            <button id="btn-class-questions" onclick="fetchClassQuestions()" class="green" style="width:100%; margin-top:10px; display:none; padding:10px;">👨‍🏫 Hocamın Eklediği Soruları Çöz</button>
         </div>
 
         <div id="student-library-panel" style="display:none; background: #fdf2e9; padding: 15px; border-radius: 10px; margin-bottom: 15px; border: 2px solid #e67e22;">
             <h4 style="margin:0 0 10px 0; color:#e67e22;">☁️ Dijital Hata Defterim</h4>
             
             <div style="display:flex; gap:5px; margin-bottom:15px;">
-                <button onclick="fetchStudentLibrary()" class="outline" style="flex:1; font-size:0.8rem; border-color:#e67e22; color:#e67e22;">📚 Listeyi Aç</button>
-                <button onclick="startLibraryTest()" class="orange" style="flex:1.5; font-size:0.8rem;">🚀 Test Formatında Çöz</button>
+                <button onclick="fetchStudentLibrary('cloud', false)" class="outline" style="flex:1; font-size:0.75rem; border-color:#e67e22; color:#e67e22; padding:8px;">☁️ Buluttan Aç</button>
+                <button onclick="fetchStudentLibrary('local', false)" class="outline" style="flex:1; font-size:0.75rem; border-color:#3498db; color:#3498db; padding:8px;">💾 Cihazdan Aç</button>
+                <button onclick="startLibraryTest()" class="orange" style="flex:1.2; font-size:0.75rem; padding:8px;">🚀 Test Çöz</button>
             </div>
 
             <div style="border-top:1px solid #e67e22; padding-top:15px; text-align:left;">
@@ -177,15 +186,12 @@
                     <label style="font-size:0.75rem; font-weight:bold; color:#1e3c72; margin-bottom:5px; display:block;">✏️ ÇÖZÜM EKLE (İsteğe Bağlı)</label>
                     <button type="button" class="outline" style="width:100%; font-size:0.8rem; padding:8px; margin-bottom:8px; border-color:#27ae60; color:#27ae60;" onclick="document.getElementById('std-solution-file').click()">📸 Çözüm Fotoğrafı Ekle</button>
                     <input type="file" id="std-solution-file" accept="image/*" style="display:none;" onchange="processStudentImageUpload(event, 'solution')">
+                    
                     <textarea id="std-q-sol-text" placeholder="Varsa yazılı çözüm notunuz..."></textarea>
                     
                     <label style="font-size:0.75rem; font-weight:bold; color:#1e3c72; margin-top:5px; display:block;">✅ DOĞRU ŞIK HANGİSİ?</label>
                     <select id="std-q-correct-idx" style="font-weight:bold; border-color:#27ae60;">
-                        <option value="0">A Şıkkı</option>
-                        <option value="1">B Şıkkı</option>
-                        <option value="2">C Şıkkı</option>
-                        <option value="3">D Şıkkı</option>
-                        <option value="4">E Şıkkı</option>
+                        <option value="0">A Şıkkı</option><option value="1">B Şıkkı</option><option value="2">C Şıkkı</option><option value="3">D Şıkkı</option><option value="4">E Şıkkı</option>
                     </select>
                 </div>
 
@@ -197,7 +203,10 @@
                     <option value="30">1 Ay Sonra Hatırlat</option>
                 </select>
 
-                <button onclick="uploadStudentQuestion()" class="orange" style="padding:15px; font-size:1rem;">☁️ Buluta Kaydet</button>
+                <div style="display:flex; gap:5px;">
+                    <button onclick="uploadStudentQuestion('cloud')" class="orange" style="flex:1; padding:15px; font-size:0.9rem;">☁️ Buluta Kaydet</button>
+                    <button onclick="uploadStudentQuestion('local')" class="blue" style="flex:1; padding:15px; font-size:0.9rem;">💾 Cihaza Kaydet</button>
+                </div>
             </div>
         </div>
 
@@ -207,26 +216,21 @@
         
         <div id="instructor-panel" style="display:none;">
             <h4 style="margin:0 0 10px 0;">📢 Eğitmen Kontrol Merkezi</h4>
-            
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                 <button onclick="createClass()" class="green" style="font-size:0.8rem; width:auto; padding:8px 15px;">Sınıf Kodu Üret</button>
                 <span id="generated-code" style="font-weight:bold; color:#f1c40f;"></span>
             </div>
-
             <button onclick="fetchTeacherReports()" class="outline" style="font-size:0.85rem; margin-bottom:5px; width:100%; border-color:#fff; color:#fff;">📊 Sınıfımın Başarı Raporları</button>
             <button onclick="fetchMyLibrary()" class="outline" style="font-size:0.85rem; margin-bottom:15px; width:100%; border-color:#27ae60; color:#27ae60; background:rgba(255,255,255,0.9);">📚 Soru Kütüphanem</button>
-
             <input type="text" id="alert-text" placeholder="Tüm öğrencilere duyuru gönder...">
             <button onclick="publishAlert()" class="orange" style="font-size:0.85rem; margin-bottom:15px;">Hemen Yayınla</button>
 
             <div style="border-top:1px solid rgba(255,255,255,0.3); padding-top:10px; text-align:left;">
                 <h4 style="font-size:0.9rem; margin-top:0;">➕ Yeni Soru Ekle</h4>
-                
                 <div style="display:flex; gap:10px; margin-bottom:10px;">
                     <button type="button" class="outline" style="flex:1; font-size:0.85rem; padding:8px; border-color:#fff; color:#fff;" onclick="document.getElementById('img-upload-camera').click()">📸 Fotoğraf Çek</button>
                     <button type="button" class="outline" style="flex:1; font-size:0.85rem; padding:8px; border-color:#fff; color:#fff;" onclick="document.getElementById('img-upload-file').click()">📁 Galeriden Seç</button>
                 </div>
-                
                 <input type="file" id="img-upload-camera" accept="image/*" capture="environment" style="display:none;" onchange="processImageUpload(event)">
                 <input type="file" id="img-upload-file" accept="image/*" style="display:none;" onchange="processImageUpload(event)">
                 <img id="img-preview" src="" style="width:100%; max-height:200px; object-fit:contain; display:none; margin-bottom:10px; border-radius:8px;">
@@ -244,7 +248,6 @@
                 <textarea id="new-q-text" placeholder="Soru metni... (Veya sadece resim yükle)"></textarea>
                 <input type="text" id="new-q-opts" placeholder="Şıkları virgülle ayır (A,B,C,D,E)">
                 <input type="number" id="new-q-correct" placeholder="Doğru Şık İndeksi (0'dan başlar)">
-                
                 <button onclick="uploadQuestion()" class="outline" style="background:#fff; color:#1e3c72; border-color:#1e3c72;">📥 İzole Kütüphaneme Kaydet</button>
             </div>
         </div>
@@ -414,12 +417,35 @@
 </div>
 
 <script>
+    // 🚨 PWA (MOBİL UYGULAMA İNDİRME MOTORU) 🚨
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        document.getElementById('pwa-install-btn').style.display = 'block';
+    });
+
+    window.installPWA = () => {
+        if(deferredPrompt) {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') { console.log('Kullanıcı uygulamayı indirdi.'); }
+                deferredPrompt = null;
+                document.getElementById('pwa-install-btn').style.display = 'none';
+            });
+        }
+    };
+
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js').then(() => console.log("Servis Sağlayıcı (PWA) Aktif."));
+    }
+
+    // Arayüz Fonksiyonları
     window.showScreen = (id) => { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); };
     window.toggleDropdown = (id) => document.getElementById(id).classList.toggle('show');
     window.myClassCode = localStorage.getItem("gazi_class_code") || "";
     let selectedRole = 'student';
     
-    // 🚨 SEKME GÖRÜNÜMÜ ROL SEÇİMİ 🚨
     window.setMainRole = (role) => {
         selectedRole = role;
         const btnS = document.getElementById('btn-main-student');
@@ -440,7 +466,6 @@
         document.getElementById('reg-box').style.display = t === 'register' ? 'block' : 'none'; 
     };
 
-    // 🚨 KUTUCUKLU SINIF SEÇİM MOTORU 🚨
     window.updateGradeDropdown = () => {
         const type = document.getElementById('profile-exam-type').value;
         const area = document.getElementById('grade-selection-area');
@@ -478,7 +503,6 @@
         const savedGrade = localStorage.getItem('gazi_grade');
         if(savedGrade) {
             document.getElementById('profile-grade').value = savedGrade;
-            // Kutucuğu seçili hale getir
             setTimeout(() => {
                 document.querySelectorAll('.grade-btn').forEach(btn => {
                     if(btn.innerText === savedGrade) btn.classList.add('selected');
@@ -509,7 +533,6 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    // 🚨 AYARLARI KAYDET VE ŞİFREYİ GÜVENLİ GÜNCELLE 🚨
     window.saveProfileSettings = () => {
         const user = auth.currentUser;
         const newName = document.getElementById('profile-new-name').value.trim();
@@ -522,7 +545,6 @@
             document.getElementById('display-user').innerText = "Hoş Geldin, " + newName;
         }
 
-        // Şifre değiştirilmek isteniyorsa güvenlik prosedürü
         if(user && newPass) {
             if(!oldPass) return alert("Şifrenizi güncellemek için lütfen önce Eski Şifrenizi yazınız!");
             const cred = EmailAuthProvider.credential(user.email, oldPass);
@@ -550,7 +572,6 @@
         
         alert("✅ Çalışma Masası Ayarlarınız Kaydedildi!");
         
-        // Kaydettikten sonra DERS listesini güncelle
         const dersSelect = document.getElementById('std-q-ders');
         if(dersSelect) {
             dersSelect.innerHTML = subjectsData.length > 0 
@@ -610,13 +631,19 @@
             if (adminBtn) adminBtn.style.display = isAdmin ? "block" : "none";
             if (adminApproveBtn) adminApproveBtn.style.display = isAdmin ? "block" : "none";
 
+            // Sınıf Katılım Butonunu (Hocamın Soruları) Göster
+            const stdClassCode = localStorage.getItem("gazi_class_code");
+            if(stdClassCode && !isTeacher) {
+                document.getElementById('class-code-input').value = stdClassCode;
+                document.getElementById('btn-class-questions').style.display = 'block';
+            }
+
             if(typeof socket !== 'undefined') {
                 if (isTeacher) socket.emit("getTeacherClass", user.email);
                 socket.emit("getFilters", window.myClassCode || "");
                 if (!isTeacher) socket.emit("checkNotebookReviews", realName);
             }
 
-            // KÜTÜPHANE DERS KUTUSUNU DOLDUR
             const savedSubjects = JSON.parse(localStorage.getItem('gazi_subjects_v2')) || [];
             const dersSelect = document.getElementById('std-q-ders');
             if(dersSelect) {
@@ -660,8 +687,11 @@
         const checkedBoxes = document.querySelectorAll(`input[name="${type}-secim"]:checked`);
         const trigger = document.getElementById(`${type}-trigger`);
         if (!trigger) return;
-        let count = checkedBoxes.length; const hasHepsi = Array.from(checkedBoxes).some(cb => cb.value === "HEPSI");
-        if (count === 0) trigger.innerText = "Seçim Yapılmadı ▼"; else if (hasHepsi) trigger.innerText = "Tümü Seçili ▼"; else trigger.innerText = `${count} Adet Seçildi ▼`;
+        let count = checkedBoxes.length; 
+        const hasHepsi = Array.from(checkedBoxes).some(cb => cb.value === "HEPSI");
+        if (count === 0) trigger.innerText = "Seçim Yapılmadı ▼";
+        else if (hasHepsi) trigger.innerText = "Tümü Seçili ▼"; 
+        else trigger.innerText = `${count} Adet Seçildi ▼`;
     };
 
     if(socket) {
@@ -682,7 +712,11 @@
         });
     }
 
-    window.fetchMyStats = () => { if(!socket) return; const name = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", ""); socket.emit("getMyStats", name); };
+    window.fetchMyStats = () => {
+        if(!socket) return alert("Sunucuya bağlanılamadı!");
+        const name = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "");
+        socket.emit("getMyStats", name);
+    };
 
     if(socket) {
         socket.on("myStatsData", (history) => {
@@ -751,13 +785,14 @@
         alert(`✅ Soru kütüphanenize eklendi!`);
     };
 
-    window.uploadStudentQuestion = () => {
-        if(!socket) return alert("Sunucuya bağlanılamadı!");
+    // 🚨 YENİ: CİHAZA YA DA BULUTA KAYDETME AYRIMI 🚨
+    window.uploadStudentQuestion = (target = 'cloud') => {
         const qDersObj = document.getElementById('std-q-ders');
         const qDers = qDersObj ? qDersObj.value : 'Genel';
         const qKitap = document.getElementById('std-q-kitap').value.trim(); 
         const qKonu = document.getElementById('std-q-konu').value.trim();
-        const qText = document.getElementById('std-q-text').value.trim(); const qSolText = document.getElementById('std-q-sol-text').value.trim(); 
+        const qText = document.getElementById('std-q-text').value.trim(); 
+        const qSolText = document.getElementById('std-q-sol-text').value.trim(); 
         const correctIdx = parseInt(document.getElementById('std-q-correct-idx').value) || 0;
         const studentName = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "");
         const reminderDays = parseInt(document.getElementById('std-q-reminder').value) || 1;
@@ -767,26 +802,58 @@
         if(!stdUploadedImageBase64 && !qText) return alert("Lütfen bir fotoğraf yükleyin veya kendinize bir not yazın!");
 
         const q = { 
+            id: 'local_' + Date.now(), // Cihaz kaydı için ID
             studentName: studentName, ders: qDers, kitap: qKitap, konu: qKonu, not: qText, image: stdUploadedImageBase64, nextReviewDate: nextReviewDate,
             solutionImage: stdSolutionBase64, solutionText: qSolText, dogru: correctIdx,
             soru: qText || "Görseli inceleyiniz.", siklar: ["A", "B", "C", "D", "E"]
         };
-        socket.emit("addStudentQuestion", q);
+        
+        if (target === 'cloud') {
+            if(!socket) return alert("Buluta bağlanılamadı, lütfen Cihaza Kaydet seçeneğini kullanın.");
+            delete q.id; // Firebase kendi ID'sini verir
+            socket.emit("addStudentQuestion", q);
+            alert(`✅ Soru BULUT Hata Defterinize eklendi!\nSize ${reminderDays} gün sonra tekrar hatırlatılacak.`);
+        } else {
+            // Cihaza Kaydet (Çevrimdışı)
+            let localNotebook = JSON.parse(localStorage.getItem('gazi_local_notebook')) || [];
+            localNotebook.push(q);
+            localStorage.setItem('gazi_local_notebook', JSON.stringify(localNotebook));
+            alert(`💾 Soru CİHAZINIZA başarıyla kaydedildi!\nİnternetsiz de çözebilirsiniz.`);
+        }
+
         document.getElementById('std-q-kitap').value = ""; document.getElementById('std-q-konu').value = ""; document.getElementById('std-q-text').value = ""; document.getElementById('std-q-sol-text').value = ""; document.getElementById('std-img-preview').style.display = "none"; stdUploadedImageBase64 = null; stdSolutionBase64 = null;
-        alert(`✅ Yapamadığınız soru Bulut Hata Defterinize eklendi!\nSize ${reminderDays} gün sonra tekrar hatırlatılacak.`);
     };
 
-    window.fetchStudentLibrary = (onlyReviews = false) => {
-        if(!socket) return;
-        const studentName = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "");
-        socket.emit("getStudentLibrary", { studentName: studentName, onlyReviews: onlyReviews });
+    // 🚨 YENİ: BULUTTAN YA DA CİHAZDAN KÜTÜPHANE ÇEKME 🚨
+    window.fetchStudentLibrary = (source = 'cloud', onlyReviews = false) => {
+        if(source === 'cloud') {
+            if(!socket) return alert("Sunucu bağlantısı yok.");
+            const studentName = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "");
+            socket.emit("getStudentLibrary", { studentName: studentName, onlyReviews: onlyReviews });
+        } else {
+            let localData = JSON.parse(localStorage.getItem('gazi_local_notebook')) || [];
+            if(onlyReviews) {
+                const now = Date.now();
+                localData = localData.filter(q => q.nextReviewDate && q.nextReviewDate <= now);
+            } else {
+                localData.reverse(); // En yeni en üstte
+            }
+            renderStudentLibraryHTML(localData, "💾 Cihaz Hata Defterim");
+        }
     };
 
-    window.updateReviewDate = (questionId) => {
+    window.updateReviewDate = (questionId, isLocal = false) => {
         const d = prompt("Harika! Bu soruyu tekrar ettin. Peki sana bir daha kaç GÜN SONRA hatırlatayım? (Sadece rakam yazın, örn: 3)");
         const days = parseInt(d);
         if(days && days > 0) {
-            socket.emit("updateReviewDate", { questionId: questionId, additionalDays: days });
+            const newDate = Date.now() + (days * 24 * 60 * 60 * 1000);
+            if(!isLocal) {
+                socket.emit("updateReviewDate", { questionId: questionId, additionalDays: days });
+            } else {
+                let localData = JSON.parse(localStorage.getItem('gazi_local_notebook')) || [];
+                const idx = localData.findIndex(x => x.id === questionId);
+                if(idx !== -1) { localData[idx].nextReviewDate = newDate; localStorage.setItem('gazi_local_notebook', JSON.stringify(localData)); }
+            }
             alert(`✅ Tamamdır! Bu soru sana ${days} gün sonra tekrar hatırlatılacak.`);
             showScreen('screen-main');
             socket.emit("checkNotebookReviews", document.getElementById('display-user').innerText.replace("Hoş Geldin, ", ""));
@@ -814,12 +881,54 @@
         sDiv.innerHTML = `<b>✏️ Çözüm Notu:</b><br>${q.solutionText || 'Yazılı çözüm notu bulunmuyor.'}<br>${q.solutionImage ? `<img src="${q.solutionImage}" style="width:100%; margin-top:5px; border-radius:5px;">` : ''}`;
     };
 
-    window.fetchTeacherReports = () => { if(socket) { const code = prompt("Sınıf Kodunuzu Giriniz (Örn: GZ123):", window.myClassCode); if(code) socket.emit("getTeacherReports", code.toUpperCase()); } };
-    window.fetchMyLibrary = () => { if(!socket) return; if(!window.myClassCode) return alert("Önce Sınıf Kodu Üretmelisiniz."); socket.emit("getTeacherLibrary", window.myClassCode); };
-    window.fetchPendingTeachers = () => { if(socket) socket.emit("getPendingTeachers"); };
-    window.approveTeacher = (email) => { if(socket) { socket.emit("approveTeacher", email); alert("✅ Onay isteği sunucuya gönderildi!"); } };
+    // 🚨 YENİ: ORTAK KÜTÜPHANE ÇİZİCİ (Bulut ve Cihaz İçin) 🚨
+    function renderStudentLibraryHTML(data, title) {
+        window.tempStdQuestions = data; 
+        currentListType = "student_library"; 
+        document.getElementById('list-title').innerText = title; 
+        const div = document.getElementById('list-content');
+        
+        if(data.length === 0) div.innerHTML = "<p style='text-align:center;'>Hata defterinizde soru bulunmuyor.</p>"; 
+        else div.innerHTML = data.map((q, i) => {
+            const isLocal = title.includes("Cihaz");
+            return `
+            <div class="list-item" style="border: 2px solid #e67e22; background:#fff;">
+                <span style="background:#1e3c72; color:#fff; padding:3px 8px; border-radius:4px; font-size:0.75rem; font-weight:bold;">${q.ders || 'Genel'}</span> 
+                <b style="color:#e67e22; margin-left:5px;">${q.konu}</b><br>
+                <small style="color:#666;"><b>Kaynak:</b> ${q.kitap}</small><br>
+                ${q.not ? `<small><b>Soru Notu:</b> ${q.not}</small><br>` : ''}
+                ${q.image ? `<img src="${q.image}" style="width:100%; border-radius:5px; margin-top:5px;">` : ''}
+                
+                <div class="abcde-grid" id="std-qbox-${i}">
+                    ${['A','B','C','D','E'].map((s, idx) => `<button class="abcde-btn" onclick="checkStdAnswer(this, ${idx}, ${i})">${s}</button>`).join('')}
+                </div>
+                <div id="sol-std-qbox-${i}" style="display:none; margin-top:10px; padding:10px; background:#e8f4f8; border-radius:8px; font-size:0.8rem; color:#333; text-align:left;"></div>
+                
+                <div style="display:flex; gap:5px; margin-top:10px;">
+                    ${q.id ? `<button onclick="updateReviewDate('${q.id}', ${isLocal})" class="outline" style="flex:2; font-size:0.8rem; border-color:#27ae60; color:#27ae60;">✅ Tekrar Ettim (Ertele)</button>` : ''}
+                    <button onclick="reportQuestionFromLibrary(${i})" class="outline" style="flex:1; font-size:0.8rem; border-color:#c0392b; color:#c0392b;">🚨 Bildir</button>
+                </div>
+            </div>`;
+        }).join(''); 
+        showScreen('screen-list');
+    }
+
+    // 🚨 YENİ: HOCAMIN SORULARI MOTORU 🚨
+    window.fetchClassQuestions = () => {
+        const code = document.getElementById('class-code-input').value.trim().toUpperCase();
+        if(!code) return alert("Lütfen önce sınıf kodunu girin!");
+        socket.emit("getClassQuestions", code);
+    };
 
     if(socket) {
+        socket.on("studentLibraryData", (data) => renderStudentLibraryHTML(data, "☁️ Bulut Hata Defterim"));
+
+        socket.on("classQuestionsData", (data) => {
+            if(data.length === 0) return alert("Bu sınıfa henüz öğretmen tarafından soru eklenmemiş.");
+            window.tempStdQuestions = data;
+            startLibraryTest(); // Direkt test olarak başlatır
+        });
+
         socket.on("teacherReportsData", (reports) => {
             currentListType = "teacher_report"; document.getElementById('list-title').innerText = "📊 Sınıf Başarı Raporları"; const div = document.getElementById('list-content');
             if(reports.length === 0) div.innerHTML = "<p>Bu sınıfa ait sınav sonucu bulunamadı.</p>"; else div.innerHTML = reports.map(r => `<div class="list-item" style="border-left: 5px solid #2980b9;"><b>Öğrenci:</b> ${r.name} <br><b>Puan:</b> <span style="color:#27ae60;font-weight:bold;">${r.score}</span> (D: ${r.correct}, Y: ${r.wrong}, B: ${r.blank})<br><small>${r.date}</small></div>`).join(''); showScreen('screen-list');
@@ -830,15 +939,14 @@
             if(data.length === 0) div.innerHTML = "<p style='text-align:center;'>Kütüphanenizde henüz soru bulunmuyor.</p>"; else div.innerHTML = data.map((q, i) => `<div class="list-item" style="border-left: 5px solid #e67e22;"><b>Soru:</b> ${q.soru} <br><span style="color:#27ae60;"><b>Cevap:</b> ${q.siklar ? q.siklar[q.dogru] : 'Bilinmiyor'}</span> <br><small>Ders: ${q.ders} | Konu: ${q.deneme}</small><br>${q.image ? `<img src="${q.image}" style="width:100%; border-radius:5px; margin-top:10px;">` : ''}<button onclick="reportQuestionFromLibrary(${i})" class="outline" style="margin-top:10px; font-size:0.75rem; border-color:#c0392b; color:#c0392b;">🚨 Hatalı Bildir</button></div>`).join(''); showScreen('screen-list');
         });
 
-        socket.on("studentLibraryData", (data) => {
-            window.tempStdQuestions = data; currentListType = "student_library"; document.getElementById('list-title').innerText = "☁️ Dijital Hata Defterim"; const div = document.getElementById('list-content');
-            if(data.length === 0) div.innerHTML = "<p style='text-align:center;'>Hata defterinizde aranılan kritere uygun soru bulunmuyor.</p>"; else div.innerHTML = data.map((q, i) => `<div class="list-item" style="border: 2px solid #e67e22; background:#fff;"> <span style="background:#1e3c72; color:#fff; padding:3px 8px; border-radius:4px; font-size:0.75rem; font-weight:bold;">${q.ders || 'Genel'}</span> <b style="color:#e67e22; margin-left:5px;">${q.konu}</b><br><small style="color:#666;"><b>Kaynak:</b> ${q.kitap}</small><br>${q.not ? `<small><b>Soru Notu:</b> ${q.not}</small><br>` : ''}${q.image ? `<img src="${q.image}" style="width:100%; border-radius:5px; margin-top:5px;">` : ''}<div class="abcde-grid" id="std-qbox-${i}">${['A','B','C','D','E'].map((s, idx) => `<button class="abcde-btn" onclick="checkStdAnswer(this, ${idx}, ${i})">${s}</button>`).join('')}</div><div id="sol-std-qbox-${i}" style="display:none; margin-top:10px; padding:10px; background:#e8f4f8; border-radius:8px; font-size:0.8rem; color:#333; text-align:left;"></div><div style="display:flex; gap:5px; margin-top:10px;">${q.id ? `<button onclick="updateReviewDate('${q.id}')" class="outline" style="flex:2; font-size:0.8rem; border-color:#27ae60; color:#27ae60;">✅ Tekrar Ettim (Ertele)</button>` : ''}<button onclick="reportQuestionFromLibrary(${i})" class="outline" style="flex:1; font-size:0.8rem; border-color:#c0392b; color:#c0392b;">🚨 Bildir</button></div></div>`).join(''); showScreen('screen-list');
-        });
-
         socket.on("notebookReviewsCount", (count) => { const box = document.getElementById('notebook-alert-box'); if(count > 0) box.style.display = 'block'; else box.style.display = 'none'; });
         socket.on("pendingTeachersData", (data) => { currentListType = "admin_approval"; document.getElementById('list-title').innerText = "👨‍🏫 Onay Bekleyen Öğretmenler"; const div = document.getElementById('list-content'); if(data.length === 0) div.innerHTML = "<p style='text-align:center;'>Onay bekleyen öğretmen bulunmuyor.</p>"; else div.innerHTML = data.map((t, i) => `<div class="list-item" style="border-left: 5px solid #8e44ad;"><b>İsim:</b> ${t.name} <br><b>E-posta:</b> ${t.email} <br><button onclick="approveTeacher('${t.email}')" class="green" style="margin-top:5px; padding:5px 10px; font-size:0.8rem; width:auto;">✅ Onayla</button></div>`).join(''); showScreen('screen-list'); });
     }
 
+    window.fetchTeacherReports = () => { if(socket) { const code = prompt("Sınıf Kodunuzu Giriniz (Örn: GZ123):", window.myClassCode); if(code) socket.emit("getTeacherReports", code.toUpperCase()); } };
+    window.fetchMyLibrary = () => { if(!socket) return; if(!window.myClassCode) return alert("Önce Sınıf Kodu Üretmelisiniz."); socket.emit("getTeacherLibrary", window.myClassCode); };
+    window.fetchPendingTeachers = () => { if(socket) socket.emit("getPendingTeachers"); };
+    window.approveTeacher = (email) => { if(socket) { socket.emit("approveTeacher", email); alert("✅ Onay isteği sunucuya gönderildi!"); } };
     window.openEvaluation = () => { if(socket) { socket.emit("getEvaluationData", window.myClassCode); showScreen('screen-eval'); } };
 
     if(socket) {
@@ -851,14 +959,13 @@
 
     window.showHomeworkList = () => { document.getElementById('list-title').innerText = "📒 Bekleyen Ödevlerin"; document.getElementById('list-content').innerHTML = homeworks.map(hw => `<div class="list-item"><b>${hw.title}</b><br>Soru: ${hw.count} | Son Tarih: ${hw.dueDate || 'Yok'}</div>`).join(''); showScreen('screen-list'); };
     window.startReviewSession = () => { if(reviews.length === 0) return; trialQuestions = reviews.map(r => r.question); trialAnswers = new Array(trialQuestions.length).fill(null); currentQIndex = 0; showScreen('screen-game'); renderTrialQuestion(); };
-
     window.askGemini = () => { if(!currentQObject || !socket) return; document.getElementById('ai-response').style.display = "block"; document.getElementById('ai-response').innerText = "🤖 Gemini düşünüyor..."; socket.emit("askGemini", currentQObject); };
     if(socket) socket.on("geminiResponse", (text) => { if(text.startsWith("⚠️")) alert(text); document.getElementById('ai-response').innerText = text; });
 
     window.createClass = () => { if(socket) { const name = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", ""); socket.emit("createClass", name); } };
     if(socket) { socket.on("classCreated", (code) => { document.getElementById('generated-code').innerText = "KODUNUZ: " + code; window.myClassCode = code; localStorage.setItem("gazi_class_code", code); socket.emit("getFilters", window.myClassCode); }); socket.on("teacherClassFound", (code) => { document.getElementById('generated-code').innerText = "KODUNUZ: " + code; window.myClassCode = code; localStorage.setItem("gazi_class_code", code); socket.emit("getFilters", window.myClassCode); }); }
-    window.joinClass = () => { if(!socket) return; const code = document.getElementById('class-code-input').value.trim().toUpperCase(); const name = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", ""); if(!code) return alert("Sınıf kodu girin!"); socket.emit("joinClass", { code, studentName: name }); };
-    if(socket) socket.on("classJoined", (res) => { if(res.success) { window.myClassCode = res.code; localStorage.setItem("gazi_class_code", res.code); socket.emit("getFilters", window.myClassCode); alert("✅ Sınıfa katıldın!"); } else alert("❌ Geçersiz Sınıf Kodu!"); });
+    window.joinClass = () => { if(!socket) return; const code = document.getElementById('class-code-input').value.trim().toUpperCase(); const name = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", ""); if(!code) return alert("Sınıf kodu girin!"); socket.emit("joinClass", { code, studentName: name }); localStorage.setItem("gazi_class_code", code); document.getElementById('btn-class-questions').style.display = 'block';};
+    if(socket) socket.on("classJoined", (res) => { if(res.success) { window.myClassCode = res.code; localStorage.setItem("gazi_class_code", res.code); socket.emit("getFilters", window.myClassCode); alert("✅ Sınıfa katıldın!"); document.getElementById('btn-class-questions').style.display = 'block'; } else alert("❌ Geçersiz Sınıf Kodu!"); });
     window.publishAlert = () => { if(!socket) return; const msg = document.getElementById('alert-text').value.trim(); if(!msg) return alert("Boş duyuru gönderilemez!"); const name = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", ""); socket.emit("sendGlobalAlert", { message: msg, sender: name }); document.getElementById('alert-text').value = ""; alert("🚀 Duyuru gönderildi!"); };
     if(socket) socket.on("receiveGlobalAlert", (data) => { const toast = document.getElementById('notification-toast'); document.getElementById('toast-message').innerHTML = `<span style="color:#e67e22;">${data.sender}:</span><br>${data.message}`; toast.classList.add('show'); setTimeout(() => { toast.classList.remove('show'); }, 6000); });
 
