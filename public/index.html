@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gazililer Eğitim Platformu</title>
+    <title>Gazililer Yanlış Soru Kumbaram</title>
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#1e3c72">
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
@@ -87,7 +87,6 @@
 </div>
 
 <div class="container">
-    
     <div id="screen-auth" class="screen active">
         <div class="role-toggle">
             <div id="btn-main-student" class="role-btn active" onclick="setMainRole('student')">🧑‍🎓 Öğrenci</div>
@@ -96,7 +95,7 @@
 
         <h1 style="font-size: 3rem; margin:0;">🎓</h1>
         <h1 style="font-size: 1.8rem; color:#1e3c72; margin-bottom: 5px;">Gazililer</h1>
-        <h2 style="font-size: 1.1rem; color:#e67e22; margin-top: 0; margin-bottom:20px; font-weight:600;">Eğitim Platformu</h2>
+        <h2 style="font-size: 1.1rem; color:#e67e22; margin-top: 0; margin-bottom:20px; font-weight:600;">Yanlış Soru Kumbaram</h2>
         
         <div id="login-box" class="auth-form">
             <h3 style="margin-top:0; color:#1e3c72; text-align:center; font-size:1.2rem;">Hesabınıza Giriş Yapın</h3>
@@ -153,7 +152,7 @@
         </div>
 
         <div id="student-library-panel" style="display:none; background: #fdf2e9; padding: 15px; border-radius: 10px; margin-bottom: 15px; border: 2px solid #e67e22;">
-            <h4 style="margin:0 0 10px 0; color:#e67e22;">☁️ Dijital Hata Defterim</h4>
+            <h4 style="margin:0 0 10px 0; color:#e67e22;">☁️ Yanlış Soru Kumbaram</h4>
             
             <div style="display:flex; gap:5px; margin-bottom:15px;">
                 <button onclick="fetchStudentLibrary('cloud', false)" class="outline" style="flex:1; font-size:0.75rem; border-color:#e67e22; color:#e67e22; padding:8px;">☁️ Buluttan Aç</button>
@@ -417,30 +416,18 @@
 </div>
 
 <script>
-    // 🚨 PWA (MOBİL UYGULAMA İNDİRME MOTORU) 🚨
     let deferredPrompt;
     window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-        document.getElementById('pwa-install-btn').style.display = 'block';
+        e.preventDefault(); deferredPrompt = e; document.getElementById('pwa-install-btn').style.display = 'block';
     });
-
     window.installPWA = () => {
         if(deferredPrompt) {
             deferredPrompt.prompt();
-            deferredPrompt.userChoice.then((choiceResult) => {
-                if (choiceResult.outcome === 'accepted') { console.log('Kullanıcı uygulamayı indirdi.'); }
-                deferredPrompt = null;
-                document.getElementById('pwa-install-btn').style.display = 'none';
-            });
+            deferredPrompt.userChoice.then((choiceResult) => { deferredPrompt = null; document.getElementById('pwa-install-btn').style.display = 'none'; });
         }
     };
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').then(() => console.log("PWA Aktif."));
 
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js').then(() => console.log("Servis Sağlayıcı (PWA) Aktif."));
-    }
-
-    // Arayüz Fonksiyonları
     window.showScreen = (id) => { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); };
     window.toggleDropdown = (id) => document.getElementById(id).classList.toggle('show');
     window.myClassCode = localStorage.getItem("gazi_class_code") || "";
@@ -470,9 +457,7 @@
         const type = document.getElementById('profile-exam-type').value;
         const area = document.getElementById('grade-selection-area');
         const boxContainer = document.getElementById('grade-boxes');
-        
-        boxContainer.innerHTML = '';
-        document.getElementById('profile-grade').value = '';
+        boxContainer.innerHTML = ''; document.getElementById('profile-grade').value = '';
         
         let grades = [];
         if(type === 'lise_okul') grades = ['9. Sınıf', '10. Sınıf', '11. Sınıf', '12. Sınıf', 'Mezun'];
@@ -481,41 +466,25 @@
         if(grades.length > 0) {
             area.style.display = 'block';
             grades.forEach(val => {
-                const btn = document.createElement('div');
-                btn.className = 'grade-btn';
-                btn.innerText = val;
-                btn.onclick = () => {
-                    document.querySelectorAll('.grade-btn').forEach(b => b.classList.remove('selected'));
-                    btn.classList.add('selected');
-                    document.getElementById('profile-grade').value = val;
-                };
+                const btn = document.createElement('div'); btn.className = 'grade-btn'; btn.innerText = val;
+                btn.onclick = () => { document.querySelectorAll('.grade-btn').forEach(b => b.classList.remove('selected')); btn.classList.add('selected'); document.getElementById('profile-grade').value = val; };
                 boxContainer.appendChild(btn);
             });
-        } else {
-            area.style.display = 'none';
-        }
+        } else { area.style.display = 'none'; }
     };
 
     window.openSettingsPanel = () => {
         document.getElementById('profile-exam-type').value = localStorage.getItem('gazi_exam_type') || 'kpss_lisans';
         window.updateGradeDropdown();
-        
         const savedGrade = localStorage.getItem('gazi_grade');
         if(savedGrade) {
             document.getElementById('profile-grade').value = savedGrade;
-            setTimeout(() => {
-                document.querySelectorAll('.grade-btn').forEach(btn => {
-                    if(btn.innerText === savedGrade) btn.classList.add('selected');
-                });
-            }, 100);
+            setTimeout(() => { document.querySelectorAll('.grade-btn').forEach(btn => { if(btn.innerText === savedGrade) btn.classList.add('selected'); }); }, 100);
         }
-        
         const savedSubjects = JSON.parse(localStorage.getItem('gazi_subjects_v2')) || [];
         const subjects = ['tarih', 'cografya', 'vatandaslik', 'matematik', 'turkce', 'egitim', 'fizik', 'kimya', 'biyoloji', 'fen'];
-        
         subjects.forEach(sub => {
-            const cb = document.getElementById('subj-' + sub);
-            const txt = document.getElementById('topic-' + sub);
+            const cb = document.getElementById('subj-' + sub); const txt = document.getElementById('topic-' + sub);
             if(cb && txt) {
                 cb.checked = false; txt.value = '';
                 const found = savedSubjects.find(s => s.name === cb.value);
@@ -551,8 +520,7 @@
             reauthenticateWithCredential(user, cred).then(() => {
                 updatePassword(user, newPass).then(() => { 
                     alert("Şifreniz başarıyla güncellendi!"); 
-                    document.getElementById('profile-old-pass').value = '';
-                    document.getElementById('profile-new-pass').value = '';
+                    document.getElementById('profile-old-pass').value = ''; document.getElementById('profile-new-pass').value = '';
                 });
             }).catch(e => { alert("Eski şifreniz hatalı veya geçersiz!"); return; });
         }
@@ -563,9 +531,7 @@
         const subjectsData = [];
         ['tarih', 'cografya', 'vatandaslik', 'matematik', 'turkce', 'egitim', 'fizik', 'kimya', 'biyoloji', 'fen'].forEach(sub => {
             const cb = document.getElementById('subj-' + sub);
-            if(cb && cb.checked) {
-                subjectsData.push({ name: cb.value, topics: document.getElementById('topic-' + sub).value.trim() });
-            }
+            if(cb && cb.checked) subjectsData.push({ name: cb.value, topics: document.getElementById('topic-' + sub).value.trim() });
         });
         localStorage.setItem('gazi_subjects_v2', JSON.stringify(subjectsData));
         localStorage.setItem('gazi_onboarding_done', 'true');
@@ -574,11 +540,8 @@
         
         const dersSelect = document.getElementById('std-q-ders');
         if(dersSelect) {
-            dersSelect.innerHTML = subjectsData.length > 0 
-                ? subjectsData.map(s => `<option value="${s.name}">${s.name}</option>`).join('')
-                : `<option value="Genel">Genel</option>`;
+            dersSelect.innerHTML = subjectsData.length > 0 ? subjectsData.map(s => `<option value="${s.name}">${s.name}</option>`).join('') : `<option value="Genel">Genel</option>`;
         }
-        
         showScreen('screen-main');
     };
 
@@ -626,12 +589,11 @@
 
             if(isPending && !isAdmin) alert("⏳ Öğretmen hesabınız yönetici onayı bekliyor. Şimdilik öğrenci görünümündesiniz.");
             if (instPanel) instPanel.style.display = isTeacher ? "block" : "none";
-            if (studentArea) studentArea.style.display = isTeacher ? "none" : "flex"; 
+            if (studentArea) studentArea.style.display = isTeacher ? "none" : "block"; 
             if (studentLibPanel) studentLibPanel.style.display = isTeacher ? "none" : "block";
             if (adminBtn) adminBtn.style.display = isAdmin ? "block" : "none";
             if (adminApproveBtn) adminApproveBtn.style.display = isAdmin ? "block" : "none";
 
-            // Sınıf Katılım Butonunu (Hocamın Soruları) Göster
             const stdClassCode = localStorage.getItem("gazi_class_code");
             if(stdClassCode && !isTeacher) {
                 document.getElementById('class-code-input').value = stdClassCode;
@@ -647,9 +609,7 @@
             const savedSubjects = JSON.parse(localStorage.getItem('gazi_subjects_v2')) || [];
             const dersSelect = document.getElementById('std-q-ders');
             if(dersSelect) {
-                dersSelect.innerHTML = savedSubjects.length > 0 
-                    ? savedSubjects.map(s => `<option value="${s.name}">${s.name}</option>`).join('')
-                    : `<option value="Genel">Genel</option>`;
+                dersSelect.innerHTML = savedSubjects.length > 0 ? savedSubjects.map(s => `<option value="${s.name}">${s.name}</option>`).join('') : `<option value="Genel">Genel</option>`;
             }
 
             const onboardingDone = localStorage.getItem('gazi_onboarding_done');
@@ -785,7 +745,6 @@
         alert(`✅ Soru kütüphanenize eklendi!`);
     };
 
-    // 🚨 YENİ: CİHAZA YA DA BULUTA KAYDETME AYRIMI 🚨
     window.uploadStudentQuestion = (target = 'cloud') => {
         const qDersObj = document.getElementById('std-q-ders');
         const qDers = qDersObj ? qDersObj.value : 'Genel';
@@ -802,7 +761,7 @@
         if(!stdUploadedImageBase64 && !qText) return alert("Lütfen bir fotoğraf yükleyin veya kendinize bir not yazın!");
 
         const q = { 
-            id: 'local_' + Date.now(), // Cihaz kaydı için ID
+            id: 'local_' + Date.now(),
             studentName: studentName, ders: qDers, kitap: qKitap, konu: qKonu, not: qText, image: stdUploadedImageBase64, nextReviewDate: nextReviewDate,
             solutionImage: stdSolutionBase64, solutionText: qSolText, dogru: correctIdx,
             soru: qText || "Görseli inceleyiniz.", siklar: ["A", "B", "C", "D", "E"]
@@ -810,11 +769,10 @@
         
         if (target === 'cloud') {
             if(!socket) return alert("Buluta bağlanılamadı, lütfen Cihaza Kaydet seçeneğini kullanın.");
-            delete q.id; // Firebase kendi ID'sini verir
+            delete q.id; 
             socket.emit("addStudentQuestion", q);
             alert(`✅ Soru BULUT Hata Defterinize eklendi!\nSize ${reminderDays} gün sonra tekrar hatırlatılacak.`);
         } else {
-            // Cihaza Kaydet (Çevrimdışı)
             let localNotebook = JSON.parse(localStorage.getItem('gazi_local_notebook')) || [];
             localNotebook.push(q);
             localStorage.setItem('gazi_local_notebook', JSON.stringify(localNotebook));
@@ -824,7 +782,6 @@
         document.getElementById('std-q-kitap').value = ""; document.getElementById('std-q-konu').value = ""; document.getElementById('std-q-text').value = ""; document.getElementById('std-q-sol-text').value = ""; document.getElementById('std-img-preview').style.display = "none"; stdUploadedImageBase64 = null; stdSolutionBase64 = null;
     };
 
-    // 🚨 YENİ: BULUTTAN YA DA CİHAZDAN KÜTÜPHANE ÇEKME 🚨
     window.fetchStudentLibrary = (source = 'cloud', onlyReviews = false) => {
         if(source === 'cloud') {
             if(!socket) return alert("Sunucu bağlantısı yok.");
@@ -836,7 +793,7 @@
                 const now = Date.now();
                 localData = localData.filter(q => q.nextReviewDate && q.nextReviewDate <= now);
             } else {
-                localData.reverse(); // En yeni en üstte
+                localData.reverse(); 
             }
             renderStudentLibraryHTML(localData, "💾 Cihaz Hata Defterim");
         }
@@ -881,7 +838,6 @@
         sDiv.innerHTML = `<b>✏️ Çözüm Notu:</b><br>${q.solutionText || 'Yazılı çözüm notu bulunmuyor.'}<br>${q.solutionImage ? `<img src="${q.solutionImage}" style="width:100%; margin-top:5px; border-radius:5px;">` : ''}`;
     };
 
-    // 🚨 YENİ: ORTAK KÜTÜPHANE ÇİZİCİ (Bulut ve Cihaz İçin) 🚨
     function renderStudentLibraryHTML(data, title) {
         window.tempStdQuestions = data; 
         currentListType = "student_library"; 
@@ -913,7 +869,6 @@
         showScreen('screen-list');
     }
 
-    // 🚨 YENİ: HOCAMIN SORULARI MOTORU 🚨
     window.fetchClassQuestions = () => {
         const code = document.getElementById('class-code-input').value.trim().toUpperCase();
         if(!code) return alert("Lütfen önce sınıf kodunu girin!");
@@ -926,7 +881,7 @@
         socket.on("classQuestionsData", (data) => {
             if(data.length === 0) return alert("Bu sınıfa henüz öğretmen tarafından soru eklenmemiş.");
             window.tempStdQuestions = data;
-            startLibraryTest(); // Direkt test olarak başlatır
+            startLibraryTest(); 
         });
 
         socket.on("teacherReportsData", (reports) => {
@@ -983,7 +938,7 @@
         if(list.length === 0) contentDiv.innerHTML = "<p style='text-align:center;'>Bu liste şu an boş.</p>"; else contentDiv.innerHTML = list.map((q, i) => `<div class="list-item"><b>Soru ${i+1}:</b> ${q.soru} <br><span style="color:#27ae60; font-weight:bold; font-size:0.9rem;">Cevap: ${q.siklar ? q.siklar[q.dogru] : 'Bilinmiyor'}</span></div>`).join(''); showScreen('screen-list');
     };
 
-    window.downloadPDF = () => { const keys = { 'wrong': 'kpss_wrongs', 'fav': 'kpss_favs', 'blank': 'kpss_blanks', 'report': 'kpss_reports' }; const list = JSON.parse(localStorage.getItem(keys[currentListType])) || []; if(list.length === 0) return alert("Liste boş!"); const win = window.open('', '', 'height=600,width=800'); win.document.write('<html><body style="font-family:sans-serif;"><h2>Gazililer KPSS Bilgi Bankası</h2><hr>'); list.forEach((q, i) => win.document.write(`<p><b>Soru ${i+1}:</b> ${q.soru}<br><span style="color:green;">Cevap: ${q.siklar[q.dogru]}</span></p>`)); win.document.write('</body></html>'); win.document.close(); win.print(); };
+    window.downloadPDF = () => { const keys = { 'wrong': 'kpss_wrongs', 'fav': 'kpss_favs', 'blank': 'kpss_blanks', 'report': 'kpss_reports' }; const list = JSON.parse(localStorage.getItem(keys[currentListType])) || []; if(list.length === 0) return alert("Liste boş!"); const win = window.open('', '', 'height=600,width=800'); win.document.write('<html><body style="font-family:sans-serif;"><h2>Gazililer Yanlış Soru Kumbaram</h2><hr>'); list.forEach((q, i) => win.document.write(`<p><b>Soru ${i+1}:</b> ${q.soru}<br><span style="color:green;">Cevap: ${q.siklar[q.dogru]}</span></p>`)); win.document.write('</body></html>'); win.document.close(); win.print(); };
 
     window.goToLobby = (mode) => {
         currentMode = mode;
