@@ -19,8 +19,18 @@
         #instructor-panel, #instructor-panel h4, #instructor-panel label { color: #ffffff !important; }
         #instructor-panel { background: #1e3c72 !important; border: 2px solid #e67e22; padding: 15px; border-radius: 10px; margin-top: 15px; }
 
-        .auth-form { background: rgba(0,0,0,0.04); padding: 15px; border-radius: 10px; margin-top: 15px; text-align: left; }
+        .auth-form { background: #fff; padding: 20px; border-radius: 12px; margin-top: 10px; text-align: left; box-shadow: 0 5px 15px rgba(0,0,0,0.05); border: 1px solid #eee; }
         .auth-switch { color: #e67e22; font-size: 0.85rem; text-decoration: underline; cursor: pointer; text-align: center; display: block; margin-top: 10px; font-weight: bold; }
+
+        /* 🚨 KURUMSAL ROL SEÇİM SEKME (TAB) TASARIMI 🚨 */
+        .role-toggle { display: flex; background: #e8f4f8; border-radius: 10px; padding: 5px; margin-bottom: 20px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.05); }
+        .role-btn { flex: 1; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; text-align: center; color: #1e3c72; transition: 0.3s; font-size: 0.95rem; }
+        .role-btn.active { background: #1e3c72; color: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+
+        /* 🚨 KUTUCUKLU SINIF SEÇİM TASARIMI 🚨 */
+        .grade-btn { flex: 1; min-width: 30%; background: #f1f2f6; color: #333; border: 2px solid #ddd; padding: 12px 5px; border-radius: 8px; text-align: center; font-weight: bold; cursor: pointer; font-size: 0.85rem; transition: 0.2s; }
+        .grade-btn:hover { background: #e8f4f8; border-color: #3498db; }
+        .grade-btn.selected { background: #e67e22; color: #fff; border-color: #e67e22; box-shadow: 0 4px 10px rgba(230,126,34,0.3); }
 
         .screen { display: none; } .active { display: block; }
         #lobby-players-area { background: #e8f4f8; padding: 10px; border-radius: 8px; border: 2px dashed #3498db; margin-top: 15px; text-align: left; }
@@ -61,10 +71,6 @@
         .abcde-btn.correct { background: #27ae60 !important; color: white !important; border-color: #27ae60 !important; }
         .abcde-btn.wrong { background: #c0392b !important; color: white !important; border-color: #c0392b !important; }
 
-        .opt-btn { background: #fff; color: #333; border: 2px solid #ddd; margin-bottom: 8px; text-align: left; }
-        .opt-btn.selected { background: #e67e22 !important; color: #fff !important; border-color: #e67e22; }
-
-        /* 🚨 YENİ: DERS VE KONU EKLEME ALANI STİLİ 🚨 */
         .subject-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; background: #fff; padding: 8px; border-radius: 8px; border: 1px solid #eee; }
         .subject-row label { width: 110px; font-weight: bold; color: #1e3c72; font-size: 0.85rem; text-align: left; margin: 0; }
         .subject-row input[type="text"] { flex: 1; margin: 0; padding: 8px; font-size: 0.8rem; border: 1px solid #ccc; border-radius: 6px; }
@@ -79,43 +85,43 @@
 
 <div class="container">
     <div id="screen-auth" class="screen active">
-        <div style="display:flex; justify-content:center; gap:10px; margin-bottom:15px;">
-            <button id="btn-main-student" onclick="setMainRole('student')" class="green" style="flex:1; font-size:1.1rem; padding:15px;">🧑‍🎓 Öğrenci</button>
-            <button id="btn-main-teacher" onclick="setMainRole('teacher_pending')" class="outline" style="flex:1; border-color:#e67e22; color:#e67e22; font-size:1.1rem; padding:15px;">👨‍🏫 Öğretmen</button>
-        </div>
-
         <h1 style="font-size: 3rem; margin:0;">🎓</h1>
         <h1 style="font-size: 1.8rem; color:#1e3c72; margin-bottom: 5px;">Gazililer</h1>
-        <h2 style="font-size: 1.2rem; color:#e67e22; margin-top: 0; margin-bottom:20px;">Eğitim Platformu</h2>
+        <h2 style="font-size: 1.1rem; color:#e67e22; margin-top: 0; margin-bottom:20px; font-weight:600;">Eğitim Platformu</h2>
+
+        <div class="role-toggle">
+            <div id="btn-main-student" class="role-btn active" onclick="setMainRole('student')">🧑‍🎓 Öğrenci</div>
+            <div id="btn-main-teacher" class="role-btn" onclick="setMainRole('teacher_pending')">👨‍🏫 Öğretmen</div>
+        </div>
         
         <div id="login-box" class="auth-form">
-            <h3 style="margin-top:0; color:#1e3c72; text-align:center;">Sisteme Giriş Yap</h3>
+            <h3 style="margin-top:0; color:#1e3c72; text-align:center; font-size:1.2rem;">Hesabınıza Giriş Yapın</h3>
             <input type="email" id="login-email" placeholder="E-posta Adresiniz">
             <input type="password" id="login-pass" placeholder="Şifreniz">
             <button onclick="handleLogin()" class="green" style="padding:15px; font-size:1.1rem;">🚀 Giriş Yap</button>
             
-            <div style="display:flex; gap:8px; margin-top:10px;">
-                <button onclick="handleGoogleLogin()" style="background:#db4437; flex:1; font-size:0.9rem;">🌐 Google ile Gir</button>
-                <button onclick="handleGuestLogin()" style="background:#7f8c8d; flex:1; font-size:0.9rem;">👤 Misafir Girişi</button>
+            <div style="display:flex; gap:8px; margin-top:15px;">
+                <button onclick="handleGoogleLogin()" style="background:#db4437; flex:1; font-size:0.9rem; border-radius:8px;">🌐 Google</button>
+                <button onclick="handleGuestLogin()" style="background:#7f8c8d; flex:1; font-size:0.9rem; border-radius:8px;">👤 Misafir</button>
             </div>
             
-            <div style="text-align:center; margin-top:15px; display:flex; justify-content:space-between; padding:0 10px;">
+            <div style="text-align:center; margin-top:20px; display:flex; justify-content:space-between; padding:0 5px;">
                 <span class="auth-switch" onclick="handleResetPassword()" style="color:#2980b9; margin:0;">Şifremi Unuttum</span>
-                <span class="auth-switch" onclick="switchAuth('register')" style="margin:0;">Kayıt Ol</span>
+                <span class="auth-switch" onclick="switchAuth('register')" style="margin:0;">Hesap Oluştur</span>
             </div>
         </div>
 
         <div id="reg-box" class="auth-form" style="display:none;">
-            <h3 style="margin-top:0; color:#e67e22; text-align:center;">Yeni Kayıt</h3>
-            <input type="email" id="reg-email" placeholder="E-posta">
+            <h3 style="margin-top:0; color:#e67e22; text-align:center; font-size:1.2rem;">Yeni Kayıt</h3>
             <input type="text" id="reg-username" placeholder="İsim Soyisim / Kullanıcı Adı">
-            <input type="password" id="reg-pass" placeholder="Şifre">
+            <input type="email" id="reg-email" placeholder="E-posta">
+            <input type="password" id="reg-pass" placeholder="Şifre Belirleyin">
             <input type="password" id="reg-pass-confirm" placeholder="Şifre Tekrar">
             
-            <p id="teacher-info-text" style="display:none; font-size:0.8rem; color:#c0392b; font-weight:bold; text-align:center;">Öğretmen kayıtları, sistem yöneticisinin onayından sonra aktifleşir.</p>
+            <p id="teacher-info-text" style="display:none; font-size:0.8rem; color:#c0392b; font-weight:bold; text-align:center; background:#fff3f3; padding:10px; border-radius:8px; border:1px solid #f5c6cb;">⚠️ Öğretmen kayıtları, yönetici onayından sonra aktifleşir.</p>
             
-            <button onclick="handleRegister()" class="orange" style="margin-top:10px;">Kayıt İşlemini Tamamla</button>
-            <div style="text-align:center; margin-top:15px;">
+            <button onclick="handleRegister()" class="orange" style="margin-top:10px; padding:15px; font-size:1.1rem;">Kayıt İşlemini Tamamla</button>
+            <div style="text-align:center; margin-top:20px;">
                 <span class="auth-switch" onclick="switchAuth('login')">⬅️ Zaten hesabım var, Giriş Yap</span>
             </div>
         </div>
@@ -129,8 +135,8 @@
 
         <h2 id="display-user" style="color:#e67e22; margin-top:0;">Hoş Geldin!</h2>
         
-        <div id="notebook-alert-box" style="display:none; background:#f39c12; color:white; padding:15px; border-radius:10px; margin-bottom:10px; cursor:pointer;" onclick="fetchStudentLibrary(true)">
-            <b>🧠 Hata Defterinde Tekrar Vakti!</b><br><small>Bugün göz atman gereken sorular var. Görmek için tıkla.</small>
+        <div id="notebook-alert-box" style="display:none; background:#f39c12; color:white; padding:15px; border-radius:10px; margin-bottom:10px; cursor:pointer; box-shadow: 0 4px 10px rgba(243,156,18,0.3);" onclick="fetchStudentLibrary(true)">
+            <b style="font-size:1.1rem;">🧠 Hata Defterinde Tekrar Vakti!</b><br><small>Bugün göz atman gereken sorular var. Görmek için tıkla.</small>
         </div>
 
         <div id="student-class-area" style="background:#e8f4f8; padding:10px; border-radius:10px; margin-bottom:15px; border:1px dashed #3498db; display:flex; gap:5px;">
@@ -146,7 +152,7 @@
                 <button onclick="startLibraryTest()" class="orange" style="flex:1.5; font-size:0.8rem;">🚀 Test Formatında Çöz</button>
             </div>
 
-            <div style="border-top:1px solid #ccc; padding-top:10px; text-align:left;">
+            <div style="border-top:1px solid #e67e22; padding-top:15px; text-align:left;">
                 <h4 style="font-size:0.9rem; margin-top:0; color:#333;">➕ Yapamadığın Soruyu Ekle</h4>
                 
                 <div style="display:flex; gap:10px; margin-bottom:10px;">
@@ -159,18 +165,18 @@
                 
                 <img id="std-img-preview" src="" style="width:100%; max-height:200px; object-fit:contain; display:none; margin-bottom:10px; border-radius:8px; border: 2px solid #3498db;">
                 
-                <div style="display:flex; gap:5px;">
-                    <input type="text" id="std-q-kitap" placeholder="Kitap / Çıkmış Soru Yılı">
-                    <input type="text" id="std-q-konu" placeholder="Konu / Ders Adı">
+                <div style="display:flex; gap:5px; margin-bottom:8px;">
+                    <select id="std-q-ders" style="flex:1; font-weight:bold; border-color:#ccc;"><option value="Genel">Genel</option></select>
+                    <input type="text" id="std-q-konu" placeholder="Alt Konu" style="flex:1; margin:0;">
                 </div>
+                <input type="text" id="std-q-kitap" placeholder="Kitap / Kaynak / Yıl">
 
                 <textarea id="std-q-text" placeholder="Soru metni veya kendine notun..."></textarea>
                 
-                <div style="background: #e8f4f8; padding: 10px; border-radius: 8px; margin-bottom:10px; border: 1px dashed #3498db;">
+                <div style="background: #e8f4f8; padding: 12px; border-radius: 8px; margin-bottom:10px; border: 1px dashed #3498db;">
                     <label style="font-size:0.75rem; font-weight:bold; color:#1e3c72; margin-bottom:5px; display:block;">✏️ ÇÖZÜM EKLE (İsteğe Bağlı)</label>
                     <button type="button" class="outline" style="width:100%; font-size:0.8rem; padding:8px; margin-bottom:8px; border-color:#27ae60; color:#27ae60;" onclick="document.getElementById('std-solution-file').click()">📸 Çözüm Fotoğrafı Ekle</button>
                     <input type="file" id="std-solution-file" accept="image/*" style="display:none;" onchange="processStudentImageUpload(event, 'solution')">
-                    
                     <textarea id="std-q-sol-text" placeholder="Varsa yazılı çözüm notunuz..."></textarea>
                     
                     <label style="font-size:0.75rem; font-weight:bold; color:#1e3c72; margin-top:5px; display:block;">✅ DOĞRU ŞIK HANGİSİ?</label>
@@ -191,12 +197,11 @@
                     <option value="30">1 Ay Sonra Hatırlat</option>
                 </select>
 
-                <button onclick="uploadStudentQuestion()" class="orange">☁️ Buluta Kaydet</button>
+                <button onclick="uploadStudentQuestion()" class="orange" style="padding:15px; font-size:1rem;">☁️ Buluta Kaydet</button>
             </div>
         </div>
 
         <button onclick="fetchMyStats()" class="blue" style="margin-bottom:15px; width:100%;">📊 Gelişim Raporum (Karnem)</button>
-
         <button onclick="goToLobby('trial')" class="purple">📝 Hızlı Deneme (Offline)</button>
         <button onclick="goToLobby('room')" class="orange" style="margin-top:10px;">🏠 Oda Kur / Katıl</button>
         
@@ -224,7 +229,6 @@
                 
                 <input type="file" id="img-upload-camera" accept="image/*" capture="environment" style="display:none;" onchange="processImageUpload(event)">
                 <input type="file" id="img-upload-file" accept="image/*" style="display:none;" onchange="processImageUpload(event)">
-                
                 <img id="img-preview" src="" style="width:100%; max-height:200px; object-fit:contain; display:none; margin-bottom:10px; border-radius:8px;">
                 
                 <div style="margin-bottom:10px; background:rgba(255,255,255,0.1); padding:10px; border-radius:8px; display:flex; align-items:center; gap:8px;">
@@ -260,20 +264,25 @@
 
     <div id="screen-settings" class="screen">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-            <h3 style="margin:0; color:#8e44ad;">⚙️ Profil ve Ayarlar</h3>
+            <h3 style="margin:0; color:#8e44ad;">⚙️ Çalışma Masam</h3>
             <button onclick="window.showScreen('screen-main')" class="outline" style="width:auto; padding:8px; font-size:0.8rem;">⬅️ İptal</button>
         </div>
         
-        <div style="background:#f9f9f9; padding:15px; border-radius:10px; text-align:left; border: 1px solid #ddd;">
-            <h4 style="color:#1e3c72; border-bottom:1px solid #ccc; padding-bottom:5px; margin-top:0;">👤 Hesap Bilgileri</h4>
-            <input type="text" id="profile-new-name" placeholder="Kullanıcı Adı / İsim">
-            <input type="password" id="profile-new-pass" placeholder="Yeni Şifre (Değişmeyecekse boş bırakın)">
+        <div style="background:#fdfdfd; padding:20px; border-radius:12px; text-align:left; border: 1px solid #ddd; box-shadow:0 10px 25px rgba(0,0,0,0.05);">
+            <h4 style="color:#1e3c72; border-bottom:2px solid #eee; padding-bottom:8px; margin-top:0;">👤 Hesap Bilgileri</h4>
+            <input type="text" id="profile-new-name" placeholder="Kullanıcı Adı / İsim" style="background:#f1f2f6;">
+            
+            <div style="background:#fff3f3; padding:10px; border-radius:8px; border:1px solid #f5c6cb; margin-bottom:15px; margin-top:5px;">
+                <label style="font-size:0.75rem; font-weight:bold; color:#c0392b; display:block; margin-bottom:5px;">Şifre Güncelle (İsteğe Bağlı)</label>
+                <input type="password" id="profile-old-pass" placeholder="Mevcut (Eski) Şifreniz" style="margin-bottom:5px; font-size:0.85rem;">
+                <input type="password" id="profile-new-pass" placeholder="Yeni Şifre Belirleyin" style="margin-bottom:0; font-size:0.85rem;">
+            </div>
 
-            <h4 style="color:#1e3c72; border-bottom:1px solid #ccc; padding-bottom:5px; margin-top:15px;">🎯 Eğitim Hedefiniz</h4>
-            <select id="profile-exam-type" style="margin-bottom:10px; font-weight:bold;" onchange="updateGradeDropdown()">
+            <h4 style="color:#1e3c72; border-bottom:2px solid #eee; padding-bottom:8px; margin-top:20px;">🎯 Hedef Sınavınız</h4>
+            <select id="profile-exam-type" style="margin-bottom:15px; font-weight:bold; border-color:#3498db; color:#1e3c72;" onchange="updateGradeDropdown()">
                 <option value="kpss_lisans">KPSS Lisans</option>
                 <option value="kpss_onlisans">KPSS Ön Lisans</option>
-                <option value="kpss_ortaogretim">KPSS Ortaöğretim</option>
+                <option value="kpss_ortaogretim">Ortaöğretim</option>
                 <option value="kpss_egitim">KPSS Eğitim Bilimleri</option>
                 <option value="yks_tyt">YKS - TYT</option>
                 <option value="yks_ayt">YKS - AYT</option>
@@ -281,58 +290,29 @@
                 <option value="ortaokul">Ortaokul (LGS)</option>
             </select>
 
-            <div id="grade-selection-area" style="display:none; margin-bottom:15px;">
-                <label style="font-size:0.75rem; font-weight:bold; color:#c0392b;">🏫 SINIFINIZ:</label>
-                <select id="profile-grade" style="font-weight:bold; border-color:#c0392b; color:#c0392b;"></select>
+            <div id="grade-selection-area" style="display:none; margin-bottom:20px; background:#f9f9f9; padding:10px; border-radius:8px; border:1px solid #eee;">
+                <label style="font-size:0.75rem; font-weight:bold; color:#c0392b; margin-bottom:5px; display:block;">🏫 BULUNDUĞUNUZ SINIF:</label>
+                <div id="grade-boxes" style="display:flex; gap:8px; flex-wrap:wrap;"></div>
+                <input type="hidden" id="profile-grade" value="">
             </div>
 
-            <h4 style="color:#1e3c72; border-bottom:1px solid #ccc; padding-bottom:5px; margin-top:15px;">📚 Sorumlu Olduğunuz Dersler</h4>
-            <p style="font-size:0.75rem; color:#666; margin-top:0;">Dersleri seçip yanlarına çalışacağınız alt konuları yazabilirsiniz.</p>
+            <h4 style="color:#1e3c72; border-bottom:2px solid #eee; padding-bottom:8px; margin-top:20px;">📚 Sorumlu Olduğunuz Dersler</h4>
+            <p style="font-size:0.75rem; color:#666; margin-top:0;">Dersleri seçip yanlarına çalışacağınız alt konuları belirtebilirsiniz.</p>
             
-            <div id="profile-subjects-area" style="max-height: 250px; overflow-y:auto; background:#fff; padding:5px; border-radius:8px;">
-                <div class="subject-row">
-                    <input type="checkbox" id="subj-tarih" value="Tarih"><label for="subj-tarih">Tarih</label>
-                    <input type="text" id="topic-tarih" placeholder="Konular (Örn: İnkılap)">
-                </div>
-                <div class="subject-row">
-                    <input type="checkbox" id="subj-cografya" value="Coğrafya"><label for="subj-cografya">Coğrafya</label>
-                    <input type="text" id="topic-cografya" placeholder="Konular (Örn: İklim)">
-                </div>
-                <div class="subject-row">
-                    <input type="checkbox" id="subj-vatandaslik" value="Vatandaşlık"><label for="subj-vatandaslik">Vatandaşlık</label>
-                    <input type="text" id="topic-vatandaslik" placeholder="Konular">
-                </div>
-                <div class="subject-row">
-                    <input type="checkbox" id="subj-matematik" value="Matematik"><label for="subj-matematik">Matematik</label>
-                    <input type="text" id="topic-matematik" placeholder="Konular (Örn: Problemler)">
-                </div>
-                <div class="subject-row">
-                    <input type="checkbox" id="subj-turkce" value="Türkçe"><label for="subj-turkce">Türkçe</label>
-                    <input type="text" id="topic-turkce" placeholder="Konular (Örn: Paragraf)">
-                </div>
-                <div class="subject-row">
-                    <input type="checkbox" id="subj-egitim" value="Eğitim Bilimleri"><label for="subj-egitim">Eğitim Bil.</label>
-                    <input type="text" id="topic-egitim" placeholder="Konular">
-                </div>
-                <div class="subject-row">
-                    <input type="checkbox" id="subj-fizik" value="Fizik"><label for="subj-fizik">Fizik</label>
-                    <input type="text" id="topic-fizik" placeholder="Konular">
-                </div>
-                <div class="subject-row">
-                    <input type="checkbox" id="subj-kimya" value="Kimya"><label for="subj-kimya">Kimya</label>
-                    <input type="text" id="topic-kimya" placeholder="Konular">
-                </div>
-                <div class="subject-row">
-                    <input type="checkbox" id="subj-biyoloji" value="Biyoloji"><label for="subj-biyoloji">Biyoloji</label>
-                    <input type="text" id="topic-biyoloji" placeholder="Konular">
-                </div>
-                <div class="subject-row">
-                    <input type="checkbox" id="subj-fen" value="Fen Bilimleri"><label for="subj-fen">Fen Bilimleri</label>
-                    <input type="text" id="topic-fen" placeholder="Konular">
-                </div>
+            <div id="profile-subjects-area" style="max-height: 250px; overflow-y:auto; background:#fff; padding:8px; border-radius:8px; border:1px solid #ddd;">
+                <div class="subject-row"><input type="checkbox" id="subj-tarih" value="Tarih"><label for="subj-tarih">Tarih</label><input type="text" id="topic-tarih" placeholder="Alt Konu"></div>
+                <div class="subject-row"><input type="checkbox" id="subj-cografya" value="Coğrafya"><label for="subj-cografya">Coğrafya</label><input type="text" id="topic-cografya" placeholder="Alt Konu"></div>
+                <div class="subject-row"><input type="checkbox" id="subj-vatandaslik" value="Vatandaşlık"><label for="subj-vatandaslik">Vatandaşlık</label><input type="text" id="topic-vatandaslik" placeholder="Alt Konu"></div>
+                <div class="subject-row"><input type="checkbox" id="subj-matematik" value="Matematik"><label for="subj-matematik">Matematik</label><input type="text" id="topic-matematik" placeholder="Alt Konu"></div>
+                <div class="subject-row"><input type="checkbox" id="subj-turkce" value="Türkçe"><label for="subj-turkce">Türkçe</label><input type="text" id="topic-turkce" placeholder="Alt Konu"></div>
+                <div class="subject-row"><input type="checkbox" id="subj-egitim" value="Eğitim Bilimleri"><label for="subj-egitim">Eğitim Bil.</label><input type="text" id="topic-egitim" placeholder="Alt Konu"></div>
+                <div class="subject-row"><input type="checkbox" id="subj-fizik" value="Fizik"><label for="subj-fizik">Fizik</label><input type="text" id="topic-fizik" placeholder="Alt Konu"></div>
+                <div class="subject-row"><input type="checkbox" id="subj-kimya" value="Kimya"><label for="subj-kimya">Kimya</label><input type="text" id="topic-kimya" placeholder="Alt Konu"></div>
+                <div class="subject-row"><input type="checkbox" id="subj-biyoloji" value="Biyoloji"><label for="subj-biyoloji">Biyoloji</label><input type="text" id="topic-biyoloji" placeholder="Alt Konu"></div>
+                <div class="subject-row"><input type="checkbox" id="subj-fen" value="Fen Bilimleri"><label for="subj-fen">Fen Bilimleri</label><input type="text" id="topic-fen" placeholder="Alt Konu"></div>
             </div>
 
-            <button onclick="saveProfileSettings()" class="green" style="margin-top:20px; width:100%; padding:15px; font-size:1.1rem;">💾 Çalışma Masamı Kaydet</button>
+            <button onclick="saveProfileSettings()" class="green" style="margin-top:20px; width:100%; padding:15px; font-size:1.1rem; border-radius:10px;">💾 Masamı ve Ayarlarımı Kaydet</button>
         </div>
     </div>
 
@@ -349,7 +329,7 @@
             <h3 id="list-title" style="margin:0;">Liste</h3>
             <button id="pdf-btn" onclick="downloadPDF()" class="orange" style="width:auto; font-size:0.8rem; padding:8px 12px;">📄 PDF İndir</button>
         </div>
-        <div id="list-content" style="max-height: 400px; overflow-y: auto; text-align:left; color:#333;"></div>
+        <div id="list-content" style="max-height: 400px; overflow-y: auto; text-align:left; color:#333; padding-bottom:20px;"></div>
         <button onclick="showScreen('screen-main')" class="outline" style="margin-top:15px;">⬅️ Kapat</button>
     </div>
 
@@ -439,20 +419,19 @@
     window.myClassCode = localStorage.getItem("gazi_class_code") || "";
     let selectedRole = 'student';
     
+    // 🚨 SEKME GÖRÜNÜMÜ ROL SEÇİMİ 🚨
     window.setMainRole = (role) => {
         selectedRole = role;
         const btnS = document.getElementById('btn-main-student');
         const btnT = document.getElementById('btn-main-teacher');
         const tInfo = document.getElementById('teacher-info-text');
+        
         if(role === 'student') {
-            btnS.className = 'green'; btnS.style.cssText = "flex:1; font-size:1.1rem; padding:15px;";
-            btnT.className = 'outline'; btnT.style.cssText = "flex:1; border-color:#e67e22; color:#e67e22; font-size:1.1rem; padding:15px;";
+            btnS.classList.add('active'); btnT.classList.remove('active');
             if(tInfo) tInfo.style.display = 'none';
         } else {
-            btnT.className = 'outline'; btnT.style.cssText = "flex:1; border-color:#e67e22; color:#e67e22; font-size:1.1rem; padding:15px;";
-            btnS.className = 'outline'; btnS.style.cssText = "flex:1; border-color:#27ae60; color:#27ae60; font-size:1.1rem; padding:15px;";
+            btnT.classList.add('active'); btnS.classList.remove('active');
             if(tInfo) tInfo.style.display = 'block';
-            btnT.className = 'orange'; 
         }
     };
 
@@ -461,22 +440,31 @@
         document.getElementById('reg-box').style.display = t === 'register' ? 'block' : 'none'; 
     };
 
-    // 🚨 PROFİL VE AYARLAR MOTORU (YENİ) 🚨
+    // 🚨 KUTUCUKLU SINIF SEÇİM MOTORU 🚨
     window.updateGradeDropdown = () => {
         const type = document.getElementById('profile-exam-type').value;
         const area = document.getElementById('grade-selection-area');
-        const select = document.getElementById('profile-grade');
-        select.innerHTML = '';
+        const boxContainer = document.getElementById('grade-boxes');
         
-        if(type === 'lise_okul') {
+        boxContainer.innerHTML = '';
+        document.getElementById('profile-grade').value = '';
+        
+        let grades = [];
+        if(type === 'lise_okul') grades = ['9. Sınıf', '10. Sınıf', '11. Sınıf', '12. Sınıf', 'Mezun'];
+        else if (type === 'ortaokul') grades = ['5. Sınıf', '6. Sınıf', '7. Sınıf', '8. Sınıf (LGS)'];
+        
+        if(grades.length > 0) {
             area.style.display = 'block';
-            ['9. Sınıf', '10. Sınıf', '11. Sınıf', '12. Sınıf', 'Mezun'].forEach(val => {
-                select.innerHTML += `<option value="${val}">${val}</option>`;
-            });
-        } else if (type === 'ortaokul') {
-            area.style.display = 'block';
-            ['5. Sınıf', '6. Sınıf', '7. Sınıf', '8. Sınıf (LGS)'].forEach(val => {
-                select.innerHTML += `<option value="${val}">${val}</option>`;
+            grades.forEach(val => {
+                const btn = document.createElement('div');
+                btn.className = 'grade-btn';
+                btn.innerText = val;
+                btn.onclick = () => {
+                    document.querySelectorAll('.grade-btn').forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                    document.getElementById('profile-grade').value = val;
+                };
+                boxContainer.appendChild(btn);
             });
         } else {
             area.style.display = 'none';
@@ -488,7 +476,15 @@
         window.updateGradeDropdown();
         
         const savedGrade = localStorage.getItem('gazi_grade');
-        if(savedGrade) document.getElementById('profile-grade').value = savedGrade;
+        if(savedGrade) {
+            document.getElementById('profile-grade').value = savedGrade;
+            // Kutucuğu seçili hale getir
+            setTimeout(() => {
+                document.querySelectorAll('.grade-btn').forEach(btn => {
+                    if(btn.innerText === savedGrade) btn.classList.add('selected');
+                });
+            }, 100);
+        }
         
         const savedSubjects = JSON.parse(localStorage.getItem('gazi_subjects_v2')) || [];
         const subjects = ['tarih', 'cografya', 'vatandaslik', 'matematik', 'turkce', 'egitim', 'fizik', 'kimya', 'biyoloji', 'fen'];
@@ -508,15 +504,16 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getAuth, onAuthStateChanged, updateProfile, updatePassword, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInAnonymously, signOut, GoogleAuthProvider, signInWithPopup, sendEmailVerification, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+    import { getAuth, onAuthStateChanged, updateProfile, updatePassword, EmailAuthProvider, reauthenticateWithCredential, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInAnonymously, signOut, GoogleAuthProvider, signInWithPopup, sendEmailVerification, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
     const firebaseConfig = { apiKey: "AIzaSyDkZI-LxCOaog4kyb4YSquEK6ZpLNH2pqs", authDomain: "kpss-genel-kultur-soru-havuzu.firebaseapp.com", projectId: "kpss-genel-kultur-soru-havuzu", appId: "1:435941343639:web:3ce323e0f8386d796c04d2" };
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    // 🚨 AYARLARI KAYDET VE FIREBASE'İ GÜNCELLE 🚨
+    // 🚨 AYARLARI KAYDET VE ŞİFREYİ GÜVENLİ GÜNCELLE 🚨
     window.saveProfileSettings = () => {
         const user = auth.currentUser;
         const newName = document.getElementById('profile-new-name').value.trim();
+        const oldPass = document.getElementById('profile-old-pass').value.trim();
         const newPass = document.getElementById('profile-new-pass').value.trim();
         
         if(user && newName) {
@@ -524,8 +521,18 @@
             updateProfile(user, { displayName: newName + "|" + role });
             document.getElementById('display-user').innerText = "Hoş Geldin, " + newName;
         }
+
+        // Şifre değiştirilmek isteniyorsa güvenlik prosedürü
         if(user && newPass) {
-            updatePassword(user, newPass).then(() => { alert("Şifreniz güncellendi!"); }).catch(e => { alert("Şifre güncelleme hatası. Güvenlik için çıkış yapıp tekrar girdikten sonra deneyin."); });
+            if(!oldPass) return alert("Şifrenizi güncellemek için lütfen önce Eski Şifrenizi yazınız!");
+            const cred = EmailAuthProvider.credential(user.email, oldPass);
+            reauthenticateWithCredential(user, cred).then(() => {
+                updatePassword(user, newPass).then(() => { 
+                    alert("Şifreniz başarıyla güncellendi!"); 
+                    document.getElementById('profile-old-pass').value = '';
+                    document.getElementById('profile-new-pass').value = '';
+                });
+            }).catch(e => { alert("Eski şifreniz hatalı veya geçersiz!"); return; });
         }
 
         localStorage.setItem('gazi_exam_type', document.getElementById('profile-exam-type').value);
@@ -542,10 +549,19 @@
         localStorage.setItem('gazi_onboarding_done', 'true');
         
         alert("✅ Çalışma Masası Ayarlarınız Kaydedildi!");
+        
+        // Kaydettikten sonra DERS listesini güncelle
+        const dersSelect = document.getElementById('std-q-ders');
+        if(dersSelect) {
+            dersSelect.innerHTML = subjectsData.length > 0 
+                ? subjectsData.map(s => `<option value="${s.name}">${s.name}</option>`).join('')
+                : `<option value="Genel">Genel</option>`;
+        }
+        
         showScreen('screen-main');
     };
 
-    window.handleLogin = async () => { try { await signInWithEmailAndPassword(auth, document.getElementById('login-email').value.trim(), document.getElementById('login-pass').value); } catch(e) { alert("❌ Giriş Başarısız: " + e.message); } };
+    window.handleLogin = async () => { try { await signInWithEmailAndPassword(auth, document.getElementById('login-email').value.trim(), document.getElementById('login-pass').value); } catch(e) { alert("❌ Giriş Başarısız: E-posta veya şifre hatalı."); } };
     window.handleRegister = async () => {
         const e = document.getElementById('reg-email').value.trim(); const u = document.getElementById('reg-username').value;
         const p1 = document.getElementById('reg-pass').value; const p2 = document.getElementById('reg-pass-confirm').value;
@@ -556,7 +572,7 @@
             await sendEmailVerification(res.user);
             alert("✅ Kayıt başarılı! Lütfen doğrulama maili için Gelen Kutunuzu ve SPAM (Gereksiz) klasörünü kontrol etmeyi unutmayın!");
             await signOut(auth); location.reload(); 
-        } catch(e) { alert("❌ Kayıt Hatası: " + e.message); }
+        } catch(e) { alert("❌ Kayıt Hatası: İşlem tamamlanamadı."); }
     };
     window.handleGuestLogin = async () => { 
         try { 
@@ -581,8 +597,6 @@
             const nameParts = (user.displayName || "Gazi|student").split('|');
             const realName = nameParts[0]; const role = nameParts[1] || "student";
             document.getElementById('display-user').innerText = "Hoş Geldin, " + realName;
-            
-            // Ayarlar Menüsü için isim doldurma
             document.getElementById('profile-new-name').value = realName;
 
             const isAdmin = (user.email === "kayamert319@gmail.com");
@@ -602,13 +616,18 @@
                 if (!isTeacher) socket.emit("checkNotebookReviews", realName);
             }
 
-            // 🚨 ONBOARDING (İLK GİRİŞ YÖNLENDİRMESİ) 🚨
-            const onboardingDone = localStorage.getItem('gazi_onboarding_done');
-            if(!isTeacher && !onboardingDone) {
-                window.openSettingsPanel();
-            } else {
-                window.showScreen('screen-main'); 
+            // KÜTÜPHANE DERS KUTUSUNU DOLDUR
+            const savedSubjects = JSON.parse(localStorage.getItem('gazi_subjects_v2')) || [];
+            const dersSelect = document.getElementById('std-q-ders');
+            if(dersSelect) {
+                dersSelect.innerHTML = savedSubjects.length > 0 
+                    ? savedSubjects.map(s => `<option value="${s.name}">${s.name}</option>`).join('')
+                    : `<option value="Genel">Genel</option>`;
             }
+
+            const onboardingDone = localStorage.getItem('gazi_onboarding_done');
+            if(!isTeacher && !onboardingDone) window.openSettingsPanel();
+            else window.showScreen('screen-main'); 
 
         } else { window.showScreen('screen-auth'); }
     });
@@ -629,18 +648,36 @@
         document.getElementById('room-q-time').placeholder = mode === 'question' ? 'Örn: 45 (Saniye)' : 'Örn: 15 (Dakika)';
     };
 
+    window.updateFilterText = (type) => {
+        const checkboxes = document.querySelectorAll(`input[name="${type}-secim"]`);
+        if (window.event && window.event.target && window.event.target.type === 'checkbox') {
+            if (window.event.target.value === "HEPSI" && window.event.target.checked) {
+                checkboxes.forEach(cb => { if(cb.value !== "HEPSI") cb.checked = false; });
+            } else if (window.event.target.value !== "HEPSI" && window.event.target.checked) {
+                checkboxes.forEach(cb => { if(cb.value === "HEPSI") cb.checked = false; });
+            }
+        }
+        const checkedBoxes = document.querySelectorAll(`input[name="${type}-secim"]:checked`);
+        const trigger = document.getElementById(`${type}-trigger`);
+        if (!trigger) return;
+        let count = checkedBoxes.length; const hasHepsi = Array.from(checkedBoxes).some(cb => cb.value === "HEPSI");
+        if (count === 0) trigger.innerText = "Seçim Yapılmadı ▼"; else if (hasHepsi) trigger.innerText = "Tümü Seçili ▼"; else trigger.innerText = `${count} Adet Seçildi ▼`;
+    };
+
     if(socket) {
         socket.on('updateFilters', data => {
             const dersContent = document.getElementById('ders-content');
             if (dersContent && data.dersler) {
                 dersContent.innerHTML = `<div class="checkbox-item"><input type="checkbox" name="ders-secim" value="HEPSI" checked onchange="updateFilterText('ders')"><label>TÜMÜ</label></div>` + 
                     data.dersler.map(x => `<div class="checkbox-item"><input type="checkbox" name="ders-secim" value="${x}" onchange="updateFilterText('ders')"><label>${x}</label></div>`).join('');
+                updateFilterText('ders'); 
             }
             const denemeContent = document.getElementById('deneme-content');
             if (denemeContent && data.denemeler) {
                 const denemeKeys = Object.keys(data.denemeler);
                 denemeContent.innerHTML = `<div class="checkbox-item"><input type="checkbox" name="deneme-secim" value="HEPSI" checked onchange="updateFilterText('deneme')"><label>TÜMÜ</label></div>` + 
                     denemeKeys.map(x => `<div class="checkbox-item"><input type="checkbox" name="deneme-secim" value="${x}" onchange="updateFilterText('deneme')"><label>${x}</label></div>`).join('');
+                updateFilterText('deneme'); 
             }
         });
     }
@@ -716,7 +753,10 @@
 
     window.uploadStudentQuestion = () => {
         if(!socket) return alert("Sunucuya bağlanılamadı!");
-        const qKitap = document.getElementById('std-q-kitap').value.trim(); const qKonu = document.getElementById('std-q-konu').value.trim();
+        const qDersObj = document.getElementById('std-q-ders');
+        const qDers = qDersObj ? qDersObj.value : 'Genel';
+        const qKitap = document.getElementById('std-q-kitap').value.trim(); 
+        const qKonu = document.getElementById('std-q-konu').value.trim();
         const qText = document.getElementById('std-q-text').value.trim(); const qSolText = document.getElementById('std-q-sol-text').value.trim(); 
         const correctIdx = parseInt(document.getElementById('std-q-correct-idx').value) || 0;
         const studentName = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "");
@@ -727,7 +767,7 @@
         if(!stdUploadedImageBase64 && !qText) return alert("Lütfen bir fotoğraf yükleyin veya kendinize bir not yazın!");
 
         const q = { 
-            studentName: studentName, kitap: qKitap, konu: qKonu, not: qText, image: stdUploadedImageBase64, nextReviewDate: nextReviewDate,
+            studentName: studentName, ders: qDers, kitap: qKitap, konu: qKonu, not: qText, image: stdUploadedImageBase64, nextReviewDate: nextReviewDate,
             solutionImage: stdSolutionBase64, solutionText: qSolText, dogru: correctIdx,
             soru: qText || "Görseli inceleyiniz.", siklar: ["A", "B", "C", "D", "E"]
         };
@@ -792,7 +832,7 @@
 
         socket.on("studentLibraryData", (data) => {
             window.tempStdQuestions = data; currentListType = "student_library"; document.getElementById('list-title').innerText = "☁️ Dijital Hata Defterim"; const div = document.getElementById('list-content');
-            if(data.length === 0) div.innerHTML = "<p style='text-align:center;'>Hata defterinizde aranılan kritere uygun soru bulunmuyor.</p>"; else div.innerHTML = data.map((q, i) => `<div class="list-item" style="border: 2px solid #e67e22; background:#fff;"><b>Kitap/Kaynak:</b> ${q.kitap} <br><b>Konu:</b> ${q.konu} <br>${q.not ? `<small><b>Soru Notu:</b> ${q.not}</small><br>` : ''}${q.image ? `<img src="${q.image}" style="width:100%; border-radius:5px; margin-top:5px;">` : ''}<div class="abcde-grid" id="std-qbox-${i}">${['A','B','C','D','E'].map((s, idx) => `<button class="abcde-btn" onclick="checkStdAnswer(this, ${idx}, ${i})">${s}</button>`).join('')}</div><div id="sol-std-qbox-${i}" style="display:none; margin-top:10px; padding:10px; background:#e8f4f8; border-radius:8px; font-size:0.8rem; color:#333; text-align:left;"></div><div style="display:flex; gap:5px; margin-top:10px;">${q.id ? `<button onclick="updateReviewDate('${q.id}')" class="outline" style="flex:2; font-size:0.8rem; border-color:#27ae60; color:#27ae60;">✅ Tekrar Ettim (Ertele)</button>` : ''}<button onclick="reportQuestionFromLibrary(${i})" class="outline" style="flex:1; font-size:0.8rem; border-color:#c0392b; color:#c0392b;">🚨 Bildir</button></div></div>`).join(''); showScreen('screen-list');
+            if(data.length === 0) div.innerHTML = "<p style='text-align:center;'>Hata defterinizde aranılan kritere uygun soru bulunmuyor.</p>"; else div.innerHTML = data.map((q, i) => `<div class="list-item" style="border: 2px solid #e67e22; background:#fff;"> <span style="background:#1e3c72; color:#fff; padding:3px 8px; border-radius:4px; font-size:0.75rem; font-weight:bold;">${q.ders || 'Genel'}</span> <b style="color:#e67e22; margin-left:5px;">${q.konu}</b><br><small style="color:#666;"><b>Kaynak:</b> ${q.kitap}</small><br>${q.not ? `<small><b>Soru Notu:</b> ${q.not}</small><br>` : ''}${q.image ? `<img src="${q.image}" style="width:100%; border-radius:5px; margin-top:5px;">` : ''}<div class="abcde-grid" id="std-qbox-${i}">${['A','B','C','D','E'].map((s, idx) => `<button class="abcde-btn" onclick="checkStdAnswer(this, ${idx}, ${i})">${s}</button>`).join('')}</div><div id="sol-std-qbox-${i}" style="display:none; margin-top:10px; padding:10px; background:#e8f4f8; border-radius:8px; font-size:0.8rem; color:#333; text-align:left;"></div><div style="display:flex; gap:5px; margin-top:10px;">${q.id ? `<button onclick="updateReviewDate('${q.id}')" class="outline" style="flex:2; font-size:0.8rem; border-color:#27ae60; color:#27ae60;">✅ Tekrar Ettim (Ertele)</button>` : ''}<button onclick="reportQuestionFromLibrary(${i})" class="outline" style="flex:1; font-size:0.8rem; border-color:#c0392b; color:#c0392b;">🚨 Bildir</button></div></div>`).join(''); showScreen('screen-list');
         });
 
         socket.on("notebookReviewsCount", (count) => { const box = document.getElementById('notebook-alert-box'); if(count > 0) box.style.display = 'block'; else box.style.display = 'none'; });
