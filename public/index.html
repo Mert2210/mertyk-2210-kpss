@@ -34,7 +34,6 @@
         .nav-box.wrong { background: #c0392b !important; color: white !important; }
         .nav-box.answered { background: #3498db; color: white; }
 
-        /* KAYMA SORUNUNU ÇÖZEN EKLENTİLER */
         .dropdown-wrapper { position: relative; width: 100%; margin-bottom: 10px; }
         .dropdown-trigger { background: #fff; color: #333; border: 2px solid #e67e22; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; text-align: left; }
         .dropdown-content { display: none; position: absolute; top: 100%; left: 0; z-index: 1000; background-color: #ffffff; width: 100%; border: 2px solid #1e3c72; border-radius: 8px; max-height: 200px; overflow-y: auto; margin-top: 5px; box-sizing: border-box; box-shadow: 0 5px 15px rgba(0,0,0,0.1); } 
@@ -48,10 +47,12 @@
         .timer-container { display: flex; justify-content: space-between; gap: 10px; }
         .timer-box { flex: 1; padding: 8px 15px; border-radius: 8px; font-weight: bold; color: #fff; display: none; }
 
-        /* BİLDİRİM VE AI KUTUSU */
         #notification-toast { position: fixed; top: 20px; right: 20px; background: #2c3e50; color: white; padding: 15px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 9999; transform: translateX(150%); transition: 0.5s; border-left: 5px solid #e67e22; max-width: 250px; display: flex; align-items: center; gap: 10px; }
         #notification-toast.show { transform: translateX(0); }
         .ai-box { background: #f1f9ff; border-left: 5px solid #3498db; padding: 15px; margin-top: 15px; font-size: 0.9rem; display: none; text-align: left; line-height: 1.5; color: #333; border-radius: 0 8px 8px 0; }
+        
+        /* ÖĞRETMEN DEĞERLENDİRME KARTI STİLİ */
+        .eval-card { background: #fff; border-left: 5px solid #27ae60; padding: 12px; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); color: #333; text-align: left; }
     </style>
 </head>
 <body>
@@ -62,7 +63,7 @@
 </div>
 
 <div class="container">
-    <div id="screen-welcome" class="screen">
+    <div id="screen-welcome" class="screen active">
         <h1 style="font-size: 4rem; margin:0;">🎓</h1>
         <h1 style="font-size: 1.8rem; color:#1e3c72; margin-bottom: 5px;">Gazililer</h1>
         <h2 style="font-size: 1.2rem; color:#e67e22; margin-top: 0;">KPSS Bilgi Bankası</h2>
@@ -100,9 +101,21 @@
         <button onclick="logout()" class="outline" style="width:auto; margin-bottom:10px; font-size:0.8rem;">⬅️ Çıkış</button>
         <h2 id="display-user" style="color:#e67e22;">Hoş Geldin!</h2>
         
+        <div id="homework-alert-box" style="display:none; background:#2980b9; color:white; padding:15px; border-radius:10px; margin-bottom:10px; cursor:pointer;" onclick="showHomeworkList()">
+            <b>📒 Hocanız yeni bir ödev gönderdi!</b><br><small>Görevleri görmek için hemen tıkla.</small>
+        </div>
+        <div id="review-alert-box" style="display:none; background:#f39c12; color:white; padding:15px; border-radius:10px; margin-bottom:10px; cursor:pointer;" onclick="startReviewSession()">
+            <b>🧠 Bugün tekrar etmen gereken sorular var!</b><br><small>Unutmamak için hemen göz at.</small>
+        </div>
+
         <div id="student-class-area" style="background:#e8f4f8; padding:10px; border-radius:10px; margin-bottom:15px; border:1px dashed #3498db; display:flex; gap:5px;">
             <input type="text" id="class-code-input" placeholder="Sınıf Kodu Gir (Örn: GZ123)" style="margin:0; flex:2;">
             <button onclick="joinClass()" class="blue" style="margin:0; flex:1; font-size:0.9rem;">Sınıfa Katıl</button>
+        </div>
+
+        <div id="teacher-eval-panel" style="display:none; background:#e8f4f8; padding:15px; border-radius:10px; border:2px solid #2980b9; margin-bottom:15px;">
+            <h4 style="margin:0 0 10px 0; color:#2980b9;">📊 Değerlendirme Merkezi</h4>
+            <button onclick="openEvaluation()" class="blue" style="font-size:0.85rem; width:100%;">Sınıf Başarı Analizini Aç</button>
         </div>
 
         <button onclick="fetchMyStats()" class="blue" style="margin-bottom:15px; width:100%;">📊 Gelişim Raporum (Karnem)</button>
@@ -173,7 +186,7 @@
             <button id="pdf-btn" onclick="downloadPDF()" class="orange" style="width:auto; font-size:0.8rem; padding:8px 12px;">📄 PDF İndir</button>
         </div>
         <div id="list-content" style="max-height: 400px; overflow-y: auto; text-align:left; color:#333;"></div>
-        <button onclick="showScreen('screen-main')" class="outline" style="margin-top:15px;">⬅️ Ana Menüye Dön</button>
+        <button onclick="showScreen('screen-main')" class="outline" style="margin-top:15px;">⬅️ Kapat</button>
     </div>
 
     <div id="screen-lobby" class="screen">
@@ -263,10 +276,6 @@
         <div id="ai-response" class="ai-box"></div>
         
         <button id="btn-finish-trial" onclick="finishTrial()" class="red" style="margin-top:20px; display:none;">🛑 Sınavı Bitir</button>
-        
-        <div id="live-scores-container" style="margin-top:20px; border-top:1px solid #eee; padding-top:10px;">
-            <div id="live-scores-list"></div>
-        </div>
     </div>
 
     <div id="screen-result" class="screen">
@@ -275,49 +284,33 @@
         <button onclick="showLocalList('wrong')" class="orange" style="margin-top:15px;">🔍 YANLIŞLARI İNCELE</button>
         <button onclick="location.reload()" class="outline" style="margin-top:10px;">ANA MENÜ</button>
     </div>
+
+    <div id="screen-eval" class="screen">
+        <button onclick="showScreen('screen-main')" class="outline" style="width:auto; margin-bottom:15px;">⬅️ Geri Dön</button>
+        <h2 style="color:#1e3c72;">📈 Sınıf Başarı Analizi</h2>
+        <div id="eval-content" style="max-height:450px; overflow-y:auto; text-align:left;"></div>
+    </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged(auth, user => {
-        const adminBtn = document.getElementById('admin-report-btn');
-        const instPanel = document.getElementById('instructor-panel');
-        const evalPanel = document.getElementById('teacher-eval-panel');
-        const studentArea = document.getElementById('student-class-area');
+    import { getAuth, onAuthStateChanged, updateProfile, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInAnonymously, signOut, GoogleAuthProvider, signInWithPopup, sendEmailVerification, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+    
+    const firebaseConfig = { apiKey: "AIzaSyDkZI-LxCOaog4kyb4YSquEK6ZpLNH2pqs", authDomain: "kpss-genel-kultur-soru-havuzu.firebaseapp.com", projectId: "kpss-genel-kultur-soru-havuzu", appId: "1:435941343639:web:3ce323e0f8386d796c04d2" };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
 
-        if (user) { 
-            const nameParts = (user.displayName || "Gazi|student").split('|');
-            const realName = nameParts[0];
-            const role = nameParts[1] || "student";
-
-            document.getElementById('display-user').innerText = "Hoş Geldin, " + realName;
-            
-            // 🔒 YETKİ KONTROLÜ (KESİN MÜHÜR)
-            const isTeacher = (role === "teacher" || user.email === "kayamert319@gmail.com");
-
-            // Panelleri yetkiye göre aç/kapat (Öğrenci hocanınkini, hoca öğrencininkini göremez)
-            if (instPanel) instPanel.style.display = isTeacher ? "block" : "none";
-            if (evalPanel) evalPanel.style.display = isTeacher ? "block" : "none";
-            if (studentArea) studentArea.style.display = isTeacher ? "none" : "flex"; // Sınıfa katıl kutusu sadece öğrencide!
-            
-            // Admin butonu sadece sana özel
-            if (adminBtn) adminBtn.style.display = (user.email === "kayamert319@gmail.com") ? "block" : "none";
-
-            // Eğer giren hocaysa, kendi sınıf kodunu sunucudan çek
-            if (isTeacher) {
-                socket.emit("getTeacherClass", user.email);
-            }
-
-            // Standart veri çekme işlemleri
-            socket.emit("getFilters", myClassCode);
-            socket.emit("getStudentHomeworks", myClassCode);
-            socket.emit("getTodayReviews", realName);
-            
-            showScreen('screen-main'); 
-        } else {
-            showScreen('screen-welcome');
+    function getTurkishError(error) {
+        switch (error.code) {
+            case 'auth/invalid-credential': return "❌ Giriş Başarısız: E-posta veya şifre hatalı.";
+            case 'auth/user-not-found': return "❌ Böyle bir kullanıcı bulunamadı.";
+            case 'auth/wrong-password': return "❌ Şifre yanlış.";
+            case 'auth/email-already-in-use': return "❌ Bu e-posta zaten başka bir hesaba kayıtlı.";
+            case 'auth/weak-password': return "❌ Şifre çok zayıf (En az 6 karakter).";
+            case 'auth/invalid-email': return "❌ Geçersiz e-posta formatı.";
+            default: return "❌ Bir hata oluştu: " + error.message;
         }
-    });
+    }
 
     window.switchAuth = (t) => { document.getElementById('login-box').style.display = t === 'login' ? 'block' : 'none'; document.getElementById('reg-box').style.display = t === 'register' ? 'block' : 'none'; };
     
@@ -346,7 +339,7 @@
             const res = await createUserWithEmailAndPassword(auth, e, p1); 
             await updateProfile(res.user, { displayName: u + "|" + selectedRole }); 
             await sendEmailVerification(res.user);
-            alert("✅ Kayıt başarılı! Aktivasyon linki e-postanıza gönderildi. Lütfen onaylayıp giriş yapın.");
+            alert("✅ Kayıt başarılı! Lütfen giriş yapın.");
             await signOut(auth); 
             location.reload(); 
         } catch(e) { alert(getTurkishError(e)); }
@@ -364,17 +357,18 @@
     window.handleResetPassword = async () => {
         const email = document.getElementById('login-email').value.trim();
         if(!email) return alert("❌ Lütfen önce e-posta adresinizi yazın.");
-        try {
-            await sendPasswordResetEmail(auth, email);
-            alert("📩 Şifre sıfırlama bağlantısı e-postanıza gönderildi!");
-        } catch(e) { alert(getTurkishError(e)); }
+        try { await sendPasswordResetEmail(auth, email); alert("📩 Şifre sıfırlama bağlantısı gönderildi!"); } 
+        catch(e) { alert(getTurkishError(e)); }
     };
 
     window.handleGoogleLogin = async () => { try { await signInWithPopup(auth, new GoogleAuthProvider()); } catch(e) { alert(e.message); } };
 
+    // YETKİ VE İZOLASYON KİLİDİ
     onAuthStateChanged(auth, user => {
         const adminBtn = document.getElementById('admin-report-btn');
         const instPanel = document.getElementById('instructor-panel');
+        const evalPanel = document.getElementById('teacher-eval-panel');
+        const studentArea = document.getElementById('student-class-area');
 
         if (user) { 
             const nameParts = (user.displayName || "Gazi|student").split('|');
@@ -383,25 +377,25 @@
 
             document.getElementById('display-user').innerText = "Hoş Geldin, " + realName;
             
-            if (user.email === "kayamert319@gmail.com") {
-                adminBtn.style.display = "block";
-                instPanel.style.display = "block";
-                socket.emit("getTeacherClass", user.email);
-            } else if (role === "teacher") {
-                instPanel.style.display = "block";
-                adminBtn.style.display = "none";
-                socket.emit("getTeacherClass", user.email);
-            } else {
-                adminBtn.style.display = "none";
-                instPanel.style.display = "none";
-            }
+            const isTeacher = (role === "teacher" || user.email === "kayamert319@gmail.com");
 
-            socket.emit("getFilters", myClassCode);
+            if (instPanel) instPanel.style.display = isTeacher ? "block" : "none";
+            if (evalPanel) evalPanel.style.display = isTeacher ? "block" : "none";
+            if (studentArea) studentArea.style.display = isTeacher ? "none" : "flex"; 
+            if (adminBtn) adminBtn.style.display = (user.email === "kayamert319@gmail.com") ? "block" : "none";
 
+            if (isTeacher) socket.emit("getTeacherClass", user.email);
+
+            socket.emit("getFilters", window.myClassCode || "");
+            socket.emit("getStudentHomeworks", window.myClassCode || "");
+            socket.emit("getTodayReviews", realName);
+            
             showScreen('screen-main'); 
-        } 
-        else showScreen('screen-welcome');
+        } else {
+            showScreen('screen-welcome');
+        }
     });
+
     window.logout = () => signOut(auth).then(() => location.reload());
 </script>
 
@@ -409,8 +403,9 @@
     const socket = io();
     let currentMode = "room", myRoom = "", currentQIndex = 0, qInt = null, totalInt = null, trialQuestions = [], trialAnswers = [];
     let currentQObject = null, currentListType = "", selectedTimerMode = "question";
-    let myClassCode = localStorage.getItem("gazi_class_code") || "";
+    window.myClassCode = localStorage.getItem("gazi_class_code") || "";
     let uploadedImageBase64 = null;
+    let homeworks = [], reviews = [];
 
     window.showScreen = (id) => { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); };
     window.toggleDropdown = (id) => document.getElementById(id).classList.toggle('show');
@@ -422,11 +417,10 @@
         document.getElementById('room-q-time').placeholder = mode === 'question' ? 'Örn: 45 (Saniye)' : 'Örn: 15 (Dakika)';
     };
 
-    // --- DİNAMİK FİLTRE VE AÇILIR MENÜ (DROPDOWN) MOTORU ---
-    socket.on("filtersChanged", () => { socket.emit("getFilters", myClassCode); });
+    // --- DİNAMİK FİLTRE VE AÇILIR MENÜ MOTORU ---
+    socket.on("filtersChanged", () => { socket.emit("getFilters", window.myClassCode); });
 
     socket.on('updateFilters', data => {
-        // 1. Ders (Konu) Filtrelerini Doldur
         const dersContent = document.getElementById('ders-content');
         if (dersContent && data.dersler) {
             dersContent.innerHTML = `<div class="checkbox-item" onclick="this.querySelector('input').click()"><input type="checkbox" name="ders-secim" value="HEPSI" checked onclick="event.stopPropagation(); updateFilterText('ders')"><label>TÜMÜ</label></div>` + 
@@ -434,7 +428,6 @@
             updateFilterText('ders'); 
         }
 
-        // 2. Deneme (Kaynak) Filtrelerini Doldur
         const denemeContent = document.getElementById('deneme-content');
         if (denemeContent && data.denemeler) {
             const denemeKeys = Object.keys(data.denemeler);
@@ -444,22 +437,15 @@
         }
     });
 
-    // Açılır Menü Başlıklarını Dinamik Güncelleyen Zeka
     window.updateFilterText = (type) => {
         const checkboxes = document.querySelectorAll(`input[name="${type}-secim"]:checked`);
         const trigger = document.getElementById(`${type}-trigger`);
         if (!trigger) return;
-        
         let count = checkboxes.length;
         const hasHepsi = Array.from(checkboxes).some(cb => cb.value === "HEPSI");
-        
-        if (count === 0) {
-            trigger.innerText = "Seçim Yapılmadı ▼";
-        } else if (hasHepsi) {
-            trigger.innerText = "Tümü Seçili ▼";
-        } else {
-            trigger.innerText = `${count} Adet Seçildi ▼`;
-        }
+        if (count === 0) trigger.innerText = "Seçim Yapılmadı ▼";
+        else if (hasHepsi) trigger.innerText = "Tümü Seçili ▼";
+        else trigger.innerText = `${count} Adet Seçildi ▼`;
     };
 
     // --- ÖĞRENCİ İSTATİSTİK MOTORU (KARNEM) ---
@@ -551,7 +537,7 @@
         } catch(e) { document.getElementById('new-q-text').value = text; }
     });
 
-   // --- İZOLE SORU KAYDETME (DÜZELTİLMİŞ RESİM MOTORU) ---
+    // --- İZOLE SORU KAYDETME (RESİM HATASI DÜZELTİLDİ) ---
     window.uploadQuestion = () => {
         const qDers = document.getElementById('new-q-ders').value.trim();
         const qKonu = document.getElementById('new-q-deneme').value.trim();
@@ -560,7 +546,7 @@
         const qDogru = parseInt(document.getElementById('new-q-correct').value) || 0;
 
         if(!qDers || !qKonu) return alert("Lütfen Ders ve Konu alanlarını doldurun!");
-        if(!myClassCode) return alert("⚠️ Lütfen önce bir 'Sınıf Kodu Üret' butonuna basarak kütüphanenizi oluşturun!");
+        if(!window.myClassCode) return alert("⚠️ Lütfen önce 'Sınıf Kodu Üret' diyerek kütüphanenizi oluşturun!");
 
         const q = {
             soru: qSoru,
@@ -568,31 +554,20 @@
             dogru: qDogru,
             ders: qDers.toUpperCase(),
             deneme: qKonu,
-            image: uploadedImageBase64, // HATA BURADAYDI! Artık resmi her koşulda soruyla birlikte mühürler.
-            classCode: myClassCode 
+            image: uploadedImageBase64, // RESİM HER KOŞULDA MÜHÜRLENİR
+            classCode: window.myClassCode 
         };
-        
-        socket.emit("addNewQuestion", q);
-        
-        // Ekleme sonrası kutuları temizle
-        document.getElementById('new-q-text').value = ""; document.getElementById('new-q-opts').value = "";
-        document.getElementById('new-q-ders').value = ""; document.getElementById('new-q-deneme').value = "";
-        document.getElementById('img-preview').style.display = "none"; 
-        uploadedImageBase64 = null;
-        
-        alert(`✅ Soru "${qDers}" dersi "${qKonu}" konusu olarak kütüphanenize eklendi!`);
-    };
         
         socket.emit("addNewQuestion", q);
         
         document.getElementById('new-q-text').value = ""; document.getElementById('new-q-opts').value = "";
         document.getElementById('new-q-ders').value = ""; document.getElementById('new-q-deneme').value = "";
         document.getElementById('img-preview').style.display = "none"; uploadedImageBase64 = null;
-        alert(`✅ Soru "${qDers}" dersi "${qKonu}" konusu olarak kütüphanenize eklendi!`);
+        alert(`✅ Soru kütüphanenize eklendi!`);
     };
 
     window.fetchTeacherReports = () => {
-        const code = prompt("Lütfen Sınıf Kodunuzu Giriniz (Örn: GZ123):", myClassCode);
+        const code = prompt("Sınıf Kodunuzu Giriniz (Örn: GZ123):", window.myClassCode);
         if(code) socket.emit("getTeacherReports", code.toUpperCase());
     };
 
@@ -605,6 +580,42 @@
         }
         showScreen('screen-list');
     });
+
+    // YENİ EYLEMLER: Değerlendirme, Ödev ve Tekrar
+    window.openEvaluation = () => { socket.emit("getEvaluationData", window.myClassCode); showScreen('screen-eval'); };
+
+    socket.on("evaluationDataResponse", (data) => {
+        const div = document.getElementById('eval-content');
+        div.innerHTML = data.length === 0 ? "<p>Henüz veri yok.</p>" : data.map(r => `
+            <div class="eval-card">
+                <b>Öğrenci:</b> ${r.name} <br>
+                <b>Puan:</b> ${r.score} | <b>Doğru:</b> ${r.correct} | <b>Yanlış:</b> ${r.wrong} <br>
+                <small>Tarih: ${r.date}</small>
+            </div>
+        `).join('');
+    });
+
+    socket.on("studentHomeworksData", (list) => { homeworks = list; if(list.length > 0) document.getElementById('homework-alert-box').style.display = 'block'; });
+    socket.on("todayReviewsData", (list) => { reviews = list; if(list.length > 0) document.getElementById('review-alert-box').style.display = 'block'; });
+
+    window.showHomeworkList = () => {
+        document.getElementById('list-title').innerText = "📒 Bekleyen Ödevlerin";
+        document.getElementById('list-content').innerHTML = homeworks.map(hw => `
+            <div class="list-item">
+                <b>${hw.title}</b><br>Soru: ${hw.count} | Son Tarih: ${hw.dueDate || 'Yok'}
+            </div>
+        `).join('');
+        showScreen('screen-list');
+    };
+
+    window.startReviewSession = () => {
+        if(reviews.length === 0) return;
+        trialQuestions = reviews.map(r => r.question); 
+        trialAnswers = new Array(trialQuestions.length).fill(null); 
+        currentQIndex = 0;
+        showScreen('screen-game'); 
+        renderTrialQuestion();
+    };
 
     // --- STANDART FONKSİYONLAR ---
     window.askGemini = () => {
@@ -625,16 +636,16 @@
 
     socket.on("classCreated", (code) => {
         document.getElementById('generated-code').innerText = "KODUNUZ: " + code;
-        myClassCode = code;
+        window.myClassCode = code;
         localStorage.setItem("gazi_class_code", code);
-        socket.emit("getFilters", myClassCode); 
+        socket.emit("getFilters", window.myClassCode); 
     });
 
     socket.on("teacherClassFound", (code) => {
         document.getElementById('generated-code').innerText = "KODUNUZ: " + code;
-        myClassCode = code;
+        window.myClassCode = code;
         localStorage.setItem("gazi_class_code", code);
-        socket.emit("getFilters", myClassCode);
+        socket.emit("getFilters", window.myClassCode);
     });
 
     window.joinClass = () => {
@@ -646,9 +657,9 @@
 
     socket.on("classJoined", (res) => {
         if(res.success) {
-            myClassCode = res.code;
+            window.myClassCode = res.code;
             localStorage.setItem("gazi_class_code", res.code);
-            socket.emit("getFilters", myClassCode); 
+            socket.emit("getFilters", window.myClassCode); 
             alert("✅ Sınıfa katıldın! Listeler güncellendi.");
         } else alert("❌ Geçersiz Sınıf Kodu!");
     });
@@ -659,7 +670,7 @@
         const name = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "");
         socket.emit("sendGlobalAlert", { message: msg, sender: name });
         document.getElementById('alert-text').value = "";
-        alert("🚀 Duyuru tüm kullanıcılara gönderildi!");
+        alert("🚀 Duyuru gönderildi!");
     };
 
     socket.on("receiveGlobalAlert", (data) => {
@@ -685,14 +696,13 @@
         if(!currentQObject) return;
         socket.emit('reportQuestion', currentQObject);
         saveToLocal('kpss_reports', currentQObject);
-        alert("🚨 Bu soru merkezi sisteme bildirildi.");
+        alert("🚨 Bu soru merkeze bildirildi.");
     };
 
     window.fetchAdminReports = () => { socket.emit("adminGetReports"); };
 
     socket.on("allReportsData", (data) => {
-        currentListType = "admin_report";
-        document.getElementById('list-title').innerText = "👑 Merkezi Hata Raporları";
+        currentListType = "admin_report"; document.getElementById('list-title').innerText = "👑 Merkezi Hata Raporları";
         const contentDiv = document.getElementById('list-content');
         if(data.length === 0) { contentDiv.innerHTML = "<p style='text-align:center;'>Henüz rapor yok.</p>"; } 
         else {
@@ -713,7 +723,7 @@
             contentDiv.innerHTML = list.map((q, i) => `<div class="list-item"><b>Soru ${i+1}:</b> ${q.soru} <br><span style="color:#27ae60; font-weight:bold; font-size:0.9rem;">Cevap: ${q.siklar ? q.siklar[q.dogru] : 'Bilinmiyor'}</span></div>`).join('');
         }
         showScreen('screen-list');
-    };
+    });
 
     window.downloadPDF = () => {
         const keys = { 'wrong': 'kpss_wrongs', 'fav': 'kpss_favs', 'blank': 'kpss_blanks', 'report': 'kpss_reports' };
@@ -755,7 +765,7 @@
             optionsCount: parseInt(document.getElementById('set-options').value), 
             timerMode: selectedTimerMode, 
             duration: dur,
-            classCode: myClassCode 
+            classCode: window.myClassCode 
         };
         
         if (currentMode === 'trial') socket.emit('startTrial', s); else socket.emit('startGame', { roomCode: myRoom, settings: s });
@@ -834,14 +844,19 @@
     window.finishTrial = () => {
         if(totalInt) clearInterval(totalInt); 
         let s = 0; let d = 0; let y = 0; let b = 0;
+        const realName = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "");
+
         trialQuestions.forEach((q, i) => { 
             if(trialAnswers[i] === q.dogru) { s+=10; d++; } 
-            else if(trialAnswers[i] !== null) { s-=5; y++; saveToLocal('kpss_wrongs', q); }
+            else if(trialAnswers[i] !== null) { 
+                s-=5; y++; 
+                saveToLocal('kpss_wrongs', q);
+                socket.emit("addToReviewQueue", { studentName: realName, question: q });
+            }
             else { b++; saveToLocal('kpss_blanks', q); }
         });
         
-        const studentName = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "");
-        socket.emit("saveStudentResult", { name: studentName, classCode: myClassCode, score: s, correct: d, wrong: y, blank: b });
+        socket.emit("saveStudentResult", { name: realName, classCode: window.myClassCode, score: s, correct: d, wrong: y, blank: b });
 
         showScreen('screen-result'); 
         document.getElementById('result-board').innerHTML = `<h3 style="color:#333;">Doğru: ${d} | Yanlış: ${y} | Boş: ${b}</h3><h2>Puan: ${s}</h2>`;
