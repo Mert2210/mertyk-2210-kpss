@@ -1,5 +1,5 @@
 /* ==========================================================================
-   GAZİLİLER KPSS BİLGİ BANKASI - SUNUCU DOSYASI (SERVER) - MASTER V3
+   GAZİLİLER KPSS BİLGİ BANKASI - SUNUCU DOSYASI (SERVER) - FINAL MASTER
    ========================================================================== */
 
 const express = require("express");
@@ -23,7 +23,7 @@ const io = new Server(server, {
 app.use(express.static(path.join(__dirname)));
 app.use(express.static(path.join(__dirname, "public")));
 
-// --- FIREBASE ADMIN MÜHÜRLEME ---
+// --- FIREBASE ADMIN MÜHÜRLEME (GÜVENLİ BAĞLANTI) ---
 let serviceAccount;
 try {
     if (process.env.FIREBASE_CREDENTIALS) {
@@ -54,7 +54,7 @@ const QUESTIONS_FILE = path.join(__dirname, 'questions.json');
 const REPORTS_FILE = path.join(__dirname, 'reports.json'); 
 const CLASSES_FILE = path.join(__dirname, 'classes.json');
 
-// --- GEMINI AI AYARI VE HATA KORUMASI ---
+// --- GEMINI AI AYARI VE KORUMA ZIRHI ---
 const geminiApiKey = process.env.GEMINI_API_KEY || "ANAHTAR_YOK";
 const genAI = new GoogleGenerativeAI(geminiApiKey);
 const aiModel = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
@@ -121,25 +121,30 @@ function listeleriHerkesinEkranindaGuncelle() {
 }
 
 // ============================================================================
-// SOCKET İLETİŞİM MOTORU
+// 🚀 SOCKET İLETİŞİM MOTORU (TÜM VERİ AKIŞI BURADAN GEÇER)
 // ============================================================================
 io.on("connection", (socket) => {
     
-    // 1. Yeni bağlanan kullanıcıya anında güncel filtreleri yolla
+    // 1. Yeni bağlanan kullanıcıya anında güncel filtreleri (Ders/Konu) yolla
     socket.emit('updateFilters', getFiltersData());
 
     socket.on("getFilters", () => {
         socket.emit('updateFilters', getFiltersData());
     });
 
-    // 2. GEMINI AI SORGULARI (HATA KORUMALI)
+    // 2. 🤖 GEMINI AI SORGULARI (ÇÖKME KORUMALI)
     socket.on("askGemini", async (qObj) => {
         try {
             if(geminiApiKey === "ANAHTAR_YOK") {
                 socket.emit("geminiResponse", "⚠️ Sunucuda GEMINI_API_KEY tanımlanmamış. Lütfen Render ayarlarından API anahtarınızı ekleyin."); 
                 return;
             }
-            const prompt = `Sen uzman bir KPSS hocasısın. Aşağıdaki soruyu analiz et, doğru cevabı şıkkıyla belirt ve nedenini çok kısa, net şekilde açıkla: \n\nSoru: ${qObj.soru} \nŞıklar: ${qObj.siklar.join(", ")}`;
+            
+            // Eski/Eksik sorularda yapay zekanın çökmesini engelleyen veri zırhı
+            const soruMetni = qObj.soru || qObj.not || "Görseli inceleyiniz.";
+            const siklarText = (qObj.siklar && Array.isArray(qObj.siklar)) ? qObj.siklar.join(", ") : "A, B, C, D, E";
+
+            const prompt = `Sen uzman bir eğitimcisin. Aşağıdaki soruyu analiz et, doğru cevabı şıkkıyla belirt ve nedenini çok kısa, net şekilde açıkla: \n\nSoru: ${soruMetni} \nŞıklar: ${siklarText}`;
             const result = await aiModel.generateContent(prompt);
             socket.emit("geminiResponse", result.response.text());
         } catch (e) {
@@ -155,7 +160,7 @@ io.on("connection", (socket) => {
             }
             const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, "");
             const imageParts = [{ inlineData: { data: base64Data, mimeType: "image/jpeg" } }];
-            const prompt = "Bu bir KPSS sorusudur. Resmi analiz et. Soru metnini ve şıkları ayrı ayrı çıkar. Formatın şu olsun:\nSORU_METNI: [soruyu buraya yaz]\nSIKLAR: [A şıkkı] | [B şıkkı] | [C şıkkı] | [D şıkkı] | [E şıkkı]\nDOGRU_INDEKS: [sence doğru cevap hangisiyse 0'dan başlayarak sadece rakam yaz (A=0, B=1...)]";
+            const prompt = "Bu bir sınav sorusudur. Resmi analiz et. Soru metnini ve şıkları ayrı ayrı çıkar. Formatın şu olsun:\nSORU_METNI: [soruyu buraya yaz]\nSIKLAR: [A şıkkı] | [B şıkkı] | [C şıkkı] | [D şıkkı] | [E şıkkı]\nDOGRU_INDEKS: [sence doğru cevap hangisiyse 0'dan başlayarak sadece rakam yaz (A=0, B=1...)]";
             const result = await aiModel.generateContent([prompt, ...imageParts]);
             socket.emit("geminiParsedData", result.response.text());
         } catch(e) { 
@@ -163,7 +168,7 @@ io.on("connection", (socket) => {
         }
     });
 
-    // 3. SINIF SİSTEMİ
+    // 3. 🏫 SINIF VE ODA SİSTEMİ
     socket.on("createClass", (teacherEmail) => {
         const classCode = Math.random().toString(36).substring(2, 8).toUpperCase();
         let classes = {};
@@ -190,7 +195,7 @@ io.on("connection", (socket) => {
         }
     });
 
-    // 4. ÖĞRENCİ İSTATİSTİKLERİ
+    // 4. 📊 ÖĞRENCİ/SINIF İSTATİSTİKLERİ
     socket.on("saveStudentResult", async (data) => {
         if(db) {
             try { await db.collection("kpss_results").add({ ...data, date: new Date().toLocaleString('tr-TR'), serverTime: admin.firestore.FieldValue.serverTimestamp() }); } catch(e){}
@@ -221,7 +226,7 @@ io.on("connection", (socket) => {
         io.emit("receiveGlobalAlert", { message: data.message, sender: data.sender || "Eğitmen" });
     });
 
-    // 5. ÖĞRETMEN KÜTÜPHANESİ
+    // 5. 📚 ÖĞRETMEN KÜTÜPHANESİ
     socket.on("addNewQuestion", async (newQ) => {
         tumSorular.push(newQ);
         fs.writeFileSync(QUESTIONS_FILE, JSON.stringify(tumSorular, null, 2));
@@ -246,7 +251,7 @@ io.on("connection", (socket) => {
         }
     });
 
-    // 6. 🚨 ÖĞRENCİ BULUT KÜTÜPHANESİ VE HATIRLATMA (SPACED REPETITION) 🚨
+    // 6. ☁️ ÖĞRENCİ BULUT KÜTÜPHANESİ VE HATIRLATMA MOTORU (SPACED REPETITION) 
     socket.on("addStudentQuestion", async (q) => {
         if (db) {
             try {
@@ -307,7 +312,7 @@ io.on("connection", (socket) => {
         }
     });
 
-    // 7. ADMİN: ÖĞRETMEN ONAY SİSTEMİ
+    // 7. 👑 ADMİN: ÖĞRETMEN ONAY SİSTEMİ
     socket.on("getPendingTeachers", async () => {
         if(admin.apps.length) {
             try {
@@ -344,7 +349,7 @@ io.on("connection", (socket) => {
         }
     });
 
-    // 8. ADMİN: HATA RAPORLARI
+    // 8. 🚨 ADMİN: HATA RAPORLARI
     socket.on("reportQuestion", (qObj) => {
         let reports = [];
         if (fs.existsSync(REPORTS_FILE)) {
@@ -363,7 +368,7 @@ io.on("connection", (socket) => {
         } else { socket.emit("allReportsData", []); }
     });
 
-    // 9. ÇOK OYUNCULU & HIZLI DENEME MOTORU
+    // 9. 🎮 ÇOK OYUNCULU & HIZLI DENEME (OFFLINE) MOTORU
     socket.on("createRoom", (data) => {
         const username = (typeof data === 'object') ? data.username : (data || "Gazi");
         const rank = data.rank || "1. Seviye";
@@ -512,4 +517,4 @@ function sendQuestionToRoom(roomCode) {
 }
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`🚀 Gazililer Sunucusu ${PORT} portunda aktif.`));
+server.listen(PORT, () => console.log(`🚀 Gazililer Eğitim Platformu Sunucusu ${PORT} portunda aktif.`));
