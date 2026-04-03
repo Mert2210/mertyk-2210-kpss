@@ -59,7 +59,7 @@ const CLASSES_FILE = path.join(__dirname, 'classes.json');
 // --- GEMINI AI AYARI VE KORUMA ZIRHI ---
 const geminiApiKey = process.env.GEMINI_API_KEY || "ANAHTAR_YOK";
 const genAI = new GoogleGenerativeAI(geminiApiKey);
-const aiModel = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+const aiModel = genAI.getGenerativeModel({ model: "gemini-pro" });
 
 // Soru Havuzunu Yükleme Fonksiyonu
 function sorulariYukle() {
