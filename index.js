@@ -14,7 +14,11 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 const app = express();
 const server = http.createServer(app);
 
+// 🚨 DEĞİŞİKLİK 1: RESİM VE VERİ İŞLEME KAPASİTESİ ARTIRILDI 🚨
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cors());
+
 const io = new Server(server, {
     cors: { origin: "*", methods: ["GET", "POST"] },
     transports: ["polling", "websocket"]
@@ -46,7 +50,7 @@ app.get('/', (req, res) => {
     res.sendFile(indexPath);
 });
 
-// 🚨 YENİ EKLENEN UYGULAMA İKON VE MANIFEST YÖNLENDİRMELERİ 🚨
+// 🚨 UYGULAMA İKON VE MANIFEST YÖNLENDİRMELERİ 🚨
 app.get('/icon-192.png', (req, res) => { 
     const iconPath = fs.existsSync(path.join(__dirname, 'public', 'icon-192.png')) ? path.join(__dirname, 'public', 'icon-192.png') : path.join(__dirname, 'icon-192.png');
     res.sendFile(iconPath); 
@@ -412,6 +416,7 @@ io.on("connection", (socket) => {
         sendQuestionToRoom(roomCode);
     });
 
+    // 🚨 DEĞİŞİKLİK 2: ODA CEVAPLARI VE OTO-BİTİŞ MEKANİZMASI GÜNCELLENDİ 🚨
     socket.on("submitAnswer", ({ roomCode, answerIndex }) => {
         const room = rooms[roomCode];
         if (!room || !room.gameStarted) return;
@@ -433,9 +438,22 @@ io.on("connection", (socket) => {
             socket.emit("answerResult", { correct: isCorrect, correctIndex: currentQ.dogru, selectedIndex: answerIndex, points: earnedPoints });
             io.to(roomCode).emit("updatePlayerList", Object.values(room.players));
 
+            // EĞER HERKES CEVAP VERDİYSE VEYA SÜRE DOLDUYSA
             if (room.answerCount >= Object.keys(room.players).length && room.timerMode === 'question') {
                 clearTimeout(room.timerId);
-                setTimeout(() => { room.currentQuestionIndex++; sendQuestionToRoom(roomCode); }, 1000); 
+                
+                // Eğer son soruysa oyunu bitir, değilse sonraki soruya geç
+                if (room.currentQuestionIndex >= room.questions.length - 1) {
+                    setTimeout(() => {
+                        io.to(roomCode).emit("gameOver", Object.values(room.players));
+                        room.gameStarted = false;
+                    }, 1000);
+                } else {
+                    setTimeout(() => { 
+                        room.currentQuestionIndex++; 
+                        sendQuestionToRoom(roomCode); 
+                    }, 1000);
+                }
             }
         }
     });
@@ -450,9 +468,11 @@ io.on("connection", (socket) => {
     });
 });
 
+// 🚨 DEĞİŞİKLİK 3: SORU GÖNDERİMİ VE SINIR KONTROLLERİ SIKILAŞTIRILDI 🚨
 function sendQuestionToRoom(roomCode) {
     const room = rooms[roomCode];
     if (!room || !room.gameStarted) return;
+    
     if (room.currentQuestionIndex >= room.questions.length) {
         if(room.globalTimeout) clearTimeout(room.globalTimeout);
         io.to(roomCode).emit("gameOver", Object.values(room.players));
@@ -474,7 +494,16 @@ function sendQuestionToRoom(roomCode) {
     if (room.timerMode === 'question' && room.settings.duration > 0) {
         if(room.timerId) clearTimeout(room.timerId);
         room.timerId = setTimeout(() => { 
-            if (rooms[roomCode] && room.gameStarted) { room.currentQuestionIndex++; sendQuestionToRoom(roomCode); } 
+            if (rooms[roomCode] && room.gameStarted) { 
+                // Süre dolduğunda son soru kontrolü
+                if (room.currentQuestionIndex >= room.questions.length - 1) {
+                    io.to(roomCode).emit("gameOver", Object.values(room.players));
+                    room.gameStarted = false;
+                } else {
+                    room.currentQuestionIndex++; 
+                    sendQuestionToRoom(roomCode); 
+                }
+            } 
         }, room.settings.duration * 1000);
     }
 }
