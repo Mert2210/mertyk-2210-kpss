@@ -1,5 +1,5 @@
 /* ==========================================================================
-   GAZİLİLER YANLIŞ SORU KUMBARAM - SUNUCU DOSYASI (SERVER) - FINAL MASTER
+   GAZİLİLER YANLIŞ SORU KUMBARAM - SUNUCU DOSYASI (SERVER) - FINAL MASTER V2
    ========================================================================== */
 
 const express = require("express");
@@ -14,7 +14,7 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 const app = express();
 const server = http.createServer(app);
 
-// 🚨 DEĞİŞİKLİK 1: RESİM VE VERİ İŞLEME KAPASİTESİ ARTIRILDI 🚨
+// VERİ İŞLEME KAPASİTESİ (Resimli sorular için kritik)
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cors());
@@ -50,7 +50,7 @@ app.get('/', (req, res) => {
     res.sendFile(indexPath);
 });
 
-// 🚨 UYGULAMA İKON VE MANIFEST YÖNLENDİRMELERİ 🚨
+// UYGULAMA İKON VE MANIFEST YÖNLENDİRMELERİ
 app.get('/icon-192.png', (req, res) => { 
     const iconPath = fs.existsSync(path.join(__dirname, 'public', 'icon-192.png')) ? path.join(__dirname, 'public', 'icon-192.png') : path.join(__dirname, 'icon-192.png');
     res.sendFile(iconPath); 
@@ -163,15 +163,35 @@ io.on("connection", (socket) => {
         } catch(e) { socket.emit("geminiParsedData", "HATA: " + e.message); }
     });
 
-    socket.on("createClass", (teacherEmail) => {
+    // 🚨 ADIM 2: İSİMLENDİRİLMİŞ SINIF OLUŞTURMA 🚨
+    socket.on("createNamedClass", ({ teacherEmail, className }) => {
         const classCode = Math.random().toString(36).substring(2, 8).toUpperCase();
         let classes = {};
         if (fs.existsSync(CLASSES_FILE)) {
             try { classes = JSON.parse(fs.readFileSync(CLASSES_FILE, 'utf8')); } catch (e) { classes = {}; }
         }
-        classes[classCode] = { teacher: teacherEmail, students: [], createdAt: new Date().toISOString() };
+        classes[classCode] = { name: className, teacher: teacherEmail, students: [], createdAt: new Date().toISOString() };
         fs.writeFileSync(CLASSES_FILE, JSON.stringify(classes, null, 2));
+        
+        // Hoca için listeyi tazele
+        const teacherClasses = Object.keys(classes)
+            .filter(code => classes[code].teacher === teacherEmail)
+            .map(code => ({ code, name: classes[code].name }));
+        socket.emit("teacherClassesData", teacherClasses);
         socket.emit("classCreated", classCode);
+    });
+
+    // 🚨 ADIM 2: HOCANIN SINIFLARINI GETİRME 🚨
+    socket.on("getTeacherClass", (email) => {
+        if (fs.existsSync(CLASSES_FILE)) {
+            try {
+                const classes = JSON.parse(fs.readFileSync(CLASSES_FILE, 'utf8'));
+                const teacherClasses = Object.keys(classes)
+                    .filter(code => classes[code].teacher === email)
+                    .map(code => ({ code, name: classes[code].name }));
+                socket.emit("teacherClassesData", teacherClasses);
+            } catch (e) { socket.emit("teacherClassesData", []); }
+        }
     });
 
     socket.on("joinClass", ({ code, studentName }) => {
@@ -416,7 +436,6 @@ io.on("connection", (socket) => {
         sendQuestionToRoom(roomCode);
     });
 
-    // 🚨 DEĞİŞİKLİK 2: ODA CEVAPLARI VE OTO-BİTİŞ MEKANİZMASI GÜNCELLENDİ 🚨
     socket.on("submitAnswer", ({ roomCode, answerIndex }) => {
         const room = rooms[roomCode];
         if (!room || !room.gameStarted) return;
@@ -438,11 +457,9 @@ io.on("connection", (socket) => {
             socket.emit("answerResult", { correct: isCorrect, correctIndex: currentQ.dogru, selectedIndex: answerIndex, points: earnedPoints });
             io.to(roomCode).emit("updatePlayerList", Object.values(room.players));
 
-            // EĞER HERKES CEVAP VERDİYSE VEYA SÜRE DOLDUYSA
             if (room.answerCount >= Object.keys(room.players).length && room.timerMode === 'question') {
                 clearTimeout(room.timerId);
                 
-                // Eğer son soruysa oyunu bitir, değilse sonraki soruya geç
                 if (room.currentQuestionIndex >= room.questions.length - 1) {
                     setTimeout(() => {
                         io.to(roomCode).emit("gameOver", Object.values(room.players));
@@ -468,7 +485,6 @@ io.on("connection", (socket) => {
     });
 });
 
-// 🚨 DEĞİŞİKLİK 3: SORU GÖNDERİMİ VE SINIR KONTROLLERİ SIKILAŞTIRILDI 🚨
 function sendQuestionToRoom(roomCode) {
     const room = rooms[roomCode];
     if (!room || !room.gameStarted) return;
@@ -495,7 +511,6 @@ function sendQuestionToRoom(roomCode) {
         if(room.timerId) clearTimeout(room.timerId);
         room.timerId = setTimeout(() => { 
             if (rooms[roomCode] && room.gameStarted) { 
-                // Süre dolduğunda son soru kontrolü
                 if (room.currentQuestionIndex >= room.questions.length - 1) {
                     io.to(roomCode).emit("gameOver", Object.values(room.players));
                     room.gameStarted = false;
