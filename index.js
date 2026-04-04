@@ -46,6 +46,24 @@ app.get('/', (req, res) => {
     res.sendFile(indexPath);
 });
 
+// 🚨 YENİ EKLENEN UYGULAMA İKON VE MANIFEST YÖNLENDİRMELERİ 🚨
+app.get('/icon-192.png', (req, res) => { 
+    const iconPath = fs.existsSync(path.join(__dirname, 'public', 'icon-192.png')) ? path.join(__dirname, 'public', 'icon-192.png') : path.join(__dirname, 'icon-192.png');
+    res.sendFile(iconPath); 
+});
+app.get('/icon-512.png', (req, res) => { 
+    const iconPath = fs.existsSync(path.join(__dirname, 'public', 'icon-512.png')) ? path.join(__dirname, 'public', 'icon-512.png') : path.join(__dirname, 'icon-512.png');
+    res.sendFile(iconPath); 
+});
+app.get('/logo-square.png', (req, res) => { 
+    const iconPath = fs.existsSync(path.join(__dirname, 'public', 'logo-square.png')) ? path.join(__dirname, 'public', 'logo-square.png') : path.join(__dirname, 'logo-square.png');
+    res.sendFile(iconPath); 
+});
+app.get('/manifest.json', (req, res) => { 
+    const manifestPath = fs.existsSync(path.join(__dirname, 'public', 'manifest.json')) ? path.join(__dirname, 'public', 'manifest.json') : path.join(__dirname, 'manifest.json');
+    res.sendFile(manifestPath); 
+});
+
 let tumSorular = [];
 const QUESTIONS_FILE = path.join(__dirname, 'questions.json');
 const REPORTS_FILE = path.join(__dirname, 'reports.json'); 
