@@ -311,7 +311,7 @@
             <h4 style="color:#1e3c72; border-bottom:2px solid #eee; padding-bottom:8px; margin-top:0;">👤 Hesap Bilgileri</h4>
             <input type="text" id="profile-new-name" placeholder="Kullanıcı Adı / İsim" style="background:#f1f2f6;">
             
-            <div style="background:#fff3f3; padding:10px; border-radius:8px; border:1px solid #f5c6cb; margin-bottom:15px; margin-top:5px;">
+            <div id="password-update-area" style="background:#fff3f3; padding:10px; border-radius:8px; border:1px solid #f5c6cb; margin-bottom:15px; margin-top:5px;">
                 <label style="font-size:0.75rem; font-weight:bold; color:#c0392b; display:block; margin-bottom:5px;">Şifre Güncelle (İsteğe Bağlı)</label>
                 <input type="password" id="profile-old-pass" placeholder="Mevcut (Eski) Şifreniz" style="margin-bottom:5px; font-size:0.85rem;">
                 <input type="password" id="profile-new-pass" placeholder="Yeni Şifre Belirleyin" style="margin-bottom:0; font-size:0.85rem;">
@@ -412,6 +412,8 @@
     </div>
 
     <div id="screen-game" class="screen">
+        <div id="live-leaderboard" style="font-size:0.8rem; background:rgba(0,0,0,0.2); padding:8px; border-radius:5px; margin-bottom:10px; color:#f1c40f; font-weight:bold; display:none;">Canlı Skor: Bekleniyor...</div>
+        
         <div style="display:flex; justify-content:space-between; align-items:center;">
             <div class="timer-container" style="flex:1;">
                 <div id="box-total" class="timer-box" style="background:#2980b9;">⌛ <span id="time-total">--:--</span></div>
@@ -526,7 +528,15 @@
         } else { area.style.display = 'none'; }
     };
 
+    // 🚨 YENİ: MİSAFİR KULLANICILAR İÇİN ŞİFRE ALANINI GİZLEME 🚨
     window.openSettingsPanel = () => {
+        const userNameText = document.getElementById('display-user').innerText;
+        if(userNameText.includes("Misafir")) {
+            document.getElementById('password-update-area').style.display = 'none';
+        } else {
+            document.getElementById('password-update-area').style.display = 'block';
+        }
+
         document.getElementById('profile-exam-type').value = localStorage.getItem('gazi_exam_type') || 'kpss_lisans';
         window.updateGradeDropdown();
         const savedGrade = localStorage.getItem('gazi_grade');
@@ -567,7 +577,7 @@
             document.getElementById('display-user').innerText = "Hoş Geldin, " + newName;
         }
 
-        if(user && newPass) {
+        if(user && newPass && !user.isAnonymous) {
             if(!oldPass) return alert("Şifrenizi güncellemek için lütfen önce Eski Şifrenizi yazınız!");
             const cred = EmailAuthProvider.credential(user.email, oldPass);
             reauthenticateWithCredential(user, cred).then(() => {
@@ -690,7 +700,6 @@
     let currentMode = "room", myRoom = "", currentQIndex = 0, qInt = null, totalInt = null, trialQuestions = [], trialAnswers = [];
     let currentQObject = null, currentListType = "", selectedTimerMode = "question";
     
-    // 🚨 YENİ: ÇÖZÜM GÖRSELİ DEĞİŞKENİ EKLENDİ 🚨
     let uploadedImageBase64 = null; 
     let uploadedSolutionBase64 = null; 
     
@@ -761,7 +770,6 @@
         });
     }
 
-    // 🚨 YENİ: ÖĞRETMEN ÇÖZÜM FOTOĞRAFI YÜKLEME 🚨
     window.processImageUpload = (e, type = 'question') => {
         const file = e.target.files[0]; if(!file) return;
         const previewId = type === 'question' ? 'img-preview' : 'img-preview-solution';
@@ -798,7 +806,6 @@
         }; reader.readAsDataURL(file);
     };
 
-    // 🚨 YENİ: ÖĞRETMEN ÇÖZÜMÜ İLE BİRLİKTE KAYIT ETME 🚨
     window.uploadQuestion = () => {
         if(!socket) return alert("Sunucuya bağlanılamadı!");
         const qDers = document.getElementById('new-q-ders').value.trim(); const qKonu = document.getElementById('new-q-deneme').value.trim();
@@ -817,7 +824,6 @@
         };
         socket.emit("addNewQuestion", q);
         
-        // Formu temizle
         document.getElementById('new-q-text').value = ""; document.getElementById('new-q-opts').value = ""; document.getElementById('new-q-ders').value = ""; document.getElementById('new-q-deneme').value = ""; 
         document.getElementById('img-preview').style.display = "none"; uploadedImageBase64 = null;
         document.getElementById('new-q-sol-text').value = ""; document.getElementById('img-preview-solution').style.display = "none"; uploadedSolutionBase64 = null;
@@ -1028,16 +1034,55 @@
 
     window.downloadPDF = () => { const keys = { 'wrong': 'kpss_wrongs', 'fav': 'kpss_favs', 'blank': 'kpss_blanks', 'report': 'kpss_reports' }; const list = JSON.parse(localStorage.getItem(keys[currentListType])) || []; if(list.length === 0) return alert("Liste boş!"); const win = window.open('', '', 'height=600,width=800'); win.document.write('<html><body style="font-family:sans-serif;"><h2>Gazililer Yanlış Soru Kumbaram</h2><hr>'); list.forEach((q, i) => win.document.write(`<p><b>Soru ${i+1}:</b> ${q.soru}<br><span style="color:green;">Cevap: ${q.siklar[q.dogru]}</span></p>`)); win.document.write('</body></html>'); win.document.close(); win.print(); };
 
+    // 🚨 YENİ: GAZİ İSMİ YERİNE KULLANICININ GERÇEK İSMİNİ GÖNDERME 🚨
     window.goToLobby = (mode) => {
         currentMode = mode;
-        if (mode === 'room' && socket) { socket.emit('createRoom', { username: "Gazi" }); document.getElementById('room-code-display').style.display = 'block'; document.getElementById('lobby-players-area').style.display = 'block'; } 
-        else { document.getElementById('room-code-display').style.display = 'none'; document.getElementById('lobby-players-area').style.display = 'none'; }
+        const realName = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", ""); // Gerçek ismi al
+        if (mode === 'room' && socket) { 
+            socket.emit('createRoom', { username: realName }); 
+            document.getElementById('room-code-display').style.display = 'block'; 
+            document.getElementById('lobby-players-area').style.display = 'block'; 
+        } 
+        else { 
+            document.getElementById('room-code-display').style.display = 'none'; 
+            document.getElementById('lobby-players-area').style.display = 'none'; 
+        }
         showScreen('screen-lobby');
     };
 
     if(socket) {
         socket.on('roomCreated', c => { myRoom = c; document.getElementById('lobby-room-code').innerText = c; });
-        socket.on('updatePlayerList', p => { const l = document.getElementById('lobby-players-list'); if(l) l.innerHTML = p.map(x => `<span class="player-badge">${x.username}</span>`).join(''); });
+        
+        // 🚨 YENİ: BEKLEME LOBİSİ VE CANLI SKOR TABLOSUNU GÜNCELLEME 🚨
+        socket.on('updatePlayerList', p => { 
+            const l = document.getElementById('lobby-players-list'); 
+            if(l) l.innerHTML = p.map(x => `<span class="player-badge">${x.username}</span>`).join(''); 
+            
+            const live = document.getElementById('live-leaderboard');
+            if(live) {
+                live.style.display = currentMode === 'room' ? 'block' : 'none';
+                live.innerHTML = "🏆 " + p.sort((a,b)=>b.score-a.score).map(x => `<b>${x.username}:</b> ${x.score}p`).join(' | ');
+            }
+        });
+
+        // 🚨 YENİ: ÇOK OYUNCULU MOD OYUN SONU EKRANI 🚨
+        socket.on('gameOver', (players) => {
+            if(totalInt) clearInterval(totalInt); 
+            if(qInt) clearInterval(qInt);
+            showScreen('screen-result');
+            
+            players.sort((a,b) => b.score - a.score); // Puanlara göre sırala
+            let html = `<h3 style="color:#e67e22; margin-bottom:5px;">Oda Sınavı Sona Erdi!</h3>`;
+            html += players.map((p, i) => `
+                <div class="list-item" style="border-left:5px solid ${i===0?'#f1c40f':'#3498db'}; font-size:1.1rem; text-align:left;">
+                    <b>${i === 0 ? '👑' : ''} ${i+1}. ${p.username}</b> 
+                    <span style="float:right; color:#27ae60; font-weight:bold;">${p.score} Puan</span>
+                </div>
+            `).join('');
+            
+            document.getElementById('result-board').innerHTML = html;
+            confetti({ particleCount: 200, spread: 70, origin: { y: 0.6 } });
+        });
     }
 
     window.startGame = () => {
@@ -1076,7 +1121,6 @@
         });
     }
 
-    // 🚨 YENİ: ÇÖZÜMLÜ VE AKILLI TEST MOTORU 🚨
     function renderTrialQuestion() {
         currentQObject = trialQuestions[currentQIndex]; document.getElementById('q-text').innerText = `(${currentQIndex+1}/${trialQuestions.length}) ` + (currentQObject.soru || currentQObject.not || "Görseli inceleyiniz.");
         const imgDisp = document.getElementById('q-image-display'); if(currentQObject.image) { imgDisp.src = currentQObject.image; imgDisp.style.display = "block"; } else { imgDisp.style.display = "none"; }
@@ -1088,7 +1132,6 @@
             const b = document.createElement('button'); 
             b.innerText = s; 
             
-            // Eğer cevaplandıysa, şıkları boya
             if (trialAnswers[currentQIndex] !== null) {
                 if (i === currentQObject.dogru) {
                     b.className = "opt-btn correct selected"; 
@@ -1106,8 +1149,6 @@
                     trialAnswers[currentQIndex] = i; 
                     renderTrialQuestion(); 
                     
-                    // 🚨 ZEKİ GEÇİŞ: Eğer öğretmenin çözümü yoksa 0.6 saniyede otomatik geçer.
-                    // Çözüm varsa öğrenci okusun diye geçmez, öğrenci kendisi "İleri" tuşuna basar.
                     if (!(currentQObject.solutionText || currentQObject.solutionImage)) {
                         setTimeout(() => { if(currentQIndex < trialQuestions.length - 1) trialNext(); }, 600);
                     }
@@ -1119,7 +1160,6 @@
             a.appendChild(b); 
         });
 
-        // 🚨 ÖĞRETMENİN ÇÖZÜMÜNÜ GÖSTEREN EKRAN 🚨
         let solArea = document.getElementById('trial-solution-area');
         if(!solArea) {
             solArea = document.createElement('div');
