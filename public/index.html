@@ -23,7 +23,6 @@
         button { background: #1e3c72; color: white; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; }
         button:hover { opacity: 0.9; } button.green { background: #27ae60; } button.orange { background: #e67e22; } button.red { background: #c0392b; } button.outline { background: transparent; border: 2px solid #1e3c72; color: #1e3c72; } button.gold { background: #f1c40f; color:#333; } button.blue { background: #3498db; }
         
-        /* İNTRO (ONBOARDING) EKRANI STİLLERİ */
         #intro-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #1e3c72; z-index: 99999; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; padding: 20px; box-sizing: border-box; text-align: center; transition: opacity 0.5s; }
         .intro-slide { display: none; flex-direction: column; align-items: center; animation: fadeIn 0.5s; }
         .intro-slide.active { display: flex; }
@@ -97,7 +96,6 @@
         .subject-row label { width: 110px; font-weight: bold; color: #1e3c72; font-size: 0.85rem; text-align: left; margin: 0; }
         .subject-row input[type="text"] { flex: 1; margin: 0; padding: 8px; font-size: 0.8rem; border: 1px solid #ccc; border-radius: 6px; }
 
-        /* FİLTRELEME ALANI STİLLERİ */
         .filter-section { background: #fdfdfd; border: 1px solid #e0e0e0; padding: 10px; border-radius: 8px; margin-bottom: 15px; }
         .filter-section select { font-size: 0.85rem; padding: 8px; margin-bottom: 5px; border-color: #3498db; color: #1e3c72; font-weight: bold; }
     </style>
@@ -128,6 +126,12 @@
     </div>
 </div>
 
+<div id="ios-pwa-prompt" style="display:none; position:fixed; bottom:20px; left:50%; transform:translateX(-50%); width:90%; max-width:400px; background:#fff; padding:15px; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,0.3); z-index:99999; border:2px solid #3498db; text-align:center;">
+    <h4 style="margin-top:0; color:#1e3c72; margin-bottom:5px;">🍏 iPhone Kullanıcıları İçin</h4>
+    <p style="font-size:0.85rem; color:#333; margin-bottom:15px;">Bildirimleri alabilmek ve uygulamayı tam ekran kullanmak için alt menüdeki <b>[Kare ve Ok] (Paylaş)</b> butonuna basıp <b>"Ana Ekrana Ekle"</b> seçeneğine dokunun.</p>
+    <button onclick="closeIOSPrompt()" class="outline" style="width:100%; font-size:0.8rem; padding:8px;">Anladım, Kapat</button>
+</div>
+
 <div id="notification-toast">
     <span style="font-size:1.5rem;">🔔</span>
     <div id="toast-message" style="text-align:left; font-size:0.9rem; font-weight:600;"></div>
@@ -142,7 +146,7 @@
         </div>
 
         <h1 style="font-size: 3rem; margin:0;">🎓</h1>
-        <h1 style="font-size: 1.8rem; color:#1e3c72; margin-bottom: 5px;">Gazililer</h1>
+        <h1 style="font-size: 1.8rem; color:#1e3c72; margin-bottom: 5px;">Gazililer <span id="role-subtitle" style="font-size: 1.1rem; color: #e67e22; font-weight:normal;">(Öğrenci)</span></h1>
         <h2 style="font-size: 1.1rem; color:#e67e22; margin-top: 0; margin-bottom:20px; font-weight:600;">Yanlış Soru Kumbaram</h2>
         
         <div id="login-box" class="auth-form">
@@ -187,7 +191,21 @@
                 </div>
             </div>
 
-            <p id="teacher-info-text" style="display:none; font-size:0.8rem; color:#c0392b; font-weight:bold; text-align:center; background:#fff3f3; padding:10px; border-radius:8px; border:1px solid #f5c6cb;">⚠️ Öğretmen kayıtları, yönetici onayından sonra aktifleşir.</p>
+            <div id="reg-teacher-options" style="display:none; background:#f9f9f9; padding:10px; border-radius:8px; margin-top:10px; border:1px solid #ddd;">
+                <label style="font-size:0.75rem; font-weight:bold; color:#1e3c72; display:block; margin-bottom:10px;">Ders Verdiğiniz Sınavlar (Çoklu Seçim):</label>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px; font-size:0.85rem;">
+                    <label class="checkbox-item" style="padding:5px; border:none;"><input type="checkbox" class="t-exam-cb" value="kpss_lisans"> KPSS Lisans</label>
+                    <label class="checkbox-item" style="padding:5px; border:none;"><input type="checkbox" class="t-exam-cb" value="kpss_onlisans"> Ön Lisans</label>
+                    <label class="checkbox-item" style="padding:5px; border:none;"><input type="checkbox" class="t-exam-cb" value="kpss_ortaogretim"> Ortaöğretim</label>
+                    <label class="checkbox-item" style="padding:5px; border:none;"><input type="checkbox" class="t-exam-cb" value="kpss_egitim"> Eğitim Bil.</label>
+                    <label class="checkbox-item" style="padding:5px; border:none;"><input type="checkbox" class="t-exam-cb" value="yks_tyt"> YKS - TYT</label>
+                    <label class="checkbox-item" style="padding:5px; border:none;"><input type="checkbox" class="t-exam-cb" value="yks_ayt"> YKS - AYT</label>
+                    <label class="checkbox-item" style="padding:5px; border:none;"><input type="checkbox" class="t-exam-cb" value="lise_okul"> Lise Okul</label>
+                    <label class="checkbox-item" style="padding:5px; border:none;"><input type="checkbox" class="t-exam-cb" value="ortaokul"> LGS</label>
+                </div>
+            </div>
+
+            <p id="teacher-info-text" style="display:none; font-size:0.8rem; color:#c0392b; font-weight:bold; text-align:center; background:#fff3f3; padding:10px; border-radius:8px; border:1px solid #f5c6cb; margin-top:15px;">⚠️ Öğretmen kayıtları, yönetici onayından sonra aktifleşir.</p>
             
             <button onclick="handleRegister()" class="orange" style="margin-top:15px; padding:15px; font-size:1.1rem;">Kayıt İşlemini Tamamla</button>
             <div style="text-align:center; margin-top:20px;">
@@ -512,10 +530,11 @@
 </div>
 
 <script>
-    // 🚨 İNTRO EKRANI MANTIĞI 🚨
+    // 🚨 İNTRO EKRANI VE APPLE CİHAZ (iOS) RADARI 🚨
     window.onload = () => { 
         window.updateRegGradeDropdown(); 
         checkIntro();
+        checkIOSPrompt();
     };
 
     function checkIntro() {
@@ -524,6 +543,24 @@
             document.getElementById('intro-overlay').style.display = 'flex';
         }
     }
+
+    function checkIOSPrompt() {
+        // Cihazın Apple (iOS) olup olmadığını ve PWA olarak açılıp açılmadığını denetler
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        const isStandalone = window.navigator.standalone === true;
+        
+        if (isIOS && !isStandalone) {
+            const hasSeenIOSPrompt = localStorage.getItem('gazi_ios_prompt');
+            if(!hasSeenIOSPrompt) {
+                document.getElementById('ios-pwa-prompt').style.display = 'block';
+            }
+        }
+    }
+
+    window.closeIOSPrompt = () => {
+        document.getElementById('ios-pwa-prompt').style.display = 'none';
+        localStorage.setItem('gazi_ios_prompt', 'true');
+    };
 
     window.nextSlide = (slideNum) => {
         document.querySelectorAll('.intro-slide').forEach(s => s.classList.remove('active'));
@@ -556,18 +593,28 @@
     window.myClassCode = localStorage.getItem("gazi_class_code") || "";
     let selectedRole = 'student';
     
+    // 🚨 YENİ EKLENEN ROL DEĞİŞTİRİCİ DİNAMİĞİ 🚨
     window.setMainRole = (role) => {
         selectedRole = role;
         const btnS = document.getElementById('btn-main-student');
         const btnT = document.getElementById('btn-main-teacher');
         const tInfo = document.getElementById('teacher-info-text');
+        const subtitle = document.getElementById('role-subtitle');
+        const studentOpts = document.getElementById('reg-student-options');
+        const teacherOpts = document.getElementById('reg-teacher-options');
         
         if(role === 'student') {
             btnS.classList.add('active'); btnT.classList.remove('active');
+            if(subtitle) subtitle.innerText = '(Öğrenci)';
             if(tInfo) tInfo.style.display = 'none';
+            if(studentOpts) studentOpts.style.display = 'block';
+            if(teacherOpts) teacherOpts.style.display = 'none';
         } else {
             btnT.classList.add('active'); btnS.classList.remove('active');
+            if(subtitle) subtitle.innerText = '(Öğretmen)';
             if(tInfo) tInfo.style.display = 'block';
+            if(studentOpts) studentOpts.style.display = 'none';
+            if(teacherOpts) teacherOpts.style.display = 'block';
         }
     };
 
@@ -648,7 +695,17 @@
     import { getAuth, onAuthStateChanged, updateProfile, updatePassword, EmailAuthProvider, reauthenticateWithCredential, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInAnonymously, signOut, GoogleAuthProvider, signInWithPopup, sendEmailVerification, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
     import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-messaging.js";
 
-    const firebaseConfig = { apiKey: "AIzaSyDkZI-LxCOaog4kyb4YSquEK6ZpLNH2pqs", authDomain: "kpss-genel-kultur-soru-havuzu.firebaseapp.com", projectId: "kpss-genel-kultur-soru-havuzu", appId: "1:435941343639:web:3ce323e0f8386d796c04d2" };
+    // 🚨 KISA DEVRENİN ÇÖZÜLDÜĞÜ YER (Config Güncellendi) 🚨
+    const firebaseConfig = { 
+        apiKey: "AIzaSyDkZI-LxCOaog4kyb4YSquEK6ZpLNH2pqs", 
+        authDomain: "kpss-genel-kultur-soru-havuzu.firebaseapp.com", 
+        projectId: "kpss-genel-kultur-soru-havuzu", 
+        storageBucket: "kpss-genel-kultur-soru-havuzu.firebasestorage.app",
+        messagingSenderId: "435941343639",
+        appId: "1:435941343639:web:3ce323e0f8386d796c04d2",
+        measurementId: "G-CMLQJ746WT"
+    };
+
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const messaging = getMessaging(app);
@@ -697,6 +754,8 @@
     };
 
     window.handleLogin = async () => { try { await signInWithEmailAndPassword(auth, document.getElementById('login-email').value.trim(), document.getElementById('login-pass').value); } catch(e) { alert("❌ Giriş Başarısız: E-posta veya şifre hatalı."); } };
+    
+    // 🚨 YENİ EKLENEN ÖĞRETMEN ÇOKLU SEÇİM KAYIT İŞLEMİ 🚨
     window.handleRegister = async () => {
         const e = document.getElementById('reg-email').value.trim(); const u = document.getElementById('reg-username').value;
         const p1 = document.getElementById('reg-pass').value; const p2 = document.getElementById('reg-pass-confirm').value;
@@ -713,12 +772,17 @@
             if(selectedRole === 'student') {
                 localStorage.setItem('gazi_exam_type', regExamType);
                 if(regGrade) localStorage.setItem('gazi_grade', regGrade);
+            } else if (selectedRole === 'teacher_pending') {
+                // Öğretmenin seçtiği birden fazla dersi hafızaya al
+                const selectedExams = Array.from(document.querySelectorAll('.t-exam-cb:checked')).map(cb => cb.value);
+                localStorage.setItem('gazi_teacher_exams', JSON.stringify(selectedExams));
             }
 
             alert("✅ Kayıt başarılı! Lütfen doğrulama maili için Gelen Kutunuzu ve SPAM (Gereksiz) klasörünü kontrol etmeyi unutmayın!");
             await signOut(auth); location.reload(); 
         } catch(e) { alert("❌ Kayıt Hatası: İşlem tamamlanamadı."); }
     };
+    
     window.handleGuestLogin = async () => { 
         try { 
             const guestName = "Misafir-" + Math.floor(1000 + Math.random() * 9000);
@@ -802,7 +866,7 @@
     let stdUploadedImageBase64 = null; 
     let stdSolutionBase64 = null; 
     window.tempStdQuestions = []; 
-    window.originalStdQuestions = []; // Filtreleme için orijinal listeyi tutacak depo
+    window.originalStdQuestions = [];
 
     window.setTimerMode = (mode) => {
         selectedTimerMode = mode;
@@ -982,7 +1046,6 @@
         }
     };
 
-    // 🚨 KÜTÜPHANE FİLTRELEME FONKSİYONLARI 🚨
     window.applyLibraryFilters = () => {
         const secilenDers = document.getElementById('filter-ders').value;
         const secilenKonu = document.getElementById('filter-konu').value;
@@ -995,7 +1058,6 @@
             return dersMatch && konuMatch && kitapMatch;
         });
 
-        // Ekrana sadece filtrelenenleri bas (Filter dropdownları yeniden oluşturma!)
         renderStudentLibraryListOnly(filteredData);
     };
 
@@ -1051,15 +1113,14 @@
     }
 
     function renderStudentLibraryHTML(data, title) {
-        window.originalStdQuestions = data; // Orijinal yedeği al
+        window.originalStdQuestions = data; 
         currentListType = "student_library"; 
         document.getElementById('list-title').innerText = title; 
         
-        // Filtreleme alanını göster
         document.getElementById('library-filter-area').style.display = 'block';
-        populateLibraryFilters(data); // Dropdown'ları doldur
+        populateLibraryFilters(data); 
 
-        renderStudentLibraryListOnly(data); // Listeyi bas
+        renderStudentLibraryListOnly(data); 
         showScreen('screen-list');
     }
 
@@ -1124,7 +1185,7 @@
         });
 
         socket.on("teacherLibraryData", (data) => {
-            document.getElementById('library-filter-area').style.display = 'none'; // Hocada gizle
+            document.getElementById('library-filter-area').style.display = 'none'; 
             window.tempStdQuestions = data; currentListType = "teacher_library"; document.getElementById('list-title').innerText = "📚 Soru Kütüphanem"; const div = document.getElementById('list-content');
             if(data.length === 0) div.innerHTML = "<p style='text-align:center;'>Kütüphanenizde henüz soru bulunmuyor.</p>"; 
             else div.innerHTML = data.map((q, i) => `
@@ -1224,7 +1285,7 @@
     if(socket) socket.on("allReportsData", (data) => { currentListType = "admin_report"; document.getElementById('list-title').innerText = "👑 Merkezi Hata Raporları"; const contentDiv = document.getElementById('list-content'); if(data.length === 0) contentDiv.innerHTML = "<p style='text-align:center;'>Henüz rapor yok.</p>"; else contentDiv.innerHTML = data.map((q, i) => `<div class="list-item" style="border-left: 5px solid #c0392b;"><b>Soru:</b> ${q.soru} <br><span style="color:#27ae60;"><b>Cevap:</b> ${q.siklar ? q.siklar[q.dogru] : '---'}</span> <br><small style="color:#666;">Tarih: ${q.reportedAt || '---'}</small></div>`).join(''); showScreen('screen-list'); });
 
     window.showLocalList = (type) => {
-        document.getElementById('library-filter-area').style.display = 'none'; // Yerel listelerde filtreyi gizle
+        document.getElementById('library-filter-area').style.display = 'none'; 
         currentListType = type; const keys = { 'wrong': 'kpss_wrongs', 'fav': 'kpss_favs', 'blank': 'kpss_blanks', 'report': 'kpss_reports' }; const titles = { 'wrong': '❌ Yanlışlarım', 'fav': '⭐ Favorilerim', 'blank': '⬜ Boş Bıraktıklarım', 'report': '🚨 Hatalı Bildirdiklerim' }; document.getElementById('list-title').innerText = titles[type]; const list = JSON.parse(localStorage.getItem(keys[type])) || []; const contentDiv = document.getElementById('list-content');
         if(list.length === 0) contentDiv.innerHTML = "<p style='text-align:center;'>Bu liste şu an boş.</p>"; else contentDiv.innerHTML = list.map((q, i) => `<div class="list-item"><b>Soru ${i+1}:</b> ${q.soru} <br><span style="color:#27ae60; font-weight:bold; font-size:0.9rem;">Cevap: ${q.siklar ? q.siklar[q.dogru] : 'Bilinmiyor'}</span></div>`).join(''); showScreen('screen-list');
     };
