@@ -16,7 +16,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const messaging = getMessaging(app);
 
-// 🚨 Diğer parçalanmış JS dosyalarının Firebase'e erişebilmesi için köprü kuruyoruz
+// Diğer bölüklerin erişebilmesi için köprü kuruyoruz
 window.auth = auth;
 window.messaging = messaging;
 
@@ -66,7 +66,7 @@ window.saveProfileSettings = () => {
             ? subjectsData.map(s => `<option value="${s.name}">${s.name}</option>`).join('') 
             : `<option value="Genel">Genel</option>`; 
     }
-    showScreen('screen-main');
+    if (typeof window.showScreen === 'function') window.showScreen('screen-main');
 };
 
 window.handleLogin = async () => { 
@@ -90,13 +90,13 @@ window.handleRegister = async () => {
     
     try { 
         const res = await createUserWithEmailAndPassword(auth, e, p1); 
-        await updateProfile(res.user, { displayName: u + "|" + selectedRole }); 
+        await updateProfile(res.user, { displayName: u + "|" + window.selectedRole }); 
         await sendEmailVerification(res.user);
         
-        if(selectedRole === 'student') { 
+        if(window.selectedRole === 'student') { 
             localStorage.setItem('gazi_exam_type', regExamType); 
             if(regGrade) localStorage.setItem('gazi_grade', regGrade); 
-        } else if (selectedRole === 'teacher_pending') { 
+        } else if (window.selectedRole === 'teacher_pending') { 
             const selectedExams = Array.from(document.querySelectorAll('.t-exam-cb:checked')).map(cb => cb.value); 
             localStorage.setItem('gazi_teacher_exams', JSON.stringify(selectedExams)); 
         }
@@ -139,74 +139,83 @@ window.handleGoogleLogin = async () => {
     } 
 };
 
-onAuthStateChanged(auth, user => {
-    const adminBtn = document.getElementById('admin-report-btn'); 
-    const adminApproveBtn = document.getElementById('admin-approve-btn'); 
-    const instPanel = document.getElementById('instructor-panel'); 
-    const studentArea = document.getElementById('student-class-area');
-    const studentLibPanel = document.getElementById('student-library-panel');
+// 🚨 DİKKAT: ZAMANLAMA HATASINI ÖNLEMEK İÇİN TETİKLEYİCİYE BAĞLANDI 🚨
+window.baslatFirebaseAuth = () => {
+    onAuthStateChanged(auth, user => {
+        const adminBtn = document.getElementById('admin-report-btn'); 
+        const adminApproveBtn = document.getElementById('admin-approve-btn'); 
+        const instPanel = document.getElementById('instructor-panel'); 
+        const studentArea = document.getElementById('student-class-area');
+        const studentLibPanel = document.getElementById('student-library-panel');
 
-    if (user) { 
-        let nameFromAuth = user.displayName;
-        if (!nameFromAuth || nameFromAuth.split('|')[0].trim() === "") { 
-            const fallbackName = user.email ? user.email.split('@')[0] : (user.isAnonymous ? "Misafir-" + user.uid.substring(0,4) : "Gazi Adayı"); 
-            nameFromAuth = fallbackName + "|student"; 
-        }
-        
-        const nameParts = nameFromAuth.split('|'); 
-        const realName = nameParts[0]; 
-        const role = nameParts[1] || "student";
-        
-        document.getElementById('display-user').innerText = "Hoş Geldin, " + realName; 
-        document.getElementById('profile-new-name').value = realName;
-        
-        const isAdmin = (user.email === "kayamert319@gmail.com"); 
-        const isTeacher = (role === "teacher" || isAdmin); 
-        const isPending = (role === "teacher_pending");
-
-        if(isPending && !isAdmin) alert("⏳ Öğretmen hesabınız yönetici onayı bekliyor. Şimdilik öğrenci görünümündesiniz.");
-        
-        if (instPanel) instPanel.style.display = isTeacher ? "block" : "none";
-        if (studentArea) studentArea.style.display = isTeacher ? "none" : "block"; 
-        if (studentLibPanel) studentLibPanel.style.display = isTeacher ? "none" : "block";
-        if (adminBtn) adminBtn.style.display = isAdmin ? "block" : "none";
-        if (adminApproveBtn) adminApproveBtn.style.display = isAdmin ? "block" : "none";
-
-        const stdClassCode = localStorage.getItem("gazi_class_code");
-        if(stdClassCode && !isTeacher) { 
-            document.getElementById('class-code-input').value = stdClassCode; 
-            document.getElementById('btn-class-questions').style.display = 'block'; 
-        }
-
-        if(typeof window.socket !== 'undefined' && window.socket) {
-            if (isTeacher) window.socket.emit("getTeacherClass", user.email);
-            window.socket.emit("getFilters", window.myClassCode || "");
-            if (!isTeacher) window.socket.emit("checkNotebookReviews", realName);
-        }
-
-        const savedSubjects = JSON.parse(localStorage.getItem('gazi_subjects_v2')) || [];
-        const dersSelect = document.getElementById('std-q-ders');
-        if(dersSelect) { 
-            dersSelect.innerHTML = savedSubjects.length > 0 
-                ? savedSubjects.map(s => `<option value="${s.name}">${s.name}</option>`).join('') 
-                : `<option value="Genel">Genel</option>`; 
-        }
-
-        const onboardingDone = localStorage.getItem('gazi_onboarding_done');
-        if(!isTeacher && !onboardingDone) {
-            const hasSeenIntro = localStorage.getItem('gazi_intro_seen');
-            if(!hasSeenIntro) { 
-                document.getElementById('intro-overlay').style.display = 'flex'; 
-            } else { 
-                window.openSettingsPanel(); 
+        if (user) { 
+            let nameFromAuth = user.displayName;
+            if (!nameFromAuth || nameFromAuth.split('|')[0].trim() === "") { 
+                const fallbackName = user.email ? user.email.split('@')[0] : (user.isAnonymous ? "Misafir-" + user.uid.substring(0,4) : "Gazi Adayı"); 
+                nameFromAuth = fallbackName + "|student"; 
             }
-        } else { 
-            window.showScreen('screen-main'); 
-        }
+            
+            const nameParts = nameFromAuth.split('|'); 
+            const realName = nameParts[0]; 
+            const role = nameParts[1] || "student";
+            
+            const displayUser = document.getElementById('display-user');
+            if (displayUser) displayUser.innerText = "Hoş Geldin, " + realName; 
+            
+            const profileNewName = document.getElementById('profile-new-name');
+            if (profileNewName) profileNewName.value = realName;
+            
+            const isAdmin = (user.email === "kayamert319@gmail.com"); 
+            const isTeacher = (role === "teacher" || isAdmin); 
+            const isPending = (role === "teacher_pending");
 
-    } else { 
-        window.showScreen('screen-auth'); 
-    }
-});
+            if(isPending && !isAdmin) alert("⏳ Öğretmen hesabınız yönetici onayı bekliyor. Şimdilik öğrenci görünümündesiniz.");
+            
+            if (instPanel) instPanel.style.display = isTeacher ? "block" : "none";
+            if (studentArea) studentArea.style.display = isTeacher ? "none" : "block"; 
+            if (studentLibPanel) studentLibPanel.style.display = isTeacher ? "none" : "block";
+            if (adminBtn) adminBtn.style.display = isAdmin ? "block" : "none";
+            if (adminApproveBtn) adminApproveBtn.style.display = isAdmin ? "block" : "none";
+
+            const stdClassCode = localStorage.getItem("gazi_class_code");
+            if(stdClassCode && !isTeacher) { 
+                const classCodeInput = document.getElementById('class-code-input');
+                if(classCodeInput) classCodeInput.value = stdClassCode; 
+                const btnClassQ = document.getElementById('btn-class-questions');
+                if(btnClassQ) btnClassQ.style.display = 'block'; 
+            }
+
+            if(typeof window.socket !== 'undefined' && window.socket) {
+                if (isTeacher) window.socket.emit("getTeacherClass", user.email);
+                window.socket.emit("getFilters", window.myClassCode || "");
+                if (!isTeacher) window.socket.emit("checkNotebookReviews", realName);
+            }
+
+            const savedSubjects = JSON.parse(localStorage.getItem('gazi_subjects_v2')) || [];
+            const dersSelect = document.getElementById('std-q-ders');
+            if(dersSelect) { 
+                dersSelect.innerHTML = savedSubjects.length > 0 
+                    ? savedSubjects.map(s => `<option value="${s.name}">${s.name}</option>`).join('') 
+                    : `<option value="Genel">Genel</option>`; 
+            }
+
+            const onboardingDone = localStorage.getItem('gazi_onboarding_done');
+            if(!isTeacher && !onboardingDone) {
+                const hasSeenIntro = localStorage.getItem('gazi_intro_seen');
+                const introOverlay = document.getElementById('intro-overlay');
+                if(!hasSeenIntro && introOverlay) { 
+                    introOverlay.style.display = 'flex'; 
+                } else { 
+                    if(typeof window.openSettingsPanel === 'function') window.openSettingsPanel(); 
+                }
+            } else { 
+                if(typeof window.showScreen === 'function') window.showScreen('screen-main'); 
+            }
+
+        } else { 
+            if(typeof window.showScreen === 'function') window.showScreen('screen-auth'); 
+        }
+    });
+};
 
 window.logout = () => signOut(auth).then(() => location.reload());
