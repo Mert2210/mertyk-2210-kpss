@@ -31,7 +31,7 @@
     <div id="slide-2" class="intro-slide">
         <div class="intro-icon">🧠</div>
         <div class="intro-title">Akıllı Tekrar Sistemi</div>
-        <div class="intro-text">Soruları eklerken "Bana 3 gün sonra hatırlat" de. Sistem sana tam zamanında o soruyu tekrar çözdürerek hafızana kazısın.</div>
+        <div class="intro-text">Soruları eklerken esnek erteleme seçeneklerini kullan. Sistem sana tam zamanında o soruyu tekrar çözdürerek hafızana kazısın.</div>
         <div class="intro-dots"><span class="dot"></span><span class="dot active"></span><span class="dot"></span></div>
         <button onclick="nextSlide(3)" class="orange" style="width: 200px; font-size: 1.2rem;">İleri ➡️</button>
     </div>
@@ -74,6 +74,7 @@
 </div>
 
 <div class="container">
+    
     <div id="screen-auth" class="screen active">
         <div class="role-toggle">
             <div id="btn-main-student" class="role-btn active" onclick="setMainRole('student')">🧑‍🎓 Öğrenci</div>
@@ -197,12 +198,31 @@
                     
                     <img id="std-img-preview" src="" style="width:100%; max-height:200px; object-fit:contain; display:none; margin-bottom:10px; border-radius:8px; border: 2px solid #3498db;">
                     
-                    <div style="display:flex; gap:5px; margin-bottom:8px;">
-                        <select id="std-q-ders" style="flex:1; font-weight:bold; border-color:#ccc;"><option value="Genel">Genel</option></select>
-                        <input type="text" id="std-q-konu" placeholder="Alt Konu" style="flex:1; margin:0;">
-                    </div>
-                    <input type="text" id="std-q-kitap" placeholder="Kitap / Kaynak / Yıl">
+                    <div id="dynamic-selection-area" style="background: #fdfdfd; padding: 10px; border-radius: 8px; border: 1px solid #ddd; margin-bottom:10px; text-align:left; position:relative;">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <label style="font-size:0.75rem; font-weight:bold; color:#1e3c72;">🎯 Sınav Türü:</label>
+                            <span id="mem-badge" style="font-size:0.65rem; background:#27ae60; color:#fff; padding:2px 6px; border-radius:4px; display:none;">💾 Hafızadan Yüklendi</span>
+                        </div>
+                        <div id="box-exams" class="chip-container"></div>
+                        
+                        <div id="area-kpss-group" style="display:none; margin-top:10px;">
+                            <label style="font-size:0.75rem; font-weight:bold; color:#1e3c72;">📚 Grup / Bölüm:</label>
+                            <div id="box-kpss-group" class="chip-container"></div>
+                        </div>
 
+                        <div id="area-ders" style="display:none; margin-top:10px;">
+                            <label style="font-size:0.75rem; font-weight:bold; color:#1e3c72;">📖 Ders:</label>
+                            <div id="box-dersler" class="chip-container"></div>
+                        </div>
+
+                        <div id="area-konu" style="display:none; margin-top:10px;">
+                            <label style="font-size:0.75rem; font-weight:bold; color:#1e3c72;">📝 Konu:</label>
+                            <div id="box-konular" class="chip-container"></div>
+                            <input type="text" id="custom-konu-input" class="custom-input" placeholder="Konu listede yoksa buraya yazın (Özel Etiket)...">
+                        </div>
+                    </div>
+
+                    <input type="text" id="std-q-kitap" placeholder="Kitap / Kaynak / Test No (Örn: Yargı TG-1)">
                     <textarea id="std-q-text" placeholder="Soru metni veya kendine notun..."></textarea>
                     
                     <div style="background: #e8f4f8; padding: 12px; border-radius: 8px; margin-bottom:10px; border: 1px dashed #3498db;">
@@ -321,51 +341,14 @@
             <h3 style="margin:0; color:#8e44ad;">⚙️ Çalışma Masam</h3>
             <button onclick="window.showScreen('screen-main')" class="outline" style="width:auto; padding:8px; font-size:0.8rem;">⬅️ İptal</button>
         </div>
-        
         <div style="background:#fdfdfd; padding:20px; border-radius:12px; text-align:left; border: 1px solid #ddd; box-shadow:0 10px 25px rgba(0,0,0,0.05);">
             <h4 style="color:#1e3c72; border-bottom:2px solid #eee; padding-bottom:8px; margin-top:0;">👤 Hesap Bilgileri</h4>
             <input type="text" id="profile-new-name" placeholder="Kullanıcı Adı / İsim" style="background:#f1f2f6;">
-            
             <div id="password-update-area" style="background:#fff3f3; padding:10px; border-radius:8px; border:1px solid #f5c6cb; margin-bottom:15px; margin-top:5px;">
                 <label style="font-size:0.75rem; font-weight:bold; color:#c0392b; display:block; margin-bottom:5px;">Şifre Güncelle (İsteğe Bağlı)</label>
                 <input type="password" id="profile-old-pass" placeholder="Mevcut (Eski) Şifreniz" style="margin-bottom:5px; font-size:0.85rem;">
                 <input type="password" id="profile-new-pass" placeholder="Yeni Şifre Belirleyin" style="margin-bottom:0; font-size:0.85rem;">
             </div>
-
-            <h4 style="color:#1e3c72; border-bottom:2px solid #eee; padding-bottom:8px; margin-top:20px;">🎯 Hedef Sınavınız</h4>
-            <select id="profile-exam-type" style="margin-bottom:15px; font-weight:bold; border-color:#3498db; color:#1e3c72;" onchange="updateGradeDropdown()">
-                <option value="kpss_lisans">KPSS Lisans</option>
-                <option value="kpss_onlisans">KPSS Ön Lisans</option>
-                <option value="kpss_ortaogretim">Ortaöğretim</option>
-                <option value="kpss_egitim">KPSS Eğitim Bilimleri</option>
-                <option value="yks_tyt">YKS - TYT</option>
-                <option value="yks_ayt">YKS - AYT</option>
-                <option value="lise_okul">Lise (Okul Dersleri)</option>
-                <option value="ortaokul">Ortaokul (LGS)</option>
-            </select>
-
-            <div id="grade-selection-area" style="display:none; margin-bottom:20px; background:#f9f9f9; padding:10px; border-radius:8px; border:1px solid #eee;">
-                <label style="font-size:0.75rem; font-weight:bold; color:#c0392b; margin-bottom:5px; display:block;">🏫 BULUNDUĞUNUZ SINIF:</label>
-                <div id="grade-boxes" style="display:flex; gap:8px; flex-wrap:wrap;"></div>
-                <input type="hidden" id="profile-grade" value="">
-            </div>
-
-            <h4 style="color:#1e3c72; border-bottom:2px solid #eee; padding-bottom:8px; margin-top:20px;">📚 Sorumlu Olduğunuz Dersler</h4>
-            <p style="font-size:0.75rem; color:#666; margin-top:0;">Dersleri seçip yanlarına çalışacağınız alt konuları belirtebilirsiniz.</p>
-            
-            <div id="profile-subjects-area" style="max-height: 250px; overflow-y:auto; background:#fff; padding:8px; border-radius:8px; border:1px solid #ddd;">
-                <div class="subject-row"><input type="checkbox" id="subj-tarih" value="Tarih"><label for="subj-tarih">Tarih</label><input type="text" id="topic-tarih" placeholder="Alt Konu"></div>
-                <div class="subject-row"><input type="checkbox" id="subj-cografya" value="Coğrafya"><label for="subj-cografya">Coğrafya</label><input type="text" id="topic-cografya" placeholder="Alt Konu"></div>
-                <div class="subject-row"><input type="checkbox" id="subj-vatandaslik" value="Vatandaşlık"><label for="subj-vatandaslik">Vatandaşlık</label><input type="text" id="topic-vatandaslik" placeholder="Alt Konu"></div>
-                <div class="subject-row"><input type="checkbox" id="subj-matematik" value="Matematik"><label for="subj-matematik">Matematik</label><input type="text" id="topic-matematik" placeholder="Alt Konu"></div>
-                <div class="subject-row"><input type="checkbox" id="subj-turkce" value="Türkçe"><label for="subj-turkce">Türkçe</label><input type="text" id="topic-turkce" placeholder="Alt Konu"></div>
-                <div class="subject-row"><input type="checkbox" id="subj-egitim" value="Eğitim Bilimleri"><label for="subj-egitim">Eğitim Bil.</label><input type="text" id="topic-egitim" placeholder="Alt Konu"></div>
-                <div class="subject-row"><input type="checkbox" id="subj-fizik" value="Fizik"><label for="subj-fizik">Fizik</label><input type="text" id="topic-fizik" placeholder="Alt Konu"></div>
-                <div class="subject-row"><input type="checkbox" id="subj-kimya" value="Kimya"><label for="subj-kimya">Kimya</label><input type="text" id="topic-kimya" placeholder="Alt Konu"></div>
-                <div class="subject-row"><input type="checkbox" id="subj-biyoloji" value="Biyoloji"><label for="subj-biyoloji">Biyoloji</label><input type="text" id="topic-biyoloji" placeholder="Alt Konu"></div>
-                <div class="subject-row"><input type="checkbox" id="subj-fen" value="Fen Bilimleri"><label for="subj-fen">Fen Bilimleri</label><input type="text" id="topic-fen" placeholder="Alt Konu"></div>
-            </div>
-
             <button onclick="saveProfileSettings()" class="green" style="margin-top:20px; width:100%; padding:15px; font-size:1.1rem; border-radius:10px;">💾 Masamı ve Ayarlarımı Kaydet</button>
         </div>
     </div>
@@ -383,14 +366,12 @@
             <h3 id="list-title" style="margin:0;">Liste</h3>
             <button id="pdf-btn" onclick="downloadPDF()" class="orange" style="width:auto; font-size:0.8rem; padding:8px 12px;">📄 PDF İndir</button>
         </div>
-        
         <div id="library-filter-area" class="filter-section" style="display:none;">
             <label style="font-size:0.75rem; font-weight:bold; color:#1e3c72; display:block;">🔍 SORULARI FİLTRELE</label>
             <select id="filter-ders" onchange="applyLibraryFilters()"><option value="ALL">Tüm Dersler</option></select>
             <select id="filter-konu" onchange="applyLibraryFilters()"><option value="ALL">Tüm Konular</option></select>
             <select id="filter-kitap" onchange="applyLibraryFilters()"><option value="ALL">Tüm Kaynaklar/Kitaplar</option></select>
         </div>
-
         <div id="list-content" style="max-height: 400px; overflow-y: auto; text-align:left; color:#333; padding-bottom:20px;"></div>
         <button onclick="showScreen('screen-main')" class="outline" style="margin-top:15px;">⬅️ Kapat</button>
     </div>
@@ -420,23 +401,12 @@
             </div>
             <label style="font-size:0.75rem; font-weight:bold; margin-top:10px; display:block;">SORU SAYISI</label>
             <input type="number" id="set-count" value="10">
-            <label style="font-size:0.75rem; font-weight:bold; margin-top:10px; display:block;">KONU SEÇİMİ</label>
-            <div class="dropdown-wrapper">
-                <div class="dropdown-trigger" id="ders-trigger" onclick="toggleDropdown('ders-content')">Konular Yükleniyor... ▼</div>
-                <div id="ders-content" class="dropdown-content"></div>
-            </div>
-            <label style="font-size:0.75rem; font-weight:bold; margin-top:10px; display:block;">KAYNAK SEÇİMİ</label>
-            <div class="dropdown-wrapper">
-                <div class="dropdown-trigger" id="deneme-trigger" onclick="toggleDropdown('deneme-content')">Kaynaklar Yükleniyor... ▼</div>
-                <div id="deneme-content" class="dropdown-content"></div>
-            </div>
             <button onclick="startGame()" class="green" style="margin-top:20px; width:100%;">🚀 SINAVI BAŞLAT</button>
         </div>
     </div>
 
     <div id="screen-game" class="screen">
         <div id="live-leaderboard" style="font-size:0.8rem; background:rgba(0,0,0,0.2); padding:8px; border-radius:5px; margin-bottom:10px; color:#f1c40f; font-weight:bold; display:none;">Canlı Skor: Bekleniyor...</div>
-        
         <div style="display:flex; justify-content:space-between; align-items:center;">
             <div class="timer-container" style="flex:1;">
                 <div id="box-total" class="timer-box" style="background:#2980b9;">⌛ <span id="time-total">--:--</span></div>
@@ -444,24 +414,18 @@
             </div>
             <button onclick="document.getElementById('question-navigator').classList.toggle('show-map')" class="outline" style="width:auto; padding:8px; margin-left:10px;">🗺️ Harita</button>
         </div>
-        
         <div id="question-navigator"></div>
-        
         <div id="trial-nav-buttons" style="display:none; justify-content:space-between; margin-top:15px;">
             <button onclick="trialPrev()" class="outline" style="width:48%;">⬅️ Geri</button>
             <button onclick="trialNext()" class="outline" style="width:48%;">İleri ➡️</button>
         </div>
-        
         <div style="position:relative; margin-top:15px; min-height: 40px;">
             <button onclick="reportQuestion()" style="position:absolute; left:0; top:0; background:transparent; border:none; font-size:1.4rem; color:#c0392b; width:auto; padding:0; cursor:pointer;" title="Hatalı Soru Bildir">🚨</button>
             <button id="btn-fav-current" onclick="toggleFavCurrent()" style="position:absolute; right:0; top:0; background:transparent; border:none; font-size:1.6rem; color:#ccc; width:auto; padding:0; cursor:pointer;">☆</button>
-            
             <img id="q-image-display" src="" style="width:100%; border-radius:10px; margin-top:30px; display:none;">
             <h3 id="q-text" style="text-align:left; line-height:1.4; margin:10px 0 0 0; padding: 0 40px;">Soru Yükleniyor...</h3>
         </div>
-        
         <div id="opts-area" style="margin-top:20px;"></div>
-        
         <button id="btn-finish-trial" onclick="finishTrial()" class="red" style="margin-top:20px; display:none;">🛑 Sınavı Bitir</button>
     </div>
 
@@ -471,7 +435,6 @@
         <button onclick="showLocalList('wrong')" class="orange" style="margin-top:15px;">🔍 YANLIŞLARI İNCELE</button>
         <button onclick="location.reload()" class="outline" style="margin-top:10px;">ANA MENÜ</button>
     </div>
-
 </div>
 
 <script type="module" src="app.js"></script>
