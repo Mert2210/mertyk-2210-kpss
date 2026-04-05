@@ -16,6 +16,189 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const messaging = getMessaging(app);
 
+// 🚨 YENİ NESİL MÜFREDAT AĞACI VE KAPSÜL (BUTON) SİSTEMİ BAŞLANGICI 🚨
+window.mufredat = {
+    "KPSS": {
+        "A Grubu": {
+            "Muhasebe": ["Genel Muhasebe", "Maliyet Muhasebesi", "Mali Tablolar Analizi"],
+            "İktisat": ["Mikro İktisat", "Makro İktisat", "Türkiye Ekonomisi"],
+            "Maliye": ["Kamu Maliyesi", "Bütçe", "Vergi Hukuku"],
+            "Hukuk": ["Anayasa", "İdare", "Ceza", "Medeni Hukuk"]
+        },
+        "B Grubu (Tümü)": {
+            "Türkçe": ["Sözcükte Anlam", "Cümlede Anlam", "Paragraf", "Dil Bilgisi", "Sözel Mantık"],
+            "Matematik": ["Temel Kavramlar", "Rasyonel Sayılar", "Problemler", "Sayısal Mantık", "Geometri"],
+            "Tarih": ["İslamiyet Öncesi", "Osmanlı Devleti", "İnkılap Tarihi", "Çağdaş Türk ve Dünya"],
+            "Coğrafya": ["Türkiye Fiziki", "Türkiye Beşeri", "Türkiye Ekonomik"],
+            "Vatandaşlık": ["Hukukun Temel Kavramları", "Anayasa Hukuku", "İdare Hukuku", "Güncel Bilgiler"]
+        },
+        "Eğitim Bilimleri": {
+            "Gelişim Psikolojisi": ["Bilişsel Gelişim", "Kişilik Gelişimi", "Ahlak Gelişimi"],
+            "Öğrenme Psikolojisi": ["Davranışçı Kuramlar", "Bilişsel Kuramlar"],
+            "Ölçme ve Değerlendirme": ["Temel Kavramlar", "İstatistik", "Test Hazırlama"]
+        }
+    },
+    "YKS": {
+        "TYT": {
+            "Türkçe": ["Anlam Bilgisi", "Dil Bilgisi", "Noktalama İşaretleri"],
+            "Matematik": ["Sayılar", "Problemler", "Olasılık"],
+            "Fen Bilimleri": ["Fizik", "Kimya", "Biyoloji"],
+            "Sosyal Bilgiler": ["Tarih", "Coğrafya", "Felsefe", "Din K."]
+        },
+        "AYT": {
+            "Matematik": ["Polinom", "Türev", "İntegral", "Logaritma", "Trigonometri"],
+            "Edebiyat": ["Şiir Bilgisi", "Divan Edebiyatı", "Cumhuriyet Dönemi"],
+            "Fen Bilimleri": ["AYT Fizik", "AYT Kimya", "AYT Biyoloji"]
+        }
+    },
+    "MEB AGS": {
+        "Ortak": {
+            "Eğitim Bilimleri": ["Eğitime Giriş", "Öğretim İlke ve Yöntemleri"],
+            "Genel Kültür": ["Türkçe", "Tarih", "Eğitim Mevzuatı"]
+        }
+    },
+    "LGS": {
+        "Sayısal": {
+            "Matematik": ["Çarpanlar", "Kareköklü Sayılar", "Veri Analizi"],
+            "Fen Bilimleri": ["Mevsimler", "DNA ve Genetik Kod", "Basınç"]
+        },
+        "Sözel": {
+            "Türkçe": ["Paragraf", "Fiilimsiler", "Cümlenin Ögeleri"],
+            "İnkılap Tarihi": ["Bir Kahraman Doğuyor", "Milli Uyanış"],
+            "İngilizce": ["Kelime Bilgisi", "Okuduğunu Anlama"]
+        }
+    }
+};
+
+window.secilenSinav = "";
+window.secilenGrup = "";
+window.secilenDers = "";
+window.secilenKonu = "";
+
+window.initEtiketleme = () => {
+    const mem = JSON.parse(localStorage.getItem('gazi_sticky_memory')) || {};
+    if(mem.exam) window.secilenSinav = mem.exam;
+    if(mem.group) window.secilenGrup = mem.group;
+    if(mem.subject) window.secilenDers = mem.subject;
+    if(mem.topic) window.secilenKonu = mem.topic;
+    if(mem.book) {
+        const bookInput = document.getElementById('std-q-kitap');
+        if (bookInput) bookInput.value = mem.book;
+    }
+
+    if(mem.exam) {
+        const memBadge = document.getElementById('mem-badge');
+        if (memBadge) memBadge.style.display = "inline-block";
+    }
+
+    window.renderExams(mem.exam ? true : false);
+};
+
+window.renderExams = (fromMemory = false) => {
+    const container = document.getElementById('box-exams');
+    if (!container) return;
+    const exams = Object.keys(window.mufredat);
+    container.innerHTML = exams.map(ex => `<div class="chip ${window.secilenSinav === ex ? 'active' : ''}" onclick="window.selectExam('${ex}')">${ex}</div>`).join('');
+    if(fromMemory && window.secilenSinav) window.selectExam(window.secilenSinav, true);
+};
+
+window.selectExam = (ex, fromMemory = false) => {
+    window.secilenSinav = ex;
+    if(!fromMemory) { window.secilenGrup = ""; window.secilenDers = ""; window.secilenKonu = ""; 
+        const memBadge = document.getElementById('mem-badge');
+        if (memBadge) memBadge.style.display = "none"; 
+    }
+    
+    document.querySelectorAll('#box-exams .chip').forEach(c => c.classList.remove('active'));
+    if(event && event.target) event.target.classList.add('active');
+    
+    window.renderGroups(fromMemory);
+};
+
+window.renderGroups = (fromMemory = false) => {
+    const container = document.getElementById('box-kpss-group');
+    const area = document.getElementById('area-kpss-group');
+    if (!container || !area) return;
+
+    if(!window.secilenSinav || !window.mufredat[window.secilenSinav]) { area.style.display = 'none'; return; }
+    
+    const groups = Object.keys(window.mufredat[window.secilenSinav]);
+    area.style.display = 'block';
+    container.innerHTML = groups.map(g => `<div class="chip ${window.secilenGrup === g ? 'active' : ''}" onclick="window.selectGroup('${g}')">${g}</div>`).join('');
+    
+    if(fromMemory && window.secilenGrup) window.selectGroup(window.secilenGrup, true);
+    else {
+        const areaDers = document.getElementById('area-ders');
+        if (areaDers) areaDers.style.display = 'none';
+    }
+};
+
+window.selectGroup = (g, fromMemory = false) => {
+    window.secilenGrup = g;
+    if(!fromMemory) { window.secilenDers = ""; window.secilenKonu = ""; }
+    
+    document.querySelectorAll('#box-kpss-group .chip').forEach(c => c.classList.remove('active'));
+    if(event && event.target) event.target.classList.add('active');
+
+    window.renderSubjects(fromMemory);
+};
+
+window.renderSubjects = (fromMemory = false) => {
+    const container = document.getElementById('box-dersler');
+    const area = document.getElementById('area-ders');
+    if (!container || !area) return;
+
+    if(!window.secilenSinav || !window.secilenGrup || !window.mufredat[window.secilenSinav][window.secilenGrup]) { area.style.display = 'none'; return; }
+    
+    const subjects = Object.keys(window.mufredat[window.secilenSinav][window.secilenGrup]);
+    area.style.display = 'block';
+    container.innerHTML = subjects.map(s => `<div class="chip ${window.secilenDers === s ? 'active' : ''}" onclick="window.selectSubject('${s}')">${s}</div>`).join('');
+    
+    if(fromMemory && window.secilenDers) window.selectSubject(window.secilenDers, true);
+    else {
+        const areaKonu = document.getElementById('area-konu');
+        if (areaKonu) areaKonu.style.display = 'none';
+    }
+};
+
+window.selectSubject = (s, fromMemory = false) => {
+    window.secilenDers = s;
+    if(!fromMemory) window.secilenKonu = "";
+    
+    document.querySelectorAll('#box-dersler .chip').forEach(c => c.classList.remove('active'));
+    if(event && event.target) event.target.classList.add('active');
+
+    window.renderTopics(fromMemory);
+};
+
+window.renderTopics = (fromMemory = false) => {
+    const container = document.getElementById('box-konular');
+    const area = document.getElementById('area-konu');
+    if (!container || !area) return;
+
+    if(!window.secilenDers) { area.style.display = 'none'; return; }
+    
+    let topics = window.mufredat[window.secilenSinav][window.secilenGrup][window.secilenDers] || [];
+    const customTopics = JSON.parse(localStorage.getItem('gazi_custom_topics')) || {};
+    if(customTopics[window.secilenDers]) topics = [...topics, ...customTopics[window.secilenDers]];
+
+    area.style.display = 'block';
+    container.innerHTML = topics.map(t => `<div class="chip ${window.secilenKonu === t ? 'active' : ''}" onclick="window.selectTopic('${t}')">${t}</div>`).join('');
+};
+
+window.selectTopic = (t) => {
+    window.secilenKonu = t;
+    document.querySelectorAll('#box-konular .chip').forEach(c => c.classList.remove('active'));
+    if(event && event.target) event.target.classList.add('active');
+    const customInput = document.getElementById('custom-konu-input');
+    if (customInput) customInput.value = ""; 
+};
+
+document.addEventListener("DOMContentLoaded", () => {
+    setTimeout(() => { window.initEtiketleme(); }, 500);
+});
+// 🚨 YENİ NESİL MÜFREDAT AĞACI BİTİŞ 🚨
+
 // 🚨 TEMEL ARAYÜZ VE PWA FONKSİYONLARI 🚨
 window.onload = () => { 
     window.updateRegGradeDropdown(); 
@@ -218,7 +401,6 @@ window.openSettingsPanel = () => {
     showScreen('screen-settings');
 };
 
-// 🚨 FİREBASE KULLANICI İŞLEMLERİ 🚨
 window.saveProfileSettings = () => {
     const user = auth.currentUser; 
     const newName = document.getElementById('profile-new-name').value.trim(); 
@@ -410,7 +592,6 @@ onAuthStateChanged(auth, user => {
 
 window.logout = () => signOut(auth).then(() => location.reload());
 
-// 🚨 OYUN MANTIĞI VE SOCKET İŞLEMLERİ 🚨
 let socket; 
 try { socket = io(); } catch(e) { console.warn("Socket sunucusu yok."); }
 let currentMode = "room", myRoom = "", currentQIndex = 0, qInt = null, totalInt = null, trialQuestions = [], trialAnswers = [];
@@ -619,11 +800,18 @@ window.uploadQuestion = () => {
     alert(`✅ Soru (ve varsa çözümü) kütüphanenize eklendi!`);
 };
 
+// 🚨 YENİ GÜNCELLENMİŞ ÖĞRENCİ SORU YÜKLEME KODU (HAFIZALI) 🚨
 window.uploadStudentQuestion = (target = 'cloud') => {
-    const qDersObj = document.getElementById('std-q-ders'); 
-    const qDers = qDersObj ? qDersObj.value : 'Genel';
-    const qKitap = document.getElementById('std-q-kitap').value.trim(); 
-    const qKonu = document.getElementById('std-q-konu').value.trim();
+    const customKonuInput = document.getElementById('custom-konu-input');
+    const customKonu = customKonuInput ? customKonuInput.value.trim() : "";
+    const finalTopic = customKonu || window.secilenKonu || "Genel Konu";
+    const finalDers = window.secilenDers || "Genel Ders";
+    
+    const stdQKitap = document.getElementById('std-q-kitap');
+    const qKitap = stdQKitap ? stdQKitap.value.trim() : ""; 
+    
+    if(!qKitap || finalTopic === "Genel Konu" || finalDers === "Genel Ders") return alert("Komutanım, lütfen Sınav, Ders, Konu ve Kaynak alanlarını eksiksiz doldurun!");
+    
     const qText = document.getElementById('std-q-text').value.trim(); 
     const qSolText = document.getElementById('std-q-sol-text').value.trim(); 
     const correctIdx = parseInt(document.getElementById('std-q-correct-idx').value) || 0;
@@ -632,15 +820,30 @@ window.uploadStudentQuestion = (target = 'cloud') => {
     const reminderDays = parseFloat(document.getElementById('std-q-reminder').value) || 1;
     const nextReviewDate = Date.now() + (reminderDays * 24 * 60 * 60 * 1000); 
 
-    if(!qKitap || !qKonu) return alert("Lütfen Kitap/Kaynak ve Konu alanlarını doldurun!");
     if(!stdUploadedImageBase64 && !qText) return alert("Lütfen bir fotoğraf yükleyin veya kendinize bir not yazın!");
+
+    if(customKonu && finalDers !== "Genel Ders") {
+        let customTopics = JSON.parse(localStorage.getItem('gazi_custom_topics')) || {};
+        if(!customTopics[finalDers]) customTopics[finalDers] = [];
+        if(!customTopics[finalDers].includes(customKonu)) {
+            customTopics[finalDers].push(customKonu);
+            localStorage.setItem('gazi_custom_topics', JSON.stringify(customTopics));
+        }
+    }
+
+    localStorage.setItem('gazi_sticky_memory', JSON.stringify({
+        exam: window.secilenSinav, group: window.secilenGrup, subject: finalDers, topic: finalTopic, book: qKitap
+    }));
+    
+    const memBadge = document.getElementById('mem-badge');
+    if (memBadge) memBadge.style.display = "inline-block";
 
     const q = { 
         id: 'local_' + Date.now(), 
         studentName: studentName, 
-        ders: qDers, 
+        ders: finalDers, 
         kitap: qKitap, 
-        konu: qKonu, 
+        konu: finalTopic, 
         not: qText, 
         image: stdUploadedImageBase64, 
         nextReviewDate: nextReviewDate, 
@@ -663,13 +866,13 @@ window.uploadStudentQuestion = (target = 'cloud') => {
         alert(`💾 Soru CİHAZINIZA başarıyla kaydedildi!\nİnternetsiz de çözebilirsiniz.`);
     }
     
-    document.getElementById('std-q-kitap').value = ""; 
-    document.getElementById('std-q-konu').value = ""; 
     document.getElementById('std-q-text').value = ""; 
     document.getElementById('std-q-sol-text').value = ""; 
-    document.getElementById('std-img-preview').style.display = "none"; 
+    const stdImgPreview = document.getElementById('std-img-preview');
+    if (stdImgPreview) stdImgPreview.style.display = "none"; 
     stdUploadedImageBase64 = null; 
     stdSolutionBase64 = null;
+    if (customKonuInput) customKonuInput.value = "";
 };
 
 window.fetchStudentLibrary = (source = 'cloud', onlyReviews = false) => {
