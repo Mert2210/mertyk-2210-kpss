@@ -17,12 +17,24 @@
     <script src="/socket.io/socket.io.js"></script>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: #fff; text-align: center; margin: 0; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; overflow-y: auto; padding: 20px 0; }
-        .container { background: rgba(255,255,255,0.95); color: #333; width: 95%; max-width: 480px; padding: 20px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); margin-bottom: 20px; }
+        .container { background: rgba(255,255,255,0.95); color: #333; width: 95%; max-width: 480px; padding: 20px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); margin-bottom: 20px; position: relative;}
         h1, h2, h3, h4 { margin-top: 0; color: #1e3c72; }
         input, select, button, textarea { width: 100%; padding: 12px; margin-bottom: 8px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; font-size: 1rem; font-family: inherit; }
         button { background: #1e3c72; color: white; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; }
         button:hover { opacity: 0.9; } button.green { background: #27ae60; } button.orange { background: #e67e22; } button.red { background: #c0392b; } button.outline { background: transparent; border: 2px solid #1e3c72; color: #1e3c72; } button.gold { background: #f1c40f; color:#333; } button.blue { background: #3498db; }
         
+        /* İNTRO (ONBOARDING) EKRANI STİLLERİ */
+        #intro-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #1e3c72; z-index: 99999; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; padding: 20px; box-sizing: border-box; text-align: center; transition: opacity 0.5s; }
+        .intro-slide { display: none; flex-direction: column; align-items: center; animation: fadeIn 0.5s; }
+        .intro-slide.active { display: flex; }
+        .intro-icon { font-size: 5rem; margin-bottom: 20px; text-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .intro-title { font-size: 1.8rem; font-weight: bold; color: #f1c40f; margin-bottom: 15px; }
+        .intro-text { font-size: 1.1rem; line-height: 1.5; margin-bottom: 30px; max-width: 400px; }
+        .intro-dots { display: flex; gap: 10px; margin-bottom: 30px; }
+        .dot { width: 12px; height: 12px; background: rgba(255,255,255,0.3); border-radius: 50%; transition: 0.3s; }
+        .dot.active { background: #f1c40f; transform: scale(1.2); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
         #instructor-panel, #instructor-panel h4, #instructor-panel label { color: #ffffff !important; }
         #instructor-panel { background: #1e3c72 !important; border: 2px solid #e67e22; padding: 15px; border-radius: 10px; margin-top: 15px; }
 
@@ -84,9 +96,37 @@
         .subject-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; background: #fff; padding: 8px; border-radius: 8px; border: 1px solid #eee; }
         .subject-row label { width: 110px; font-weight: bold; color: #1e3c72; font-size: 0.85rem; text-align: left; margin: 0; }
         .subject-row input[type="text"] { flex: 1; margin: 0; padding: 8px; font-size: 0.8rem; border: 1px solid #ccc; border-radius: 6px; }
+
+        /* FİLTRELEME ALANI STİLLERİ */
+        .filter-section { background: #fdfdfd; border: 1px solid #e0e0e0; padding: 10px; border-radius: 8px; margin-bottom: 15px; }
+        .filter-section select { font-size: 0.85rem; padding: 8px; margin-bottom: 5px; border-color: #3498db; color: #1e3c72; font-weight: bold; }
     </style>
 </head>
 <body>
+
+<div id="intro-overlay" style="display:none;">
+    <div id="slide-1" class="intro-slide active">
+        <div class="intro-icon">📸</div>
+        <div class="intro-title">Yanlışlarını Biriktir</div>
+        <div class="intro-text">Sınavlarda veya testlerde yapamadığın soruların fotoğrafını çekip anında kendi dijital kumbarana atabilirsin.</div>
+        <div class="intro-dots"><span class="dot active"></span><span class="dot"></span><span class="dot"></span></div>
+        <button onclick="nextSlide(2)" class="orange" style="width: 200px; font-size: 1.2rem;">İleri ➡️</button>
+    </div>
+    <div id="slide-2" class="intro-slide">
+        <div class="intro-icon">🧠</div>
+        <div class="intro-title">Akıllı Tekrar Sistemi</div>
+        <div class="intro-text">Soruları eklerken "Bana 3 gün sonra hatırlat" de. Sistem sana tam zamanında o soruyu tekrar çözdürerek hafızana kazısın.</div>
+        <div class="intro-dots"><span class="dot"></span><span class="dot active"></span><span class="dot"></span></div>
+        <button onclick="nextSlide(3)" class="orange" style="width: 200px; font-size: 1.2rem;">İleri ➡️</button>
+    </div>
+    <div id="slide-3" class="intro-slide">
+        <div class="intro-icon">🏆</div>
+        <div class="intro-title">Sınıfına Katıl</div>
+        <div class="intro-text">Öğretmeninin verdiği sınıf koduyla canlı odalara katıl, rekabet dolu denemelerde rakiplerini geride bırak!</div>
+        <div class="intro-dots"><span class="dot"></span><span class="dot"></span><span class="dot active"></span></div>
+        <button onclick="finishIntro()" class="green" style="width: 200px; font-size: 1.2rem;">🚀 Başla!</button>
+    </div>
+</div>
 
 <div id="notification-toast">
     <span style="font-size:1.5rem;">🔔</span>
@@ -380,6 +420,14 @@
             <h3 id="list-title" style="margin:0;">Liste</h3>
             <button id="pdf-btn" onclick="downloadPDF()" class="orange" style="width:auto; font-size:0.8rem; padding:8px 12px;">📄 PDF İndir</button>
         </div>
+        
+        <div id="library-filter-area" class="filter-section" style="display:none;">
+            <label style="font-size:0.75rem; font-weight:bold; color:#1e3c72; display:block;">🔍 SORULARI FİLTRELE</label>
+            <select id="filter-ders" onchange="applyLibraryFilters()"><option value="ALL">Tüm Dersler</option></select>
+            <select id="filter-konu" onchange="applyLibraryFilters()"><option value="ALL">Tüm Konular</option></select>
+            <select id="filter-kitap" onchange="applyLibraryFilters()"><option value="ALL">Tüm Kaynaklar/Kitaplar</option></select>
+        </div>
+
         <div id="list-content" style="max-height: 400px; overflow-y: auto; text-align:left; color:#333; padding-bottom:20px;"></div>
         <button onclick="showScreen('screen-main')" class="outline" style="margin-top:15px;">⬅️ Kapat</button>
     </div>
@@ -464,6 +512,33 @@
 </div>
 
 <script>
+    // 🚨 İNTRO EKRANI MANTIĞI 🚨
+    window.onload = () => { 
+        window.updateRegGradeDropdown(); 
+        checkIntro();
+    };
+
+    function checkIntro() {
+        const hasSeenIntro = localStorage.getItem('gazi_intro_seen');
+        if (!hasSeenIntro) {
+            document.getElementById('intro-overlay').style.display = 'flex';
+        }
+    }
+
+    window.nextSlide = (slideNum) => {
+        document.querySelectorAll('.intro-slide').forEach(s => s.classList.remove('active'));
+        document.getElementById('slide-' + slideNum).classList.add('active');
+    };
+
+    window.finishIntro = () => {
+        document.getElementById('intro-overlay').style.opacity = '0';
+        setTimeout(() => {
+            document.getElementById('intro-overlay').style.display = 'none';
+            localStorage.setItem('gazi_intro_seen', 'true');
+        }, 500);
+    };
+
+
     let deferredPrompt;
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault(); deferredPrompt = e; document.getElementById('pwa-install-btn').style.display = 'block';
@@ -518,7 +593,6 @@
             area.style.display = 'none';
         }
     };
-    window.onload = () => { window.updateRegGradeDropdown(); };
 
     window.updateGradeDropdown = () => {
         const type = document.getElementById('profile-exam-type').value;
@@ -665,7 +739,6 @@
         const studentLibPanel = document.getElementById('student-library-panel');
 
         if (user) { 
-            // 🚨 UNNAMED HATASI ÇÖZÜMÜ 🚨
             let nameFromAuth = user.displayName;
             if (!nameFromAuth || nameFromAuth.split('|')[0].trim() === "") {
                 const fallbackName = user.email ? user.email.split('@')[0] : (user.isAnonymous ? "Misafir-" + user.uid.substring(0,4) : "Gazi Adayı");
@@ -729,6 +802,7 @@
     let stdUploadedImageBase64 = null; 
     let stdSolutionBase64 = null; 
     window.tempStdQuestions = []; 
+    window.originalStdQuestions = []; // Filtreleme için orijinal listeyi tutacak depo
 
     window.setTimerMode = (mode) => {
         selectedTimerMode = mode;
@@ -908,6 +982,87 @@
         }
     };
 
+    // 🚨 KÜTÜPHANE FİLTRELEME FONKSİYONLARI 🚨
+    window.applyLibraryFilters = () => {
+        const secilenDers = document.getElementById('filter-ders').value;
+        const secilenKonu = document.getElementById('filter-konu').value;
+        const secilenKitap = document.getElementById('filter-kitap').value;
+
+        let filteredData = window.originalStdQuestions.filter(q => {
+            let dersMatch = (secilenDers === "ALL" || (q.ders && q.ders === secilenDers));
+            let konuMatch = (secilenKonu === "ALL" || (q.konu && q.konu === secilenKonu));
+            let kitapMatch = (secilenKitap === "ALL" || (q.kitap && q.kitap === secilenKitap));
+            return dersMatch && konuMatch && kitapMatch;
+        });
+
+        // Ekrana sadece filtrelenenleri bas (Filter dropdownları yeniden oluşturma!)
+        renderStudentLibraryListOnly(filteredData);
+    };
+
+    function populateLibraryFilters(data) {
+        const dersler = new Set();
+        const konular = new Set();
+        const kitaplar = new Set();
+
+        data.forEach(q => {
+            if (q.ders) dersler.add(q.ders);
+            if (q.konu) konular.add(q.konu);
+            if (q.kitap) kitaplar.add(q.kitap);
+        });
+
+        const filterDers = document.getElementById('filter-ders');
+        const filterKonu = document.getElementById('filter-konu');
+        const filterKitap = document.getElementById('filter-kitap');
+
+        filterDers.innerHTML = '<option value="ALL">Tüm Dersler</option>' + Array.from(dersler).map(d => `<option value="${d}">${d}</option>`).join('');
+        filterKonu.innerHTML = '<option value="ALL">Tüm Konular</option>' + Array.from(konular).map(k => `<option value="${k}">${k}</option>`).join('');
+        filterKitap.innerHTML = '<option value="ALL">Tüm Kaynaklar/Kitaplar</option>' + Array.from(kitaplar).map(k => `<option value="${k}">${k}</option>`).join('');
+    }
+
+    function renderStudentLibraryListOnly(data) {
+        window.tempStdQuestions = data; 
+        const div = document.getElementById('list-content');
+        
+        if(data.length === 0) {
+            div.innerHTML = "<p style='text-align:center;'>Bu filtreye uygun soru bulunamadı.</p>"; 
+        } else {
+            div.innerHTML = data.map((q, i) => {
+                const isLocal = document.getElementById('list-title').innerText.includes("Cihaz");
+                return `
+                <div class="list-item" style="border: 2px solid #e67e22; background:#fff;">
+                    <span style="background:#1e3c72; color:#fff; padding:3px 8px; border-radius:4px; font-size:0.75rem; font-weight:bold;">${q.ders || 'Genel'}</span> 
+                    <b style="color:#e67e22; margin-left:5px;">${q.konu}</b><br>
+                    <small style="color:#666;"><b>Kaynak:</b> ${q.kitap}</small><br>
+                    ${q.not ? `<small><b>Soru Notu:</b> ${q.not}</small><br>` : ''}
+                    ${q.image ? `<img src="${q.image}" style="width:100%; border-radius:5px; margin-top:5px;">` : ''}
+                    
+                    <div class="abcde-grid" id="std-qbox-${i}">
+                        ${['A','B','C','D','E'].map((s, idx) => `<button class="abcde-btn" onclick="checkStdAnswer(this, ${idx}, ${i})">${s}</button>`).join('')}
+                    </div>
+                    <div id="sol-std-qbox-${i}" style="display:none; margin-top:10px; padding:10px; background:#e8f4f8; border-radius:8px; font-size:0.8rem; color:#333; text-align:left;"></div>
+                    
+                    <div style="display:flex; gap:5px; margin-top:10px;">
+                        ${q.id ? `<button onclick="updateReviewDate('${q.id}', ${isLocal})" class="outline" style="flex:2; font-size:0.8rem; border-color:#27ae60; color:#27ae60;">✅ Tekrar Ettim (Ertele)</button>` : ''}
+                        <button onclick="reportQuestionFromLibrary(${i})" class="outline" style="flex:1; font-size:0.8rem; border-color:#c0392b; color:#c0392b;">🚨 Bildir</button>
+                    </div>
+                </div>`;
+            }).join(''); 
+        }
+    }
+
+    function renderStudentLibraryHTML(data, title) {
+        window.originalStdQuestions = data; // Orijinal yedeği al
+        currentListType = "student_library"; 
+        document.getElementById('list-title').innerText = title; 
+        
+        // Filtreleme alanını göster
+        document.getElementById('library-filter-area').style.display = 'block';
+        populateLibraryFilters(data); // Dropdown'ları doldur
+
+        renderStudentLibraryListOnly(data); // Listeyi bas
+        showScreen('screen-list');
+    }
+
     window.updateReviewDate = (questionId, isLocal = false) => {
         const d = prompt("Harika! Bu soruyu tekrar ettin. Peki sana bir daha kaç GÜN SONRA hatırlatayım? (Sadece rakam yazın, örn: 3)");
         const days = parseInt(d);
@@ -948,37 +1103,6 @@
         sDiv.innerHTML = `<b>✏️ Çözüm Notu:</b><br>${q.solutionText || 'Yazılı çözüm notu bulunmuyor.'}<br>${q.solutionImage ? `<img src="${q.solutionImage}" style="width:100%; margin-top:5px; border-radius:5px;">` : ''}`;
     };
 
-    function renderStudentLibraryHTML(data, title) {
-        window.tempStdQuestions = data; 
-        currentListType = "student_library"; 
-        document.getElementById('list-title').innerText = title; 
-        const div = document.getElementById('list-content');
-        
-        if(data.length === 0) div.innerHTML = "<p style='text-align:center;'>Hata defterinizde soru bulunmuyor.</p>"; 
-        else div.innerHTML = data.map((q, i) => {
-            const isLocal = title.includes("Cihaz");
-            return `
-            <div class="list-item" style="border: 2px solid #e67e22; background:#fff;">
-                <span style="background:#1e3c72; color:#fff; padding:3px 8px; border-radius:4px; font-size:0.75rem; font-weight:bold;">${q.ders || 'Genel'}</span> 
-                <b style="color:#e67e22; margin-left:5px;">${q.konu}</b><br>
-                <small style="color:#666;"><b>Kaynak:</b> ${q.kitap}</small><br>
-                ${q.not ? `<small><b>Soru Notu:</b> ${q.not}</small><br>` : ''}
-                ${q.image ? `<img src="${q.image}" style="width:100%; border-radius:5px; margin-top:5px;">` : ''}
-                
-                <div class="abcde-grid" id="std-qbox-${i}">
-                    ${['A','B','C','D','E'].map((s, idx) => `<button class="abcde-btn" onclick="checkStdAnswer(this, ${idx}, ${i})">${s}</button>`).join('')}
-                </div>
-                <div id="sol-std-qbox-${i}" style="display:none; margin-top:10px; padding:10px; background:#e8f4f8; border-radius:8px; font-size:0.8rem; color:#333; text-align:left;"></div>
-                
-                <div style="display:flex; gap:5px; margin-top:10px;">
-                    ${q.id ? `<button onclick="updateReviewDate('${q.id}', ${isLocal})" class="outline" style="flex:2; font-size:0.8rem; border-color:#27ae60; color:#27ae60;">✅ Tekrar Ettim (Ertele)</button>` : ''}
-                    <button onclick="reportQuestionFromLibrary(${i})" class="outline" style="flex:1; font-size:0.8rem; border-color:#c0392b; color:#c0392b;">🚨 Bildir</button>
-                </div>
-            </div>`;
-        }).join(''); 
-        showScreen('screen-list');
-    }
-
     window.fetchClassQuestions = () => {
         const code = document.getElementById('class-code-input').value.trim().toUpperCase();
         if(!code) return alert("Lütfen önce sınıf kodunu girin!");
@@ -1000,6 +1124,7 @@
         });
 
         socket.on("teacherLibraryData", (data) => {
+            document.getElementById('library-filter-area').style.display = 'none'; // Hocada gizle
             window.tempStdQuestions = data; currentListType = "teacher_library"; document.getElementById('list-title').innerText = "📚 Soru Kütüphanem"; const div = document.getElementById('list-content');
             if(data.length === 0) div.innerHTML = "<p style='text-align:center;'>Kütüphanenizde henüz soru bulunmuyor.</p>"; 
             else div.innerHTML = data.map((q, i) => `
@@ -1099,6 +1224,7 @@
     if(socket) socket.on("allReportsData", (data) => { currentListType = "admin_report"; document.getElementById('list-title').innerText = "👑 Merkezi Hata Raporları"; const contentDiv = document.getElementById('list-content'); if(data.length === 0) contentDiv.innerHTML = "<p style='text-align:center;'>Henüz rapor yok.</p>"; else contentDiv.innerHTML = data.map((q, i) => `<div class="list-item" style="border-left: 5px solid #c0392b;"><b>Soru:</b> ${q.soru} <br><span style="color:#27ae60;"><b>Cevap:</b> ${q.siklar ? q.siklar[q.dogru] : '---'}</span> <br><small style="color:#666;">Tarih: ${q.reportedAt || '---'}</small></div>`).join(''); showScreen('screen-list'); });
 
     window.showLocalList = (type) => {
+        document.getElementById('library-filter-area').style.display = 'none'; // Yerel listelerde filtreyi gizle
         currentListType = type; const keys = { 'wrong': 'kpss_wrongs', 'fav': 'kpss_favs', 'blank': 'kpss_blanks', 'report': 'kpss_reports' }; const titles = { 'wrong': '❌ Yanlışlarım', 'fav': '⭐ Favorilerim', 'blank': '⬜ Boş Bıraktıklarım', 'report': '🚨 Hatalı Bildirdiklerim' }; document.getElementById('list-title').innerText = titles[type]; const list = JSON.parse(localStorage.getItem(keys[type])) || []; const contentDiv = document.getElementById('list-content');
         if(list.length === 0) contentDiv.innerHTML = "<p style='text-align:center;'>Bu liste şu an boş.</p>"; else contentDiv.innerHTML = list.map((q, i) => `<div class="list-item"><b>Soru ${i+1}:</b> ${q.soru} <br><span style="color:#27ae60; font-weight:bold; font-size:0.9rem;">Cevap: ${q.siklar ? q.siklar[q.dogru] : 'Bilinmiyor'}</span></div>`).join(''); showScreen('screen-list');
     };
