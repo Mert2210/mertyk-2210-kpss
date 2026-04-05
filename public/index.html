@@ -129,7 +129,13 @@
 <div id="ios-pwa-prompt" style="display:none; position:fixed; bottom:20px; left:50%; transform:translateX(-50%); width:90%; max-width:400px; background:#fff; padding:15px; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,0.3); z-index:99999; border:2px solid #3498db; text-align:center;">
     <h4 style="margin-top:0; color:#1e3c72; margin-bottom:5px;">🍏 iPhone Kullanıcıları İçin</h4>
     <p style="font-size:0.85rem; color:#333; margin-bottom:15px;">Bildirimleri alabilmek ve uygulamayı tam ekran kullanmak için alt menüdeki <b>[Kare ve Ok] (Paylaş)</b> butonuna basıp <b>"Ana Ekrana Ekle"</b> seçeneğine dokunun.</p>
-    <button onclick="closeIOSPrompt()" class="outline" style="width:100%; font-size:0.8rem; padding:8px;">Anladım, Kapat</button>
+    <button onclick="closePWAPrompt('ios')" class="outline" style="width:100%; font-size:0.8rem; padding:8px;">Anladım, Kapat</button>
+</div>
+
+<div id="android-pwa-prompt" style="display:none; position:fixed; bottom:20px; left:50%; transform:translateX(-50%); width:90%; max-width:400px; background:#fff; padding:15px; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,0.3); z-index:99999; border:2px solid #27ae60; text-align:center;">
+    <h4 style="margin-top:0; color:#1e3c72; margin-bottom:5px;">🤖 Android Kullanıcıları İçin</h4>
+    <p style="font-size:0.85rem; color:#333; margin-bottom:15px;">Uygulamayı tam ekran kullanmak ve bildirim almak için tarayıcınızın sağ üstündeki <b>[⋮] (3 nokta)</b> menüsünden <b>"Ana Ekrana Ekle"</b> seçeneğine dokunun.</p>
+    <button onclick="closePWAPrompt('android')" class="outline" style="width:100%; font-size:0.8rem; padding:8px; border-color:#27ae60; color:#27ae60;">Anladım, Kapat</button>
 </div>
 
 <div id="notification-toast">
@@ -156,7 +162,7 @@
             <button onclick="handleLogin()" class="green" style="padding:15px; font-size:1.1rem;">🚀 Giriş Yap</button>
             
             <div style="display:flex; gap:8px; margin-top:15px;">
-                <button onclick="handleGoogleLogin()" style="background:#db4437; flex:1; font-size:0.9rem; border-radius:8px;">🌐 Google</button>
+                <button onclick="handleGoogleLogin()" style="background:#db4437; flex:2; font-size:0.9rem; border-radius:8px;">🌐 Google ile Giriş Yap</button>
                 <button onclick="handleGuestLogin()" style="background:#7f8c8d; flex:1; font-size:0.9rem; border-radius:8px;">👤 Misafir</button>
             </div>
             
@@ -530,36 +536,38 @@
 </div>
 
 <script>
-    // 🚨 İNTRO EKRANI VE APPLE CİHAZ (iOS) RADARI 🚨
+    // 🚨 İNTRO EKRANI VE PWA(APP) RADARI 🚨
     window.onload = () => { 
         window.updateRegGradeDropdown(); 
-        checkIntro();
-        checkIOSPrompt();
+        checkPWAPrompts();
     };
 
-    function checkIntro() {
-        const hasSeenIntro = localStorage.getItem('gazi_intro_seen');
-        if (!hasSeenIntro) {
-            document.getElementById('intro-overlay').style.display = 'flex';
-        }
-    }
-
-    function checkIOSPrompt() {
-        // Cihazın Apple (iOS) olup olmadığını ve PWA olarak açılıp açılmadığını denetler
+    function checkPWAPrompts() {
         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-        const isStandalone = window.navigator.standalone === true;
+        const isAndroid = /Android/.test(navigator.userAgent);
+        const isStandalone = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
         
-        if (isIOS && !isStandalone) {
-            const hasSeenIOSPrompt = localStorage.getItem('gazi_ios_prompt');
-            if(!hasSeenIOSPrompt) {
-                document.getElementById('ios-pwa-prompt').style.display = 'block';
+        if (!isStandalone) {
+            if (isIOS) {
+                if(!localStorage.getItem('gazi_ios_prompt')) {
+                    document.getElementById('ios-pwa-prompt').style.display = 'block';
+                }
+            } else if (isAndroid) {
+                if(!localStorage.getItem('gazi_android_prompt')) {
+                    document.getElementById('android-pwa-prompt').style.display = 'block';
+                }
             }
         }
     }
 
-    window.closeIOSPrompt = () => {
-        document.getElementById('ios-pwa-prompt').style.display = 'none';
-        localStorage.setItem('gazi_ios_prompt', 'true');
+    window.closePWAPrompt = (os) => {
+        if(os === 'ios') {
+            document.getElementById('ios-pwa-prompt').style.display = 'none';
+            localStorage.setItem('gazi_ios_prompt', 'true');
+        } else {
+            document.getElementById('android-pwa-prompt').style.display = 'none';
+            localStorage.setItem('gazi_android_prompt', 'true');
+        }
     };
 
     window.nextSlide = (slideNum) => {
@@ -572,6 +580,8 @@
         setTimeout(() => {
             document.getElementById('intro-overlay').style.display = 'none';
             localStorage.setItem('gazi_intro_seen', 'true');
+            // İntro bittikten sonra masaya (ayarlara) yönlendir
+            window.openSettingsPanel();
         }, 500);
     };
 
@@ -593,7 +603,6 @@
     window.myClassCode = localStorage.getItem("gazi_class_code") || "";
     let selectedRole = 'student';
     
-    // 🚨 YENİ EKLENEN ROL DEĞİŞTİRİCİ DİNAMİĞİ 🚨
     window.setMainRole = (role) => {
         selectedRole = role;
         const btnS = document.getElementById('btn-main-student');
@@ -695,7 +704,6 @@
     import { getAuth, onAuthStateChanged, updateProfile, updatePassword, EmailAuthProvider, reauthenticateWithCredential, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInAnonymously, signOut, GoogleAuthProvider, signInWithPopup, sendEmailVerification, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
     import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-messaging.js";
 
-    // 🚨 KISA DEVRENİN ÇÖZÜLDÜĞÜ YER (Config Güncellendi) 🚨
     const firebaseConfig = { 
         apiKey: "AIzaSyDkZI-LxCOaog4kyb4YSquEK6ZpLNH2pqs", 
         authDomain: "kpss-genel-kultur-soru-havuzu.firebaseapp.com", 
@@ -755,7 +763,6 @@
 
     window.handleLogin = async () => { try { await signInWithEmailAndPassword(auth, document.getElementById('login-email').value.trim(), document.getElementById('login-pass').value); } catch(e) { alert("❌ Giriş Başarısız: E-posta veya şifre hatalı."); } };
     
-    // 🚨 YENİ EKLENEN ÖĞRETMEN ÇOKLU SEÇİM KAYIT İŞLEMİ 🚨
     window.handleRegister = async () => {
         const e = document.getElementById('reg-email').value.trim(); const u = document.getElementById('reg-username').value;
         const p1 = document.getElementById('reg-pass').value; const p2 = document.getElementById('reg-pass-confirm').value;
@@ -773,7 +780,6 @@
                 localStorage.setItem('gazi_exam_type', regExamType);
                 if(regGrade) localStorage.setItem('gazi_grade', regGrade);
             } else if (selectedRole === 'teacher_pending') {
-                // Öğretmenin seçtiği birden fazla dersi hafızaya al
                 const selectedExams = Array.from(document.querySelectorAll('.t-exam-cb:checked')).map(cb => cb.value);
                 localStorage.setItem('gazi_teacher_exams', JSON.stringify(selectedExams));
             }
@@ -797,6 +803,7 @@
     };
     window.handleGoogleLogin = async () => { try { await signInWithPopup(auth, new GoogleAuthProvider()); } catch(e) { alert(e.message); } };
 
+    // 🚨 OTURUM VE İNTRO YÖNETİMİ 🚨
     onAuthStateChanged(auth, user => {
         const adminBtn = document.getElementById('admin-report-btn'); const adminApproveBtn = document.getElementById('admin-approve-btn'); 
         const instPanel = document.getElementById('instructor-panel'); const studentArea = document.getElementById('student-class-area');
@@ -845,9 +852,20 @@
                 dersSelect.innerHTML = savedSubjects.length > 0 ? savedSubjects.map(s => `<option value="${s.name}">${s.name}</option>`).join('') : `<option value="Genel">Genel</option>`;
             }
 
+            // Eğer öğretmense veya daha önce onboarding (masa ayarı) yapmışsa ana ekrana yönlendir.
             const onboardingDone = localStorage.getItem('gazi_onboarding_done');
-            if(!isTeacher && !onboardingDone) window.openSettingsPanel();
-            else window.showScreen('screen-main'); 
+            if(!isTeacher && !onboardingDone) {
+                // Kayıt olmuş ama ilk defa giriyor -> İntro Göster
+                const hasSeenIntro = localStorage.getItem('gazi_intro_seen');
+                if(!hasSeenIntro) {
+                    document.getElementById('intro-overlay').style.display = 'flex';
+                } else {
+                    window.openSettingsPanel();
+                }
+            }
+            else {
+                window.showScreen('screen-main'); 
+            }
 
         } else { window.showScreen('screen-auth'); }
     });
