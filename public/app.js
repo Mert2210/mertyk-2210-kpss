@@ -1,6 +1,6 @@
 // 🚨 BÖLÜK 1 (KİMLİK) VE BÖLÜK 3 (KAYDIRMA MOTORU) BURADAN SİSTEME BAĞLANIYOR 🚨
 import './firebase-auth.js';
-// import './swipe-engine.js'; // <-- Bunu 3. Bölüğü kurunca aktif edeceğiz, şimdilik böyle kalsın!
+import './swipe-engine.js'; // <-- Bunu 3. Bölüğü kurunca aktif edeceğiz, şimdilik böyle kalsın!
 
 // 🚨 YENİ NESİL MÜFREDAT AĞACI VE KAPSÜL (BUTON) SİSTEMİ 🚨
 window.mufredat = {
