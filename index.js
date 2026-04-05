@@ -1,5 +1,5 @@
 /* ==========================================================================
-   GAZİLİLER YANLIŞ SORU KUMBARAM - SUNUCU DOSYASI (SERVER) - FINAL MASTER V2
+   GAZİLİLER YANLIŞ SORU KUMBARAM - SUNUCU DOSYASI (SERVER) - FINAL MASTER V3
    ========================================================================== */
 
 const express = require("express");
@@ -132,6 +132,22 @@ function listeleriHerkesinEkranindaGuncelle() {
     io.emit('updateFilters', getFiltersData());
 }
 
+// 🚨 BİLDİRİM (PUSH) GÖNDERME FONKSİYONU 🚨
+async function sendPushNotification(topic, title, body) {
+    if (admin.apps.length) {
+        const message = {
+            notification: { title: title, body: body },
+            topic: topic // Öğrenciler sınıfa girdiklerinde bu "topic" (örneğin sınıf kodu) kanalına abone olacaklar
+        };
+        try {
+            const response = await admin.messaging().send(message);
+            console.log("🚀 Bildirim başarıyla gönderildi:", response);
+        } catch (error) {
+            console.error("⚠️ Bildirim gönderme hatası:", error);
+        }
+    }
+}
+
 io.on("connection", (socket) => {
     socket.emit('updateFilters', getFiltersData());
 
@@ -231,6 +247,8 @@ io.on("connection", (socket) => {
 
     socket.on("sendGlobalAlert", (data) => {
         io.emit("receiveGlobalAlert", { message: data.message, sender: data.sender || "Eğitmen" });
+        // Eğer istersen ileride bu duyuruyu bildirim (push) olarak da attırabiliriz:
+        // sendPushNotification("global", "📢 " + (data.sender || "Eğitmen"), data.message);
     });
 
     socket.on("addNewQuestion", async (newQ) => {
@@ -238,6 +256,15 @@ io.on("connection", (socket) => {
         fs.writeFileSync(QUESTIONS_FILE, JSON.stringify(tumSorular, null, 2));
         if (db) { try { await db.collection("kpss_sorular").add({ ...newQ, createdAt: admin.firestore.FieldValue.serverTimestamp() }); } catch (e) {} }
         listeleriHerkesinEkranindaGuncelle();
+        
+        // 🚨 YENİ SORU EKLENDİĞİNDE BİLDİRİM GÖNDER 🚨
+        if (newQ.classCode) {
+            sendPushNotification(
+                newQ.classCode, 
+                "👨‍🏫 Öğretmenin Yeni Bir Soru Ekledi!", 
+                `${newQ.ders} dersinden çözülmeyi bekleyen yeni bir soru var. Haydi kumbaraya!`
+            );
+        }
     });
 
     socket.on("getTeacherLibrary", async (classCode) => {
