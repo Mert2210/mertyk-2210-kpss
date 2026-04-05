@@ -194,8 +194,33 @@ window.selectTopic = (t) => {
     if (customInput) customInput.value = ""; 
 };
 
+// 🚨 YENİ: ANA EKRAN BİLDİRİMLERİNİ (RADAR) KONTROL EDEN MOTOR 🚨
+window.checkAlerts = () => {
+    let allLocal = JSON.parse(localStorage.getItem('gazi_local_notebook')) || [];
+    let now = Date.now();
+    let newQs = allLocal.filter(q => !q.nextReviewDate).length;
+    let reviewQs = allLocal.filter(q => q.nextReviewDate && q.nextReviewDate <= now).length;
+
+    const newBox = document.getElementById('new-q-alert-box');
+    const revBox = document.getElementById('review-alert-box');
+    
+    if (newBox) {
+        newBox.style.display = newQs > 0 ? 'block' : 'none';
+        const cnt = document.getElementById('new-q-count');
+        if(cnt) cnt.innerText = newQs;
+    }
+    if (revBox) {
+        revBox.style.display = reviewQs > 0 ? 'block' : 'none';
+        const rCnt = document.getElementById('review-q-count');
+        if(rCnt) rCnt.innerText = reviewQs;
+    }
+};
+
 document.addEventListener("DOMContentLoaded", () => {
-    setTimeout(() => { window.initEtiketleme(); }, 500);
+    setTimeout(() => { 
+        window.initEtiketleme(); 
+        window.checkAlerts();
+    }, 500);
 });
 // 🚨 YENİ NESİL MÜFREDAT AĞACI BİTİŞ 🚨
 
@@ -203,6 +228,7 @@ document.addEventListener("DOMContentLoaded", () => {
 window.onload = () => { 
     window.updateRegGradeDropdown(); 
     checkPWAPrompts();
+    window.checkAlerts();
 };
 
 function checkPWAPrompts() {
@@ -281,6 +307,7 @@ if ('serviceWorker' in navigator) {
 window.showScreen = (id) => { 
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); 
     document.getElementById(id).classList.add('active'); 
+    if(id === 'screen-main') window.checkAlerts();
 };
 
 window.toggleDropdown = (id) => document.getElementById(id).classList.toggle('show');
@@ -401,6 +428,7 @@ window.openSettingsPanel = () => {
     showScreen('screen-settings');
 };
 
+// 🚨 FİREBASE KULLANICI İŞLEMLERİ 🚨
 window.saveProfileSettings = () => {
     const user = auth.currentUser; 
     const newName = document.getElementById('profile-new-name').value.trim(); 
@@ -592,6 +620,7 @@ onAuthStateChanged(auth, user => {
 
 window.logout = () => signOut(auth).then(() => location.reload());
 
+// 🚨 OYUN MANTIĞI VE SOCKET İŞLEMLERİ 🚨
 let socket; 
 try { socket = io(); } catch(e) { console.warn("Socket sunucusu yok."); }
 let currentMode = "room", myRoom = "", currentQIndex = 0, qInt = null, totalInt = null, trialQuestions = [], trialAnswers = [];
@@ -800,8 +829,7 @@ window.uploadQuestion = () => {
     alert(`✅ Soru (ve varsa çözümü) kütüphanenize eklendi!`);
 };
 
-// 🚨 YENİ GÜNCELLENMİŞ ÖĞRENCİ SORU YÜKLEME KODU (HAFIZALI) 🚨
-window.uploadStudentQuestion = (target = 'cloud') => {
+window.uploadStudentQuestion = () => {
     const customKonuInput = document.getElementById('custom-konu-input');
     const customKonu = customKonuInput ? customKonuInput.value.trim() : "";
     const finalTopic = customKonu || window.secilenKonu || "Genel Konu";
@@ -854,17 +882,10 @@ window.uploadStudentQuestion = (target = 'cloud') => {
         siklar: ["A", "B", "C", "D", "E"] 
     };
     
-    if (target === 'cloud') {
-        if(!socket) return alert("Buluta bağlanılamadı, lütfen Cihaza Kaydet seçeneğini kullanın."); 
-        delete q.id; 
-        socket.emit("addStudentQuestion", q);
-        alert(`✅ Soru BULUT Hata Defterinize eklendi!`);
-    } else {
-        let localNotebook = JSON.parse(localStorage.getItem('gazi_local_notebook')) || []; 
-        localNotebook.push(q); 
-        localStorage.setItem('gazi_local_notebook', JSON.stringify(localNotebook));
-        alert(`💾 Soru CİHAZINIZA başarıyla kaydedildi!\nİnternetsiz de çözebilirsiniz.`);
-    }
+    let localNotebook = JSON.parse(localStorage.getItem('gazi_local_notebook')) || []; 
+    localNotebook.push(q); 
+    localStorage.setItem('gazi_local_notebook', JSON.stringify(localNotebook));
+    alert(`💾 Soru başarıyla kaydedildi!`);
     
     document.getElementById('std-q-text').value = ""; 
     document.getElementById('std-q-sol-text').value = ""; 
@@ -873,23 +894,19 @@ window.uploadStudentQuestion = (target = 'cloud') => {
     stdUploadedImageBase64 = null; 
     stdSolutionBase64 = null;
     if (customKonuInput) customKonuInput.value = "";
+    
+    window.checkAlerts();
 };
 
 window.fetchStudentLibrary = (source = 'cloud', onlyReviews = false) => {
-    if(source === 'cloud') {
-        if(!socket) return alert("Sunucu bağlantısı yok."); 
-        const studentName = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "").trim() || "Gazi Adayı"; 
-        socket.emit("getStudentLibrary", { studentName: studentName, onlyReviews: onlyReviews });
-    } else {
-        let localData = JSON.parse(localStorage.getItem('gazi_local_notebook')) || [];
-        if(onlyReviews) { 
-            const now = Date.now(); 
-            localData = localData.filter(q => q.nextReviewDate && q.nextReviewDate <= now); 
-        } else { 
-            localData.reverse(); 
-        }
-        renderStudentLibraryHTML(localData, "💾 Cihaz Hata Defterim");
+    let localData = JSON.parse(localStorage.getItem('gazi_local_notebook')) || [];
+    if(onlyReviews) { 
+        const now = Date.now(); 
+        localData = localData.filter(q => q.nextReviewDate && q.nextReviewDate <= now); 
+    } else { 
+        localData.reverse(); 
     }
+    renderStudentLibraryHTML(localData, "💾 Cihaz Hata Defterim");
 };
 
 window.applyLibraryFilters = () => {
@@ -945,7 +962,6 @@ function renderStudentLibraryListOnly(data) {
                 <div id="sol-std-qbox-${i}" style="display:none; margin-top:10px; padding:10px; background:#e8f4f8; border-radius:8px; font-size:0.8rem; color:#333; text-align:left;"></div>
                 <div style="display:flex; gap:5px; margin-top:10px;">
                     ${q.id ? `<button onclick="updateReviewDate('${q.id}', ${isLocal})" class="outline" style="flex:2; font-size:0.8rem; border-color:#27ae60; color:#27ae60;">✅ Tekrar Ettim (Ertele)</button>` : ''}
-                    <button onclick="reportQuestionFromLibrary(${i})" class="outline" style="flex:1; font-size:0.8rem; border-color:#c0392b; color:#c0392b;">🚨 Bildir</button>
                 </div>
             </div>`;
         }).join(''); 
@@ -968,47 +984,16 @@ window.updateReviewDate = (questionId, isLocal = false) => {
     
     if(days && days > 0) {
         const newDate = Date.now() + (days * 24 * 60 * 60 * 1000);
-        if(!isLocal) { 
-            socket.emit("updateReviewDate", { questionId: questionId, additionalDays: days }); 
-        } else { 
-            let localData = JSON.parse(localStorage.getItem('gazi_local_notebook')) || []; 
-            const idx = localData.findIndex(x => x.id === questionId); 
-            if(idx !== -1) { 
-                localData[idx].nextReviewDate = newDate; 
-                localStorage.setItem('gazi_local_notebook', JSON.stringify(localData)); 
-            } 
-        }
+        let localData = JSON.parse(localStorage.getItem('gazi_local_notebook')) || []; 
+        const idx = localData.findIndex(x => x.id === questionId); 
+        if(idx !== -1) { 
+            localData[idx].nextReviewDate = newDate; 
+            localStorage.setItem('gazi_local_notebook', JSON.stringify(localData)); 
+        } 
+        
         alert(`✅ Tamamdır! Bu soru sistem takvimine işlendi.`);
         showScreen('screen-main');
-        const studentName = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "").trim() || "Gazi Adayı"; 
-        socket.emit("checkNotebookReviews", studentName);
     }
-};
-
-window.startLibraryTest = () => {
-    if (!window.tempStdQuestions || window.tempStdQuestions.length === 0) return alert("Kütüphanende çözülecek soru yok. Önce listeyi açmayı veya soru eklemeyi dene!");
-    let pool = [...window.tempStdQuestions]; 
-    for (let i = pool.length - 1; i > 0; i--) { 
-        const j = Math.floor(Math.random() * (i + 1)); 
-        [pool[i], pool[j]] = [pool[j], pool[i]]; 
-    } 
-    trialQuestions = pool; 
-    trialAnswers = new Array(trialQuestions.length).fill(null); 
-    currentQIndex = 0; 
-    currentMode = 'trial'; 
-    document.getElementById('box-total').style.display = 'none'; 
-    document.getElementById('trial-nav-buttons').style.display = 'flex'; 
-    document.getElementById('btn-finish-trial').style.display = 'block'; 
-    showScreen('screen-game'); 
-    renderTrialQuestion();
-};
-
-window.reportQuestionFromLibrary = (index) => { 
-    const q = window.tempStdQuestions[index]; 
-    if(q && socket) { 
-        socket.emit('reportQuestion', q); 
-        alert("🚨 Bu soru başarıyla merkeze bildirildi!"); 
-    } 
 };
 
 window.checkStdAnswer = (btn, selectedIdx, qIndex) => { 
@@ -1037,11 +1022,19 @@ window.fetchClassQuestions = () => {
 };
 
 if(socket) {
-    socket.on("studentLibraryData", (data) => renderStudentLibraryHTML(data, "☁️ Bulut Hata Defterim"));
     socket.on("classQuestionsData", (data) => { 
         if(data.length === 0) return alert("Bu sınıfa henüz öğretmen tarafından soru eklenmemiş."); 
         window.tempStdQuestions = data; 
-        startLibraryTest(); 
+        
+        // Klasik Trial'ı başlat (Hoca soruları için lobi modu gibi)
+        trialQuestions = data; 
+        trialAnswers = new Array(trialQuestions.length).fill(null); 
+        currentQIndex = 0; currentMode = 'trial'; 
+        document.getElementById('box-total').style.display = 'none'; 
+        document.getElementById('trial-nav-buttons').style.display = 'flex'; 
+        document.getElementById('btn-finish-trial').style.display = 'block'; 
+        showScreen('screen-game'); 
+        renderTrialQuestion();
     });
 
     socket.on("teacherReportsData", (data) => {
@@ -1102,12 +1095,6 @@ if(socket) {
         showScreen('screen-list'); 
     });
 
-    socket.on("notebookReviewsCount", (count) => { 
-        const box = document.getElementById('notebook-alert-box'); 
-        if(count > 0) box.style.display = 'block'; 
-        else box.style.display = 'none'; 
-    });
-    
     socket.on("pendingTeachersData", (data) => { 
         currentListType = "admin_approval"; 
         document.getElementById('list-title').innerText = "👨‍🏫 Onay Bekleyen Öğretmenler"; 
@@ -1149,7 +1136,6 @@ window.fetchMyLibrary = () => {
 
 window.fetchPendingTeachers = () => { if(socket) socket.emit("getPendingTeachers"); };
 window.approveTeacher = (email) => { if(socket) { socket.emit("approveTeacher", email); alert("✅ Onay isteği sunucuya gönderildi!"); } };
-window.openEvaluation = () => { if(socket) { socket.emit("getEvaluationData", window.myClassCode); showScreen('screen-eval'); } };
 
 window.createNewNamedClass = () => { 
     const className = document.getElementById('new-class-name').value.trim(); 
@@ -1600,3 +1586,248 @@ function renderNavigator(total, curr, mode) {
         } 
     } 
 }
+
+// 🚨 BÖLÜM 4: V5.0 TAM EKRAN (TINDER STİLİ) SWIPE MOTORU 🚨
+
+window.swipeQuestions = [];
+window.currentSwipeIndex = 0;
+window.isDragging = false;
+window.startPos = { x: 0, y: 0 };
+window.currentTranslate = { x: 0, y: 0 };
+
+// Eski "Hata Defteri Testi" fonksiyonunu Swipe Sistemine yönlendiriyoruz
+window.startLibraryTest = (mode = 'all') => {
+    let pool = [];
+    let now = Date.now();
+    let allLocal = JSON.parse(localStorage.getItem('gazi_local_notebook')) || [];
+
+    if (mode === 'new') {
+        pool = allLocal.filter(q => !q.nextReviewDate); // Henüz hiç erteleme almamışlar
+    } else if (mode === 'review') {
+        pool = allLocal.filter(q => q.nextReviewDate && q.nextReviewDate <= now); // Zamanı gelenler
+    } else {
+        // Klasik Liste butonundan tıklandıysa, o anki filtreli listeyi al
+        pool = window.tempStdQuestions && window.tempStdQuestions.length > 0 ? [...window.tempStdQuestions] : [...allLocal];
+    }
+
+    if(pool.length === 0) return alert("Bu kategoride çözülecek soru bulunamadı komutanım!");
+
+    // Desteyi Karıştır
+    for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
+
+    window.swipeQuestions = pool;
+    window.currentSwipeIndex = 0;
+    
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-swipe').style.display = 'flex';
+    
+    window.renderSwipeCard();
+};
+
+window.renderSwipeCard = () => {
+    if (window.currentSwipeIndex >= window.swipeQuestions.length) {
+        alert("Tebrikler! Destedeki tüm soruları bitirdin.");
+        window.closeSwipeScreen();
+        return;
+    }
+    
+    const q = window.swipeQuestions[window.currentSwipeIndex];
+    window.currentQObject = q; // Mevcut soru kaydı için
+    const card = document.getElementById('swipe-card');
+    
+    // Kartı merkezle ve animasyonları sıfırla
+    card.style.transition = 'none';
+    card.style.transform = 'translate(0px, 0px) rotate(0deg)';
+    
+    document.getElementById('swipe-counter').innerText = `${window.currentSwipeIndex + 1} / ${window.swipeQuestions.length}`;
+    document.getElementById('swipe-lesson').innerText = q.ders || 'Genel';
+    
+    const img = document.getElementById('swipe-q-image');
+    if(q.image) { img.src = q.image; img.style.display = 'block'; } else { img.style.display = 'none'; }
+    
+    document.getElementById('swipe-q-text').innerText = q.soru || q.not || 'Görseli inceleyiniz.';
+    document.getElementById('swipe-q-book').innerText = "Kaynak: " + (q.kitap || '-');
+    
+    const optsArea = document.getElementById('swipe-abcde');
+    const siklar = q.siklar || ['A','B','C','D','E'];
+    optsArea.innerHTML = siklar.map((s, i) => `<button class="abcde-btn" onclick="checkSwipeAnswer(this, ${i})">${s}</button>`).join('');
+    
+    // Panelleri gizle
+    document.getElementById('swipe-solution-panel').style.bottom = '-100%';
+    document.getElementById('swipe-blur-overlay').style.display = 'none';
+};
+
+window.closeSwipeScreen = () => {
+    document.getElementById('screen-swipe').style.display = 'none';
+    window.showScreen('screen-main');
+    window.checkAlerts(); // Ana ekrandaki rozet sayılarını güncelle
+};
+
+window.checkSwipeAnswer = (btn, selectedIdx) => {
+    const q = window.swipeQuestions[window.currentSwipeIndex];
+    const btns = document.querySelectorAll('#swipe-abcde button');
+    btns.forEach(b => b.disabled = true);
+    
+    if(selectedIdx === q.dogru) { 
+        btn.classList.add('correct'); 
+        confetti({ particleCount: 100 }); 
+    } else { 
+        btn.classList.add('wrong'); 
+        if(btns[q.dogru]) btns[q.dogru].classList.add('correct'); 
+    }
+    
+    // Çözüm panelini tetikle
+    setTimeout(() => { window.openSwipeSolution(); }, 400);
+};
+
+window.openSwipeSolution = () => {
+    document.getElementById('swipe-solution-panel').style.bottom = '0';
+    window.switchSolutionTab('cozum');
+};
+
+window.closeSwipeSolution = () => {
+    document.getElementById('swipe-solution-panel').style.bottom = '-100%';
+    // Çözümü kapattıktan sonra bir sonraki soruya geç
+    setTimeout(() => { window.nextSwipeCard(); }, 300);
+};
+
+window.switchSolutionTab = (tab) => {
+    const q = window.swipeQuestions[window.currentSwipeIndex];
+    document.getElementById('btn-tab-cozum').classList.remove('active');
+    document.getElementById('btn-tab-kaynak').classList.remove('active');
+    document.getElementById('btn-tab-' + tab).classList.add('active');
+    
+    const content = document.getElementById('swipe-solution-content');
+    if(tab === 'cozum') {
+        content.innerHTML = `<b>👨‍🏫 Çözüm Notu:</b><br>${q.solutionText || 'Yazılı açıklama eklenmemiş.'}<br>
+        ${q.solutionImage ? `<img src="${q.solutionImage}" style="width:100%; border-radius:5px; margin-top:10px;">` : ''}`;
+    } else {
+        content.innerHTML = `<b>📚 Orijinal Kaynak:</b><br>Bu soru <b>${q.kitap || 'Bilinmeyen'}</b> kaynağından alınmıştır. Varsa kaynak fotoğrafı aşağıdadır:<br>
+        ${q.image ? `<img src="${q.image}" style="width:100%; border-radius:5px; margin-top:10px;">` : '<p>Fotoğraf yok.</p>'}`;
+    }
+};
+
+window.handleSwipeDelay = (days) => {
+    const q = window.swipeQuestions[window.currentSwipeIndex];
+    const newDate = Date.now() + (days * 24 * 60 * 60 * 1000);
+    
+    let localData = JSON.parse(localStorage.getItem('gazi_local_notebook')) || []; 
+    const idx = localData.findIndex(x => x.id === q.id); 
+    if(idx !== -1) { 
+        localData[idx].nextReviewDate = newDate; 
+        localStorage.setItem('gazi_local_notebook', JSON.stringify(localData)); 
+    }
+    
+    document.getElementById('swipe-blur-overlay').style.display = 'none';
+    window.nextSwipeCard();
+};
+
+window.cancelSwipeOverlay = () => {
+    document.getElementById('swipe-blur-overlay').style.display = 'none';
+    const card = document.getElementById('swipe-card');
+    card.classList.add('swipe-animate-reset');
+    card.style.transform = `translate(0px, 0px) rotate(0deg)`;
+};
+
+window.nextSwipeCard = () => {
+    window.currentSwipeIndex++;
+    window.renderSwipeCard();
+};
+
+window.deleteCurrentSwipeQuestion = () => {
+    if(confirm("Bu soruyu tamamen silmek istediğinize emin misiniz?")) {
+        const q = window.swipeQuestions[window.currentSwipeIndex];
+        let localData = JSON.parse(localStorage.getItem('gazi_local_notebook')) || [];
+        localData = localData.filter(x => x.id !== q.id);
+        localStorage.setItem('gazi_local_notebook', JSON.stringify(localData));
+        window.nextSwipeCard();
+    }
+};
+
+// 🚨 GESTURE (KAYDIRMA) MOTORU 🚨
+setTimeout(() => {
+    const card = document.getElementById('swipe-card');
+    if(!card) return;
+
+    const startDrag = (e) => {
+        if (e.target.closest('button') || e.target.closest('#swipe-solution-panel') || e.target.closest('#swipe-blur-overlay')) return;
+        window.isDragging = true;
+        window.startPos = { 
+            x: e.type.includes('mouse') ? e.pageX : e.touches[0].clientX, 
+            y: e.type.includes('mouse') ? e.pageY : e.touches[0].clientY 
+        };
+        card.style.transition = 'none';
+    };
+
+    const onDrag = (e) => {
+        if (!window.isDragging) return;
+        const currentX = e.type.includes('mouse') ? e.pageX : e.touches[0].clientX;
+        const currentY = e.type.includes('mouse') ? e.pageY : e.touches[0].clientY;
+        
+        window.currentTranslate.x = currentX - window.startPos.x;
+        window.currentTranslate.y = currentY - window.startPos.y;
+        
+        const rotate = window.currentTranslate.x * 0.05;
+        card.style.transform = `translate(${window.currentTranslate.x}px, ${window.currentTranslate.y}px) rotate(${rotate}deg)`;
+    };
+
+    const endDrag = (e) => {
+        if (!window.isDragging) return;
+        window.isDragging = false;
+        card.style.transition = 'transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+        
+        if (window.currentTranslate.x > 120) {
+            // Sona At (Sağa Kaydır)
+            card.classList.add('swipe-animate-right');
+            setTimeout(() => {
+                const q = window.swipeQuestions.splice(window.currentSwipeIndex, 1)[0];
+                window.swipeQuestions.push(q);
+                card.classList.remove('swipe-animate-right');
+                window.renderSwipeCard();
+            }, 300);
+        } else if (window.currentTranslate.x < -120) {
+            // Ertele (Sola Kaydır)
+            card.style.transform = `translate(-150vw, ${window.currentTranslate.y}px) rotate(-20deg)`;
+            setTimeout(() => { document.getElementById('swipe-blur-overlay').style.display = 'flex'; }, 200);
+        } else if (window.currentTranslate.y > 100) {
+            // Çözüm (Aşağı Kaydır)
+            card.style.transform = `translate(0px, 0px) rotate(0deg)`;
+            window.openSwipeSolution();
+        } else {
+            // İptal (Yeterince kaydırılmadı)
+            card.style.transform = `translate(0px, 0px) rotate(0deg)`;
+        }
+        window.currentTranslate = { x: 0, y: 0 };
+    };
+
+    card.addEventListener('mousedown', startDrag);
+    card.addEventListener('touchstart', startDrag, {passive: true});
+    document.addEventListener('mousemove', onDrag);
+    document.addEventListener('touchmove', onDrag, {passive: false});
+    document.addEventListener('mouseup', endDrag);
+    document.addEventListener('touchend', endDrag);
+    
+    // Klavye Yön Tuşları Desteği (Bilgisayar İçin)
+    document.addEventListener('keydown', (e) => {
+        if (document.getElementById('screen-swipe').style.display !== 'flex') return;
+        if (document.getElementById('swipe-blur-overlay').style.display === 'flex') return;
+        if (document.getElementById('swipe-solution-panel').style.bottom === '0px') return; // Panel açıksa tuşları kitle
+
+        if (e.key === 'ArrowRight') {
+            card.style.transition = 'transform 0.3s ease-out';
+            card.classList.add('swipe-animate-right');
+            setTimeout(() => {
+                const q = window.swipeQuestions.splice(window.currentSwipeIndex, 1)[0];
+                window.swipeQuestions.push(q);
+                card.classList.remove('swipe-animate-right');
+                window.renderSwipeCard();
+            }, 300);
+        } else if (e.key === 'ArrowLeft') {
+            card.style.transition = 'transform 0.3s ease-out';
+            card.classList.add('swipe-animate-left');
+            setTimeout(() => { document.getElementById('swipe-blur-overlay').style.display = 'flex'; }, 300);
+        } else if (e.key === 'ArrowDown') {
+            window.openSwipeSolution();
+        }
+    });
+}, 1000);
