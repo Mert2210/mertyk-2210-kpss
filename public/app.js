@@ -1,6 +1,6 @@
 // 🚨 BÖLÜK 1 (KİMLİK) BURADAN SİSTEME BAĞLANIYOR 🚨
 import './firebase-auth.js';
-// import './swipe-engine.js'; // <-- 3. Bölüğü kurunca bunu aktif edeceğiz, şimdilik kapalı!
+import './swipe-engine.js'; // <-- 3. Bölüğü kurunca bunu aktif edeceğiz, şimdilik kapalı!
 
 // 🚨 YENİ NESİL MÜFREDAT AĞACI VE KAPSÜL (BUTON) SİSTEMİ 🚨
 window.mufredat = {
