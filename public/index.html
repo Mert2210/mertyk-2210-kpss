@@ -572,9 +572,12 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getAuth, onAuthStateChanged, updateProfile, updatePassword, EmailAuthProvider, reauthenticateWithCredential, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInAnonymously, signOut, GoogleAuthProvider, signInWithPopup, sendEmailVerification, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+    import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-messaging.js";
+
     const firebaseConfig = { apiKey: "AIzaSyDkZI-LxCOaog4kyb4YSquEK6ZpLNH2pqs", authDomain: "kpss-genel-kultur-soru-havuzu.firebaseapp.com", projectId: "kpss-genel-kultur-soru-havuzu", appId: "1:435941343639:web:3ce323e0f8386d796c04d2" };
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+    const messaging = getMessaging(app);
 
     window.saveProfileSettings = () => {
         const user = auth.currentUser;
@@ -583,7 +586,7 @@
         const newPass = document.getElementById('profile-new-pass').value.trim();
         
         if(user && newName) {
-            const role = user.displayName.split('|')[1] || 'student';
+            const role = (user.displayName || "").split('|')[1] || 'student';
             updateProfile(user, { displayName: newName + "|" + role });
             document.getElementById('display-user').innerText = "Hoş Geldin, " + newName;
         }
@@ -662,8 +665,17 @@
         const studentLibPanel = document.getElementById('student-library-panel');
 
         if (user) { 
-            const nameParts = (user.displayName || "Gazi|student").split('|');
-            const realName = nameParts[0]; const role = nameParts[1] || "student";
+            // 🚨 UNNAMED HATASI ÇÖZÜMÜ 🚨
+            let nameFromAuth = user.displayName;
+            if (!nameFromAuth || nameFromAuth.split('|')[0].trim() === "") {
+                const fallbackName = user.email ? user.email.split('@')[0] : (user.isAnonymous ? "Misafir-" + user.uid.substring(0,4) : "Gazi Adayı");
+                nameFromAuth = fallbackName + "|student";
+            }
+            
+            const nameParts = nameFromAuth.split('|');
+            const realName = nameParts[0]; 
+            const role = nameParts[1] || "student";
+            
             document.getElementById('display-user').innerText = "Hoş Geldin, " + realName;
             document.getElementById('profile-new-name').value = realName;
 
@@ -764,7 +776,7 @@
 
     window.fetchMyStats = () => {
         if(!socket) return alert("Sunucuya bağlanılamadı!");
-        const name = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "");
+        const name = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "").trim() || "Gazi Adayı";
         socket.emit("getMyStats", name);
     };
 
@@ -850,7 +862,7 @@
         const qText = document.getElementById('std-q-text').value.trim(); 
         const qSolText = document.getElementById('std-q-sol-text').value.trim(); 
         const correctIdx = parseInt(document.getElementById('std-q-correct-idx').value) || 0;
-        const studentName = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "");
+        const studentName = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "").trim() || "Gazi Adayı";
         const reminderDays = parseInt(document.getElementById('std-q-reminder').value) || 1;
         const nextReviewDate = Date.now() + (reminderDays * 24 * 60 * 60 * 1000); 
 
@@ -882,7 +894,7 @@
     window.fetchStudentLibrary = (source = 'cloud', onlyReviews = false) => {
         if(source === 'cloud') {
             if(!socket) return alert("Sunucu bağlantısı yok.");
-            const studentName = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "");
+            const studentName = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "").trim() || "Gazi Adayı";
             socket.emit("getStudentLibrary", { studentName: studentName, onlyReviews: onlyReviews });
         } else {
             let localData = JSON.parse(localStorage.getItem('gazi_local_notebook')) || [];
@@ -910,7 +922,8 @@
             }
             alert(`✅ Tamamdır! Bu soru sana ${days} gün sonra tekrar hatırlatılacak.`);
             showScreen('screen-main');
-            socket.emit("checkNotebookReviews", document.getElementById('display-user').innerText.replace("Hoş Geldin, ", ""));
+            const studentName = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "").trim() || "Gazi Adayı";
+            socket.emit("checkNotebookReviews", studentName);
         }
     };
 
@@ -1022,11 +1035,10 @@
     window.showHomeworkList = () => { document.getElementById('list-title').innerText = "📒 Bekleyen Ödevlerin"; document.getElementById('list-content').innerHTML = homeworks.map(hw => `<div class="list-item"><b>${hw.title}</b><br>Soru: ${hw.count} | Son Tarih: ${hw.dueDate || 'Yok'}</div>`).join(''); showScreen('screen-list'); };
     window.startReviewSession = () => { if(reviews.length === 0) return; trialQuestions = reviews.map(r => r.question); trialAnswers = new Array(trialQuestions.length).fill(null); currentQIndex = 0; showScreen('screen-game'); renderTrialQuestion(); };
 
-    // 🚨 ADIM 2: YENİ SINIF YÖNETİM FONKSİYONLARI 🚨
     window.createNewNamedClass = () => {
         const className = document.getElementById('new-class-name').value.trim();
         if(!className) return alert("Lütfen bir sınıf adı girin!");
-        const teacherEmail = auth.currentUser.email;
+        const teacherEmail = getAuth().currentUser.email;
         if(socket) socket.emit("createNamedClass", { teacherEmail, className });
         document.getElementById('new-class-name').value = "";
     };
@@ -1067,11 +1079,14 @@
         });
     };
 
-    window.createClass = () => { if(socket) { const name = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", ""); socket.emit("createClass", name); } };
-    if(socket) { socket.on("classCreated", (code) => { document.getElementById('generated-code').innerText = "KODUNUZ: " + code; window.myClassCode = code; localStorage.setItem("gazi_class_code", code); socket.emit("getFilters", window.myClassCode); }); socket.on("teacherClassFound", (code) => { document.getElementById('generated-code').innerText = "KODUNUZ: " + code; window.myClassCode = code; localStorage.setItem("gazi_class_code", code); socket.emit("getFilters", window.myClassCode); }); }
-    window.joinClass = () => { if(!socket) return; const code = document.getElementById('class-code-input').value.trim().toUpperCase(); const name = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", ""); if(!code) return alert("Sınıf kodu girin!"); socket.emit("joinClass", { code, studentName: name }); localStorage.setItem("gazi_class_code", code); document.getElementById('btn-class-questions').style.display = 'block';};
+    window.createClass = () => { if(socket) { const name = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "").trim() || "Gazi Adayı"; socket.emit("createClass", name); } };
+    if(socket) { 
+        socket.on("classCreated", (code) => { document.getElementById('generated-code').innerText = "KODUNUZ: " + code; window.myClassCode = code; localStorage.setItem("gazi_class_code", code); socket.emit("getFilters", window.myClassCode); }); 
+        socket.on("teacherClassFound", (code) => { document.getElementById('generated-code').innerText = "KODUNUZ: " + code; window.myClassCode = code; localStorage.setItem("gazi_class_code", code); socket.emit("getFilters", window.myClassCode); }); 
+    }
+    window.joinClass = () => { if(!socket) return; const code = document.getElementById('class-code-input').value.trim().toUpperCase(); const name = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "").trim() || "Gazi Adayı"; if(!code) return alert("Sınıf kodu girin!"); socket.emit("joinClass", { code, studentName: name }); localStorage.setItem("gazi_class_code", code); document.getElementById('btn-class-questions').style.display = 'block';};
     if(socket) socket.on("classJoined", (res) => { if(res.success) { window.myClassCode = res.code; localStorage.setItem("gazi_class_code", res.code); socket.emit("getFilters", window.myClassCode); alert("✅ Sınıfa katıldın!"); document.getElementById('btn-class-questions').style.display = 'block'; } else alert("❌ Geçersiz Sınıf Kodu!"); });
-    window.publishAlert = () => { if(!socket) return; const msg = document.getElementById('alert-text').value.trim(); if(!msg) return alert("Boş duyuru gönderilemez!"); const name = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", ""); socket.emit("sendGlobalAlert", { message: msg, sender: name }); document.getElementById('alert-text').value = ""; alert("🚀 Duyuru gönderildi!"); };
+    window.publishAlert = () => { if(!socket) return; const msg = document.getElementById('alert-text').value.trim(); if(!msg) return alert("Boş duyuru gönderilemez!"); const name = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "").trim() || "Gazi Adayı"; socket.emit("sendGlobalAlert", { message: msg, sender: name }); document.getElementById('alert-text').value = ""; alert("🚀 Duyuru gönderildi!"); };
     if(socket) socket.on("receiveGlobalAlert", (data) => { const toast = document.getElementById('notification-toast'); document.getElementById('toast-message').innerHTML = `<span style="color:#e67e22;">${data.sender}:</span><br>${data.message}`; toast.classList.add('show'); setTimeout(() => { toast.classList.remove('show'); }, 6000); });
 
     function saveToLocal(key, qObj) { let list = JSON.parse(localStorage.getItem(key)) || []; if(!list.find(x => x.soru === qObj.soru)) { list.push(qObj); localStorage.setItem(key, JSON.stringify(list)); } }
@@ -1092,7 +1107,7 @@
 
     window.goToLobby = (mode) => {
         currentMode = mode;
-        const realName = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", ""); 
+        const realName = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "").trim() || "Gazi Adayı"; 
         if (mode === 'room' && socket) { 
             socket.emit('createRoom', { username: realName }); 
             document.getElementById('room-code-display').style.display = 'block'; 
@@ -1186,22 +1201,15 @@
             b.innerText = s; 
             
             if (trialAnswers[currentQIndex] !== null) {
-                if (i === currentQObject.dogru) {
-                    b.className = "opt-btn correct selected"; 
-                } else if (i === trialAnswers[currentQIndex]) {
-                    b.className = "opt-btn wrong selected"; 
-                } else {
-                    b.className = "opt-btn";
-                }
-            } else {
-                b.className = "opt-btn";
-            }
+                if (i === currentQObject.dogru) { b.className = "opt-btn correct selected"; } 
+                else if (i === trialAnswers[currentQIndex]) { b.className = "opt-btn wrong selected"; } 
+                else { b.className = "opt-btn"; }
+            } else { b.className = "opt-btn"; }
 
             b.onclick = () => { 
                 if(trialAnswers[currentQIndex] === null) { 
                     trialAnswers[currentQIndex] = i; 
                     renderTrialQuestion(); 
-                    
                     if (!(currentQObject.solutionText || currentQObject.solutionImage)) {
                         setTimeout(() => { if(currentQIndex < trialQuestions.length - 1) trialNext(); }, 600);
                     }
@@ -1214,11 +1222,7 @@
         });
 
         let solArea = document.getElementById('trial-solution-area');
-        if(!solArea) {
-            solArea = document.createElement('div');
-            solArea.id = 'trial-solution-area';
-            a.parentNode.appendChild(solArea);
-        }
+        if(!solArea) { solArea = document.createElement('div'); solArea.id = 'trial-solution-area'; a.parentNode.appendChild(solArea); }
 
         if (trialAnswers[currentQIndex] !== null && (currentQObject.solutionText || currentQObject.solutionImage)) {
             solArea.style.display = 'block';
@@ -1226,16 +1230,16 @@
                 <b>👨‍🏫 Çözüm Notu:</b><br>${currentQObject.solutionText || 'Yazılı açıklama eklenmemiş.'}<br>
                 ${currentQObject.solutionImage ? `<img src="${currentQObject.solutionImage}" style="width:100%; border-radius:5px; margin-top:10px;">` : ''}
             </div>`;
-        } else {
-            solArea.style.display = 'none';
-        }
+        } else { solArea.style.display = 'none'; }
     }
 
     window.trialNext = () => { if(currentQIndex < trialQuestions.length-1) { currentQIndex++; renderTrialQuestion(); } };
     window.trialPrev = () => { if(currentQIndex > 0) { currentQIndex--; renderTrialQuestion(); } };
     
     window.finishTrial = () => {
-        if(totalInt) clearInterval(totalInt); let s = 0; let d = 0; let y = 0; let b = 0; const realName = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "");
+        if(totalInt) clearInterval(totalInt); let s = 0; let d = 0; let y = 0; let b = 0; 
+        const realName = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "").trim() || "Gazi Adayı";
+        
         trialQuestions.forEach((q, i) => { 
             if(trialAnswers[i] === q.dogru) { s+=10; d++; } 
             else if(trialAnswers[i] !== null) { s-=5; y++; saveToLocal('kpss_wrongs', q); if(socket) socket.emit("addToReviewQueue", { studentName: realName, question: q }); }
