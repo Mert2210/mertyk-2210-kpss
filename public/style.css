@@ -88,35 +88,35 @@ input[type="checkbox"] { width: auto !important; margin: 0 10px 0 0 !important; 
 .filter-section { background: #fdfdfd; border: 1px solid #e0e0e0; padding: 10px; border-radius: 8px; margin-bottom: 15px; }
 .filter-section select { font-size: 0.85rem; padding: 8px; margin-bottom: 5px; border-color: #3498db; color: #1e3c72; font-weight: bold; }
 
-/* 🚨 V5.0 TINDER / STORY MODU (KAYDIRMA) EFEKTLERİ 🚨 */
-
-/* Kartın donanımsal ivmelenmesi (Asla kasmaz) */
-#swipe-card {
-    will-change: transform; 
-    touch-action: none; /* Mobilde kendi kendine kaymasını engeller */
+/* 🚨 V5.0 KART KONTROL PANELİ (KAYDIRMA YERİNE GEÇEN KİBAR BUTONLAR ZEMİNİ) 🚨 */
+.card-action-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 2px dashed #eee;
 }
 
-/* Sola fırlatılma efekti (Öğrendim/Ertele) */
-.swipe-animate-left {
-    transition: transform 0.4s ease-out, opacity 0.4s;
-    transform: translateX(-150vw) rotate(-20deg) !important;
-    opacity: 0;
+.card-action-btn {
+    flex: 1;
+    padding: 15px 10px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border-radius: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transition: transform 0.1s, box-shadow 0.1s;
 }
 
-/* Sağa fırlatılma efekti (Sona At) */
-.swipe-animate-right {
-    transition: transform 0.4s ease-out, opacity 0.4s;
-    transform: translateX(150vw) rotate(20deg) !important;
-    opacity: 0;
+.card-action-btn:active {
+    transform: scale(0.95);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
-/* Kartı parmakla bıraktığımızda eski haline lastik gibi dönme efekti */
-.swipe-animate-reset {
-    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    transform: translateX(0) rotate(0) !important;
-}
-
-/* Çözüm ve Kaynakça sekmeleri (Tab Butonları) */
+/* Çözüm ve Kaynakça sekmeleri (Tab Butonları - Korundu) */
 #swipe-solution-panel button.active {
     color: #1e3c72 !important;
     border-bottom: 3px solid #1e3c72 !important;
