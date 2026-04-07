@@ -1117,22 +1117,19 @@ if(socket) {
         startLibraryTest(); 
     });
 
-    socket.on("teacherReportsData", (data) => {
+   socket.on("teacherReportsData", (data) => {
         currentListType = "teacher_report"; 
         document.getElementById('list-title').innerText = "📊 Sınıf İstihbarat Raporu"; 
         
-        const reports = data.reports || []; 
-        const roster = data.roster || [];
-        const solvedNames = reports.map(r => r.name); 
-        const notSolved = roster.filter(name => !solvedNames.includes(name));
+        // Sunucudan gelen data doğrudan bir listedir (Array)
+        const reports = Array.isArray(data) ? data : []; 
         
         let html = `<h4 style="color:#27ae60; margin-top:0;">✅ Çözenler</h4>`;
-        if(reports.length === 0) html += "<p style='font-size:0.85rem;'>Henüz çözen öğrenci yok.</p>";
-        else html += reports.map(r => `<div class="list-item" style="border-left:4px solid #27ae60;"><b>${r.name}</b> <span style="float:right; color:#27ae60; font-weight:bold;">${r.score} Puan</span></div>`).join('');
-        
-        html += `<h4 style="color:#c0392b; margin-top:20px;">💤 Çözmeyenler</h4>`;
-        if(notSolved.length === 0) html += "<p style='font-size:0.85rem;'>Sınıf listesi boş veya tüm sınıf görevini tamamlamış!</p>";
-        else html += notSolved.map(name => `<div class="list-item" style="border-left:4px solid #c0392b; color:#666;">${name}</div>`).join('');
+        if(reports.length === 0) {
+            html += "<p style='font-size:0.85rem;'>Henüz bu sınıfa ait çözülmüş bir deneme yok.</p>";
+        } else {
+            html += reports.map(r => `<div class="list-item" style="border-left:4px solid #27ae60;"><b>${r.name}</b> <span style="float:right; color:#27ae60; font-weight:bold;">${r.score} Puan</span><br><small style="color:#666;">Doğru: ${r.correct} | Yanlış: ${r.wrong} | Boş: ${r.blank}</small></div>`).join('');
+        }
         
         document.getElementById('list-content').innerHTML = html; 
         showScreen('screen-list');
