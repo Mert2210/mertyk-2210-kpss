@@ -636,46 +636,35 @@ io.on("connection", (socket) => {
     });
    
     // 🚨 RAM TEMİZLİĞİ: ODA BOŞALIRSA SİL 🚨
+   // 1. Önce bağlantı içindeki son işlemi (disconnect) kapatıyoruz
     socket.on("disconnect", () => {
         for (const code in rooms) {
             if (rooms[code].players[socket.id]) {
                 delete rooms[code].players[socket.id];
                 io.to(code).emit("updatePlayerList", Object.values(rooms[code].players));
-                
-                // Eğer odada kimse kalmadıysa odayı tamamen RAM'den sil
                 if (Object.keys(rooms[code].players).length === 0) {
                     if (rooms[code].timerId) clearTimeout(rooms[code].timerId);
                     if (rooms[code].globalTimeout) clearTimeout(rooms[code].globalTimeout);
                     delete rooms[code];
-                    console.log(`🗑️ ${code} numaralı oda boşaldığı için sunucu belleğinden silindi.`);
                 }
             }
         }
     });
 
+}); // 🚨 İŞTE BU KRİTİK PARANTEZ: io.on("connection") kapısını kapatır.
 
+// 2. Yardımcı Fonksiyon: Ana kapının dışında olmalı
 function sendQuestionToRoom(roomCode) {
     const room = rooms[roomCode];
-    if (!room || !room.gameStarted) return;
-    
-    if (room.currentQuestionIndex >= room.questions.length) {
-        if(room.globalTimeout) clearTimeout(room.globalTimeout);
-        io.to(roomCode).emit("gameOver", Object.values(room.players));
-        room.gameStarted = false; return;
-    }
+    if (!room) return;
 
-    room.answerCount = 0;
-    Object.keys(room.players).forEach(id => { room.players[id].hasAnsweredThisRound = false; });
-    room.questionStartTime = Date.now();
-    const q = room.questions[room.currentQuestionIndex];
-    let remaining = room.timerMode === 'general' ? Math.max(0, Math.floor((room.endTime - Date.now()) / 1000)) : 0;
-
-    io.to(roomCode).emit("newQuestion", {
-        soru: q.soru, siklar: q.siklar, ders: q.ders, image: q.image,
-        index: room.currentQuestionIndex + 1, total: room.questions.length,
-        duration: parseInt(room.settings.duration), timerMode: room.timerMode, remainingTime: remaining
+    io.to(roomCode).emit("nextQuestion", {
+        question: room.questions[room.currentQuestionIndex],
+        index: room.currentQuestionIndex,
+        total: room.questions.length,
+        endTime: room.endTime // Genel süre varsa
     });
-    
+
     if (room.timerMode === 'question' && room.settings.duration > 0) {
         if(room.timerId) clearTimeout(room.timerId);
         room.timerId = setTimeout(() => { 
@@ -692,5 +681,8 @@ function sendQuestionToRoom(roomCode) {
     }
 }
 
+// 3. Sunucu Başlatma: En altta kalmalı
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`🚀 Gazililer Eğitim Platformu Sunucusu ${PORT} portunda aktif.`));
+server.listen(PORT, () => {
+    console.log(`🚀 Gazililer Eğitim Platformu Sunucusu ${PORT} portunda aktif.`);
+});
