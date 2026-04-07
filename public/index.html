@@ -438,6 +438,11 @@
     <div id="screen-list" class="screen">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
             <h3 id="list-title" style="margin:0;">Liste</h3>
+            <div id="archive-filter-chips" style="display:none; gap:8px; padding:10px; overflow-x:auto; background:#f8f9fa; border-bottom:1px solid #eee;">
+    <button onclick="fetchStudentLibrary('local')" class="chip active" id="btn-filter-all" style="font-size:0.7rem; padding:5px 12px;">Hepsi</button>
+    <button onclick="fetchFilteredLibrary('exam')" class="chip" id="btn-filter-exam" style="font-size:0.7rem; padding:5px 12px; border-color:#2980b9; color:#2980b9;">🌟 Sınavlık</button>
+    <button onclick="fetchFilteredLibrary('wrong')" class="chip" id="btn-filter-wrong" style="font-size:0.7rem; padding:5px 12px; border-color:#c0392b; color:#c0392b;">❌ Yanlışlar</button>
+</div>
             <button id="pdf-btn" onclick="downloadPDF()" class="orange" style="width:auto; font-size:0.8rem; padding:8px 12px;">📄 PDF İndir</button>
         </div>
         <div id="library-filter-area" class="filter-section" style="display:none;">
