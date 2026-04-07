@@ -154,11 +154,37 @@
         </div>
     </div>
 
-    <div id="screen-main" class="screen">
+   <div id="screen-main" class="screen">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
             <button onclick="logout()" class="outline" style="width:auto; font-size:0.8rem; padding:8px;">⬅️ Çıkış</button>
-            <button id="pwa-install-btn" onclick="installPWA()" class="green" style="display:none; width:auto; font-size:0.8rem; padding:8px;">📲 Uygulamayı İndir</button>
-            <button onclick="openSettingsPanel()" class="outline" style="width:auto; font-size:0.8rem; padding:8px; border-color:#8e44ad; color:#8e44ad;">⚙️ Profil & Ayarlar</button>
+            <button id="pwa-install-btn" onclick="installPWA()" class="green" style="display:none; width:auto; font-size:0.8rem; padding:8px;">📲 İndir</button>
+            
+            <div style="display:flex; gap:5px;">
+                <button onclick="toggleEditMode()" class="gold" style="width:35px; height:35px; padding:0; border-radius:50%; font-size:1.2rem; display:flex; justify-content:center; align-items:center; box-shadow:0 2px 5px rgba(0,0,0,0.2);" title="Müfredatı Düzenle">➕</button>
+                <button onclick="openSettingsPanel()" class="outline" style="width:auto; font-size:0.8rem; padding:8px; border-color:#8e44ad; color:#8e44ad;">⚙️ Profil</button>
+            </div>
+        </div>
+
+        <div id="main-custom-panel" style="display:none; background:#fdfdfd; padding:15px; border-radius:12px; border:2px dashed #e67e22; margin-bottom:15px; text-align:left;">
+            <h4 style="color:#e67e22; margin-top:0;">🛠️ Kendi Müfredatını Yarat</h4>
+            
+            <label style="font-size:0.75rem; font-weight:bold; color:#1e3c72;">🎯 Yeni Sınav Türü (Örn: ALES)</label>
+            <div style="display:flex; gap:5px; margin-bottom:10px;">
+                <input type="text" id="custom-input-sinav" placeholder="Sınav Adı..." style="margin:0; flex:2; font-size:0.85rem;">
+                <button onclick="manageCustomItem('sinav', 'add')" class="orange" style="margin:0; flex:1; font-size:0.8rem; padding:8px;">Ekle</button>
+            </div>
+
+            <label style="font-size:0.75rem; font-weight:bold; color:#1e3c72;">📖 Yeni Özel Ders (Örn: ÖABT)</label>
+            <div style="display:flex; gap:5px; margin-bottom:10px;">
+                <input type="text" id="custom-input-ders" placeholder="Ders Adı..." style="margin:0; flex:2; font-size:0.85rem;">
+                <button onclick="manageCustomItem('ders', 'add')" class="blue" style="margin:0; flex:1; font-size:0.8rem; padding:8px;">Ekle</button>
+            </div>
+
+            <label style="font-size:0.75rem; font-weight:bold; color:#1e3c72;">📚 Yeni Kaynak/Kitap</label>
+            <div style="display:flex; gap:5px; margin-bottom:5px;">
+                <input type="text" id="custom-input-kaynak" placeholder="Kitap/Yayın Adı..." style="margin:0; flex:2; font-size:0.85rem;">
+                <button onclick="manageCustomItem('kaynak', 'add')" class="green" style="margin:0; flex:1; font-size:0.8rem; padding:8px;">Ekle</button>
+            </div>
         </div>
 
         <h2 id="display-user" style="color:#e67e22; margin-top:0;">Hoş Geldin!</h2>
@@ -259,8 +285,12 @@
         <button onclick="goToLobby('trial')" class="purple">📝 Hızlı Deneme (Offline)</button>
         <button onclick="goToLobby('room')" class="orange" style="margin-top:10px;">🏠 Oda Kur / Katıl</button>
         
-        <div id="instructor-panel" style="display:none;">
-            <h4 style="margin:0 0 10px 0;">📢 Eğitmen Kontrol Merkezi</h4>
+        <div id="instructor-panel" style="display:none; background: #1e3c72; border: 2px solid #e67e22; padding: 15px; border-radius: 10px; margin-top: 15px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; cursor:pointer; margin-bottom:10px;" onclick="document.getElementById('instructor-content').classList.toggle('hidden-panel')">
+                <h4 style="margin:0; color:#fff;">📢 Eğitmen Kontrol Merkezi</h4>
+                <span style="font-size:0.75rem; background:rgba(255,255,255,0.2); padding:4px 8px; border-radius:5px; color:#fff;">Aç/Kapat 🔽</span>
+            </div>
+            <div id="instructor-content" class="">
             
             <div style="background:rgba(255,255,255,0.1); padding:12px; border-radius:10px; margin-bottom:15px; border:1px solid rgba(255,255,255,0.2);">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
