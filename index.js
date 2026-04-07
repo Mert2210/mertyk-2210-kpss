@@ -576,7 +576,65 @@ io.on("connection", (socket) => {
             }
         }
     });
+// 🚨 1. EKSİK: Sınıfın Ortak Yanlışlarını Kaydetme 🚨
+    socket.on("saveClassMistakes", async ({ classCode, mistakes }) => {
+        if(db && classCode && mistakes && mistakes.length > 0) {
+            try {
+                const batch = db.batch();
+                mistakes.forEach(m => {
+                    const docRef = db.collection("class_mistakes").doc();
+                    batch.set(docRef, { ...m, classCode: classCode, serverTime: admin.firestore.FieldValue.serverTimestamp() });
+                });
+                await batch.commit();
+            } catch(e) { console.error("❌ Sınıf yanlışları kaydedilirken hata:", e.message); }
+        }
+    });
 
+    // 🚨 2. EKSİK: Öğretmenin Sınıf Yanlışları Analizini Çekmesi 🚨
+    socket.on("getClassMistakes", async (classCode) => {
+        if(db && classCode) {
+            try {
+                const snap = await db.collection("class_mistakes").where("classCode", "==", classCode).get();
+                const mistakesMap = {};
+                
+                // Aynı soruları gruplayıp kaç kere yanlış yapıldığını sayıyoruz
+                snap.docs.forEach(doc => {
+                    const data = doc.data();
+                    const key = data.soru; // Soru metnini benzersiz anahtar (ID) kabul ediyoruz
+                    if(!mistakesMap[key]) {
+                        mistakesMap[key] = { ...data, count: 1 };
+                    } else {
+                        mistakesMap[key].count++;
+                    }
+                });
+                
+                // En çok yanlış yapılan soruyu en üste (Z'den A'ya) sıralıyoruz
+                const sortedMistakes = Object.values(mistakesMap).sort((a,b) => b.count - a.count);
+                socket.emit("classMistakesData", sortedMistakes);
+            } catch(e) {
+                console.error("❌ Sınıf yanlışları çekilirken hata:", e.message);
+                socket.emit("classMistakesData", []);
+            }
+        } else {
+            socket.emit("classMistakesData", []);
+        }
+    });
+
+    // 🚨 3. EKSİK: Öğrenci Yanlış Yaptığında Bulut Tekrar Kutusuna Ekleme 🚨
+    socket.on("addToReviewQueue", async ({ studentName, question }) => {
+        if(db && studentName && question) {
+            try {
+                const nextReview = Date.now() + (24 * 60 * 60 * 1000); // Otomatik 1 gün sonraya ertele
+                await db.collection("student_questions").add({
+                    ...question,
+                    studentName: studentName,
+                    nextReviewDate: nextReview,
+                    createdAt: admin.firestore.FieldValue.serverTimestamp()
+                });
+            } catch(e) { console.error("❌ Review kuyruğuna eklenirken hata:", e.message); }
+        }
+    });
+   
     // 🚨 RAM TEMİZLİĞİ: ODA BOŞALIRSA SİL 🚨
     socket.on("disconnect", () => {
         for (const code in rooms) {
