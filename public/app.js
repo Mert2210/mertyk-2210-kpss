@@ -166,12 +166,56 @@ window.initEtiketleme = () => {
     window.renderExams(mem.exam ? true : false);
 };
 
+// 🚨 DÜZENLEME MODU (EDIT MODE) KONTROLÜ 🚨
+window.isEditMode = false;
+window.toggleEditMode = () => {
+    window.isEditMode = !window.isEditMode;
+    const panel = document.getElementById('main-custom-panel');
+    if (panel) panel.style.display = window.isEditMode ? 'block' : 'none';
+    window.initEtiketleme(); // Çarpı (X) işaretlerini göstermek/gizlemek için ekranı yenile
+};
+
+// GÜNCELLENMİŞ SINAV ÇİZDİRİCİ
 window.renderExams = (fromMemory = false) => {
     const container = document.getElementById('box-exams');
     if (!container) return;
     const exams = Object.keys(window.mufredat);
-    container.innerHTML = exams.map(ex => `<div class="chip ${window.secilenSinav === ex ? 'active' : ''}" onclick="window.selectExam('${ex}')">${ex}</div>`).join('');
+    const customExams = JSON.parse(localStorage.getItem('gazi_custom_exams')) || [];
+    
+    container.innerHTML = exams.map(ex => {
+        const isCustom = customExams.includes(ex);
+        // Düzenleme modundaysa ve sonradan eklenmiş bir sınavsa X işareti koy:
+        const closeBtn = (window.isEditMode && isCustom) ? `<span style="color:#fff; margin-left:6px; padding:0px 5px; background:#e74c3c; border-radius:50%; font-size:0.75rem;" onclick="event.stopPropagation(); manageCustomItem('sinav', 'remove', '${ex}')">✖</span>` : '';
+        return `<div class="chip ${window.secilenSinav === ex ? 'active' : ''}" onclick="window.selectExam('${ex}')">${ex} ${closeBtn}</div>`;
+    }).join('');
+    
     if(fromMemory && window.secilenSinav) window.selectExam(window.secilenSinav, true);
+};
+
+// GÜNCELLENMİŞ DERS ÇİZDİRİCİ
+window.renderSubjects = (fromMemory = false) => {
+    const container = document.getElementById('box-dersler');
+    const area = document.getElementById('area-ders');
+    if (!container || !area) return;
+
+    if(!window.secilenSinav || !window.secilenGrup || !window.mufredat[window.secilenSinav][window.secilenGrup]) { area.style.display = 'none'; return; }
+    
+    const subjects = Object.keys(window.mufredat[window.secilenSinav][window.secilenGrup]);
+    const customDersler = JSON.parse(localStorage.getItem('gazi_custom_dersler')) || [];
+
+    area.style.display = 'block';
+    container.innerHTML = subjects.map(s => {
+        const isCustom = customDersler.includes(s);
+        // Düzenleme modundaysa ve sonradan eklenmiş bir dersse X işareti koy:
+        const closeBtn = (window.isEditMode && isCustom) ? `<span style="color:#fff; margin-left:6px; padding:0px 5px; background:#e74c3c; border-radius:50%; font-size:0.75rem;" onclick="event.stopPropagation(); manageCustomItem('ders', 'remove', '${s}')">✖</span>` : '';
+        return `<div class="chip ${window.secilenDers === s ? 'active' : ''}" onclick="window.selectSubject('${s}')">${s} ${closeBtn}</div>`;
+    }).join('');
+    
+    if(fromMemory && window.secilenDers) window.selectSubject(window.secilenDers, true);
+    else {
+        const areaKonu = document.getElementById('area-konu');
+        if (areaKonu) areaKonu.style.display = 'none';
+    }
 };
 
 window.selectExam = (ex, fromMemory = false) => {
