@@ -1117,19 +1117,93 @@ if(socket) {
         startLibraryTest(); 
     });
 
-   socket.on("teacherReportsData", (data) => {
+   // 🚨 YENİ NESİL ÖĞRETMEN İSTİHBARAT RAPORU (DASHBOARD) 🚨
+    socket.on("teacherReportsData", (data) => {
         currentListType = "teacher_report"; 
         document.getElementById('list-title').innerText = "📊 Sınıf İstihbarat Raporu"; 
         
-        // Sunucudan gelen data doğrudan bir listedir (Array)
         const reports = Array.isArray(data) ? data : []; 
         
-        let html = `<h4 style="color:#27ae60; margin-top:0;">✅ Çözenler</h4>`;
         if(reports.length === 0) {
-            html += "<p style='font-size:0.85rem;'>Henüz bu sınıfa ait çözülmüş bir deneme yok.</p>";
-        } else {
-            html += reports.map(r => `<div class="list-item" style="border-left:4px solid #27ae60;"><b>${r.name}</b> <span style="float:right; color:#27ae60; font-weight:bold;">${r.score} Puan</span><br><small style="color:#666;">Doğru: ${r.correct} | Yanlış: ${r.wrong} | Boş: ${r.blank}</small></div>`).join('');
+            document.getElementById('list-content').innerHTML = `
+                <div style="text-align:center; padding:20px;">
+                    <h1 style="font-size:3rem; margin:0; opacity:0.5;">📭</h1>
+                    <p style="color:#666;">Henüz bu sınıfa ait çözülmüş bir deneme yok.</p>
+                </div>`;
+            showScreen('screen-list');
+            return;
         }
+
+        // Sınıfın Genel İstatistiklerini Hesapla
+        let totalScore = 0, totalCorrect = 0, totalWrong = 0, totalBlank = 0;
+        reports.forEach(r => {
+            totalScore += (r.score || 0);
+            totalCorrect += (r.correct || 0);
+            totalWrong += (r.wrong || 0);
+            totalBlank += (r.blank || 0);
+        });
+        const count = reports.length;
+        const avgScore = Math.round(totalScore / count);
+        
+        // 1. BÖLÜM: Üst Taraf Sınıf Ortalaması Kartı
+        let html = `
+        <div style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); padding:15px; border-radius:12px; color:white; margin-bottom:20px; box-shadow:0 4px 15px rgba(0,0,0,0.15);">
+            <h4 style="margin:0 0 15px 0; color:#f1c40f; text-align:center; font-size:1.1rem;">🌟 Sınıf Genel Durumu</h4>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div style="text-align:center; flex:1;">
+                    <div style="font-size:2rem; font-weight:bold; color:#fff;">${avgScore}</div>
+                    <div style="font-size:0.75rem; opacity:0.9;">Ort. Puan</div>
+                </div>
+                <div style="text-align:center; flex:1; border-left:1px solid rgba(255,255,255,0.2); border-right:1px solid rgba(255,255,255,0.2);">
+                    <div style="font-size:2rem; font-weight:bold; color:#fff;">${count}</div>
+                    <div style="font-size:0.75rem; opacity:0.9;">Deneme</div>
+                </div>
+                <div style="text-align:center; flex:1; line-height:1.2;">
+                    <div style="font-size:0.85rem; color:#2ecc71; font-weight:bold;">${totalCorrect} D</div>
+                    <div style="font-size:0.85rem; color:#e74c3c; font-weight:bold;">${totalWrong} Y</div>
+                    <div style="font-size:0.85rem; color:#bdc3c7; font-weight:bold;">${totalBlank} B</div>
+                </div>
+            </div>
+        </div>`;
+
+        html += `<h4 style="color:#27ae60; margin-top:0; border-bottom:2px solid #eee; padding-bottom:5px;">Sıralama ve Performanslar</h4>`;
+        
+        // Öğrencileri en yüksek puandan en düşüğe sırala
+        reports.sort((a,b) => (b.score || 0) - (a.score || 0));
+
+        // 2. BÖLÜM: Öğrenci Kartları ve Mini Grafikler
+        html += reports.map((r, index) => {
+            let medal = `<span style="color:#7f8c8d; font-weight:900;">${index+1}.</span>`;
+            if(index === 0) medal = "🥇";
+            else if (index === 1) medal = "🥈";
+            else if (index === 2) medal = "🥉";
+
+            // Yüzdelik oranları hesapla (Bar grafiği için)
+            const totalQ = (r.correct||0) + (r.wrong||0) + (r.blank||0);
+            const cPct = totalQ > 0 ? ((r.correct||0) / totalQ) * 100 : 0;
+            const wPct = totalQ > 0 ? ((r.wrong||0) / totalQ) * 100 : 0;
+            const bPct = totalQ > 0 ? ((r.blank||0) / totalQ) * 100 : 0;
+
+            return `
+            <div class="list-item" style="border-left:5px solid ${index === 0 ? '#f1c40f' : (index === 1 ? '#bdc3c7' : (index === 2 ? '#cd7f32' : '#3498db'))}; margin-bottom:12px; box-shadow:0 2px 5px rgba(0,0,0,0.05);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <b style="font-size:1.05rem; color:#1e3c72; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:65%;">${medal} ${r.name}</b>
+                    <span style="background:#e8f4f8; color:#2980b9; padding:4px 8px; border-radius:6px; font-weight:bold; font-size:0.85rem;">${r.score} Puan</span>
+                </div>
+                
+                <div style="width:100%; height:8px; background:#ecf0f1; border-radius:4px; display:flex; overflow:hidden; margin-bottom:6px;">
+                    <div style="width:${cPct}%; background:#2ecc71;" title="Doğru"></div>
+                    <div style="width:${wPct}%; background:#e74c3c;" title="Yanlış"></div>
+                    <div style="width:${bPct}%; background:#bdc3c7;" title="Boş"></div>
+                </div>
+                
+                <div style="display:flex; justify-content:space-between; font-size:0.75rem; font-weight:bold;">
+                    <span style="color:#27ae60;">${r.correct||0} Doğru</span>
+                    <span style="color:#c0392b;">${r.wrong||0} Yanlış</span>
+                    <span style="color:#7f8c8d;">${r.blank||0} Boş</span>
+                </div>
+            </div>`;
+        }).join('');
         
         document.getElementById('list-content').innerHTML = html; 
         showScreen('screen-list');
