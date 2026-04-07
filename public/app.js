@@ -175,21 +175,36 @@ window.toggleEditMode = () => {
     window.initEtiketleme(); // Çarpı (X) işaretlerini göstermek/gizlemek için ekranı yenile
 };
 
-// GÜNCELLENMİŞ SINAV ÇİZDİRİCİ
-window.renderExams = (fromMemory = false) => {
-    const container = document.getElementById('box-exams');
-    if (!container) return;
-    const exams = Object.keys(window.mufredat);
-    const customExams = JSON.parse(localStorage.getItem('gazi_custom_exams')) || [];
+window.renderSubjects = (fromMemory = false) => {
+    const container = document.getElementById('box-dersler');
+    const area = document.getElementById('area-ders');
+    if (!container || !area) return;
+
+    if(!window.secilenSinav || !window.secilenGrup || !window.mufredat[window.secilenSinav][window.secilenGrup]) { 
+        area.style.display = 'none'; return; 
+    }
     
-    container.innerHTML = exams.map(ex => {
-        const isCustom = customExams.includes(ex);
-        // Düzenleme modundaysa ve sonradan eklenmiş bir sınavsa X işareti koy:
-        const closeBtn = (window.isEditMode && isCustom) ? `<span style="color:#fff; margin-left:6px; padding:0px 5px; background:#e74c3c; border-radius:50%; font-size:0.75rem;" onclick="event.stopPropagation(); manageCustomItem('sinav', 'remove', '${ex}')">✖</span>` : '';
-        return `<div class="chip ${window.secilenSinav === ex ? 'active' : ''}" onclick="window.selectExam('${ex}')">${ex} ${closeBtn}</div>`;
+    const subjects = Object.keys(window.mufredat[window.secilenSinav][window.secilenGrup]);
+    const customDersler = JSON.parse(localStorage.getItem('gazi_custom_dersler')) || [];
+
+    area.style.display = 'block';
+    container.innerHTML = subjects.map(s => {
+        const isCustom = customDersler.includes(s);
+        
+        let actionButtons = "";
+        if (window.isEditMode) {
+            actionButtons = `
+                <span class="edit-plus-btn" onclick="event.stopPropagation(); window.openQuickAdd('kaynak', '${s}')">➕</span>
+                ${isCustom ? `<span class="edit-del-btn" onclick="event.stopPropagation(); manageCustomItem('ders', 'remove', '${s}')">✖</span>` : ''}
+            `;
+        }
+
+        return `<div class="chip ${window.secilenDers === s ? 'active' : ''}" onclick="window.selectSubject('${s}')">
+                    ${s} ${actionButtons}
+                </div>`;
     }).join('');
     
-    if(fromMemory && window.secilenSinav) window.selectExam(window.secilenSinav, true);
+    if(fromMemory && window.secilenDers) window.selectSubject(window.secilenDers, true);
 };
 
 // GÜNCELLENMİŞ DERS ÇİZDİRİCİ
@@ -501,55 +516,62 @@ window.openSettingsPanel = () => {
     showScreen('screen-settings');
 };
 
-window.saveProfileSettings = () => {
-    const user = auth.currentUser; 
-    const newName = document.getElementById('profile-new-name').value.trim(); 
-    const oldPass = document.getElementById('profile-old-pass').value.trim(); 
-    const newPass = document.getElementById('profile-new-pass').value.trim();
-    
-    if(user && newName) { 
-        const role = (user.displayName || "").split('|')[1] || 'student'; 
-        updateProfile(user, { displayName: newName + "|" + role }); 
-        document.getElementById('display-user').innerText = "Hoş Geldin, " + newName; 
+window.saveProfileSettings = async () => {
+    const user = auth.currentUser;
+    // 🛡️ ?. işareti sayesinde element yoksa hata vermez, sistem çökmez.
+    const newName = document.getElementById('profile-new-name')?.value.trim();
+    const oldPass = document.getElementById('profile-old-pass')?.value.trim();
+    const newPass = document.getElementById('profile-new-pass')?.value.trim();
+
+    // 1. İSİM GÜNCELLEME
+    if (user && newName) {
+        const role = (user.displayName || "").split('|')[1] || 'student';
+        updateProfile(user, { displayName: newName + "|" + role });
+        const displayUser = document.getElementById('display-user');
+        if (displayUser) displayUser.innerText = "Hoş Geldin, " + newName;
     }
 
-    if(user && newPass && !user.isAnonymous) {
-        if(!oldPass) return alert("Şifrenizi güncellemek için lütfen önce Eski Şifrenizi yazınız!");
+    // 2. ŞİFRE GÜNCELLEME
+    if (user && newPass && !user.isAnonymous) {
+        if (!oldPass) return alert("Şifrenizi güncellemek için lütfen önce Eski Şifrenizi yazınız!");
         const cred = EmailAuthProvider.credential(user.email, oldPass);
-        reauthenticateWithCredential(user, cred).then(() => { 
-            updatePassword(user, newPass).then(() => { 
-                alert("Şifreniz başarıyla güncellendi!"); 
-                document.getElementById('profile-old-pass').value = ''; 
-                document.getElementById('profile-new-pass').value = ''; 
-            }); 
-        }).catch(e => { alert("Eski şifreniz hatalı veya geçersiz!"); return; });
+        reauthenticateWithCredential(user, cred).then(() => {
+            updatePassword(user, newPass).then(() => {
+                alert("✅ Şifreniz güncellendi!");
+                if(document.getElementById('profile-old-pass')) document.getElementById('profile-old-pass').value = '';
+                if(document.getElementById('profile-new-pass')) document.getElementById('profile-new-pass').value = '';
+            });
+        }).catch(e => { alert("❌ Eski şifre hatalı!"); });
     }
 
-    localStorage.setItem('gazi_exam_type', document.getElementById('profile-exam-type').value); 
-    localStorage.setItem('gazi_grade', document.getElementById('profile-grade').value);
-    
+    // 3. SINAV & SINIF KAYDET
+    if(document.getElementById('profile-exam-type')) localStorage.setItem('gazi_exam_type', document.getElementById('profile-exam-type').value);
+    if(document.getElementById('profile-grade')) localStorage.setItem('gazi_grade', document.getElementById('profile-grade').value);
+
+    // 4. DERS SEÇİMLERİNİ KAYDET
     const subjectsData = [];
-    ['tarih', 'cografya', 'vatandaslik', 'matematik', 'turkce', 'egitim', 'fizik', 'kimya', 'biyoloji', 'fen'].forEach(sub => { 
-        const cb = document.getElementById('subj-' + sub); 
-        if(cb && cb.checked) {
-            subjectsData.push({ name: cb.value, topics: document.getElementById('topic-' + sub).value.trim() }); 
+    ['tarih', 'cografya', 'vatandaslik', 'matematik', 'turkce', 'egitim', 'fizik', 'kimya', 'biyoloji', 'fen'].forEach(sub => {
+        const cb = document.getElementById('subj-' + sub);
+        if (cb && cb.checked) {
+            const topicInput = document.getElementById('topic-' + sub);
+            subjectsData.push({ name: cb.value, topics: topicInput ? topicInput.value.trim() : "" });
         }
     });
 
-    localStorage.setItem('gazi_subjects_v2', JSON.stringify(subjectsData)); 
-    localStorage.setItem('gazi_onboarding_done', 'true');
+    localStorage.setItem('gazi_subjects_v2', JSON.stringify(subjectsData));
     
-    alert("✅ Çalışma Masası Ayarlarınız Kaydedildi!");
-    
-    const dersSelect = document.getElementById('std-q-ders'); 
-    if(dersSelect) { 
-        dersSelect.innerHTML = subjectsData.length > 0 
-            ? subjectsData.map(s => `<option value="${s.name}">${s.name}</option>`).join('') 
-            : `<option value="Genel">Genel</option>`; 
-    }
-    showScreen('screen-main');
-};
+    // 5. YENİ GÖRÜNÜM AYARLARI (Gerekiyorsa buraya eklenecek)
+    const overlayPrefs = {
+        showResult: document.getElementById('set-show-result')?.checked ?? true,
+        showText: document.getElementById('set-show-text')?.checked ?? true,
+        showImage: document.getElementById('set-show-image')?.checked ?? true
+    };
+    localStorage.setItem('gazi_overlay_prefs', JSON.stringify(overlayPrefs));
 
+    localStorage.setItem('gazi_onboarding_done', 'true');
+    alert("✅ Ayarlar Kaydedildi!");
+    window.showScreen('screen-main');
+};
 window.handleLogin = async () => { 
     try { 
         await signInWithEmailAndPassword(auth, document.getElementById('login-email').value.trim(), document.getElementById('login-pass').value); 
@@ -1968,4 +1990,15 @@ window.fetchFilteredLibrary = async (targetCategory) => {
     // Buton görsellerini güncelle (Hangi filtre aktifse o parlasın)
     document.querySelectorAll('#archive-filter-chips .chip').forEach(c => c.classList.remove('active'));
     document.getElementById(`btn-filter-${targetCategory}`).classList.add('active');
+};
+// ➕ HIZLI EKLEME PENCERESİ
+window.openQuickAdd = (type, parentName) => {
+    const newItem = prompt(`'${parentName}' altına yeni bir ${type === 'ders' ? 'DERS' : 'KAYNAK'} ekleyin:`);
+    if (newItem && newItem.trim() !== "") {
+        if(typeof window.manageCustomItem === 'function') {
+            window.manageCustomItem(type, 'add', newItem.trim());
+        } else {
+            alert("⚠️ Ekleme modülü henüz hazır değil!");
+        }
+    }
 };
