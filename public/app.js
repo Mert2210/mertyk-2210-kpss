@@ -1109,7 +1109,7 @@ window.reportQuestionFromLibrary = (index) => {
         alert("🚨 Bu soru başarıyla merkeze bildirildi!"); 
     } 
 };
-
+// 🚨 GÜNCELLENMİŞ AKILLI CEVAP KONTROLÜ VE TAM EKRAN ÇÖZÜM
 window.checkStdAnswer = (btn, selectedIdx, qIndex) => { 
     const q = window.tempStdQuestions[qIndex]; 
     const boxId = 'std-qbox-' + qIndex; 
@@ -1123,10 +1123,76 @@ window.checkStdAnswer = (btn, selectedIdx, qIndex) => {
         btn.classList.add('wrong'); 
         if(btns[q.dogru]) btns[q.dogru].classList.add('correct'); 
     } 
+
+    // Çözüm Perdesini (Overlay) Hazırla ve Aç
+    const overlay = document.getElementById('solution-overlay');
+    const content = document.getElementById('overlay-solution-content');
+    if(overlay && content) {
+        overlay.classList.add('active');
+        content.innerHTML = `
+            <div style="background:#fff; padding:15px; border-radius:10px; border:1px solid #eee; margin-top:10px;">
+                <p style="margin-bottom:5px;"><b>Senin Cevabın:</b> ${['A','B','C','D','E'][selectedIdx]}</p>
+                <p style="margin-bottom:15px;"><b>Doğru Cevap:</b> ${['A','B','C','D','E'][q.dogru]}</p>
+                <hr style="opacity:0.2;">
+                <div style="margin-top:15px;">
+                    <b style="color:#1e3c72; font-size:1.2rem;">✏️ Çözüm Analizi</b><br>
+                    <p style="margin-top:10px;">${q.solutionText || 'Öğretmen/Sistem notu bulunmuyor.'}</p>
+                    ${q.solutionImage ? `<img src="${q.solutionImage}" style="width:100%; border-radius:10px; margin-top:15px; box-shadow:0 5px 15px rgba(0,0,0,0.1);">` : ''}
+                </div>
+            </div>
+        `;
+        // Alt taraftaki zaman seçiciyi her açılışta gizle
+        const timeArea = document.getElementById('time-selector-area');
+        if(timeArea) timeArea.style.display = 'none';
+    }
+};
+
+// 🚨 SAĞ BUTON: ZAMAN SEÇENEKLERİNİ GÖSTER
+window.showTimeOptions = () => {
+    const area = document.getElementById('time-selector-area');
+    if(area) {
+        area.style.display = 'block';
+        area.scrollIntoView({ behavior: 'smooth' });
+    }
+};
+
+// 🚨 TAKVİME KAYDET VE SIRADAKİNE GEÇ
+window.scheduleAndNext = async (days) => {
+    const q = window.tempStdQuestions[currentQIndex];
+    if(q && (q.id || q._id)) {
+        const targetId = q.id || q._id;
+        const newDate = Date.now() + (days * 24 * 60 * 60 * 1000);
+        
+        // Cihazdaysa IndexedDB'yi, buluttaysa Sunucuyu güncelle
+        if(String(targetId).startsWith('local_')) {
+            await LocalDB.updateQuestion(targetId, { nextReviewDate: newDate });
+        } else {
+            if(socket) socket.emit("updateReviewDate", { questionId: targetId, additionalDays: days });
+        }
+        alert("✅ Soru " + (days < 1 ? "saatler" : days + " gün") + " sonrasına planlandı!");
+    }
+    window.closeOverlayAndNext();
+};
+
+// 🚨 SOL BUTON: ANLAMADIM, SONA AT (TEKRAR SORACAK)
+window.pushToBack = () => {
+    if(window.tempStdQuestions.length > 1) {
+        const q = window.tempStdQuestions.splice(currentQIndex, 1)[0];
+        window.tempStdQuestions.push(q); // Soruyu listenin en sonuna ekle
+        alert("🔄 Soru listenin sonuna atıldı, tur bitince tekrar sorulacak.");
+    }
+    window.closeOverlayAndNext();
+};
+
+// 🚨 PERDEYİ KAPAT VE EKRANI TAZELE
+window.closeOverlayAndNext = () => {
+    const overlay = document.getElementById('solution-overlay');
+    if(overlay) overlay.classList.remove('active');
     
-    const sDiv = document.getElementById('sol-' + boxId); 
-    sDiv.style.display = 'block'; 
-    sDiv.innerHTML = `<b>✏️ Çözüm Notu:</b><br>${q.solutionText || 'Yazılı çözüm notu bulunmuyor.'}<br>${q.solutionImage ? `<img src="${q.solutionImage}" style="width:100%; margin-top:5px; border-radius:5px;">` : ''}`; 
+    // Eğer Test/Deneme modundaysak bir sonraki soruya geç
+    if(currentMode === 'trial' || currentMode === 'room') {
+        if(typeof trialNext === 'function') trialNext();
+    }
 };
 
 window.fetchClassQuestions = () => { 
