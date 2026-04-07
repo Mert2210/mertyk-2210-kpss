@@ -2019,7 +2019,11 @@ window.fetchFilteredLibrary = async (targetCategory) => {
 window.openQuickAdd = (type, parentName) => {
     const newItem = prompt(`'${parentName}' altına yeni bir ${type === 'ders' ? 'DERS' : 'KAYNAK'} ekleyin:`);
     if (newItem && newItem.trim() !== "") {
-        // 🛠️ YÖNETİM MODÜLÜ (SINAV/DERS EKLE-SİL)
+        window.manageCustomItem(type, 'add', newItem);
+    }
+};
+
+// 🛠️ YÖNETİM MODÜLÜ (SINAV/DERS EKLE-SİL)
 window.manageCustomItem = async (type, action, itemName = '') => {
     let key = type === 'sinav' ? 'gazi_custom_exams' : (type === 'ders' ? 'gazi_custom_dersler' : 'gazi_custom_sources');
     let list = JSON.parse(localStorage.getItem(key)) || [];
@@ -2035,12 +2039,12 @@ window.manageCustomItem = async (type, action, itemName = '') => {
         if (type === 'sinav') {
             if (!window.mufredat[nameVal]) window.mufredat[nameVal] = { "Genel": { "Genel Ders": [] } };
         }
-        alert(`✅ ${nameVal} eklendi.`);
+        alert(`✅ ${nameVal} başarıyla eklendi.`);
     } else if (action === 'remove') {
         list = list.filter(i => i !== itemName);
         localStorage.setItem(key, JSON.stringify(list));
         if (type === 'sinav') delete window.mufredat[itemName];
-        alert(`❌ ${itemName} silindi.`);
+        alert(`❌ ${itemName} başarıyla silindi.`);
     }
 
     // Ekranda hemen görünmesi için tazele
