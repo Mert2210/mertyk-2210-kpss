@@ -126,3 +126,26 @@ input[type="checkbox"] { width: auto !important; margin: 0 10px 0 0 !important; 
     color: #aaa;
     border-bottom: 3px solid transparent;
 }
+/* 🚨 AKILLI SORU EKRANI VE FLU PERDE (V6.0) */
+.full-solution-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px);
+    z-index: 10000; display: none; flex-direction: column; padding: 20px; box-sizing: border-box;
+}
+.full-solution-overlay.active { display: flex; overflow-y: auto; }
+
+.action-fab {
+    position: fixed; bottom: 30px; width: 60px; height: 60px;
+    border-radius: 50%; color: white; border: none; font-size: 1.5rem;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3); cursor: pointer; z-index: 10001;
+}
+.fab-right { right: 20px; background: #8e44ad; } /* Takvime At */
+.fab-left { left: 20px; background: #e67e22; }  /* Sona At */
+
+.time-options-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px;
+}
+.time-btn {
+    padding: 15px; background: #f1f2f6; border: 2px solid #ddd;
+    border-radius: 12px; font-weight: bold; cursor: pointer; color: #1e3c72;
+}
