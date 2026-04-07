@@ -1441,15 +1441,24 @@ if(socket) {
         showScreen('screen-list');
     });
 
+// 🛡️ KORUMALI: ÖĞRETMEN KÜTÜPHANESİ
     socket.on("teacherLibraryData", (data) => { 
-        document.getElementById('library-filter-area').style.display = 'none'; 
+        const filterArea = document.getElementById('library-filter-area');
+        if (filterArea) filterArea.style.display = 'none'; // Kutu yoksa hata vermez
+        
         window.tempStdQuestions = data; 
         currentListType = "teacher_library"; 
-        document.getElementById('list-title').innerText = "📚 Soru Kütüphanem"; 
-        const div = document.getElementById('list-content'); 
         
-        if(data.length === 0) div.innerHTML = "<p style='text-align:center;'>Kütüphanenizde henüz soru bulunmuyor.</p>"; 
-        else div.innerHTML = data.map((q, i) => `
+        const listTitle = document.getElementById('list-title');
+        if(listTitle) listTitle.innerText = "📚 Soru Kütüphanem"; 
+        
+        const div = document.getElementById('list-content'); 
+        if(!div) return; // Liste kutusu yoksa işlemi durdur
+
+        if(data.length === 0) {
+            div.innerHTML = "<p style='text-align:center;'>Kütüphanenizde henüz soru bulunmuyor.</p>"; 
+        } else {
+            div.innerHTML = data.map((q, i) => `
             <div class="list-item" style="border-left: 5px solid #e67e22;">
                 <b>Soru:</b> ${q.soru} <br>
                 <span style="color:#27ae60;"><b>Cevap:</b> ${q.siklar ? q.siklar[q.dogru] : 'Bilinmiyor'}</span> <br>
@@ -1458,13 +1467,22 @@ if(socket) {
                 ${q.solutionText || q.solutionImage ? `<div style="background:#e8f4f8; padding:8px; border-radius:5px; margin-top:5px; font-size:0.8rem; color:#1e3c72;"><b>👨‍🏫 Çözüm:</b> ${q.solutionText || ''} ${q.solutionImage ? '<br><span style="color:#27ae60;">[Görsel Ekli]</span>' : ''}</div>` : ''} 
                 <button onclick="reportQuestionFromLibrary(${i})" class="outline" style="margin-top:10px; font-size:0.75rem; border-color:#c0392b; color:#c0392b;">🚨 Hatalı Bildir</button>
             </div>`).join(''); 
+        }
         showScreen('screen-list'); 
     });
 
+    // 🛡️ KORUMALI: TEKRAR HATIRLATICISI
     socket.on("notebookReviewsCount", (count) => { 
-        const box = document.getElementById('notebook-alert-box'); 
-        if(count > 0) box.style.display = 'block'; 
-        else box.style.display = 'none'; 
+        const box = document.getElementById('review-alert-box'); // İSİM DÜZELTİLDİ
+        if (box) { 
+            if(count > 0) {
+                box.style.display = 'block'; 
+                const countText = document.getElementById('review-q-count');
+                if (countText) countText.innerText = count;
+            } else {
+                box.style.display = 'none'; 
+            }
+        }
     });
     
     socket.on("pendingTeachersData", (data) => { 
