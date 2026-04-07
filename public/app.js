@@ -147,6 +147,54 @@ window.secilenGrup = "";
 window.secilenDers = "";
 window.secilenKonu = "";
 
+// 🚨 1. EKSİK PARÇA: Özel Sınav ve Dersleri Hafızadan Çağırma Motoru
+window.applyCustomMufredat = () => {
+    const customExams = JSON.parse(localStorage.getItem('gazi_custom_exams')) || [];
+    customExams.forEach(ex => {
+        if (!window.mufredat[ex]) {
+            window.mufredat[ex] = { "Genel": { "Genel Ders": [] } };
+        }
+    });
+
+    const customDersler = JSON.parse(localStorage.getItem('gazi_custom_dersler')) || [];
+    if (window.secilenSinav && window.secilenGrup && window.mufredat[window.secilenSinav]) {
+        customDersler.forEach(ders => {
+            if (!window.mufredat[window.secilenSinav][window.secilenGrup][ders]) {
+                window.mufredat[window.secilenSinav][window.secilenGrup][ders] = ["Genel Konu"];
+            }
+        });
+    }
+};
+
+// 🚨 2. EKSİK PARÇA: Ana Sınavları (KPSS, YKS vb.) Ekrana Çizme Motoru
+window.renderExams = (fromMemory = false) => {
+    const container = document.getElementById('box-exams');
+    if (!container) return;
+
+    const exams = Object.keys(window.mufredat);
+    const customExams = JSON.parse(localStorage.getItem('gazi_custom_exams')) || [];
+
+    container.innerHTML = exams.map(ex => {
+        const isCustom = customExams.includes(ex);
+        let actionBtns = "";
+
+        if (window.isEditMode) {
+            actionBtns = `
+                <span class="edit-plus-btn" title="Yeni Ders Ekle" onclick="event.stopPropagation(); window.openQuickAdd('ders', '${ex}')">➕</span>
+                ${isCustom ? `<span class="edit-del-btn" title="Sınavı Sil" onclick="event.stopPropagation(); window.manageCustomItem('sinav', 'remove', '${ex}')">✖</span>` : ''}
+            `;
+        }
+
+        return `<div class="chip ${window.secilenSinav === ex ? 'active' : ''}" onclick="window.selectExam('${ex}')">
+                    ${ex} ${actionBtns}
+                </div>`;
+    }).join('');
+
+    if (fromMemory && window.secilenSinav) {
+        window.selectExam(window.secilenSinav, true);
+    }
+};
+
 window.initEtiketleme = () => {
     const mem = JSON.parse(localStorage.getItem('gazi_sticky_memory')) || {};
     if(mem.exam) window.secilenSinav = mem.exam;
@@ -327,7 +375,8 @@ window.selectTopic = (t) => {
 };
 
 document.addEventListener("DOMContentLoaded", () => {
-    setTimeout(() => { window.initEtiketleme(); }, 500);
+    window.applyCustomMufredat(); // Önce özel müfredatı sisteme yükle
+    setTimeout(() => { window.initEtiketleme(); }, 500); // Sonra etiketleri diz
 });
 // 🚨 YENİ NESİL MÜFREDAT AĞACI BİTİŞ 🚨
 
@@ -2047,7 +2096,8 @@ window.manageCustomItem = async (type, action, itemName = '') => {
         alert(`❌ ${itemName} başarıyla silindi.`);
     }
 
-    // Ekranda hemen görünmesi için tazele
+   // Değişiklikleri ana listeye uygula ve ekranda tazele
+    window.applyCustomMufredat();
     window.renderExams();
     window.renderSubjects();
 };
