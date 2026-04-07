@@ -1109,13 +1109,16 @@ window.reportQuestionFromLibrary = (index) => {
         alert("🚨 Bu soru başarıyla merkeze bildirildi!"); 
     } 
 };
-// 🚨 GÜNCELLENMİŞ AKILLI CEVAP KONTROLÜ VE TAM EKRAN ÇÖZÜM
+// 🚨 GÜNCELLENMİŞ: AYARLARA DUYARLI AKILLI ÇÖZÜM PANELİ
 window.checkStdAnswer = (btn, selectedIdx, qIndex) => { 
     const q = window.tempStdQuestions[qIndex]; 
     const boxId = 'std-qbox-' + qIndex; 
     const btns = document.querySelectorAll(`#${boxId} button`); 
+    
+    // Şıkları kilitle
     btns.forEach(b => b.disabled = true); 
     
+    // Doğru-Yanlış kontrolü ve Konfeti
     if(selectedIdx === q.dogru) { 
         btn.classList.add('correct'); 
         confetti({ particleCount: 100 }); 
@@ -1124,24 +1127,42 @@ window.checkStdAnswer = (btn, selectedIdx, qIndex) => {
         if(btns[q.dogru]) btns[q.dogru].classList.add('correct'); 
     } 
 
-    // Çözüm Perdesini (Overlay) Hazırla ve Aç
+    // Çözüm Perdesini (Overlay) Hazırla
     const overlay = document.getElementById('solution-overlay');
     const content = document.getElementById('overlay-solution-content');
+    
     if(overlay && content) {
         overlay.classList.add('active');
+
+        // 🧠 SÜZGEÇ: Kullanıcının Ayarlarını Oku (Ayarlar yoksa hepsini göster)
+        const prefs = JSON.parse(localStorage.getItem('gazi_overlay_prefs')) || { showResult: true, showText: true, showImage: true };
+        
+        // 1. Kısım: Cevaplar (Eğer ayarı açıksa)
+        let resultHTML = prefs.showResult ? `
+            <p style="margin-bottom:5px;"><b>Senin Cevabın:</b> ${['A','B','C','D','E'][selectedIdx]}</p>
+            <p style="margin-bottom:15px;"><b>Doğru Cevap:</b> ${['A','B','C','D','E'][q.dogru]}</p>
+            <hr style="opacity:0.2;">` : '';
+
+        // 2. Kısım: Yazılı Metin (Eğer ayarı açıksa)
+        let textHTML = prefs.showText ? `
+            <b style="color:#1e3c72; font-size:1.2rem;">✏️ Çözüm Analizi</b><br>
+            <p style="margin-top:10px;">${q.solutionText || 'Yazılı bir not bulunmuyor.'}</p>` : '';
+
+        // 3. Kısım: Fotoğraf (Eğer ayarı açıksa ve soruda fotoğraf varsa)
+        let imageHTML = (prefs.showImage && q.solutionImage) ? `
+            <img src="${q.solutionImage}" style="width:100%; border-radius:10px; margin-top:15px; box-shadow:0 5px 15px rgba(0,0,0,0.1);">` : '';
+
+        // Tüm parçaları birleştir ve ekrana bas
         content.innerHTML = `
             <div style="background:#fff; padding:15px; border-radius:10px; border:1px solid #eee; margin-top:10px;">
-                <p style="margin-bottom:5px;"><b>Senin Cevabın:</b> ${['A','B','C','D','E'][selectedIdx]}</p>
-                <p style="margin-bottom:15px;"><b>Doğru Cevap:</b> ${['A','B','C','D','E'][q.dogru]}</p>
-                <hr style="opacity:0.2;">
+                ${resultHTML}
                 <div style="margin-top:15px;">
-                    <b style="color:#1e3c72; font-size:1.2rem;">✏️ Çözüm Analizi</b><br>
-                    <p style="margin-top:10px;">${q.solutionText || 'Öğretmen/Sistem notu bulunmuyor.'}</p>
-                    ${q.solutionImage ? `<img src="${q.solutionImage}" style="width:100%; border-radius:10px; margin-top:15px; box-shadow:0 5px 15px rgba(0,0,0,0.1);">` : ''}
+                    ${textHTML}
+                    ${imageHTML}
                 </div>
             </div>
         `;
-        // Alt taraftaki zaman seçiciyi her açılışta gizle
+
         const timeArea = document.getElementById('time-selector-area');
         if(timeArea) timeArea.style.display = 'none';
     }
