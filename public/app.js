@@ -377,6 +377,8 @@ if ('serviceWorker' in navigator) {
 }
 
 window.showScreen = (id) => { 
+    const filterChips = document.getElementById('archive-filter-chips');
+    if (filterChips) filterChips.style.display = 'none';
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); 
     document.getElementById(id).classList.add('active'); 
 };
@@ -977,6 +979,11 @@ if (target === 'cloud') {
 };
 
 window.fetchStudentLibrary = async (source = 'cloud', onlyReviews = false) => {
+    const filterChips = document.getElementById('archive-filter-chips');
+    if (filterChips) filterChips.style.display = 'flex'; 
+
+    currentListType = "student_library";
+    document.getElementById('list-title').innerText = "📚 Soru Arşivim";
     if(source === 'cloud') {
         if(!socket) return alert("Sunucu bağlantısı yok."); 
         const studentName = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "").trim() || "Gazi Adayı"; 
@@ -1924,4 +1931,41 @@ window.openReviewCalendar = async () => {
     }
     
     showScreen('screen-list');
+};
+// 🚨 ADIM 9: ETİKETLİ FİLTRELEME MOTORU
+window.fetchFilteredLibrary = async (targetCategory) => {
+    // 1. Arayüz hazırlığı
+    document.getElementById('archive-filter-chips').style.display = 'flex';
+    const div = document.getElementById('list-content');
+    div.innerHTML = `<div style="text-align:center; padding:20px;">🔍 Analiz ediliyor...</div>`;
+
+    // 2. Veritabanından (IndexedDB) tüm soruları al
+    const allQuestions = await LocalDB.getAllQuestions();
+    
+    // 3. Kategoriye göre süz (targetCategory: 'exam' veya 'wrong')
+    const filtered = allQuestions.filter(q => q.category === targetCategory);
+
+    // 4. Ekrana Yazdır
+    if (filtered.length === 0) {
+        div.innerHTML = `
+            <div style="text-align:center; padding:40px; opacity:0.6;">
+                <p style="font-size:3rem;">📭</p>
+                <p>Bu kategoride henüz bir soru etiketlemedin.</p>
+            </div>`;
+    } else {
+        div.innerHTML = filtered.map(q => `
+            <div class="list-item" style="border-left:5px solid ${targetCategory === 'exam' ? '#2980b9' : '#c0392b'}; margin-bottom:10px;">
+                <div style="display:flex; justify-content:space-between; align-items:start;">
+                    <b style="color:#1e3c72; font-size:0.9rem;">${q.ders} - ${q.konu}</b>
+                    <span style="font-size:0.65rem; background:#eee; padding:2px 5px; border-radius:4px;">${q.kaynak || 'Genel'}</span>
+                </div>
+                ${q.personalNote ? `<div style="font-size:0.8rem; color:#666; margin-top:5px; font-style:italic;">📝 ${q.personalNote}</div>` : ''}
+                <button onclick="viewSingleQuestion('${q.id}')" style="margin-top:10px; padding:6px; font-size:0.75rem; width:100%; border-color:#eee;">Soruyu Gör</button>
+            </div>
+        `).join('');
+    }
+
+    // Buton görsellerini güncelle (Hangi filtre aktifse o parlasın)
+    document.querySelectorAll('#archive-filter-chips .chip').forEach(c => c.classList.remove('active'));
+    document.getElementById(`btn-filter-${targetCategory}`).classList.add('active');
 };
