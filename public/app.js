@@ -259,24 +259,6 @@ window.selectGroup = (g, fromMemory = false) => {
     window.renderSubjects(fromMemory);
 };
 
-window.renderSubjects = (fromMemory = false) => {
-    const container = document.getElementById('box-dersler');
-    const area = document.getElementById('area-ders');
-    if (!container || !area) return;
-
-    if(!window.secilenSinav || !window.secilenGrup || !window.mufredat[window.secilenSinav][window.secilenGrup]) { area.style.display = 'none'; return; }
-    
-    const subjects = Object.keys(window.mufredat[window.secilenSinav][window.secilenGrup]);
-    area.style.display = 'block';
-    container.innerHTML = subjects.map(s => `<div class="chip ${window.secilenDers === s ? 'active' : ''}" onclick="window.selectSubject('${s}')">${s}</div>`).join('');
-    
-    if(fromMemory && window.secilenDers) window.selectSubject(window.secilenDers, true);
-    else {
-        const areaKonu = document.getElementById('area-konu');
-        if (areaKonu) areaKonu.style.display = 'none';
-    }
-};
-
 window.selectSubject = (s, fromMemory = false) => {
     window.secilenDers = s;
     if(!fromMemory) window.secilenKonu = "";
