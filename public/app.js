@@ -15,6 +15,78 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const messaging = getMessaging(app);
+// 🚨 YEREL VERİTABANI (INDEXED-DB) YÖNETİCİSİ 🚨
+const LocalDB = {
+    dbName: "GaziKumbaramDB",
+    dbVersion: 1,
+    storeName: "Sorular",
+
+    init: function() {
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open(this.dbName, this.dbVersion);
+
+            request.onupgradeneeded = (event) => {
+                const db = event.target.result;
+                if (!db.objectStoreNames.contains(this.storeName)) {
+                    db.createObjectStore(this.storeName, { keyPath: "id" });
+                }
+            };
+
+            request.onsuccess = (event) => resolve(event.target.result);
+            request.onerror = (event) => reject("Veritabanı açılamadı.");
+        });
+    },
+
+    saveQuestion: async function(questionObj) {
+        try {
+            const db = await this.init();
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction([this.storeName], "readwrite");
+                const store = transaction.objectStore(this.storeName);
+                const request = store.put(questionObj); 
+                request.onsuccess = () => resolve(true);
+                request.onerror = () => reject(false);
+            });
+        } catch (error) { return false; }
+    },
+
+    getAllQuestions: async function() {
+        try {
+            const db = await this.init();
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction([this.storeName], "readonly");
+                const store = transaction.objectStore(this.storeName);
+                const request = store.getAll();
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject([]);
+            });
+        } catch (error) { return []; }
+    },
+
+    updateQuestion: async function(questionId, updatedData) {
+         try {
+            const db = await this.init();
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction([this.storeName], "readwrite");
+                const store = transaction.objectStore(this.storeName);
+                const getRequest = store.get(questionId);
+
+                getRequest.onsuccess = () => {
+                    const data = getRequest.result;
+                    if (data) {
+                        const mergedData = { ...data, ...updatedData };
+                        const putRequest = store.put(mergedData);
+                        putRequest.onsuccess = () => resolve(true);
+                        putRequest.onerror = () => reject(false);
+                    } else {
+                        resolve(false);
+                    }
+                };
+                getRequest.onerror = () => reject(false);
+            });
+        } catch(e) { return false; }
+    }
+};
 
 // 🚨 YENİ NESİL MÜFREDAT AĞACI VE KAPSÜL (BUTON) SİSTEMİ BAŞLANGICI 🚨
 window.mufredat = {
@@ -854,16 +926,19 @@ window.uploadStudentQuestion = (target = 'cloud') => {
         siklar: ["A", "B", "C", "D", "E"] 
     };
     
-    if (target === 'cloud') {
+if (target === 'cloud') {
         if(!socket) return alert("Buluta bağlanılamadı, lütfen Cihaza Kaydet seçeneğini kullanın."); 
         delete q.id; 
         socket.emit("addStudentQuestion", q);
         alert(`✅ Soru BULUT Hata Defterinize eklendi!`);
     } else {
-        let localNotebook = JSON.parse(localStorage.getItem('gazi_local_notebook')) || []; 
-        localNotebook.push(q); 
-        localStorage.setItem('gazi_local_notebook', JSON.stringify(localNotebook));
-        alert(`💾 Soru CİHAZINIZA başarıyla kaydedildi!\nİnternetsiz de çözebilirsiniz.`);
+        LocalDB.saveQuestion(q).then((basariliMi) => {
+            if(basariliMi) {
+                alert(`💾 Soru CİHAZINIZA başarıyla kaydedildi!\nİnternetsiz de çözebilirsiniz.`);
+            } else {
+                alert("❌ Soru cihazınıza kaydedilemedi. Lütfen tekrar deneyin.");
+            }
+        });
     }
     
     document.getElementById('std-q-text').value = ""; 
@@ -875,13 +950,14 @@ window.uploadStudentQuestion = (target = 'cloud') => {
     if (customKonuInput) customKonuInput.value = "";
 };
 
-window.fetchStudentLibrary = (source = 'cloud', onlyReviews = false) => {
+window.fetchStudentLibrary = async (source = 'cloud', onlyReviews = false) => {
     if(source === 'cloud') {
         if(!socket) return alert("Sunucu bağlantısı yok."); 
         const studentName = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "").trim() || "Gazi Adayı"; 
         socket.emit("getStudentLibrary", { studentName: studentName, onlyReviews: onlyReviews });
     } else {
-        let localData = JSON.parse(localStorage.getItem('gazi_local_notebook')) || [];
+        let localData = await LocalDB.getAllQuestions();
+        
         if(onlyReviews) { 
             const now = Date.now(); 
             localData = localData.filter(q => q.nextReviewDate && q.nextReviewDate <= now); 
@@ -962,22 +1038,19 @@ function renderStudentLibraryHTML(data, title) {
     showScreen('screen-list'); 
 }
 
-window.updateReviewDate = (questionId, isLocal = false) => {
+window.updateReviewDate = async (questionId, isLocal = false) => {
     const d = prompt("Harika! Bu soruyu tekrar ettin. Peki sana bir daha ne zaman hatırlatayım? \n(Örn: 1 Saat için 0.04, Akşam için 0.25, Yarın Sabah için 0.5, 3 Gün için 3 yazın)");
     const days = parseFloat(d ? d.replace(',', '.') : 0);
     
     if(days && days > 0) {
         const newDate = Date.now() + (days * 24 * 60 * 60 * 1000);
+        
         if(!isLocal) { 
             socket.emit("updateReviewDate", { questionId: questionId, additionalDays: days }); 
         } else { 
-            let localData = JSON.parse(localStorage.getItem('gazi_local_notebook')) || []; 
-            const idx = localData.findIndex(x => x.id === questionId); 
-            if(idx !== -1) { 
-                localData[idx].nextReviewDate = newDate; 
-                localStorage.setItem('gazi_local_notebook', JSON.stringify(localData)); 
-            } 
+            await LocalDB.updateQuestion(questionId, { nextReviewDate: newDate });
         }
+        
         alert(`✅ Tamamdır! Bu soru sistem takvimine işlendi.`);
         showScreen('screen-main');
         const studentName = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "").trim() || "Gazi Adayı"; 
