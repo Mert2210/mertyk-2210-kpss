@@ -174,13 +174,13 @@ window.toggleEditMode = () => {
     if (panel) panel.style.display = window.isEditMode ? 'block' : 'none';
     window.initEtiketleme(); // Çarpı (X) işaretlerini göstermek/gizlemek için ekranı yenile
 };
-
+// 🚨 GÜNCELLENMİŞ VE TEKLEŞTİRİLMİŞ DERS ÇİZDİRİCİ
 window.renderSubjects = (fromMemory = false) => {
     const container = document.getElementById('box-dersler');
     const area = document.getElementById('area-ders');
     if (!container || !area) return;
 
-    if(!window.secilenSinav || !window.secilenGrup || !window.mufredat[window.secilenSinav][window.secilenGrup]) { 
+    if(!window.secilenSinav || !window.secilenGrup || !window.mufredat[window.secilenSinav]?.[window.secilenGrup]) { 
         area.style.display = 'none'; return; 
     }
     
@@ -190,46 +190,65 @@ window.renderSubjects = (fromMemory = false) => {
     area.style.display = 'block';
     container.innerHTML = subjects.map(s => {
         const isCustom = customDersler.includes(s);
-        
-        let actionButtons = "";
+        let actionBtns = "";
+
         if (window.isEditMode) {
-            actionButtons = `
+            actionBtns = `
                 <span class="edit-plus-btn" onclick="event.stopPropagation(); window.openQuickAdd('kaynak', '${s}')">➕</span>
-                ${isCustom ? `<span class="edit-del-btn" onclick="event.stopPropagation(); manageCustomItem('ders', 'remove', '${s}')">✖</span>` : ''}
+                ${isCustom ? `<span class="edit-del-btn" onclick="event.stopPropagation(); window.manageCustomItem('ders', 'remove', '${s}')">✖</span>` : ''}
             `;
         }
 
         return `<div class="chip ${window.secilenDers === s ? 'active' : ''}" onclick="window.selectSubject('${s}')">
-                    ${s} ${actionButtons}
+                    ${s} ${actionBtns}
                 </div>`;
     }).join('');
     
     if(fromMemory && window.secilenDers) window.selectSubject(window.secilenDers, true);
 };
+// 💾 GÜVENLİ PROFİL KAYDETME SİSTEMİ
+window.saveProfileSettings = async () => {
+    try {
+        const user = auth.currentUser;
+        // ?. kullanarak kutu yoksa hata vermesini engelledik
+        const newName = document.getElementById('profile-new-name')?.value.trim();
+        const oldPass = document.getElementById('profile-old-pass')?.value.trim();
+        const newPass = document.getElementById('profile-new-pass')?.value.trim();
 
-// GÜNCELLENMİŞ DERS ÇİZDİRİCİ
-window.renderSubjects = (fromMemory = false) => {
-    const container = document.getElementById('box-dersler');
-    const area = document.getElementById('area-ders');
-    if (!container || !area) return;
+        if (user && newName) {
+            const role = (user.displayName || "").split('|')[1] || 'student';
+            await updateProfile(user, { displayName: newName + "|" + role });
+            const display = document.getElementById('display-user');
+            if(display) display.innerText = "Hoş Geldin, " + newName;
+        }
 
-    if(!window.secilenSinav || !window.secilenGrup || !window.mufredat[window.secilenSinav][window.secilenGrup]) { area.style.display = 'none'; return; }
-    
-    const subjects = Object.keys(window.mufredat[window.secilenSinav][window.secilenGrup]);
-    const customDersler = JSON.parse(localStorage.getItem('gazi_custom_dersler')) || [];
+        if (user && newPass && !user.isAnonymous) {
+            if (!oldPass) return alert("Şifre güncellemek için mevcut şifrenizi girmelisiniz!");
+            const cred = EmailAuthProvider.credential(user.email, oldPass);
+            await reauthenticateWithCredential(user, cred);
+            await updatePassword(user, newPass);
+            alert("✅ Şifreniz güncellendi!");
+        }
 
-    area.style.display = 'block';
-    container.innerHTML = subjects.map(s => {
-        const isCustom = customDersler.includes(s);
-        // Düzenleme modundaysa ve sonradan eklenmiş bir dersse X işareti koy:
-        const closeBtn = (window.isEditMode && isCustom) ? `<span style="color:#fff; margin-left:6px; padding:0px 5px; background:#e74c3c; border-radius:50%; font-size:0.75rem;" onclick="event.stopPropagation(); manageCustomItem('ders', 'remove', '${s}')">✖</span>` : '';
-        return `<div class="chip ${window.secilenDers === s ? 'active' : ''}" onclick="window.selectSubject('${s}')">${s} ${closeBtn}</div>`;
-    }).join('');
-    
-    if(fromMemory && window.secilenDers) window.selectSubject(window.secilenDers, true);
-    else {
-        const areaKonu = document.getElementById('area-konu');
-        if (areaKonu) areaKonu.style.display = 'none';
+        // Seçili ders verilerini topla
+        const subjectsData = [];
+        ['tarih', 'cografya', 'vatandaslik', 'matematik', 'turkce', 'egitim', 'fizik', 'kimya', 'biyoloji', 'fen'].forEach(sub => {
+            const cb = document.getElementById('subj-' + sub);
+            if (cb && cb.checked) {
+                const topicVal = document.getElementById('topic-' + sub)?.value.trim() || "";
+                subjectsData.push({ name: cb.value, topics: topicVal });
+            }
+        });
+
+        localStorage.setItem('gazi_subjects_v2', JSON.stringify(subjectsData));
+        localStorage.setItem('gazi_exam_type', document.getElementById('profile-exam-type')?.value || 'KPSS');
+        localStorage.setItem('gazi_onboarding_done', 'true');
+
+        alert("✅ Tüm ayarlar başarıyla kaydedildi.");
+        window.showScreen('screen-main');
+    } catch (e) {
+        console.error("Hata:", e);
+        alert("⚠️ Bir sorun oluştu: " + e.message);
     }
 };
 
@@ -387,8 +406,13 @@ window.installPWA = () => {
     } 
 };
 
+// 📱 SAĞLAM PWA KAYIT MOTORU
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js').then(() => console.log("PWA Aktif."));
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+            .then(reg => console.log('✅ Çevrimdışı mod aktif: ', reg.scope))
+            .catch(err => console.log('❌ PWA Hatası: ', err));
+    });
 }
 
 window.showScreen = (id) => { 
@@ -1995,10 +2019,31 @@ window.fetchFilteredLibrary = async (targetCategory) => {
 window.openQuickAdd = (type, parentName) => {
     const newItem = prompt(`'${parentName}' altına yeni bir ${type === 'ders' ? 'DERS' : 'KAYNAK'} ekleyin:`);
     if (newItem && newItem.trim() !== "") {
-        if(typeof window.manageCustomItem === 'function') {
-            window.manageCustomItem(type, 'add', newItem.trim());
-        } else {
-            alert("⚠️ Ekleme modülü henüz hazır değil!");
+        // 🛠️ YÖNETİM MODÜLÜ (SINAV/DERS EKLE-SİL)
+window.manageCustomItem = async (type, action, itemName = '') => {
+    let key = type === 'sinav' ? 'gazi_custom_exams' : (type === 'ders' ? 'gazi_custom_dersler' : 'gazi_custom_sources');
+    let list = JSON.parse(localStorage.getItem(key)) || [];
+
+    if (action === 'add') {
+        const nameVal = itemName || document.getElementById(`custom-input-${type}`)?.value.trim();
+        if (!nameVal) return alert("Lütfen bir isim giriniz!");
+        if (list.includes(nameVal)) return alert("Bu zaten ekli!");
+
+        list.push(nameVal);
+        localStorage.setItem(key, JSON.stringify(list));
+
+        if (type === 'sinav') {
+            if (!window.mufredat[nameVal]) window.mufredat[nameVal] = { "Genel": { "Genel Ders": [] } };
         }
+        alert(`✅ ${nameVal} eklendi.`);
+    } else if (action === 'remove') {
+        list = list.filter(i => i !== itemName);
+        localStorage.setItem(key, JSON.stringify(list));
+        if (type === 'sinav') delete window.mufredat[itemName];
+        alert(`❌ ${itemName} silindi.`);
     }
+
+    // Ekranda hemen görünmesi için tazele
+    window.renderExams();
+    window.renderSubjects();
 };
