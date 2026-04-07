@@ -85,11 +85,13 @@
         <h1 style="font-size: 1.8rem; color:#1e3c72; margin-bottom: 5px;">Gazililer <span id="role-subtitle" style="font-size: 1.1rem; color: #e67e22; font-weight:normal;">(Öğrenci)</span></h1>
         <h2 style="font-size: 1.1rem; color:#e67e22; margin-top: 0; margin-bottom:20px; font-weight:600;">Yanlış Soru Kumbaram</h2>
         
-        <div id="login-box" class="auth-form">
+       <div id="login-box" class="auth-form">
             <h3 style="margin-top:0; color:#1e3c72; text-align:center; font-size:1.2rem;">Hesabınıza Giriş Yapın</h3>
-            <input type="email" id="login-email" placeholder="E-posta Adresiniz">
-            <input type="password" id="login-pass" placeholder="Şifreniz">
-            <button onclick="handleLogin()" class="green" style="padding:15px; font-size:1.1rem;">🚀 Giriş Yap</button>
+            <form onsubmit="event.preventDefault(); handleLogin();">
+                <input type="email" id="login-email" placeholder="E-posta Adresiniz" required>
+                <input type="password" id="login-pass" placeholder="Şifreniz" required>
+                <button type="submit" class="green" style="padding:15px; font-size:1.1rem;">🚀 Giriş Yap</button>
+            </form>
             
             <div style="display:flex; gap:8px; margin-top:15px;">
                 <button onclick="handleGoogleLogin()" style="background:#db4437; flex:2; font-size:0.9rem; border-radius:8px;">🌐 Google ile Giriş Yap</button>
@@ -104,10 +106,11 @@
 
         <div id="reg-box" class="auth-form" style="display:none;">
             <h3 style="margin-top:0; color:#e67e22; text-align:center; font-size:1.2rem;">Yeni Kayıt</h3>
-            <input type="text" id="reg-username" placeholder="İsim Soyisim / Kullanıcı Adı">
-            <input type="email" id="reg-email" placeholder="E-posta">
-            <input type="password" id="reg-pass" placeholder="Şifre Belirleyin">
-            <input type="password" id="reg-pass-confirm" placeholder="Şifre Tekrar">
+            <form onsubmit="event.preventDefault(); handleRegister();">
+                <input type="text" id="reg-username" placeholder="İsim Soyisim / Kullanıcı Adı" required>
+                <input type="email" id="reg-email" placeholder="E-posta" required>
+                <input type="password" id="reg-pass" placeholder="Şifre Belirleyin" required>
+                <input type="password" id="reg-pass-confirm" placeholder="Şifre Tekrar" required>
             
             <div id="reg-student-options" style="background:#f9f9f9; padding:10px; border-radius:8px; margin-top:10px; border:1px solid #ddd;">
                 <label style="font-size:0.75rem; font-weight:bold; color:#1e3c72; display:block; margin-bottom:5px;">Hedef Sınavınız:</label>
@@ -143,7 +146,8 @@
 
             <p id="teacher-info-text" style="display:none; font-size:0.8rem; color:#c0392b; font-weight:bold; text-align:center; background:#fff3f3; padding:10px; border-radius:8px; border:1px solid #f5c6cb; margin-top:15px;">⚠️ Öğretmen kayıtları, yönetici onayından sonra aktifleşir.</p>
             
-            <button onclick="handleRegister()" class="orange" style="margin-top:15px; padding:15px; font-size:1.1rem;">Kayıt İşlemini Tamamla</button>
+            <button type="submit" class="orange" style="margin-top:15px; padding:15px; font-size:1.1rem;">Kayıt İşlemini Tamamla</button>
+            </form>
             <div style="text-align:center; margin-top:20px;">
                 <span class="auth-switch" onclick="switchAuth('login')">⬅️ Zaten hesabım var, Giriş Yap</span>
             </div>
