@@ -469,6 +469,26 @@
     </div>
 
     <div id="screen-game" class="screen">
+        <div id="solution-overlay" class="full-solution-overlay">
+        <h2 style="color:#1e3c72; border-bottom: 2px solid #eee; padding-bottom: 10px;">👨‍🏫 Soru Çözümü</h2>
+        <div id="overlay-solution-content" style="text-align: left; color: #333; font-size: 1.1rem; line-height: 1.6;">
+            </div>
+        
+        <div id="time-selector-area" style="display:none;">
+            <h3 style="color:#e67e22; margin-top:20px;">⏳ Ne Zaman Tekrar Soralım?</h3>
+            <div class="time-options-grid">
+                <button class="time-btn" onclick="scheduleAndNext(0.04)">1 Saat Sonra</button>
+                <button class="time-btn" onclick="scheduleAndNext(0.12)">3 Saat Sonra</button>
+                <button class="time-btn" onclick="scheduleAndNext(1)">1 Gün Sonra</button>
+                <button class="time-btn" onclick="scheduleAndNext(3)">3 Gün Sonra</button>
+                <button class="time-btn" onclick="scheduleAndNext(7)">1 Hafta Sonra</button>
+                <button class="time-btn" onclick="scheduleAndNext(30)">1 Ay Sonra</button>
+            </div>
+        </div>
+
+        <button class="action-fab fab-left" onclick="pushToBack()" title="Anlamadım, Sona At">🔄</button>
+        <button class="action-fab fab-right" onclick="showTimeOptions()" title="Takvime Planla">📅</button>
+    </div>
         <div id="live-leaderboard" style="font-size:0.8rem; background:rgba(0,0,0,0.2); padding:8px; border-radius:5px; margin-bottom:10px; color:#f1c40f; font-weight:bold; display:none;">Canlı Skor: Bekleniyor...</div>
         
         <div style="display:flex; justify-content:space-between; align-items:center;">
