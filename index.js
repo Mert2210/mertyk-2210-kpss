@@ -233,8 +233,14 @@ io.on("connection", (socket) => {
         }
     });
 
-    socket.on("saveStudentResult", async (data) => {
-        if(db) { try { await db.collection("kpss_results").add({ ...data, date: new Date().toLocaleString('tr-TR'), serverTime: admin.firestore.FieldValue.serverTimestamp() }); } catch(e){} }
+   socket.on("saveStudentResult", async (data) => {
+        if(db) { 
+            try { 
+                await db.collection("kpss_results").add({ ...data, date: new Date().toLocaleString('tr-TR'), serverTime: admin.firestore.FieldValue.serverTimestamp() }); 
+            } catch(e) { 
+                console.error("❌ Öğrenci skoru kaydedilirken hata:", e.message); 
+            } 
+        }
     });
 
     socket.on("getMyStats", async (studentName) => {
@@ -306,10 +312,15 @@ io.on("connection", (socket) => {
     });
 
     socket.on("addStudentQuestion", async (q) => {
-        if (db) { try { await db.collection("student_questions").add({ ...q, createdAt: admin.firestore.FieldValue.serverTimestamp() }); } catch (e) {} }
+        if (db) { 
+            try { 
+                await db.collection("student_questions").add({ ...q, createdAt: admin.firestore.FieldValue.serverTimestamp() }); 
+            } catch (e) { 
+                console.error("❌ Öğrenci sorusu buluta eklenirken hata:", e.message); 
+            } 
+        }
     });
-
-    socket.on("checkNotebookReviews", async (studentName) => {
+   socket.on("checkNotebookReviews", async (studentName) => {
         if(db && studentName) {
             try {
                 const snap = await db.collection("student_questions").where("studentName", "==", studentName).get();
@@ -320,7 +331,9 @@ io.on("connection", (socket) => {
                     if(data.nextReviewDate && data.nextReviewDate <= now) reviewCount++;
                 });
                 socket.emit("notebookReviewsCount", reviewCount);
-            } catch(e) {}
+            } catch(e) { 
+                console.error("❌ Tekrar edilecek sorular kontrol edilirken hata:", e.message); 
+            }
         }
     });
 
@@ -345,7 +358,9 @@ io.on("connection", (socket) => {
             try {
                 const newDate = Date.now() + (additionalDays * 24 * 60 * 60 * 1000);
                 await db.collection("student_questions").doc(questionId).update({ nextReviewDate: newDate });
-            } catch(e) {}
+            } catch(e) { 
+                console.error("❌ Soru tekrar tarihi güncellenirken hata:", e.message); 
+            }
         }
     });
 
@@ -364,7 +379,7 @@ io.on("connection", (socket) => {
         } else { socket.emit("pendingTeachersData", []); }
     });
 
-    socket.on("approveTeacher", async (email) => {
+   socket.on("approveTeacher", async (email) => {
         if(admin.apps.length) {
             try {
                 const userRecord = await admin.auth().getUserByEmail(email);
@@ -381,7 +396,9 @@ io.on("connection", (socket) => {
                     });
                     socket.emit("pendingTeachersData", pending);
                 }
-            } catch(e) {}
+            } catch(e) { 
+                console.error("❌ Öğretmen onaylanırken/listelenirken hata:", e.message); 
+            }
         }
     });
 
