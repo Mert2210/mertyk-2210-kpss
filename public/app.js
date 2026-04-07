@@ -1744,3 +1744,71 @@ function renderNavigator(total, curr, mode) {
         } 
     } 
 }
+
+// =======================================================
+// 🚨 HATIRLATMA TAKVİMİ VE SÜRE HESAPLAMA SİSTEMİ 🚨
+// =======================================================
+window.openReviewCalendar = async () => {
+    // Cihazdaki tüm soruları çek
+    let localData = await LocalDB.getAllQuestions();
+    
+    // Sadece "nextReviewDate" (Hatırlatma tarihi) atanmış olanları filtrele
+    let reviewQuestions = localData.filter(q => q.nextReviewDate);
+    
+    // Tarihi en yakın olan (en acil olan) en üstte çıkacak şekilde sırala
+    reviewQuestions.sort((a, b) => a.nextReviewDate - b.nextReviewDate);
+    
+    currentListType = "review_calendar";
+    document.getElementById('list-title').innerText = "📅 Hatırlatma Takvimi";
+    
+    const filterArea = document.getElementById('library-filter-area');
+    if (filterArea) filterArea.style.display = 'none'; // Filtreyi gizle
+    
+    const div = document.getElementById('list-content');
+    
+    if (reviewQuestions.length === 0) {
+        div.innerHTML = `
+            <div style="text-align:center; padding:20px;">
+                <h1 style="font-size:3rem; margin:0; opacity:0.5;">🎉</h1>
+                <p style="color:#666; font-weight:bold;">Harika! Şu an tekrar etmen gereken hiçbir soru yok.</p>
+            </div>`;
+    } else {
+        const now = Date.now();
+        div.innerHTML = reviewQuestions.map((q, i) => {
+            let timeDiff = q.nextReviewDate - now;
+            let badgeHTML = "";
+            
+            // SÜRE HESAPLAMA MANTIĞI
+            if (timeDiff <= 0) {
+                badgeHTML = `<span style="background:#e74c3c; color:white; padding:4px 8px; border-radius:6px; font-size:0.75rem; font-weight:bold; box-shadow:0 2px 4px rgba(231,76,60,0.3);">🔴 Çözüm Vakti Geldi</span>`;
+            } else {
+                let minutes = Math.floor(timeDiff / (1000 * 60));
+                let hours = Math.floor(minutes / 60);
+                let days = Math.floor(hours / 24);
+                
+                let timeText = "";
+                if (days > 0) timeText = `${days} Gün Kaldı`;
+                else if (hours > 0) timeText = `${hours} Saat Kaldı`;
+                else if (minutes > 0) timeText = `${minutes} Dakika Kaldı`;
+                else timeText = "Birazdan...";
+                
+                badgeHTML = `<span style="background:#f39c12; color:white; padding:4px 8px; border-radius:6px; font-size:0.75rem; font-weight:bold; box-shadow:0 2px 4px rgba(243,156,18,0.3);">⏳ ${timeText}</span>`;
+            }
+
+            return `
+            <div class="list-item" style="border-left: 5px solid #8e44ad; background:#fff; margin-bottom:10px; box-shadow:0 2px 5px rgba(0,0,0,0.05);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <span style="background:#1e3c72; color:#fff; padding:3px 8px; border-radius:4px; font-size:0.75rem; font-weight:bold;">${q.ders || 'Genel'}</span> 
+                    ${badgeHTML}
+                </div>
+                <b style="color:#e67e22; font-size:0.95rem;">${q.konu || 'Konu Belirtilmemiş'}</b><br>
+                ${q.not ? `<div style="background:#f9f9f9; padding:8px; border-radius:6px; margin-top:5px; font-size:0.85rem; color:#444; border:1px dashed #ccc;"><b>📝 Notun:</b> ${q.not}</div>` : ''}
+                ${q.image ? `<img src="${q.image}" style="width:100%; border-radius:8px; margin-top:8px; border:1px solid #eee;">` : ''}
+                
+                ${timeDiff <= 0 ? `<button onclick="updateReviewDate('${q.id}', true)" class="green" style="width:100%; margin-top:10px; font-size:0.8rem; padding:8px;">✅ Çözdüm (Tekrar Ertele)</button>` : ''}
+            </div>`;
+        }).join('');
+    }
+    
+    showScreen('screen-list');
+};
