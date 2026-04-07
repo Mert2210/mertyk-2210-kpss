@@ -577,15 +577,24 @@ io.on("connection", (socket) => {
         }
     });
 
+    // 🚨 RAM TEMİZLİĞİ: ODA BOŞALIRSA SİL 🚨
     socket.on("disconnect", () => {
         for (const code in rooms) {
             if (rooms[code].players[socket.id]) {
                 delete rooms[code].players[socket.id];
                 io.to(code).emit("updatePlayerList", Object.values(rooms[code].players));
+                
+                // Eğer odada kimse kalmadıysa odayı tamamen RAM'den sil
+                if (Object.keys(rooms[code].players).length === 0) {
+                    if (rooms[code].timerId) clearTimeout(rooms[code].timerId);
+                    if (rooms[code].globalTimeout) clearTimeout(rooms[code].globalTimeout);
+                    delete rooms[code];
+                    console.log(`🗑️ ${code} numaralı oda boşaldığı için sunucu belleğinden silindi.`);
+                }
             }
         }
     });
-});
+
 
 function sendQuestionToRoom(roomCode) {
     const room = rooms[roomCode];
