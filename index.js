@@ -444,17 +444,38 @@ io.on("connection", (socket) => {
         io.to(roomCode).emit("updatePlayerList", Object.values(rooms[roomCode].players));
     });
 
-    socket.on("startTrial", (settings) => {
-        let pool = [...tumSorular];
-        if (settings.deneme && settings.deneme !== "HEPSI") {
-            const secilenler = Array.isArray(settings.deneme) ? settings.deneme : [settings.deneme];
-            pool = pool.filter(q => secilenler.includes(q.deneme));
+    // 🚨 RAM DOSTU: HIZLI DENEME BAŞLATMA (FIREBASE SORGUSU İLE) 🚨
+    socket.on("startTrial", async (settings) => {
+        let pool = [];
+        
+        if (db) {
+            try {
+                let query = db.collection("kpss_sorular");
+                
+                // En büyük yükü (Ders filtrelemesini) Firebase'e yaptırıyoruz
+                if (settings.subject && settings.subject !== "HEPSI") {
+                    const hedefler = Array.isArray(settings.subject) ? settings.subject : [settings.subject];
+                    query = query.where("ders", "in", hedefler);
+                }
+                
+                const snapshot = await query.get();
+                pool = snapshot.docs.map(doc => doc.data());
+                
+                // Kalan ufak filtreleri hafızada yapıyoruz (Çok daha az veri var artık)
+                if (settings.deneme && settings.deneme !== "HEPSI") {
+                    const secilenler = Array.isArray(settings.deneme) ? settings.deneme : [settings.deneme];
+                    pool = pool.filter(q => secilenler.includes(q.deneme));
+                }
+                if (settings.difficulty && settings.difficulty !== "HEPSI") {
+                    pool = pool.filter(q => (q.zorluk || "ORTA").toLocaleUpperCase('tr') === settings.difficulty);
+                }
+            } catch(e) {
+                console.error("❌ Hızlı Deneme soruları çekilirken Firebase hatası:", e.message);
+                pool = [...tumSorular]; // Hata olursa eski usül yedekten devam
+            }
+        } else {
+            pool = [...tumSorular];
         }
-        if (settings.subject && settings.subject !== "HEPSI") {
-            const hedefler = Array.isArray(settings.subject) ? settings.subject : [settings.subject];
-            pool = pool.filter(q => hedefler.includes((q.ders || "GENEL").trim().toLocaleUpperCase('tr')));
-        }
-        if (settings.difficulty && settings.difficulty !== "HEPSI") pool = pool.filter(q => (q.zorluk || "ORTA").toLocaleUpperCase('tr') === settings.difficulty);
 
         fisherYatesShuffle(pool);
         const limit = parseInt(settings.count) || 10;
@@ -463,26 +484,44 @@ io.on("connection", (socket) => {
         socket.emit("trialStarted", { questions: trialQuestions, timerMode: settings.timerMode, duration: settings.duration });
     });
 
-    socket.on("startGame", ({ roomCode, settings }) => {
+// 🚨 RAM DOSTU: CANLI ODA SINAVI BAŞLATMA (FIREBASE SORGUSU İLE) 🚨
+    socket.on("startGame", async ({ roomCode, settings }) => {
         const room = rooms[roomCode];
         if (!room) return;
         
-        let pool = [...tumSorular];
+        let pool = [];
+        if (db) {
+            try {
+                let query = db.collection("kpss_sorular");
+                
+                // Dersleri Firebase'den filtreleyerek çek
+                if (settings.subject && settings.subject !== "HEPSI") {
+                    const hedefler = Array.isArray(settings.subject) ? settings.subject : [settings.subject];
+                    query = query.where("ders", "in", hedefler);
+                }
+                
+                const snapshot = await query.get();
+                pool = snapshot.docs.map(doc => doc.data());
+
+                // Diğer detay filtreleri
+                if (settings.deneme && settings.deneme !== "HEPSI") {
+                    const secilenler = Array.isArray(settings.deneme) ? settings.deneme : [settings.deneme];
+                    pool = pool.filter(q => secilenler.includes(q.deneme));
+                }
+                if (settings.difficulty && settings.difficulty !== "HEPSI") {
+                    pool = pool.filter(q => (q.zorluk || "ORTA").toLocaleUpperCase('tr') === settings.difficulty);
+                }
+            } catch(e) {
+                console.error("❌ Oda soruları çekilirken Firebase hatası:", e.message);
+                pool = [...tumSorular];
+            }
+        } else {
+            pool = [...tumSorular];
+        }
+
         const limit = parseInt(settings.count) || 10;
-
-        if (settings.deneme && settings.deneme !== "HEPSI") {
-            const secilenler = Array.isArray(settings.deneme) ? settings.deneme : [settings.deneme];
-            pool = pool.filter(q => secilenler.includes(q.deneme));
-        }
-        if (settings.subject && settings.subject !== "HEPSI") {
-            const hedefler = Array.isArray(settings.subject) ? settings.subject : [settings.subject];
-            pool = pool.filter(q => hedefler.includes((q.ders || "GENEL").trim().toLocaleUpperCase('tr')));
-        }
-        if (settings.difficulty && settings.difficulty !== "HEPSI") {
-            pool = pool.filter(q => (q.zorluk || "ORTA").toLocaleUpperCase('tr') === settings.difficulty);
-        }
-
         fisherYatesShuffle(pool);
+        
         room.questions = pool.slice(0, limit).map(q => shuffleOptions(q, settings.optionsCount));
         room.settings = settings;
         room.timerMode = settings.timerMode || 'question';
@@ -499,7 +538,6 @@ io.on("connection", (socket) => {
         }
         sendQuestionToRoom(roomCode);
     });
-
     socket.on("submitAnswer", ({ roomCode, answerIndex }) => {
         const room = rooms[roomCode];
         if (!room || !room.gameStarted) return;
