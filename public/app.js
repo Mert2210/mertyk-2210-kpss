@@ -1726,7 +1726,13 @@ window.reportQuestion = () => {
     alert("🚨 Bu soru merkeze bildirildi."); 
 };
 
-window.fetchAdminReports = () => { if(socket) socket.emit("adminGetReports"); };
+window.fetchAdminReports = () => { 
+    if(socket) {
+        // Sunucuya istek atarken, o an giriş yapmış kişinin e-postasını da bilet olarak gönderiyoruz.
+        const currentUserEmail = auth.currentUser ? auth.currentUser.email : "misafir";
+        socket.emit("adminGetReports", currentUserEmail); 
+    }
+};
 
 if(socket) socket.on("allReportsData", (data) => { 
     currentListType = "admin_report"; 
