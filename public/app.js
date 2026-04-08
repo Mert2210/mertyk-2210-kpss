@@ -420,17 +420,22 @@ if ('serviceWorker' in navigator) {
 }
 
 window.showScreen = (id) => { 
+    const targetScreen = document.getElementById(id);
+    
+    // 🚨 SİHİRLİ ZIRH: Eğer gidilecek ekran bulunamazsa işlemi DURDUR. 
+    // Böylece mevcut ekran silinmez ve MAVİ EKRAN hatası önlenmiş olur.
+    if (!targetScreen) {
+        console.warn(`⚠️ HATA: Gidilecek '${id}' ekranı bulunamadı!`);
+        alert("Görünüm yüklenirken bir sorun oluştu. Sayfayı yenileyebilirsiniz.");
+        return; 
+    }
+
     const filterChips = document.getElementById('archive-filter-chips');
     if (filterChips) filterChips.style.display = 'none';
     
+    // Gidilecek ekran sağlamsa, eski ekranları kapat ve yenisini aç
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); 
-    
-    const targetScreen = document.getElementById(id);
-    if (targetScreen) {
-        targetScreen.classList.add('active'); 
-    } else {
-        console.warn(`⚠️ HATA: '${id}' ID'li ekran bulunamadı! JavaScript'in çökmesi engellendi.`);
-    }
+    targetScreen.classList.add('active'); 
 };
 
 window.toggleDropdown = (id) => document.getElementById(id).classList.toggle('show');
@@ -1107,25 +1112,56 @@ if (target === 'cloud') {
 };
 
 window.fetchStudentLibrary = async (source = 'cloud', onlyReviews = false) => {
-    const filterChips = document.getElementById('archive-filter-chips');
-    if (filterChips) filterChips.style.display = 'flex'; 
+    try {
+        // Yükleniyor ekranını aç (Daha önce eklediğimiz)
+        const loader = document.getElementById('loading-overlay');
+        if (loader) loader.style.display = 'flex'; 
 
-    currentListType = "student_library";
-    document.getElementById('list-title').innerText = "📚 Soru Arşivim";
-    if(source === 'cloud') {
-        if(!socket) return alert("Sunucu bağlantısı yok."); 
-        const studentName = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "").trim() || "Gazi Adayı"; 
-        socket.emit("getStudentLibrary", { studentName: studentName, onlyReviews: onlyReviews });
-    } else {
-        let localData = await LocalDB.getAllQuestions();
-        
-        if(onlyReviews) { 
-            const now = Date.now(); 
-            localData = localData.filter(q => q.nextReviewDate && q.nextReviewDate <= now); 
-        } else { 
-            localData.reverse(); 
+        const filterChips = document.getElementById('archive-filter-chips');
+        if (filterChips) filterChips.style.display = 'flex';
+
+        currentListType = "student_library";
+        const listTitle = document.getElementById('list-title');
+        if (listTitle) listTitle.innerText = "📚 Soru Arşivim";
+
+        if(source === 'cloud') {
+            if(!socket) {
+                if (loader) loader.style.display = 'none';
+                return alert("❌ Sunucu bağlantısı yok! Lütfen Node.js sunucunuzun (backend) çalıştığından emin olun.");
+            }
+            
+            const displayUser = document.getElementById('display-user');
+            const studentName = displayUser ? displayUser.innerText.replace("Hoş Geldin, ", "").trim() : "Gazi Adayı";
+            
+            console.log("☁️ Buluttan sorular isteniyor... Öğrenci:", studentName);
+            socket.emit("getStudentLibrary", { studentName: studentName, onlyReviews: onlyReviews });
+            
+            // DİKKAT: Sunucu çöktüyse sonsuza kadar beklemesin diye 5 saniye sınır koyuyoruz
+            setTimeout(() => {
+                if (document.getElementById('loading-overlay')?.style.display === 'flex') {
+                    document.getElementById('loading-overlay').style.display = 'none';
+                    alert("⏳ Sunucudan cevap gelmedi (Zaman Aşımı). Backend (server.js) açık mı?");
+                }
+            }, 5000);
+
+        } else {
+            console.log("💾 Cihazdan sorular çekiliyor...");
+            let localData = await LocalDB.getAllQuestions();
+            
+            if(onlyReviews) {
+                const now = Date.now();
+                localData = localData.filter(q => q.nextReviewDate && q.nextReviewDate <= now);
+            } else {
+                localData.reverse();
+            }
+            
+            if (loader) loader.style.display = 'none';
+            renderStudentLibraryHTML(localData, "💾 Cihaz Hata Defterim");
         }
-        renderStudentLibraryHTML(localData, "💾 Cihaz Hata Defterim");
+    } catch (e) {
+        if (document.getElementById('loading-overlay')) document.getElementById('loading-overlay').style.display = 'none';
+        alert("❌ Arşiv açılırken bir hata oluştu: " + e.message);
+        console.error("Arşiv Hatası:", e);
     }
 };
 
