@@ -160,7 +160,8 @@
    <div id="screen-main" class="screen">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
             <button onclick="logout()" class="outline" style="width:auto; font-size:0.8rem; padding:8px;">⬅️ Çıkış</button>
-            <button id="pwa-install-btn" onclick="installPWA()" class="green" style="display:none; width:auto; font-size:0.8rem; padding:8px;">📲 İndir</button>
+            
+            <button onclick="document.getElementById('install-guide-modal').style.display='flex'" class="outline" style="width:auto; font-size:0.8rem; padding:8px; border-color:#8e44ad; color:#8e44ad; background:#fff; font-weight:bold;">📲 İndir</button>
             
             <div style="display:flex; gap:5px;">
                 <button onclick="toggleEditMode()" class="gold" style="width:35px; height:35px; padding:0; border-radius:50%; font-size:1.2rem; display:flex; justify-content:center; align-items:center; box-shadow:0 2px 5px rgba(0,0,0,0.2);" title="Müfredatı Düzenle">➕</button>
@@ -379,6 +380,7 @@
                 <input type="password" id="profile-old-pass" placeholder="Mevcut (Eski) Şifreniz" style="margin-bottom:5px; font-size:0.85rem;">
                 <input type="password" id="profile-new-pass" placeholder="Yeni Şifre Belirleyin" style="margin-bottom:0; font-size:0.85rem;">
             </div>
+            
             <h4 style="color:#1e3c72; border-bottom:2px solid #eee; padding-bottom:8px; margin-top:20px;">🧠 Akıllı Hatırlatma (Tekrar) Ayarları</h4>
             <div style="background:#e8f4f8; padding:12px; border-radius:10px; margin-bottom:20px; border:1px dashed #3498db; text-align:left;">
                 <label class="checkbox-item" style="border:none; padding:5px 0;">
@@ -396,6 +398,13 @@
                     </select>
                 </div>
             </div>
+
+            <div style="text-align: center; margin-bottom: 20px;">
+                <button onclick="window.askNotificationPermission()" style="background:#8e44ad; color:white; border:none; padding:10px 20px; border-radius:8px; font-weight:bold; width:100%; box-shadow: 0 4px 10px rgba(142,68,173,0.3); cursor:pointer;">
+                    🔔 Bildirim İzinlerini Aktif Et
+                </button>
+            </div>
+
            <h4 style="color:#1e3c72; border-bottom:2px solid #eee; padding-bottom:8px; margin-top:20px;">🎯 Hedef Sınavlarınız (Birden Fazla Seçebilirsiniz)</h4>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; background:#f9f9f9; padding:12px; border-radius:10px; margin-bottom:15px;">
                 <label class="checkbox-item" style="border:none; padding:5px 0;"><input type="checkbox" class="profile-exam-cb" value="kpss_lisans"> KPSS Lisans</label>
@@ -413,7 +422,8 @@
                 <div id="grade-boxes" style="display:flex; gap:8px; flex-wrap:wrap;"></div>
                 <input type="hidden" id="profile-grade" value="">
             </div>
-<h4 style="color:#1e3c72; border-bottom:2px solid #eee; padding-bottom:8px; margin-top:20px;">🖼️ Çözüm Paneli Görünümü</h4>
+            
+            <h4 style="color:#1e3c72; border-bottom:2px solid #eee; padding-bottom:8px; margin-top:20px;">🖼️ Çözüm Paneli Görünümü</h4>
             <div style="background:#f1f2f6; padding:12px; border-radius:10px; margin-bottom:15px; text-align:left;">
                 <label class="checkbox-item" style="border:none; padding:5px 0;">
                     <input type="checkbox" id="set-show-result" checked> <label>Kendi Cevabımı & Doğruyu Göster</label>
@@ -425,6 +435,7 @@
                     <input type="checkbox" id="set-show-image" checked> <label>Çözüm Fotoğrafını Göster</label>
                 </label>
             </div>
+            
             <h4 style="color:#1e3c72; border-bottom:2px solid #eee; padding-bottom:8px; margin-top:20px;">📚 Sorumlu Olduğunuz Dersler</h4>
             <p style="font-size:0.75rem; color:#666; margin-top:0;">Dersleri seçip yanlarına çalışacağınız alt konuları belirtebilirsiniz.</p>
             
@@ -457,10 +468,10 @@
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
             <h3 id="list-title" style="margin:0;">Liste</h3>
             <div id="archive-filter-chips" style="display:none; gap:8px; padding:10px; overflow-x:auto; background:#f8f9fa; border-bottom:1px solid #eee;">
-    <button onclick="fetchStudentLibrary('local')" class="chip active" id="btn-filter-all" style="font-size:0.7rem; padding:5px 12px;">Hepsi</button>
-    <button onclick="fetchFilteredLibrary('exam')" class="chip" id="btn-filter-exam" style="font-size:0.7rem; padding:5px 12px; border-color:#2980b9; color:#2980b9;">🌟 Sınavlık</button>
-    <button onclick="fetchFilteredLibrary('wrong')" class="chip" id="btn-filter-wrong" style="font-size:0.7rem; padding:5px 12px; border-color:#c0392b; color:#c0392b;">❌ Yanlışlar</button>
-</div>
+                <button onclick="fetchStudentLibrary('local')" class="chip active" id="btn-filter-all" style="font-size:0.7rem; padding:5px 12px;">Hepsi</button>
+                <button onclick="fetchFilteredLibrary('exam')" class="chip" id="btn-filter-exam" style="font-size:0.7rem; padding:5px 12px; border-color:#2980b9; color:#2980b9;">🌟 Sınavlık</button>
+                <button onclick="fetchFilteredLibrary('wrong')" class="chip" id="btn-filter-wrong" style="font-size:0.7rem; padding:5px 12px; border-color:#c0392b; color:#c0392b;">❌ Yanlışlar</button>
+            </div>
             <button id="pdf-btn" onclick="downloadPDF()" class="orange" style="width:auto; font-size:0.8rem; padding:8px 12px;">📄 PDF İndir</button>
         </div>
         <div id="library-filter-area" class="filter-section" style="display:none;">
@@ -562,6 +573,31 @@
         <button onclick="location.reload()" class="outline" style="margin-top:10px;">ANA MENÜ</button>
     </div>
 
+</div>
+
+<div id="install-guide-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; justify-content:center; align-items:center; flex-direction:column; padding:20px;">
+    <div style="background:white; border-radius:15px; padding:20px; max-width:400px; width:100%; text-align:center; position:relative;">
+        <button onclick="document.getElementById('install-guide-modal').style.display='none'" style="position:absolute; top:10px; right:10px; background:red; color:white; border:none; border-radius:50%; width:30px; height:30px; font-weight:bold; cursor:pointer;">X</button>
+        
+        <h3 style="color:#1e3c72; margin-bottom:15px;">📲 Uygulamayı Cihazına Kur</h3>
+        
+        <div style="background:#f4f6f7; padding:15px; border-radius:10px; margin-bottom:15px; text-align:left;">
+            <h4 style="color:#2980b9; margin-top:0;">🍎 iPhone / iPad</h4>
+            <p style="font-size:0.85rem; color:#555;">
+                <b>Safari'de:</b> Alt menüdeki <b>Paylaş</b> simgesine dokunun.<br>
+                <b>Chrome'da:</b> Sağ üst köşedeki <b>Paylaş</b> simgesine dokunun.
+            </p>
+            <p style="font-size:0.85rem; color:#555;">Ardından açılan menüyü aşağı kaydırıp <b>"Ana Ekrana Ekle"</b> (➕) seçeneğini seçin.</p>
+            <p style="font-size:0.75rem; color:#e74c3c; margin-top:5px; font-weight:bold;">* Eğer sorun yaşarsanız aşağıdaki butondan bağlantıyı kopyalayıp Safari'den açmayı deneyin.</p>
+            <button onclick="window.copyLinkAndAlert()" style="margin-top:10px; padding:8px; background:#3498db; color:white; border:none; border-radius:6px; font-size:0.8rem; cursor:pointer; width:100%;">🔗 Linki Kopyala</button>
+        </div>
+
+        <div style="background:#f4f6f7; padding:15px; border-radius:10px; text-align:left;">
+            <h4 style="color:#27ae60; margin-top:0;">🤖 Android (Chrome)</h4>
+            <p style="font-size:0.85rem; color:#555;">1. Sağ üst köşedeki <b>Üç Nokta</b> (⋮) menüsüne dokunun.</p>
+            <p style="font-size:0.85rem; color:#555;">2. <b>"Ana Ekrana Ekle"</b> veya "Uygulamayı Yükle" seçeneğine dokunun.</p>
+        </div>
+    </div>
 </div>
 
 <script type="module" src="app.js"></script>
