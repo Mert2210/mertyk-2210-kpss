@@ -653,11 +653,56 @@ window.saveProfileSettings = async () => {
     window.showScreen('screen-main');
 };
 window.handleLogin = async () => { 
+    const emailEl = document.getElementById('login-email');
+    const passEl = document.getElementById('login-pass');
+    
+    if(!emailEl || !passEl || !emailEl.value || !passEl.value) {
+        return alert("⚠️ Lütfen e-posta ve şifrenizi eksiksiz girin!");
+    }
+
     try { 
-        await signInWithEmailAndPassword(auth, document.getElementById('login-email').value.trim(), document.getElementById('login-pass').value); 
+        document.getElementById('loading-overlay').style.display = 'flex'; // Yükleniyor ekranını aç
+        await signInWithEmailAndPassword(auth, emailEl.value.trim(), passEl.value); 
     } catch(e) { 
-        alert("❌ Giriş Başarısız: E-posta veya şifre hatalı."); 
+        document.getElementById('loading-overlay').style.display = 'none'; // Hatada yükleniyor'u kapat
+        alert("❌ Giriş Başarısız: E-posta veya şifre hatalı. (" + e.message + ")"); 
     } 
+};
+
+window.handleRegister = async () => {
+    const e = document.getElementById('reg-email')?.value.trim(); 
+    const u = document.getElementById('reg-username')?.value.trim(); 
+    const p1 = document.getElementById('reg-pass')?.value; 
+    const p2 = document.getElementById('reg-pass-confirm')?.value;
+    
+    if(!e || !u || !p1 || !p2) return alert("⚠️ Lütfen tüm alanları doldurun!");
+    if(p1 !== p2) return alert("❌ Şifreler uymuyor!");
+    if(p1.length < 6) return alert("❌ Şifre en az 6 karakter olmalıdır!");
+    
+    const regExamType = document.getElementById('reg-exam-type')?.value || "KPSS"; 
+    const regGrade = document.getElementById('reg-grade')?.value || "";
+    
+    try { 
+        document.getElementById('loading-overlay').style.display = 'flex';
+        const res = await createUserWithEmailAndPassword(auth, e, p1); 
+        await updateProfile(res.user, { displayName: u + "|" + selectedRole }); 
+        await sendEmailVerification(res.user);
+        
+        if(selectedRole === 'student') { 
+            localStorage.setItem('gazi_exam_type', regExamType); 
+            if(regGrade) localStorage.setItem('gazi_grade', regGrade); 
+        } else if (selectedRole === 'teacher_pending') { 
+            const selectedExams = Array.from(document.querySelectorAll('.t-exam-cb:checked')).map(cb => cb.value); 
+            localStorage.setItem('gazi_teacher_exams', JSON.stringify(selectedExams)); 
+        }
+
+        alert("✅ Kayıt başarılı! Lütfen doğrulama maili için Gelen Kutunuzu ve SPAM klasörünü kontrol edin.");
+        await signOut(auth); 
+        location.reload(); 
+    } catch(e) { 
+        document.getElementById('loading-overlay').style.display = 'none';
+        alert("❌ Kayıt Hatası: " + e.message); 
+    }
 };
 
 window.handleRegister = async () => {
@@ -723,6 +768,8 @@ window.handleGoogleLogin = async () => {
 };
 
 onAuthStateChanged(auth, user => {
+    const loader = document.getElementById('loading-overlay');
+    if (loader) loader.style.display = 'none';
     const adminBtn = document.getElementById('admin-report-btn'); 
     const adminApproveBtn = document.getElementById('admin-approve-btn'); 
     const instPanel = document.getElementById('instructor-panel'); 
@@ -929,6 +976,7 @@ window.processImageUpload = (e, type = 'question') => {
         img.src = event.target.result;
     }; 
     reader.readAsDataURL(file);
+    e.target.value = '';
 };
 
 window.processStudentImageUpload = (e, type = 'image') => {
