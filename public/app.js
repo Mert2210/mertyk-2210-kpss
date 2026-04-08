@@ -254,51 +254,6 @@ window.renderSubjects = (fromMemory = false) => {
     
     if(fromMemory && window.secilenDers) window.selectSubject(window.secilenDers, true);
 };
-// 💾 GÜVENLİ PROFİL KAYDETME SİSTEMİ
-window.saveProfileSettings = async () => {
-    try {
-        const user = auth.currentUser;
-        // ?. kullanarak kutu yoksa hata vermesini engelledik
-        const newName = document.getElementById('profile-new-name')?.value.trim();
-        const oldPass = document.getElementById('profile-old-pass')?.value.trim();
-        const newPass = document.getElementById('profile-new-pass')?.value.trim();
-
-        if (user && newName) {
-            const role = (user.displayName || "").split('|')[1] || 'student';
-            await updateProfile(user, { displayName: newName + "|" + role });
-            const display = document.getElementById('display-user');
-            if(display) display.innerText = "Hoş Geldin, " + newName;
-        }
-
-        if (user && newPass && !user.isAnonymous) {
-            if (!oldPass) return alert("Şifre güncellemek için mevcut şifrenizi girmelisiniz!");
-            const cred = EmailAuthProvider.credential(user.email, oldPass);
-            await reauthenticateWithCredential(user, cred);
-            await updatePassword(user, newPass);
-            alert("✅ Şifreniz güncellendi!");
-        }
-
-        // Seçili ders verilerini topla
-        const subjectsData = [];
-        ['tarih', 'cografya', 'vatandaslik', 'matematik', 'turkce', 'egitim', 'fizik', 'kimya', 'biyoloji', 'fen'].forEach(sub => {
-            const cb = document.getElementById('subj-' + sub);
-            if (cb && cb.checked) {
-                const topicVal = document.getElementById('topic-' + sub)?.value.trim() || "";
-                subjectsData.push({ name: cb.value, topics: topicVal });
-            }
-        });
-
-        localStorage.setItem('gazi_subjects_v2', JSON.stringify(subjectsData));
-        localStorage.setItem('gazi_exam_type', document.getElementById('profile-exam-type')?.value || 'KPSS');
-        localStorage.setItem('gazi_onboarding_done', 'true');
-
-        alert("✅ Tüm ayarlar başarıyla kaydedildi.");
-        window.showScreen('screen-main');
-    } catch (e) {
-        console.error("Hata:", e);
-        alert("⚠️ Bir sorun oluştu: " + e.message);
-    }
-};
 
 window.selectExam = (ex, fromMemory = false) => {
     window.secilenSinav = ex;
@@ -597,60 +552,80 @@ window.openSettingsPanel = () => {
 };
 
 window.saveProfileSettings = async () => {
-    const user = auth.currentUser;
-    // 🛡️ ?. işareti sayesinde element yoksa hata vermez, sistem çökmez.
-    const newName = document.getElementById('profile-new-name')?.value.trim();
-    const oldPass = document.getElementById('profile-old-pass')?.value.trim();
-    const newPass = document.getElementById('profile-new-pass')?.value.trim();
+    try {
+        const user = auth.currentUser;
+        const newName = document.getElementById('profile-new-name')?.value.trim();
+        const oldPass = document.getElementById('profile-old-pass')?.value.trim();
+        const newPass = document.getElementById('profile-new-pass')?.value.trim();
 
-    // 1. İSİM GÜNCELLEME
-    if (user && newName) {
-        const role = (user.displayName || "").split('|')[1] || 'student';
-        updateProfile(user, { displayName: newName + "|" + role });
-        const displayUser = document.getElementById('display-user');
-        if (displayUser) displayUser.innerText = "Hoş Geldin, " + newName;
-    }
-
-    // 2. ŞİFRE GÜNCELLEME
-    if (user && newPass && !user.isAnonymous) {
-        if (!oldPass) return alert("Şifrenizi güncellemek için lütfen önce Eski Şifrenizi yazınız!");
-        const cred = EmailAuthProvider.credential(user.email, oldPass);
-        reauthenticateWithCredential(user, cred).then(() => {
-            updatePassword(user, newPass).then(() => {
-                alert("✅ Şifreniz güncellendi!");
-                if(document.getElementById('profile-old-pass')) document.getElementById('profile-old-pass').value = '';
-                if(document.getElementById('profile-new-pass')) document.getElementById('profile-new-pass').value = '';
-            });
-        }).catch(e => { alert("❌ Eski şifre hatalı!"); });
-    }
-
-    // 3. SINAV & SINIF KAYDET
-    if(document.getElementById('profile-exam-type')) localStorage.setItem('gazi_exam_type', document.getElementById('profile-exam-type').value);
-    if(document.getElementById('profile-grade')) localStorage.setItem('gazi_grade', document.getElementById('profile-grade').value);
-
-    // 4. DERS SEÇİMLERİNİ KAYDET
-    const subjectsData = [];
-    ['tarih', 'cografya', 'vatandaslik', 'matematik', 'turkce', 'egitim', 'fizik', 'kimya', 'biyoloji', 'fen'].forEach(sub => {
-        const cb = document.getElementById('subj-' + sub);
-        if (cb && cb.checked) {
-            const topicInput = document.getElementById('topic-' + sub);
-            subjectsData.push({ name: cb.value, topics: topicInput ? topicInput.value.trim() : "" });
+        // 1. İSİM GÜNCELLEME
+        if (user && newName) {
+            const role = (user.displayName || "").split('|')[1] || 'student';
+            await updateProfile(user, { displayName: newName + "|" + role });
+            const displayUser = document.getElementById('display-user');
+            if(displayUser) displayUser.innerText = "Hoş Geldin, " + newName;
         }
-    });
 
-    localStorage.setItem('gazi_subjects_v2', JSON.stringify(subjectsData));
-    
-    // 5. YENİ GÖRÜNÜM AYARLARI (Gerekiyorsa buraya eklenecek)
-    const overlayPrefs = {
-        showResult: document.getElementById('set-show-result')?.checked ?? true,
-        showText: document.getElementById('set-show-text')?.checked ?? true,
-        showImage: document.getElementById('set-show-image')?.checked ?? true
-    };
-    localStorage.setItem('gazi_overlay_prefs', JSON.stringify(overlayPrefs));
+        // 2. ŞİFRE GÜNCELLEME (Güvenli Zırhlı Versiyon)
+        if (user && newPass && !user.isAnonymous) {
+            if (!oldPass) return alert("⚠️ Şifre değiştirmek için lütfen mevcut şifrenizi giriniz!");
+            const cred = EmailAuthProvider.credential(user.email, oldPass);
+            await reauthenticateWithCredential(user, cred);
+            await updatePassword(user, newPass);
+            alert("✅ Şifreniz güvenle güncellendi!");
+            document.getElementById('profile-old-pass').value = '';
+            document.getElementById('profile-new-pass').value = '';
+        }
 
-    localStorage.setItem('gazi_onboarding_done', 'true');
-    alert("✅ Ayarlar Kaydedildi!");
-    window.showScreen('screen-main');
+        // 3. KUTUCUKLU (CHECKBOX) ÇOKLU SINAV VE SINIF KAYDETME
+        // Kullanıcının seçtiği tüm kutucuklu sınavları topluyoruz (Örn: TYT ve AYT aynı anda)
+        const selectedExams = Array.from(document.querySelectorAll('.profile-exam-cb:checked')).map(cb => cb.value);
+        if (selectedExams.length > 0) {
+            localStorage.setItem('gazi_selected_exams', JSON.stringify(selectedExams));
+        } else {
+            // Eğer kutucuk sistemi kullanılmıyorsa, eski açılır menüyü (dropdown) yedek olarak kullan
+            const examType = document.getElementById('profile-exam-type');
+            if(examType) localStorage.setItem('gazi_exam_type', examType.value);
+        }
+
+        const grade = document.getElementById('profile-grade');
+        if(grade) localStorage.setItem('gazi_grade', grade.value);
+
+        // 4. DERS SEÇİMLERİNİ KAYDET
+        const subjectsData = [];
+        ['tarih', 'cografya', 'vatandaslik', 'matematik', 'turkce', 'egitim', 'fizik', 'kimya', 'biyoloji', 'fen'].forEach(sub => {
+            const cb = document.getElementById('subj-' + sub);
+            if (cb && cb.checked) {
+                const topicVal = document.getElementById('topic-' + sub)?.value.trim() || "";
+                subjectsData.push({ name: cb.value, topics: topicVal });
+            }
+        });
+        localStorage.setItem('gazi_subjects_v2', JSON.stringify(subjectsData));
+
+        // 5. GÖRÜNÜM (ÇÖZÜM PANELİ) AYARLARI
+        const overlayPrefs = {
+            showResult: document.getElementById('set-show-result')?.checked ?? true,
+            showText: document.getElementById('set-show-text')?.checked ?? true,
+            showImage: document.getElementById('set-show-image')?.checked ?? true
+        };
+        localStorage.setItem('gazi_overlay_prefs', JSON.stringify(overlayPrefs));
+
+        // 🌟 6. YENİ: BULUT HATIRLATMA (TEKRAR) AYARLARI 🌟
+        const reminderPrefs = {
+            autoSchedule: document.getElementById('set-auto-reminder')?.checked ?? true,
+            defaultDays: parseFloat(document.getElementById('set-reminder-days')?.value) || 1 // Varsayılan 1 Gün
+        };
+        localStorage.setItem('gazi_reminder_prefs', JSON.stringify(reminderPrefs));
+
+        // Her şey başarıyla bitti
+        localStorage.setItem('gazi_onboarding_done', 'true');
+        alert("✅ Tüm çalışma masası ayarlarınız kaydedildi!");
+        window.showScreen('screen-main');
+        
+    } catch (e) {
+        console.error("Profil Kayıt Hatası:", e);
+        alert("⚠️ Bir sorun oluştu. Lütfen eski şifrenizi doğru girdiğinizden emin olun.");
+    }
 };
 window.handleLogin = async () => { 
     const emailEl = document.getElementById('login-email');
@@ -739,23 +714,23 @@ window.handleRegister = async () => {
 
 window.handleGuestLogin = async () => { 
     try { 
+        document.getElementById('loading-overlay').style.display = 'flex';
         const guestName = "Misafir-" + Math.floor(1000 + Math.random() * 9000); 
         const res = await signInAnonymously(auth); 
         await updateProfile(res.user, { displayName: guestName + "|student" }); 
-        location.reload(); 
     } catch(e) { 
-        alert("Bağlantı Hatası"); 
+        document.getElementById('loading-overlay').style.display = 'none';
+        alert("Bağlantı Hatası: İnternetinizi kontrol edin."); 
     } 
 };
 
-window.handleResetPassword = async () => { 
-    const email = document.getElementById('login-email').value.trim(); 
-    if(!email) return alert("❌ Lütfen önce e-posta adresinizi yazın."); 
+window.handleGoogleLogin = async () => { 
     try { 
-        await sendPasswordResetEmail(auth, email); 
-        alert("📩 Şifre sıfırlama bağlantısı gönderildi! Lütfen SPAM (Gereksiz) kutunuzu da kontrol edin."); 
+        document.getElementById('loading-overlay').style.display = 'flex';
+        await signInWithPopup(auth, new GoogleAuthProvider()); 
     } catch(e) { 
-        alert(e.message); 
+        document.getElementById('loading-overlay').style.display = 'none';
+        alert("Bağlantı iptal edildi veya hata oluştu: " + e.message); 
     } 
 };
 
