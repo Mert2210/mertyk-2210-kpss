@@ -467,8 +467,15 @@ if ('serviceWorker' in navigator) {
 window.showScreen = (id) => { 
     const filterChips = document.getElementById('archive-filter-chips');
     if (filterChips) filterChips.style.display = 'none';
+    
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); 
-    document.getElementById(id).classList.add('active'); 
+    
+    const targetScreen = document.getElementById(id);
+    if (targetScreen) {
+        targetScreen.classList.add('active'); 
+    } else {
+        console.warn(`⚠️ HATA: '${id}' ID'li ekran bulunamadı! JavaScript'in çökmesi engellendi.`);
+    }
 };
 
 window.toggleDropdown = (id) => document.getElementById(id).classList.toggle('show');
@@ -748,10 +755,13 @@ onAuthStateChanged(auth, user => {
         if (adminBtn) adminBtn.style.display = isAdmin ? "block" : "none";
         if (adminApproveBtn) adminApproveBtn.style.display = isAdmin ? "block" : "none";
 
-        const stdClassCode = localStorage.getItem("gazi_class_code");
+       const stdClassCode = localStorage.getItem("gazi_class_code");
         if(stdClassCode && !isTeacher) { 
-            document.getElementById('class-code-input').value = stdClassCode; 
-            document.getElementById('btn-class-questions').style.display = 'block'; 
+            const classInput = document.getElementById('class-code-input');
+            const classBtn = document.getElementById('btn-class-questions');
+            
+            if(classInput) classInput.value = stdClassCode; 
+            if(classBtn) classBtn.style.display = 'block'; 
         }
 
         if(typeof socket !== 'undefined') {
