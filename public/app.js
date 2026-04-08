@@ -1462,7 +1462,13 @@ window.fetchClassQuestions = () => {
 };
 
 if(socket) {
-    socket.on("studentLibraryData", (data) => renderStudentLibraryHTML(data, "☁️ Bulut Hata Defterim"));
+    socket.on("studentLibraryData", (data) => {
+        // 🚨 SİHİRLİ DOKUNUŞ: Sunucudan cevap geldiği an Yükleniyor ekranını gizle!
+        const loader = document.getElementById('loading-overlay');
+        if (loader) loader.style.display = 'none';
+        
+        renderStudentLibraryHTML(data, "☁️ Bulut Hata Defterim");
+        });
     socket.on("classQuestionsData", (data) => { 
         if(data.length === 0) return alert("Bu sınıfa henüz öğretmen tarafından soru eklenmemiş."); 
         window.tempStdQuestions = data; 
