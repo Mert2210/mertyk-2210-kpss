@@ -162,3 +162,16 @@ input[type="checkbox"] { width: auto !important; margin: 0 10px 0 0 !important; 
 
 .time-options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
 .time-btn { padding: 15px; background: #f1f2f6; border: 2px solid #ddd; border-radius: 12px; font-weight: bold; cursor: pointer; color: #1e3c72; }
+/* 🚨 YÜKLENİYOR (LOADING) SPINNER ANİMASYONU 🚨 */
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid rgba(255, 255, 255, 0.3);
+    border-top: 5px solid #f1c40f;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
