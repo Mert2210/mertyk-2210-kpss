@@ -15,6 +15,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const messaging = getMessaging(app);
+
 // 🚨 YEREL VERİTABANI (INDEXED-DB) YÖNETİCİSİ 🚨
 const LocalDB = {
     dbName: "GaziKumbaramDB",
@@ -88,8 +89,7 @@ const LocalDB = {
     }
 };
 
-// 🚨 YENİ NESİL DEV MÜFREDAT AĞACI (AGS GÜNCELLEMELİ & ARA SINIFLAR DAHİL) 🚨
-// 🚨 YENİ NESİL DEV MÜFREDAT AĞACI (SIRALAMASI DÜZENLENMİŞ HALİ) 🚨
+// 🚨 YENİ NESİL DEV MÜFREDAT AĞACI 🚨
 window.mufredat = {
     "KPSS (B Grubu & A Grubu)": {
         "Genel Yetenek - Genel Kültür (B Grubu)": {
@@ -175,7 +175,6 @@ window.secilenGrup = "";
 window.secilenDers = "";
 window.secilenKonu = "";
 
-// 🚨 1. EKSİK PARÇA: Özel Sınav ve Dersleri Hafızadan Çağırma Motoru
 window.applyCustomMufredat = () => {
     const customExams = JSON.parse(localStorage.getItem('gazi_custom_exams')) || [];
     customExams.forEach(ex => {
@@ -194,7 +193,6 @@ window.applyCustomMufredat = () => {
     }
 };
 
-// 🚨 2. EKSİK PARÇA: Ana Sınavları (KPSS, YKS vb.) Ekrana Çizme Motoru
 window.renderExams = (fromMemory = false) => {
     const container = document.getElementById('box-exams');
     if (!container) return;
@@ -242,15 +240,14 @@ window.initEtiketleme = () => {
     window.renderExams(mem.exam ? true : false);
 };
 
-// 🚨 DÜZENLEME MODU (EDIT MODE) KONTROLÜ 🚨
 window.isEditMode = false;
 window.toggleEditMode = () => {
     window.isEditMode = !window.isEditMode;
     const panel = document.getElementById('main-custom-panel');
     if (panel) panel.style.display = window.isEditMode ? 'block' : 'none';
-    window.initEtiketleme(); // Çarpı (X) işaretlerini göstermek/gizlemek için ekranı yenile
+    window.initEtiketleme(); 
 };
-// 🚨 GÜNCELLENMİŞ VE TEKLEŞTİRİLMİŞ DERS ÇİZDİRİCİ
+
 window.renderSubjects = (fromMemory = false) => {
     const container = document.getElementById('box-dersler');
     const area = document.getElementById('area-ders');
@@ -358,48 +355,40 @@ window.selectTopic = (t) => {
 };
 
 document.addEventListener("DOMContentLoaded", () => {
-    window.applyCustomMufredat(); // Önce özel müfredatı sisteme yükle
-    setTimeout(() => { window.initEtiketleme(); }, 500); // Sonra etiketleri diz
+    window.applyCustomMufredat(); 
+    setTimeout(() => { window.initEtiketleme(); }, 500); 
 });
-// 🚨 YENİ NESİL MÜFREDAT AĞACI BİTİŞ 🚨
 
-// 🚨 TEMEL ARAYÜZ VE PWA FONKSİYONLARI 🚨
+// 🚨 BİLDİRİM İZİNLERİ MOTORU 🚨
+window.askNotificationPermission = () => {
+    if (!('Notification' in window)) {
+        return alert("Cihazınız veya tarayıcınız bildirim sistemini desteklemiyor.");
+    }
+    
+    Notification.requestPermission().then((permission) => {
+        if (permission === 'granted') {
+            alert("✅ Harika! Artık hatırlatmaları bildirim olarak alacaksın.");
+            new Notification("Gazi Kumbaram", { 
+                body: "Bildirimler başarıyla açıldı! Tekrar vakti geldiğinde sana haber vereceğim." 
+            });
+        } else {
+            alert("⚠️ Bildirimlere izin vermediniz. Çalışma masanızdan daha sonra tekrar açabilirsiniz.");
+        }
+    });
+};
+
+// 🚨 PWA VE TEMEL FONKSİYONLAR 🚨
 window.onload = () => { 
-    window.updateRegGradeDropdown(); 
+    if(typeof window.updateRegGradeDropdown === 'function') window.updateRegGradeDropdown(); 
     checkPWAPrompts();
 };
 
 function checkPWAPrompts() {
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-    const isAndroid = /Android/.test(navigator.userAgent);
     const isStandalone = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
-    const isChromeIOS = navigator.userAgent.match("CriOS") || navigator.userAgent.match("FxiOS");
-    
-    if (!isStandalone) {
-        if (isIOS && isChromeIOS) {
-            document.getElementById('ios-chrome-prompt').style.display = 'flex';
-        } else if (isIOS && !isChromeIOS) {
-            if(!localStorage.getItem('gazi_ios_prompt')) { 
-                document.getElementById('ios-pwa-prompt').style.display = 'block'; 
-            }
-        } else if (isAndroid) {
-            if(!localStorage.getItem('gazi_android_prompt')) { 
-                document.getElementById('android-pwa-prompt').style.display = 'block'; 
-            }
-        }
+    if (!isStandalone && !localStorage.getItem('gazi_pwa_dismissed')) {
+        console.log("Uygulama tarayıcıdan açıldı. İndirme yönlendirmesi hazır.");
     }
 }
-
-window.closePWAPrompt = (os) => {
-    if(os === 'ios') { 
-        document.getElementById('ios-pwa-prompt').style.display = 'none'; 
-        localStorage.setItem('gazi_ios_prompt', 'true'); 
-    } 
-    else { 
-        document.getElementById('android-pwa-prompt').style.display = 'none'; 
-        localStorage.setItem('gazi_android_prompt', 'true'); 
-    }
-};
 
 window.copyLinkAndAlert = () => {
     navigator.clipboard.writeText("https://gazililer.com.tr").then(() => {
@@ -435,10 +424,11 @@ window.installPWA = () => {
             deferredPrompt = null; 
             document.getElementById('pwa-install-btn').style.display = 'none'; 
         }); 
-    } 
+    } else {
+        document.getElementById('install-guide-modal').style.display = 'flex';
+    }
 };
 
-// 📱 SAĞLAM PWA KAYIT MOTORU
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js')
@@ -449,9 +439,6 @@ if ('serviceWorker' in navigator) {
 
 window.showScreen = (id) => { 
     const targetScreen = document.getElementById(id);
-    
-    // 🚨 SİHİRLİ ZIRH: Eğer gidilecek ekran bulunamazsa işlemi DURDUR. 
-    // Böylece mevcut ekran silinmez ve MAVİ EKRAN hatası önlenmiş olur.
     if (!targetScreen) {
         console.warn(`⚠️ HATA: Gidilecek '${id}' ekranı bulunamadı!`);
         alert("Görünüm yüklenirken bir sorun oluştu. Sayfayı yenileyebilirsiniz.");
@@ -461,7 +448,6 @@ window.showScreen = (id) => {
     const filterChips = document.getElementById('archive-filter-chips');
     if (filterChips) filterChips.style.display = 'none';
     
-    // Gidilecek ekran sağlamsa, eski ekranları kapat ve yenisini aç
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); 
     targetScreen.classList.add('active'); 
 };
@@ -520,9 +506,11 @@ window.updateRegGradeDropdown = () => {
 };
 
 window.updateGradeDropdown = () => {
-    const type = document.getElementById('profile-exam-type').value; 
+    const type = document.getElementById('profile-exam-type')?.value; 
     const area = document.getElementById('grade-selection-area'); 
     const boxContainer = document.getElementById('grade-boxes'); 
+    if(!area || !boxContainer) return;
+
     boxContainer.innerHTML = ''; 
     document.getElementById('profile-grade').value = '';
 
@@ -547,6 +535,7 @@ window.updateGradeDropdown = () => {
         area.style.display = 'none'; 
     }
 };
+
 window.openSettingsPanel = () => {
     const displayUser = document.getElementById('display-user');
     const userNameText = displayUser ? displayUser.innerText : "";
@@ -556,20 +545,15 @@ window.openSettingsPanel = () => {
         passArea.style.display = userNameText.includes("Misafir") ? 'none' : 'block';
     }
     
-    // 🌟 YENİ SİSTEM: ÇOKLU SINAV KUTUCUKLARINI HAFIZADAN OKU VE İŞARETLE 🌟
     const savedExams = JSON.parse(localStorage.getItem('gazi_selected_exams')) || [];
-    
-    // Önce ekrandaki tüm sınav kutucuklarının işaretini kaldır
     document.querySelectorAll('.profile-exam-cb').forEach(cb => cb.checked = false);
     
-    // Eğer hafızada kaydedilmiş sınavlar varsa, onları tikle (işaretle)
     if (savedExams.length > 0) {
         savedExams.forEach(examVal => {
             const cb = document.querySelector(`.profile-exam-cb[value="${examVal}"]`);
             if (cb) cb.checked = true;
         });
     } else {
-        // Eski sistemden (açılır menüden) kalma tek bir sınav varsa onu işaretle
         const oldExam = localStorage.getItem('gazi_exam_type');
         if (oldExam) {
             const cb = document.querySelector(`.profile-exam-cb[value="${oldExam}"]`);
@@ -577,14 +561,12 @@ window.openSettingsPanel = () => {
         }
     }
 
-    // 🛡️ ESKİ KODUN ÇÖKMESİNİ ENGELLEYEN ZIRH (Dropdown hala varsa çalışır, yoksa atlar)
     const oldDropdown = document.getElementById('profile-exam-type');
     if (oldDropdown) {
         oldDropdown.value = localStorage.getItem('gazi_exam_type') || 'kpss_lisans'; 
         if(typeof window.updateGradeDropdown === 'function') window.updateGradeDropdown();
     }
     
-    // Sınıf / Lise derecesini seç
     const savedGrade = localStorage.getItem('gazi_grade');
     if(savedGrade) { 
         const gradeInput = document.getElementById('profile-grade');
@@ -596,7 +578,6 @@ window.openSettingsPanel = () => {
         }, 100); 
     }
 
-    // Dersleri ve alt konuları doldur
     const savedSubjects = JSON.parse(localStorage.getItem('gazi_subjects_v2')) || [];
     const subjects = ['tarih', 'cografya', 'vatandaslik', 'matematik', 'turkce', 'egitim', 'fizik', 'kimya', 'biyoloji', 'fen'];
     subjects.forEach(sub => { 
@@ -610,7 +591,6 @@ window.openSettingsPanel = () => {
         } 
     });
 
-    // 🌟 YENİ SİSTEM: HATIRLATMA AYARLARINI DOLDUR 🌟
     const savedReminders = JSON.parse(localStorage.getItem('gazi_reminder_prefs'));
     if (savedReminders) {
         const autoReminderCb = document.getElementById('set-auto-reminder');
@@ -620,7 +600,6 @@ window.openSettingsPanel = () => {
         if (reminderDaysSel) reminderDaysSel.value = savedReminders.defaultDays;
     }
 
-    // Ekranı Göster
     showScreen('screen-settings');
 };
 
@@ -631,7 +610,6 @@ window.saveProfileSettings = async () => {
         const oldPass = document.getElementById('profile-old-pass')?.value.trim();
         const newPass = document.getElementById('profile-new-pass')?.value.trim();
 
-        // 1. İSİM GÜNCELLEME
         if (user && newName) {
             const role = (user.displayName || "").split('|')[1] || 'student';
             await updateProfile(user, { displayName: newName + "|" + role });
@@ -639,7 +617,6 @@ window.saveProfileSettings = async () => {
             if(displayUser) displayUser.innerText = "Hoş Geldin, " + newName;
         }
 
-        // 2. ŞİFRE GÜNCELLEME (Güvenli Zırhlı Versiyon)
         if (user && newPass && !user.isAnonymous) {
             if (!oldPass) return alert("⚠️ Şifre değiştirmek için lütfen mevcut şifrenizi giriniz!");
             const cred = EmailAuthProvider.credential(user.email, oldPass);
@@ -650,13 +627,10 @@ window.saveProfileSettings = async () => {
             document.getElementById('profile-new-pass').value = '';
         }
 
-        // 3. KUTUCUKLU (CHECKBOX) ÇOKLU SINAV VE SINIF KAYDETME
-        // Kullanıcının seçtiği tüm kutucuklu sınavları topluyoruz (Örn: TYT ve AYT aynı anda)
         const selectedExams = Array.from(document.querySelectorAll('.profile-exam-cb:checked')).map(cb => cb.value);
         if (selectedExams.length > 0) {
             localStorage.setItem('gazi_selected_exams', JSON.stringify(selectedExams));
         } else {
-            // Eğer kutucuk sistemi kullanılmıyorsa, eski açılır menüyü (dropdown) yedek olarak kullan
             const examType = document.getElementById('profile-exam-type');
             if(examType) localStorage.setItem('gazi_exam_type', examType.value);
         }
@@ -664,7 +638,6 @@ window.saveProfileSettings = async () => {
         const grade = document.getElementById('profile-grade');
         if(grade) localStorage.setItem('gazi_grade', grade.value);
 
-        // 4. DERS SEÇİMLERİNİ KAYDET
         const subjectsData = [];
         ['tarih', 'cografya', 'vatandaslik', 'matematik', 'turkce', 'egitim', 'fizik', 'kimya', 'biyoloji', 'fen'].forEach(sub => {
             const cb = document.getElementById('subj-' + sub);
@@ -675,7 +648,6 @@ window.saveProfileSettings = async () => {
         });
         localStorage.setItem('gazi_subjects_v2', JSON.stringify(subjectsData));
 
-        // 5. GÖRÜNÜM (ÇÖZÜM PANELİ) AYARLARI
         const overlayPrefs = {
             showResult: document.getElementById('set-show-result')?.checked ?? true,
             showText: document.getElementById('set-show-text')?.checked ?? true,
@@ -683,14 +655,12 @@ window.saveProfileSettings = async () => {
         };
         localStorage.setItem('gazi_overlay_prefs', JSON.stringify(overlayPrefs));
 
-        // 🌟 6. YENİ: BULUT HATIRLATMA (TEKRAR) AYARLARI 🌟
         const reminderPrefs = {
             autoSchedule: document.getElementById('set-auto-reminder')?.checked ?? true,
-            defaultDays: parseFloat(document.getElementById('set-reminder-days')?.value) || 1 // Varsayılan 1 Gün
+            defaultDays: parseFloat(document.getElementById('set-reminder-days')?.value) || 1 
         };
         localStorage.setItem('gazi_reminder_prefs', JSON.stringify(reminderPrefs));
 
-        // Her şey başarıyla bitti
         localStorage.setItem('gazi_onboarding_done', 'true');
         alert("✅ Tüm çalışma masası ayarlarınız kaydedildi!");
         window.showScreen('screen-main');
@@ -700,6 +670,7 @@ window.saveProfileSettings = async () => {
         alert("⚠️ Bir sorun oluştu. Lütfen eski şifrenizi doğru girdiğinizden emin olun.");
     }
 };
+
 window.handleLogin = async () => { 
     const emailEl = document.getElementById('login-email');
     const passEl = document.getElementById('login-pass');
@@ -709,10 +680,10 @@ window.handleLogin = async () => {
     }
 
     try { 
-        document.getElementById('loading-overlay').style.display = 'flex'; // Yükleniyor ekranını aç
+        document.getElementById('loading-overlay').style.display = 'flex'; 
         await signInWithEmailAndPassword(auth, emailEl.value.trim(), passEl.value); 
     } catch(e) { 
-        document.getElementById('loading-overlay').style.display = 'none'; // Hatada yükleniyor'u kapat
+        document.getElementById('loading-overlay').style.display = 'none'; 
         alert("❌ Giriş Başarısız: E-posta veya şifre hatalı. (" + e.message + ")"); 
     } 
 };
@@ -753,38 +724,6 @@ window.handleRegister = async () => {
     }
 };
 
-window.handleRegister = async () => {
-    const e = document.getElementById('reg-email').value.trim(); 
-    const u = document.getElementById('reg-username').value; 
-    const p1 = document.getElementById('reg-pass').value; 
-    const p2 = document.getElementById('reg-pass-confirm').value;
-    
-    if(p1 !== p2) return alert("❌ Şifreler uymuyor!");
-    
-    const regExamType = document.getElementById('reg-exam-type').value; 
-    const regGrade = document.getElementById('reg-grade').value;
-    
-    try { 
-        const res = await createUserWithEmailAndPassword(auth, e, p1); 
-        await updateProfile(res.user, { displayName: u + "|" + selectedRole }); 
-        await sendEmailVerification(res.user);
-        
-        if(selectedRole === 'student') { 
-            localStorage.setItem('gazi_exam_type', regExamType); 
-            if(regGrade) localStorage.setItem('gazi_grade', regGrade); 
-        } else if (selectedRole === 'teacher_pending') { 
-            const selectedExams = Array.from(document.querySelectorAll('.t-exam-cb:checked')).map(cb => cb.value); 
-            localStorage.setItem('gazi_teacher_exams', JSON.stringify(selectedExams)); 
-        }
-
-        alert("✅ Kayıt başarılı! Lütfen doğrulama maili için Gelen Kutunuzu ve SPAM (Gereksiz) klasörünü kontrol etmeyi unutmayın!");
-        await signOut(auth); 
-        location.reload(); 
-    } catch(e) { 
-        alert("❌ Kayıt Hatası: İşlem tamamlanamadı."); 
-    }
-};
-
 window.handleGuestLogin = async () => { 
     try { 
         document.getElementById('loading-overlay').style.display = 'flex';
@@ -804,14 +743,6 @@ window.handleGoogleLogin = async () => {
     } catch(e) { 
         document.getElementById('loading-overlay').style.display = 'none';
         alert("Bağlantı iptal edildi veya hata oluştu: " + e.message); 
-    } 
-};
-
-window.handleGoogleLogin = async () => { 
-    try { 
-        await signInWithPopup(auth, new GoogleAuthProvider()); 
-    } catch(e) { 
-        alert(e.message); 
     } 
 };
 
@@ -1118,7 +1049,7 @@ window.uploadStudentQuestion = (target = 'cloud') => {
     const correctIdx = parseInt(document.getElementById('std-q-correct-idx').value) || 0;
     const studentName = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "").trim() || "Gazi Adayı";
     
-    const reminderDays = parseFloat(document.getElementById('std-q-reminder').value) || 1;
+    const reminderDays = parseFloat(document.getElementById('std-q-reminder')?.value) || 1;
     const nextReviewDate = Date.now() + (reminderDays * 24 * 60 * 60 * 1000); 
 
     if(!stdUploadedImageBase64 && !qText) return alert("Lütfen bir fotoğraf yükleyin veya kendinize bir not yazın!");
@@ -1155,7 +1086,7 @@ window.uploadStudentQuestion = (target = 'cloud') => {
         siklar: ["A", "B", "C", "D", "E"] 
     };
     
-if (target === 'cloud') {
+    if (target === 'cloud') {
         if(!socket) return alert("Buluta bağlanılamadı, lütfen Cihaza Kaydet seçeneğini kullanın."); 
         delete q.id; 
         socket.emit("addStudentQuestion", q);
@@ -1181,7 +1112,6 @@ if (target === 'cloud') {
 
 window.fetchStudentLibrary = async (source = 'cloud', onlyReviews = false) => {
     try {
-        // Yükleniyor ekranını aç (Daha önce eklediğimiz)
         const loader = document.getElementById('loading-overlay');
         if (loader) loader.style.display = 'flex'; 
 
@@ -1204,7 +1134,6 @@ window.fetchStudentLibrary = async (source = 'cloud', onlyReviews = false) => {
             console.log("☁️ Buluttan sorular isteniyor... Öğrenci:", studentName);
             socket.emit("getStudentLibrary", { studentName: studentName, onlyReviews: onlyReviews });
             
-            // DİKKAT: Sunucu çöktüyse sonsuza kadar beklemesin diye 5 saniye sınır koyuyoruz
             setTimeout(() => {
                 if (document.getElementById('loading-overlay')?.style.display === 'flex') {
                     document.getElementById('loading-overlay').style.display = 'none';
@@ -1348,16 +1277,14 @@ window.reportQuestionFromLibrary = (index) => {
         alert("🚨 Bu soru başarıyla merkeze bildirildi!"); 
     } 
 };
-// 🚨 GÜNCELLENMİŞ: AYARLARA DUYARLI AKILLI ÇÖZÜM PANELİ
+
 window.checkStdAnswer = (btn, selectedIdx, qIndex) => { 
     const q = window.tempStdQuestions[qIndex]; 
     const boxId = 'std-qbox-' + qIndex; 
     const btns = document.querySelectorAll(`#${boxId} button`); 
     
-    // Şıkları kilitle
     btns.forEach(b => b.disabled = true); 
     
-    // Doğru-Yanlış kontrolü ve Konfeti
     if(selectedIdx === q.dogru) { 
         btn.classList.add('correct'); 
         confetti({ particleCount: 100 }); 
@@ -1366,32 +1293,26 @@ window.checkStdAnswer = (btn, selectedIdx, qIndex) => {
         if(btns[q.dogru]) btns[q.dogru].classList.add('correct'); 
     } 
 
-    // Çözüm Perdesini (Overlay) Hazırla
     const overlay = document.getElementById('solution-overlay');
     const content = document.getElementById('overlay-solution-content');
     
     if(overlay && content) {
         overlay.classList.add('active');
 
-        // 🧠 SÜZGEÇ: Kullanıcının Ayarlarını Oku (Ayarlar yoksa hepsini göster)
         const prefs = JSON.parse(localStorage.getItem('gazi_overlay_prefs')) || { showResult: true, showText: true, showImage: true };
         
-        // 1. Kısım: Cevaplar (Eğer ayarı açıksa)
         let resultHTML = prefs.showResult ? `
             <p style="margin-bottom:5px;"><b>Senin Cevabın:</b> ${['A','B','C','D','E'][selectedIdx]}</p>
             <p style="margin-bottom:15px;"><b>Doğru Cevap:</b> ${['A','B','C','D','E'][q.dogru]}</p>
             <hr style="opacity:0.2;">` : '';
 
-        // 2. Kısım: Yazılı Metin (Eğer ayarı açıksa)
         let textHTML = prefs.showText ? `
             <b style="color:#1e3c72; font-size:1.2rem;">✏️ Çözüm Analizi</b><br>
             <p style="margin-top:10px;">${q.solutionText || 'Yazılı bir not bulunmuyor.'}</p>` : '';
 
-        // 3. Kısım: Fotoğraf (Eğer ayarı açıksa ve soruda fotoğraf varsa)
         let imageHTML = (prefs.showImage && q.solutionImage) ? `
             <img src="${q.solutionImage}" style="width:100%; border-radius:10px; margin-top:15px; box-shadow:0 5px 15px rgba(0,0,0,0.1);">` : '';
 
-        // Tüm parçaları birleştir ve ekrana bas
         content.innerHTML = `
             <div style="background:#fff; padding:15px; border-radius:10px; border:1px solid #eee; margin-top:10px;">
                 ${resultHTML}
@@ -1407,7 +1328,6 @@ window.checkStdAnswer = (btn, selectedIdx, qIndex) => {
     }
 };
 
-// 🚨 SAĞ BUTON: ZAMAN SEÇENEKLERİNİ GÖSTER
 window.showTimeOptions = () => {
     const area = document.getElementById('time-selector-area');
     if(area) {
@@ -1416,14 +1336,12 @@ window.showTimeOptions = () => {
     }
 };
 
-// 🚨 TAKVİME KAYDET VE SIRADAKİNE GEÇ
 window.scheduleAndNext = async (days) => {
     const q = window.tempStdQuestions[currentQIndex];
     if(q && (q.id || q._id)) {
         const targetId = q.id || q._id;
         const newDate = Date.now() + (days * 24 * 60 * 60 * 1000);
         
-        // Cihazdaysa IndexedDB'yi, buluttaysa Sunucuyu güncelle
         if(String(targetId).startsWith('local_')) {
             await LocalDB.updateQuestion(targetId, { nextReviewDate: newDate });
         } else {
@@ -1434,22 +1352,19 @@ window.scheduleAndNext = async (days) => {
     window.closeOverlayAndNext();
 };
 
-// 🚨 SOL BUTON: ANLAMADIM, SONA AT (TEKRAR SORACAK)
 window.pushToBack = () => {
     if(window.tempStdQuestions.length > 1) {
         const q = window.tempStdQuestions.splice(currentQIndex, 1)[0];
-        window.tempStdQuestions.push(q); // Soruyu listenin en sonuna ekle
+        window.tempStdQuestions.push(q); 
         alert("🔄 Soru listenin sonuna atıldı, tur bitince tekrar sorulacak.");
     }
     window.closeOverlayAndNext();
 };
 
-// 🚨 PERDEYİ KAPAT VE EKRANI TAZELE
 window.closeOverlayAndNext = () => {
     const overlay = document.getElementById('solution-overlay');
     if(overlay) overlay.classList.remove('active');
     
-    // Eğer Test/Deneme modundaysak bir sonraki soruya geç
     if(currentMode === 'trial' || currentMode === 'room') {
         if(typeof trialNext === 'function') trialNext();
     }
@@ -1463,19 +1378,17 @@ window.fetchClassQuestions = () => {
 
 if(socket) {
     socket.on("studentLibraryData", (data) => {
-        // 🚨 SİHİRLİ DOKUNUŞ: Sunucudan cevap geldiği an Yükleniyor ekranını gizle!
         const loader = document.getElementById('loading-overlay');
         if (loader) loader.style.display = 'none';
-        
         renderStudentLibraryHTML(data, "☁️ Bulut Hata Defterim");
-        });
+    });
+    
     socket.on("classQuestionsData", (data) => { 
         if(data.length === 0) return alert("Bu sınıfa henüz öğretmen tarafından soru eklenmemiş."); 
         window.tempStdQuestions = data; 
         startLibraryTest(); 
     });
 
-   // 🚨 YENİ NESİL ÖĞRETMEN İSTİHBARAT RAPORU (DASHBOARD) 🚨
     socket.on("teacherReportsData", (data) => {
         currentListType = "teacher_report"; 
         document.getElementById('list-title').innerText = "📊 Sınıf İstihbarat Raporu"; 
@@ -1492,7 +1405,6 @@ if(socket) {
             return;
         }
 
-        // Sınıfın Genel İstatistiklerini Hesapla
         let totalScore = 0, totalCorrect = 0, totalWrong = 0, totalBlank = 0;
         reports.forEach(r => {
             totalScore += (r.score || 0);
@@ -1503,7 +1415,6 @@ if(socket) {
         const count = reports.length;
         const avgScore = Math.round(totalScore / count);
         
-        // 1. BÖLÜM: Üst Taraf Sınıf Ortalaması Kartı
         let html = `
         <div style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); padding:15px; border-radius:12px; color:white; margin-bottom:20px; box-shadow:0 4px 15px rgba(0,0,0,0.15);">
             <h4 style="margin:0 0 15px 0; color:#f1c40f; text-align:center; font-size:1.1rem;">🌟 Sınıf Genel Durumu</h4>
@@ -1526,17 +1437,14 @@ if(socket) {
 
         html += `<h4 style="color:#27ae60; margin-top:0; border-bottom:2px solid #eee; padding-bottom:5px;">Sıralama ve Performanslar</h4>`;
         
-        // Öğrencileri en yüksek puandan en düşüğe sırala
         reports.sort((a,b) => (b.score || 0) - (a.score || 0));
 
-        // 2. BÖLÜM: Öğrenci Kartları ve Mini Grafikler
         html += reports.map((r, index) => {
             let medal = `<span style="color:#7f8c8d; font-weight:900;">${index+1}.</span>`;
             if(index === 0) medal = "🥇";
             else if (index === 1) medal = "🥈";
             else if (index === 2) medal = "🥉";
 
-            // Yüzdelik oranları hesapla (Bar grafiği için)
             const totalQ = (r.correct||0) + (r.wrong||0) + (r.blank||0);
             const cPct = totalQ > 0 ? ((r.correct||0) / totalQ) * 100 : 0;
             const wPct = totalQ > 0 ? ((r.wrong||0) / totalQ) * 100 : 0;
@@ -1584,10 +1492,9 @@ if(socket) {
         showScreen('screen-list');
     });
 
-// 🛡️ KORUMALI: ÖĞRETMEN KÜTÜPHANESİ
     socket.on("teacherLibraryData", (data) => { 
         const filterArea = document.getElementById('library-filter-area');
-        if (filterArea) filterArea.style.display = 'none'; // Kutu yoksa hata vermez
+        if (filterArea) filterArea.style.display = 'none'; 
         
         window.tempStdQuestions = data; 
         currentListType = "teacher_library"; 
@@ -1596,7 +1503,7 @@ if(socket) {
         if(listTitle) listTitle.innerText = "📚 Soru Kütüphanem"; 
         
         const div = document.getElementById('list-content'); 
-        if(!div) return; // Liste kutusu yoksa işlemi durdur
+        if(!div) return; 
 
         if(data.length === 0) {
             div.innerHTML = "<p style='text-align:center;'>Kütüphanenizde henüz soru bulunmuyor.</p>"; 
@@ -1614,9 +1521,8 @@ if(socket) {
         showScreen('screen-list'); 
     });
 
-    // 🛡️ KORUMALI: TEKRAR HATIRLATICISI
     socket.on("notebookReviewsCount", (count) => { 
-        const box = document.getElementById('review-alert-box'); // İSİM DÜZELTİLDİ
+        const box = document.getElementById('review-alert-box'); 
         if (box) { 
             if(count > 0) {
                 box.style.display = 'block'; 
@@ -1813,7 +1719,6 @@ window.reportQuestion = () => {
 
 window.fetchAdminReports = () => { 
     if(socket) {
-        // Sunucuya istek atarken, o an giriş yapmış kişinin e-postasını da bilet olarak gönderiyoruz.
         const currentUserEmail = auth.currentUser ? auth.currentUser.email : "misafir";
         socket.emit("adminGetReports", currentUserEmail); 
     }
@@ -2131,20 +2036,15 @@ function renderNavigator(total, curr, mode) {
 // 🚨 HATIRLATMA TAKVİMİ VE SÜRE HESAPLAMA SİSTEMİ 🚨
 // =======================================================
 window.openReviewCalendar = async () => {
-    // Cihazdaki tüm soruları çek
     let localData = await LocalDB.getAllQuestions();
-    
-    // Sadece "nextReviewDate" (Hatırlatma tarihi) atanmış olanları filtrele
     let reviewQuestions = localData.filter(q => q.nextReviewDate);
-    
-    // Tarihi en yakın olan (en acil olan) en üstte çıkacak şekilde sırala
     reviewQuestions.sort((a, b) => a.nextReviewDate - b.nextReviewDate);
     
     currentListType = "review_calendar";
     document.getElementById('list-title').innerText = "📅 Hatırlatma Takvimi";
     
     const filterArea = document.getElementById('library-filter-area');
-    if (filterArea) filterArea.style.display = 'none'; // Filtreyi gizle
+    if (filterArea) filterArea.style.display = 'none'; 
     
     const div = document.getElementById('list-content');
     
@@ -2160,7 +2060,6 @@ window.openReviewCalendar = async () => {
             let timeDiff = q.nextReviewDate - now;
             let badgeHTML = "";
             
-            // SÜRE HESAPLAMA MANTIĞI
             if (timeDiff <= 0) {
                 badgeHTML = `<span style="background:#e74c3c; color:white; padding:4px 8px; border-radius:6px; font-size:0.75rem; font-weight:bold; box-shadow:0 2px 4px rgba(231,76,60,0.3);">🔴 Çözüm Vakti Geldi</span>`;
             } else {
@@ -2194,20 +2093,16 @@ window.openReviewCalendar = async () => {
     
     showScreen('screen-list');
 };
+
 // 🚨 ADIM 9: ETİKETLİ FİLTRELEME MOTORU
 window.fetchFilteredLibrary = async (targetCategory) => {
-    // 1. Arayüz hazırlığı
     document.getElementById('archive-filter-chips').style.display = 'flex';
     const div = document.getElementById('list-content');
     div.innerHTML = `<div style="text-align:center; padding:20px;">🔍 Analiz ediliyor...</div>`;
 
-    // 2. Veritabanından (IndexedDB) tüm soruları al
     const allQuestions = await LocalDB.getAllQuestions();
-    
-    // 3. Kategoriye göre süz (targetCategory: 'exam' veya 'wrong')
     const filtered = allQuestions.filter(q => q.category === targetCategory);
 
-    // 4. Ekrana Yazdır
     if (filtered.length === 0) {
         div.innerHTML = `
             <div style="text-align:center; padding:40px; opacity:0.6;">
@@ -2227,10 +2122,10 @@ window.fetchFilteredLibrary = async (targetCategory) => {
         `).join('');
     }
 
-    // Buton görsellerini güncelle (Hangi filtre aktifse o parlasın)
     document.querySelectorAll('#archive-filter-chips .chip').forEach(c => c.classList.remove('active'));
     document.getElementById(`btn-filter-${targetCategory}`).classList.add('active');
 };
+
 // ➕ HIZLI EKLEME PENCERESİ
 window.openQuickAdd = (type, parentName) => {
     const newItem = prompt(`'${parentName}' altına yeni bir ${type === 'ders' ? 'DERS' : 'KAYNAK'} ekleyin:`);
@@ -2263,8 +2158,7 @@ window.manageCustomItem = async (type, action, itemName = '') => {
         alert(`❌ ${itemName} başarıyla silindi.`);
     }
 
-   // Değişiklikleri ana listeye uygula ve ekranda tazele
-    window.applyCustomMufredat();
-    window.renderExams();
-    window.renderSubjects();
+   window.applyCustomMufredat();
+   window.renderExams();
+   window.renderSubjects();
 };
