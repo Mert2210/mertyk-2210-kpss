@@ -380,18 +380,34 @@
                 <input type="password" id="profile-old-pass" placeholder="Mevcut (Eski) Şifreniz" style="margin-bottom:5px; font-size:0.85rem;">
                 <input type="password" id="profile-new-pass" placeholder="Yeni Şifre Belirleyin" style="margin-bottom:0; font-size:0.85rem;">
             </div>
-
-            <h4 style="color:#1e3c72; border-bottom:2px solid #eee; padding-bottom:8px; margin-top:20px;">🎯 Hedef Sınavınız</h4>
-            <select id="profile-exam-type" style="margin-bottom:15px; font-weight:bold; border-color:#3498db; color:#1e3c72;" onchange="updateGradeDropdown()">
-                <option value="kpss_lisans">KPSS Lisans</option>
-                <option value="kpss_onlisans">KPSS Ön Lisans</option>
-                <option value="kpss_ortaogretim">Ortaöğretim</option>
-                <option value="kpss_egitim">KPSS Eğitim Bilimleri</option>
-                <option value="yks_tyt">YKS - TYT</option>
-                <option value="yks_ayt">YKS - AYT</option>
-                <option value="lise_okul">Lise (Okul Dersleri)</option>
-                <option value="ortaokul">Ortaokul (LGS)</option>
-            </select>
+            <h4 style="color:#1e3c72; border-bottom:2px solid #eee; padding-bottom:8px; margin-top:20px;">🧠 Akıllı Hatırlatma (Tekrar) Ayarları</h4>
+            <div style="background:#e8f4f8; padding:12px; border-radius:10px; margin-bottom:20px; border:1px dashed #3498db; text-align:left;">
+                <label class="checkbox-item" style="border:none; padding:5px 0;">
+                    <input type="checkbox" id="set-auto-reminder" checked> 
+                    <label style="color:#1e3c72; font-weight:bold; font-size:0.85rem;">Yanlış yaptığım soruları otomatik takvime ekle</label>
+                </label>
+                <div style="margin-top:10px;">
+                    <label style="font-size:0.8rem; font-weight:bold; color:#1e3c72; display:block;">Varsayılan Hatırlatma Süresi:</label>
+                    <select id="set-reminder-days" style="margin-top:5px; border-color:#3498db; font-weight:bold;">
+                        <option value="0.04">1 Saat Sonra (Çok Acil)</option>
+                        <option value="1" selected>1 Gün Sonra (Ertesi Gün)</option>
+                        <option value="3">3 Gün Sonra</option>
+                        <option value="7">1 Hafta Sonra</option>
+                        <option value="30">1 Ay Sonra</option>
+                    </select>
+                </div>
+            </div>
+           <h4 style="color:#1e3c72; border-bottom:2px solid #eee; padding-bottom:8px; margin-top:20px;">🎯 Hedef Sınavlarınız (Birden Fazla Seçebilirsiniz)</h4>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; background:#f9f9f9; padding:12px; border-radius:10px; margin-bottom:15px;">
+                <label class="checkbox-item" style="border:none; padding:5px 0;"><input type="checkbox" class="profile-exam-cb" value="kpss_lisans"> KPSS Lisans</label>
+                <label class="checkbox-item" style="border:none; padding:5px 0;"><input type="checkbox" class="profile-exam-cb" value="kpss_onlisans"> Ön Lisans</label>
+                <label class="checkbox-item" style="border:none; padding:5px 0;"><input type="checkbox" class="profile-exam-cb" value="kpss_ortaogretim"> Ortaöğretim</label>
+                <label class="checkbox-item" style="border:none; padding:5px 0;"><input type="checkbox" class="profile-exam-cb" value="kpss_egitim"> Eğitim Bilimleri</label>
+                <label class="checkbox-item" style="border:none; padding:5px 0;"><input type="checkbox" class="profile-exam-cb" value="yks_tyt"> YKS - TYT</label>
+                <label class="checkbox-item" style="border:none; padding:5px 0;"><input type="checkbox" class="profile-exam-cb" value="yks_ayt"> YKS - AYT</label>
+                <label class="checkbox-item" style="border:none; padding:5px 0;"><input type="checkbox" class="profile-exam-cb" value="lise_okul"> Lise Okul</label>
+                <label class="checkbox-item" style="border:none; padding:5px 0;"><input type="checkbox" class="profile-exam-cb" value="ortaokul"> LGS</label>
+            </div>
 
             <div id="grade-selection-area" style="display:none; margin-bottom:20px; background:#f9f9f9; padding:10px; border-radius:8px; border:1px solid #eee;">
                 <label style="font-size:0.75rem; font-weight:bold; color:#c0392b; margin-bottom:5px; display:block;">🏫 BULUNDUĞUNUZ SINIF:</label>
