@@ -411,7 +411,15 @@ io.on("connection", (socket) => {
         }
     });
 
-    socket.on("adminGetReports", async () => {
+    // 🚨 KORUMALI ALAN: Sadece Yönetici E-postası Raporları Çekebilir
+    socket.on("adminGetReports", async (adminEmail) => {
+        // Gelen e-posta senin e-postan değilse işlemi anında durdur!
+        if (adminEmail !== "kayamert319@gmail.com") {
+            console.warn(`🚨 Yetkisiz admin erişimi denemesi engellendi: ${adminEmail}`);
+            socket.emit("allReportsData", []); // Hırsıza boş liste gönder :)
+            return;
+        }
+
         if (db) {
             try {
                 const snap = await db.collection("reports").orderBy("serverTime", "desc").get();
