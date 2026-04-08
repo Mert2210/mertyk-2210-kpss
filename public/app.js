@@ -88,56 +88,84 @@ const LocalDB = {
     }
 };
 
-// 🚨 YENİ NESİL MÜFREDAT AĞACI VE KAPSÜL (BUTON) SİSTEMİ BAŞLANGICI 🚨
+// 🚨 YENİ NESİL DEV MÜFREDAT AĞACI (AGS GÜNCELLEMELİ & ARA SINIFLAR DAHİL) 🚨
+// 🚨 YENİ NESİL DEV MÜFREDAT AĞACI (SIRALAMASI DÜZENLENMİŞ HALİ) 🚨
 window.mufredat = {
-    "KPSS": {
-        "A Grubu": {
-            "Muhasebe": ["Genel Muhasebe", "Maliyet Muhasebesi", "Mali Tablolar Analizi"],
-            "İktisat": ["Mikro İktisat", "Makro İktisat", "Türkiye Ekonomisi"],
-            "Maliye": ["Kamu Maliyesi", "Bütçe", "Vergi Hukuku"],
-            "Hukuk": ["Anayasa", "İdare", "Ceza", "Medeni Hukuk"]
-        },
-        "B Grubu (Tümü)": {
+    "KPSS (B Grubu & A Grubu)": {
+        "Genel Yetenek - Genel Kültür (B Grubu)": {
             "Türkçe": ["Sözcükte Anlam", "Cümlede Anlam", "Paragraf", "Dil Bilgisi", "Sözel Mantık"],
             "Matematik": ["Temel Kavramlar", "Rasyonel Sayılar", "Problemler", "Sayısal Mantık", "Geometri"],
             "Tarih": ["İslamiyet Öncesi", "Osmanlı Devleti", "İnkılap Tarihi", "Çağdaş Türk ve Dünya"],
             "Coğrafya": ["Türkiye Fiziki", "Türkiye Beşeri", "Türkiye Ekonomik"],
-            "Vatandaşlık": ["Hukukun Temel Kavramları", "Anayasa Hukuku", "İdare Hukuku", "Güncel Bilgiler"]
+            "Vatandaşlık": ["Hukukun Temel Kavramları", "İdare Hukuku", "Güncel Bilgiler"]
         },
-        "Eğitim Bilimleri": {
-            "Gelişim Psikolojisi": ["Bilişsel Gelişim", "Kişilik Gelişimi", "Ahlak Gelişimi"],
-            "Öğrenme Psikolojisi": ["Davranışçı Kuramlar", "Bilişsel Kuramlar"],
-            "Ölçme ve Değerlendirme": ["Temel Kavramlar", "İstatistik", "Test Hazırlama"]
+        "A Grubu": {
+            "Muhasebe": ["Genel Muhasebe", "Maliyet", "Mali Tablolar"],
+            "İktisat": ["Mikro", "Makro", "Türkiye Ekonomisi"],
+            "Maliye": ["Kamu Maliyesi", "Bütçe", "Vergi Hukuku"],
+            "Hukuk": ["Anayasa", "İdare", "Ceza", "Medeni"]
         }
     },
     "YKS": {
         "TYT": {
-            "Türkçe": ["Anlam Bilgisi", "Dil Bilgisi", "Noktalama İşaretleri"],
-            "Matematik": ["Sayılar", "Problemler", "Olasılık"],
-            "Fen Bilimleri": ["Fizik", "Kimya", "Biyoloji"],
-            "Sosyal Bilgiler": ["Tarih", "Coğrafya", "Felsefe", "Din K."]
+            "Türkçe": ["Anlam Bilgisi", "Dil Bilgisi", "Noktalama"],
+            "Matematik": ["Sayılar", "Problemler", "Mantık", "Geometri"],
+            "Fen Bilimleri": ["TYT Fizik", "TYT Kimya", "TYT Biyoloji"],
+            "Sosyal Bilgiler": ["Tarih", "Coğrafya", "Felsefe", "Din"]
         },
         "AYT": {
-            "Matematik": ["Polinom", "Türev", "İntegral", "Logaritma", "Trigonometri"],
-            "Edebiyat": ["Şiir Bilgisi", "Divan Edebiyatı", "Cumhuriyet Dönemi"],
-            "Fen Bilimleri": ["AYT Fizik", "AYT Kimya", "AYT Biyoloji"]
+            "Matematik": ["Polinomlar", "Türev", "İntegral", "Logaritma", "Trigonometri"],
+            "Edebiyat": ["Şiir", "Divan", "Cumhuriyet"],
+            "Fen Bilimleri": ["AYT Fizik", "AYT Kimya", "AYT Biyoloji"],
+            "Sosyal Bilgiler": ["Tarih 1-2", "Coğrafya 1-2", "Felsefe Grubu"]
         }
     },
-    "MEB AGS": {
-        "Ortak": {
-            "Eğitim Bilimleri": ["Eğitime Giriş", "Öğretim İlke ve Yöntemleri"],
-            "Genel Kültür": ["Türkçe", "Tarih", "Eğitim Mevzuatı"]
+    "MEB AGS (Öğretmenlik Akademi Giriş)": {
+        "Sözel ve Sayısal Yetenek": {
+            "Sözel Yetenek": ["Sözcükte Anlam", "Cümlede Anlam", "Paragraf", "Sözel Mantık"],
+            "Sayısal Yetenek": ["Temel Kavramlar", "Problemler", "Tablo ve Grafik Okuma", "Sayısal Mantık"]
+        },
+        "Eğitim Bilimleri": {
+            "Eğitime Giriş": ["Eğitimin Temelleri", "Türk Eğitim Sistemi"],
+            "Öğretim İlke ve Yöntemleri": ["Öğretim İlkeleri", "Öğretim Stratejileri ve Modelleri", "Kavram Öğretimi"],
+            "Sınıf Yönetimi": ["Sınıf Ortamı", "Disiplin ve Kurallar", "Öğretmen-Öğrenci İletişimi"],
+            "Eğitim Psikolojisi": ["Gelişim Psikolojisi", "Öğrenme Psikolojisi"],
+            "Ölçme ve Değerlendirme": ["Güvenirlik ve Geçerlik", "Test Geliştirme", "İstatistik"]
+        },
+        "Tarih ve Türkiye Coğrafyası": {
+            "Tarih": ["İslamiyet Öncesi", "Osmanlı Devleti", "İnkılap Tarihi"],
+            "Türkiye Coğrafyası": ["Türkiye Fiziki", "Türkiye Beşeri", "Türkiye Ekonomik"]
+        },
+        "ÖABT (Alan Bilgisi)": {
+            "Öğretmenlik Alanları": ["Türkçe", "İlköğretim Matematik", "Fen Bilimleri", "Sosyal Bilgiler", "Sınıf Öğretmenliği", "Okul Öncesi", "Tarih", "Coğrafya", "Lise Matematik", "Fizik", "Kimya", "Biyoloji", "İngilizce", "Din Kültürü", "PDR", "Beden Eğitimi"]
         }
     },
     "LGS": {
-        "Sayısal": {
-            "Matematik": ["Çarpanlar", "Kareköklü Sayılar", "Veri Analizi"],
-            "Fen Bilimleri": ["Mevsimler", "DNA ve Genetik Kod", "Basınç"]
+        "Sayısal Bölüm": {
+            "Matematik": ["Çarpanlar", "Üslü/Köklü Sayılar", "Veri Analizi", "Olasılık"],
+            "Fen Bilimleri": ["Mevsimler", "DNA", "Basınç", "Basit Makineler"]
         },
-        "Sözel": {
-            "Türkçe": ["Paragraf", "Fiilimsiler", "Cümlenin Ögeleri"],
+        "Sözel Bölüm": {
+            "Türkçe": ["Paragraf", "Fiilimsiler", "Cümle Ögeleri", "Mantık Muhakeme"],
             "İnkılap Tarihi": ["Bir Kahraman Doğuyor", "Milli Uyanış"],
-            "İngilizce": ["Kelime Bilgisi", "Okuduğunu Anlama"]
+            "Din ve İngilizce": ["Kader İnancı", "Friendship", "Teen Life"]
+        }
+    },
+    " Ortaokul ": {
+        "Ortaokul (5, 6 ve 7. Sınıflar)": {
+            "Türkçe": ["Okuma Anlama", "Sözcükte Anlam", "Dil Bilgisi", "Yazım ve Noktalama"],
+            "Matematik": ["Doğal Sayılar", "Kesirler ve Ondalık", "Cebirsel İfadeler", "Geometri ve Ölçme"],
+            "Fen Bilimleri": ["Güneş Sistemi", "Kuvvet ve Hareket", "Madde ve Doğası", "Işık ve Ses"],
+            "Sosyal Bilgiler": ["Birey ve Toplum", "Kültür ve Miras", "Üretim ve Tüketim"]
+        },
+        "Lise (9, 10 ve 11. Sınıflar)": {
+            "Türk Dili ve Edebiyatı": ["Şiir", "Hikaye", "Roman", "Tiyatro", "Dil Bilgisi"],
+            "Matematik": ["Mantık", "Kümeler", "Denklem ve Eşitsizlik", "Fonksiyonlar", "Trigonometri", "Polinomlar"],
+            "Fizik": ["Madde ve Özellikleri", "Kuvvet ve Hareket", "Elektrik", "Optik"],
+            "Kimya": ["Kimya Bilimi", "Atom ve Periyodik Sistem", "Karışımlar", "Asit, Baz ve Tuzlar"],
+            "Biyoloji": ["Yaşam Bilimi", "Hücre", "Kalıtım", "Sistemler"],
+            "Tarih": ["Tarih ve Zaman", "İlk ve Orta Çağ", "İslam Tarihi", "Osmanlı Tarihi"],
+            "Coğrafya": ["Doğa ve İnsan", "Dünya'nın Şekli", "İklim", "Nüfus ve Göç"]
         }
     }
 };
@@ -519,21 +547,48 @@ window.updateGradeDropdown = () => {
         area.style.display = 'none'; 
     }
 };
-
 window.openSettingsPanel = () => {
-    const userNameText = document.getElementById('display-user').innerText;
-    if(userNameText.includes("Misafir")) { 
-        document.getElementById('password-update-area').style.display = 'none'; 
-    } else { 
-        document.getElementById('password-update-area').style.display = 'block'; 
+    const displayUser = document.getElementById('display-user');
+    const userNameText = displayUser ? displayUser.innerText : "";
+    
+    const passArea = document.getElementById('password-update-area');
+    if(passArea) {
+        passArea.style.display = userNameText.includes("Misafir") ? 'none' : 'block';
     }
     
-    document.getElementById('profile-exam-type').value = localStorage.getItem('gazi_exam_type') || 'kpss_lisans'; 
-    window.updateGradeDropdown();
+    // 🌟 YENİ SİSTEM: ÇOKLU SINAV KUTUCUKLARINI HAFIZADAN OKU VE İŞARETLE 🌟
+    const savedExams = JSON.parse(localStorage.getItem('gazi_selected_exams')) || [];
     
+    // Önce ekrandaki tüm sınav kutucuklarının işaretini kaldır
+    document.querySelectorAll('.profile-exam-cb').forEach(cb => cb.checked = false);
+    
+    // Eğer hafızada kaydedilmiş sınavlar varsa, onları tikle (işaretle)
+    if (savedExams.length > 0) {
+        savedExams.forEach(examVal => {
+            const cb = document.querySelector(`.profile-exam-cb[value="${examVal}"]`);
+            if (cb) cb.checked = true;
+        });
+    } else {
+        // Eski sistemden (açılır menüden) kalma tek bir sınav varsa onu işaretle
+        const oldExam = localStorage.getItem('gazi_exam_type');
+        if (oldExam) {
+            const cb = document.querySelector(`.profile-exam-cb[value="${oldExam}"]`);
+            if (cb) cb.checked = true;
+        }
+    }
+
+    // 🛡️ ESKİ KODUN ÇÖKMESİNİ ENGELLEYEN ZIRH (Dropdown hala varsa çalışır, yoksa atlar)
+    const oldDropdown = document.getElementById('profile-exam-type');
+    if (oldDropdown) {
+        oldDropdown.value = localStorage.getItem('gazi_exam_type') || 'kpss_lisans'; 
+        if(typeof window.updateGradeDropdown === 'function') window.updateGradeDropdown();
+    }
+    
+    // Sınıf / Lise derecesini seç
     const savedGrade = localStorage.getItem('gazi_grade');
     if(savedGrade) { 
-        document.getElementById('profile-grade').value = savedGrade; 
+        const gradeInput = document.getElementById('profile-grade');
+        if (gradeInput) gradeInput.value = savedGrade; 
         setTimeout(() => { 
             document.querySelectorAll('.grade-btn').forEach(btn => { 
                 if(btn.innerText === savedGrade) btn.classList.add('selected'); 
@@ -541,6 +596,7 @@ window.openSettingsPanel = () => {
         }, 100); 
     }
 
+    // Dersleri ve alt konuları doldur
     const savedSubjects = JSON.parse(localStorage.getItem('gazi_subjects_v2')) || [];
     const subjects = ['tarih', 'cografya', 'vatandaslik', 'matematik', 'turkce', 'egitim', 'fizik', 'kimya', 'biyoloji', 'fen'];
     subjects.forEach(sub => { 
@@ -553,6 +609,18 @@ window.openSettingsPanel = () => {
             if(found) { cb.checked = true; txt.value = found.topics; } 
         } 
     });
+
+    // 🌟 YENİ SİSTEM: HATIRLATMA AYARLARINI DOLDUR 🌟
+    const savedReminders = JSON.parse(localStorage.getItem('gazi_reminder_prefs'));
+    if (savedReminders) {
+        const autoReminderCb = document.getElementById('set-auto-reminder');
+        const reminderDaysSel = document.getElementById('set-reminder-days');
+        
+        if (autoReminderCb) autoReminderCb.checked = savedReminders.autoSchedule;
+        if (reminderDaysSel) reminderDaysSel.value = savedReminders.defaultDays;
+    }
+
+    // Ekranı Göster
     showScreen('screen-settings');
 };
 
