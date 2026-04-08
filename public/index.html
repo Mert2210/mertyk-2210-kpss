@@ -191,12 +191,11 @@
         </div>
 
         <h2 id="display-user" style="color:#e67e22; margin-top:0;">Hoş Geldin!</h2>
-        
         <div id="notification-center" style="display:flex; gap:10px; margin-bottom:15px;">
-            <div id="new-q-alert-box" style="flex:1; display:none; background:#e74c3c; color:white; padding:12px; border-radius:10px; cursor:pointer; box-shadow: 0 4px 10px rgba(231,76,60,0.3);" onclick="startLibraryTest('new')">
-                <b style="font-size:1.1rem;">🔴 Yeni Sorular</b><br><small><span id="new-q-count">0</span> soru çözülmeyi bekliyor.</small>
+            <div id="new-q-alert-box" style="flex:1; display:none; background:#e74c3c; color:white; padding:12px; border-radius:10px; cursor:pointer; box-shadow: 0 4px 10px rgba(231,76,60,0.3);" onclick="fetchStudentLibrary('cloud', false)">
+                <b style="font-size:1.1rem;">🔴 Yeni Sorular</b><br><small><span id="new-q-count">0</span> soru arşive eklendi.</small>
             </div>
-            <div id="review-alert-box" style="flex:1; display:none; background:#f39c12; color:white; padding:12px; border-radius:10px; cursor:pointer; box-shadow: 0 4px 10px rgba(243,156,18,0.3);" onclick="startLibraryTest('review')">
+            <div id="review-alert-box" style="flex:1; display:none; background:#f39c12; color:white; padding:12px; border-radius:10px; cursor:pointer; box-shadow: 0 4px 10px rgba(243,156,18,0.3);" onclick="openReviewCalendar()">
                 <b style="font-size:1.1rem;">🧠 Tekrar Vakti!</b><br><small><span id="review-q-count">0</span> soruya göz atmalısın.</small>
             </div>
         </div>
