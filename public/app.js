@@ -565,6 +565,13 @@ onAuthStateChanged(auth, user => {
             if (!isTeacher) socket.emit("checkNotebookReviews", realName);
         }
 
+        if (isTeacher) {
+            const cachedClasses = JSON.parse(localStorage.getItem('gazi_teacher_classes'));
+            if (cachedClasses && cachedClasses.length > 0) {
+                renderTeacherClasses(cachedClasses);
+            }
+        }
+
         const savedSubjects = JSON.parse(localStorage.getItem('gazi_subjects_v2')) || [];
         const dersSelect = document.getElementById('std-q-ders');
         if(dersSelect) { 
@@ -784,7 +791,7 @@ window.uploadQuestion = () => {
     const qDers = document.getElementById('new-q-ders').value.trim(); 
     const qKonu = document.getElementById('new-q-deneme').value.trim();
     const qSoru = document.getElementById('new-q-text').value.trim() || "Aşağıdaki görseli inceleyiniz."; 
-    const qSiklar = document.getElementById('new-q-opts').value ? document.getElementById('new-q-opts').value.split(',').map(s => s.trim()) : ["A", "B", "C", "D", "E"];
+    const qSiklar = ["A", "B", "C", "D", "E"];
     const qDogru = parseInt(document.getElementById('new-q-correct').value) || 0; 
     const qSolText = document.getElementById('new-q-sol-text').value.trim();
     
@@ -806,7 +813,6 @@ window.uploadQuestion = () => {
     socket.emit("addNewQuestion", q);
     
     document.getElementById('new-q-text').value = ""; 
-    document.getElementById('new-q-opts').value = ""; 
     document.getElementById('new-q-ders').value = ""; 
     document.getElementById('new-q-deneme').value = ""; 
     document.getElementById('new-q-correct').value = "0"; 
@@ -1192,26 +1198,35 @@ window.uploadQuestionToNamedClass = () => {
 
 if(socket) {
     socket.on("teacherClassesData", (classes) => {
-        const listDiv = document.getElementById('teacher-classes-list'); 
-        const select = document.getElementById('target-class-select');
-        
-        if(classes.length === 0) { 
-            listDiv.innerHTML = "Henüz sınıf oluşturulmadı."; 
-            select.innerHTML = '<option value="">Önce Sınıf Oluşturun</option>'; 
-            return; 
+        if(classes.length > 0) {
+            localStorage.setItem('gazi_teacher_classes', JSON.stringify(classes));
         }
-        
-        listDiv.innerHTML = classes.map(c => `
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px; background:rgba(255,255,255,0.1); padding:8px; border-radius:6px;">
-                <span><b>${escapeHtml(c.name)}</b> (${escapeHtml(c.code)})</span>
-                <button onclick="copyToClipboard(${JSON.stringify(c.code)})" style="width:auto; padding:4px 8px; font-size:0.7rem; background:#3498db; border:none; color:white; border-radius:4px; cursor:pointer;">Kopyala</button>
-            </div>`).join('');
-        
-        select.innerHTML = '<option value="">--- Sınıf Seçin ---</option>' + classes.map(c => `<option value="${escapeHtml(c.code)}">${escapeHtml(c.name)}</option>`).join('');
-        
-        const reportSelect = document.getElementById('report-class-select');
-        if(reportSelect) reportSelect.innerHTML = '<option value="">--- Sınıf Seçin ---</option>' + classes.map(c => `<option value="${escapeHtml(c.code)}">${escapeHtml(c.name)}</option>`).join('');
+        renderTeacherClasses(classes);
     });
+}
+
+function renderTeacherClasses(classes) {
+    const listDiv = document.getElementById('teacher-classes-list'); 
+    const select = document.getElementById('target-class-select');
+    
+    if(!listDiv || !select) return;
+
+    if(classes.length === 0) { 
+        listDiv.innerHTML = "Henüz sınıf oluşturulmadı."; 
+        select.innerHTML = '<option value="">Önce Sınıf Oluşturun</option>'; 
+        return; 
+    }
+    
+    listDiv.innerHTML = classes.map(c => `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px; background:rgba(255,255,255,0.1); padding:8px; border-radius:6px;">
+            <span><b>${escapeHtml(c.name)}</b> (${escapeHtml(c.code)})</span>
+            <button onclick="copyToClipboard(${JSON.stringify(c.code)})" style="width:auto; padding:4px 8px; font-size:0.7rem; background:#3498db; border:none; color:white; border-radius:4px; cursor:pointer;">Kopyala</button>
+        </div>`).join('');
+    
+    select.innerHTML = '<option value="">--- Sınıf Seçin ---</option>' + classes.map(c => `<option value="${escapeHtml(c.code)}">${escapeHtml(c.name)}</option>`).join('');
+    
+    const reportSelect = document.getElementById('report-class-select');
+    if(reportSelect) reportSelect.innerHTML = '<option value="">--- Sınıf Seçin ---</option>' + classes.map(c => `<option value="${escapeHtml(c.code)}">${escapeHtml(c.name)}</option>`).join('');
 }
 
 window.copyToClipboard = (text) => { 
