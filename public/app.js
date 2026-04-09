@@ -283,26 +283,6 @@ window.showScreen = (id) => {
     document.getElementById(id).classList.add('active'); 
 };
 
-/* 🎬 Accordion panel açma/kapama – anlık flash'ı önler */
-window.toggleAccordion = (id) => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    if (el.classList.contains('collapsed')) {
-        // Açılıyor: scrollHeight'a animasyonlu geçiş
-        el.style.maxHeight = el.scrollHeight + 'px';
-        el.classList.remove('collapsed');
-        el.addEventListener('transitionend', () => { el.style.maxHeight = ''; }, { once: true });
-    } else {
-        // Kapanıyor: önce mevcut yüksekliği sabitle, sonra 0'a animasyonla git
-        el.style.maxHeight = el.scrollHeight + 'px';
-        // İki ardışık frame: birincisi mevcut max-height'ı tarayıcıya işletir,
-        // ikincisi 'collapsed' eklenerek CSS geçişini tetikler (aksi hâlde anlık kapanır)
-        requestAnimationFrame(() => {
-            requestAnimationFrame(() => { el.classList.add('collapsed'); });
-        });
-    }
-};
-
 window.toggleDropdown = (id) => document.getElementById(id).classList.toggle('show');
 window.myClassCode = localStorage.getItem("gazi_class_code") || "";
 let selectedRole = 'student';
@@ -821,8 +801,7 @@ window.uploadQuestion = () => {
 };
 
 // 🚨 YENİ GÜNCELLENMİŞ ÖĞRENCİ SORU YÜKLEME KODU (HAFIZALI) 🚨
-window.uploadStudentQuestion = (target = 'cloud', event) => {
-    if (event) event.preventDefault();
+window.uploadStudentQuestion = (target = 'cloud') => {
     const customKonuInput = document.getElementById('custom-konu-input');
     const customKonu = customKonuInput ? customKonuInput.value.trim() : "";
     const finalTopic = customKonu || window.secilenKonu || "Genel Konu";
