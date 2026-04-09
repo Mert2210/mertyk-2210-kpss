@@ -2,9 +2,9 @@
   "name": "gazililer-bilgi-bankasi",
   "version": "1.1.0",
   "description": "Gazililer Yanlış Soru Kumbaram - Akıllı Tekrar ve Sınıf Sistemi",
-  "main": "server.js",
+  "main": "index.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "node index.js",
     "test": "node --test"
   },
   "dependencies": {

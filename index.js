@@ -196,19 +196,6 @@ io.on("connection", (socket) => {
         }
     });
 
-    socket.on("joinClass", ({ code, studentName }) => {
-        if (fs.existsSync(CLASSES_FILE)) {
-            let classes = JSON.parse(fs.readFileSync(CLASSES_FILE, 'utf8'));
-            if (classes[code]) {
-                if (!classes[code].students.find(s => s.name === studentName)) {
-                    classes[code].students.push({ name: studentName, joinedAt: new Date().toLocaleString('tr-TR') });
-                    fs.writeFileSync(CLASSES_FILE, JSON.stringify(classes, null, 2));
-                }
-                socket.emit("classJoined", { success: true, teacher: classes[code].teacher, code: code });
-            } else { socket.emit("classJoined", { success: false }); }
-        }
-    });
-
    socket.on("saveStudentResult", async (data) => {
         if(db) { 
             try { 
