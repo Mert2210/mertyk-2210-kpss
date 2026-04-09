@@ -10,7 +10,6 @@ const path = require("path");
 const cors = require("cors");
 const admin = require("firebase-admin");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
-const { fisherYatesShuffle, shuffleOptions, getFiltersData } = require("./utils/question-utils");
 
 const app = express();
 const server = http.createServer(app);
@@ -70,35 +69,67 @@ app.get('/manifest.json', (req, res) => {
 });
 
 let tumSorular = [];
+const QUESTIONS_FILE = path.join(__dirname, 'questions.json');
+const REPORTS_FILE = path.join(__dirname, 'reports.json'); 
+const CLASSES_FILE = path.join(__dirname, 'classes.json');
 
 const geminiApiKey = process.env.GEMINI_API_KEY || "ANAHTAR_YOK";
 const genAI = new GoogleGenerativeAI(geminiApiKey);
 const aiModel = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-// 🚨 1. ADIM: SORULARI ARTIK DOSYADAN DEĞİL FIREBASE'DEN ÇEKİYORUZ 🚨
-async function sorulariYukle() {
-    if (db) {
+function sorulariYukle() {
+    if (fs.existsSync(QUESTIONS_FILE)) {
         try {
-            const snapshot = await db.collection("kpss_sorular").get();
-            tumSorular = snapshot.docs.map(doc => doc.data());
-            console.log(`📦 Firebase'den ${tumSorular.length} adet soru başarıyla yüklendi!`);
+            let rawData = fs.readFileSync(QUESTIONS_FILE, 'utf8');
+            rawData = rawData.replace(/\]\s*\[/g, ",");
+            rawData = rawData.replace(/\]\s*,\s*\[/g, ",");
+            while (rawData.startsWith("[[")) { rawData = rawData.replace("[[", "["); }
+            while (rawData.endsWith("]]")) { rawData = rawData.replace("]]", "]"); }
+            try { tumSorular = JSON.parse(rawData); } 
+            catch (parseErr) {
+                const matches = rawData.match(/\{.*?\}/gs); 
+                if (matches) tumSorular = JSON.parse("[" + matches.join(",") + "]");
+            }
         } catch (err) {
-            console.error("🔥 Firebase soru çekme hatası:", err.message);
             tumSorular = [{ "soru": "Sistem Hatası: Havuz Yüklenemedi", "ders": "SİSTEM", "siklar": ["Tamam"], "dogru": 0 }];
         }
-    } else {
-        console.log("⚠️ Firebase bağlantısı yok, sorular yüklenemedi.");
     }
 }
 sorulariYukle();
+
 const rooms = {};
 
-function getCurrentFiltersData() {
-    return getFiltersData(tumSorular);
+function fisherYatesShuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+function shuffleOptions(q, maxOptions = 5) {
+    if (!q || !q.siklar) return q;
+    const originalCorrectText = q.siklar[q.dogru];
+    let newSiklar = [...q.siklar];
+    if (newSiklar.length > maxOptions) {
+        const wrongOptions = newSiklar.filter((s, i) => i !== q.dogru);
+        fisherYatesShuffle(wrongOptions); 
+        newSiklar = [originalCorrectText, ...wrongOptions.slice(0, maxOptions - 1)]; 
+    }
+    fisherYatesShuffle(newSiklar);
+    const newCorrectIndex = newSiklar.indexOf(originalCorrectText);
+    return { ...q, siklar: newSiklar, dogru: newCorrectIndex };
+}
+
+function getFiltersData() {
+    const denemeler = {};
+    const dersler = [...new Set(tumSorular.map(q => (q.ders || "Genel").trim().toLocaleUpperCase('tr')).filter(x => x))].sort();
+    tumSorular.forEach(q => { if (q.deneme) denemeler[q.deneme] = (denemeler[q.deneme] || 0) + 1; });
+    return { dersler, denemeler };
 }
 
 function listeleriHerkesinEkranindaGuncelle() {
-    io.emit('updateFilters', getCurrentFiltersData());
+    io.emit('updateFilters', getFiltersData());
 }
 
 // 🚨 BİLDİRİM (PUSH) GÖNDERME FONKSİYONU 🚨
@@ -118,10 +149,10 @@ async function sendPushNotification(topic, title, body) {
 }
 
 io.on("connection", (socket) => {
-    socket.emit('updateFilters', getCurrentFiltersData());
+    socket.emit('updateFilters', getFiltersData());
 
     socket.on("getFilters", () => {
-        socket.emit('updateFilters', getCurrentFiltersData());
+        socket.emit('updateFilters', getFiltersData());
     });
 
     socket.on("askGemini", async (qObj) => {
@@ -149,61 +180,51 @@ io.on("connection", (socket) => {
     });
 
     // 🚨 ADIM 2: İSİMLENDİRİLMİŞ SINIF OLUŞTURMA 🚨
-    // 🚨 2. ADIM: SINIF YÖNETİMİNİ FIREBASE'E TAŞIMA 🚨
-    socket.on("createNamedClass", async ({ teacherEmail, className }) => {
+    socket.on("createNamedClass", ({ teacherEmail, className }) => {
         const classCode = Math.random().toString(36).substring(2, 8).toUpperCase();
-        const newClass = { name: className, teacher: teacherEmail, students: [], createdAt: admin.firestore.FieldValue.serverTimestamp() };
-        
-        if (db) {
-            try {
-                await db.collection("classes").doc(classCode).set(newClass);
-                
-                const snap = await db.collection("classes").where("teacher", "==", teacherEmail).get();
-                const teacherClasses = snap.docs.map(doc => ({ code: doc.id, name: doc.data().name }));
-                
-                socket.emit("teacherClassesData", teacherClasses);
-                socket.emit("classCreated", classCode);
-            } catch (e) { console.error("Sınıf oluşturma hatası:", e.message); }
+        let classes = {};
+        if (fs.existsSync(CLASSES_FILE)) {
+            try { classes = JSON.parse(fs.readFileSync(CLASSES_FILE, 'utf8')); } catch (e) { classes = {}; }
         }
+        classes[classCode] = { name: className, teacher: teacherEmail, students: [], createdAt: new Date().toISOString() };
+        fs.writeFileSync(CLASSES_FILE, JSON.stringify(classes, null, 2));
+        
+        // Hoca için listeyi tazele
+        const teacherClasses = Object.keys(classes)
+            .filter(code => classes[code].teacher === teacherEmail)
+            .map(code => ({ code, name: classes[code].name }));
+        socket.emit("teacherClassesData", teacherClasses);
+        socket.emit("classCreated", classCode);
     });
 
-    socket.on("getTeacherClass", async (email) => {
-        if (db) {
+    // 🚨 ADIM 2: HOCANIN SINIFLARINI GETİRME 🚨
+    socket.on("getTeacherClass", (email) => {
+        if (fs.existsSync(CLASSES_FILE)) {
             try {
-                const snap = await db.collection("classes").where("teacher", "==", email).get();
-                const teacherClasses = snap.docs.map(doc => ({ code: doc.id, name: doc.data().name }));
+                const classes = JSON.parse(fs.readFileSync(CLASSES_FILE, 'utf8'));
+                const teacherClasses = Object.keys(classes)
+                    .filter(code => classes[code].teacher === email)
+                    .map(code => ({ code, name: classes[code].name }));
                 socket.emit("teacherClassesData", teacherClasses);
             } catch (e) { socket.emit("teacherClassesData", []); }
         }
     });
 
-    socket.on("joinClass", async ({ code, studentName }) => {
-        if (db) {
-            try {
-                const classRef = db.collection("classes").doc(code);
-                const doc = await classRef.get();
-                if (doc.exists) {
-                    const classData = doc.data();
-                    if (!classData.students.find(s => s.name === studentName)) {
-                        classData.students.push({ name: studentName, joinedAt: new Date().toLocaleString('tr-TR') });
-                        await classRef.update({ students: classData.students });
-                    }
-                    socket.emit("classJoined", { success: true, teacher: classData.teacher, code: code });
-                } else {
-                    socket.emit("classJoined", { success: false });
+    socket.on("joinClass", ({ code, studentName }) => {
+        if (fs.existsSync(CLASSES_FILE)) {
+            let classes = JSON.parse(fs.readFileSync(CLASSES_FILE, 'utf8'));
+            if (classes[code]) {
+                if (!classes[code].students.find(s => s.name === studentName)) {
+                    classes[code].students.push({ name: studentName, joinedAt: new Date().toLocaleString('tr-TR') });
+                    fs.writeFileSync(CLASSES_FILE, JSON.stringify(classes, null, 2));
                 }
-            } catch (e) { socket.emit("classJoined", { success: false }); }
+                socket.emit("classJoined", { success: true, teacher: classes[code].teacher, code: code });
+            } else { socket.emit("classJoined", { success: false }); }
         }
     });
 
-   socket.on("saveStudentResult", async (data) => {
-        if(db) { 
-            try { 
-                await db.collection("kpss_results").add({ ...data, date: new Date().toLocaleString('tr-TR'), serverTime: admin.firestore.FieldValue.serverTimestamp() }); 
-            } catch(e) { 
-                console.error("❌ Öğrenci skoru kaydedilirken hata:", e.message); 
-            } 
-        }
+    socket.on("saveStudentResult", async (data) => {
+        if(db) { try { await db.collection("kpss_results").add({ ...data, date: new Date().toLocaleString('tr-TR'), serverTime: admin.firestore.FieldValue.serverTimestamp() }); } catch(e){} }
     });
 
     socket.on("getMyStats", async (studentName) => {
@@ -230,16 +251,10 @@ io.on("connection", (socket) => {
         // sendPushNotification("global", "📢 " + (data.sender || "Eğitmen"), data.message);
     });
 
-    // 🚨 3. ADIM: SORUYU SADECE FIREBASE'E KAYDET (fs.writeFileSync KALDIRILDI) 🚨
     socket.on("addNewQuestion", async (newQ) => {
         tumSorular.push(newQ);
-        if (db) { 
-            try { 
-                await db.collection("kpss_sorular").add({ ...newQ, createdAt: admin.firestore.FieldValue.serverTimestamp() }); 
-            } catch (e) { 
-                console.error("Soru ekleme hatası:", e.message); 
-            } 
-        }
+        fs.writeFileSync(QUESTIONS_FILE, JSON.stringify(tumSorular, null, 2));
+        if (db) { try { await db.collection("kpss_sorular").add({ ...newQ, createdAt: admin.firestore.FieldValue.serverTimestamp() }); } catch (e) {} }
         listeleriHerkesinEkranindaGuncelle();
         
         // 🚨 YENİ SORU EKLENDİĞİNDE BİLDİRİM GÖNDER 🚨
@@ -275,15 +290,10 @@ io.on("connection", (socket) => {
     });
 
     socket.on("addStudentQuestion", async (q) => {
-        if (db) { 
-            try { 
-                await db.collection("student_questions").add({ ...q, createdAt: admin.firestore.FieldValue.serverTimestamp() }); 
-            } catch (e) { 
-                console.error("❌ Öğrenci sorusu buluta eklenirken hata:", e.message); 
-            } 
-        }
+        if (db) { try { await db.collection("student_questions").add({ ...q, createdAt: admin.firestore.FieldValue.serverTimestamp() }); } catch (e) {} }
     });
-   socket.on("checkNotebookReviews", async (studentName) => {
+
+    socket.on("checkNotebookReviews", async (studentName) => {
         if(db && studentName) {
             try {
                 const snap = await db.collection("student_questions").where("studentName", "==", studentName).get();
@@ -294,9 +304,7 @@ io.on("connection", (socket) => {
                     if(data.nextReviewDate && data.nextReviewDate <= now) reviewCount++;
                 });
                 socket.emit("notebookReviewsCount", reviewCount);
-            } catch(e) { 
-                console.error("❌ Tekrar edilecek sorular kontrol edilirken hata:", e.message); 
-            }
+            } catch(e) {}
         }
     });
 
@@ -321,9 +329,7 @@ io.on("connection", (socket) => {
             try {
                 const newDate = Date.now() + (additionalDays * 24 * 60 * 60 * 1000);
                 await db.collection("student_questions").doc(questionId).update({ nextReviewDate: newDate });
-            } catch(e) { 
-                console.error("❌ Soru tekrar tarihi güncellenirken hata:", e.message); 
-            }
+            } catch(e) {}
         }
     });
 
@@ -342,7 +348,7 @@ io.on("connection", (socket) => {
         } else { socket.emit("pendingTeachersData", []); }
     });
 
-   socket.on("approveTeacher", async (email) => {
+    socket.on("approveTeacher", async (email) => {
         if(admin.apps.length) {
             try {
                 const userRecord = await admin.auth().getUserByEmail(email);
@@ -359,35 +365,21 @@ io.on("connection", (socket) => {
                     });
                     socket.emit("pendingTeachersData", pending);
                 }
-            } catch(e) { 
-                console.error("❌ Öğretmen onaylanırken/listelenirken hata:", e.message); 
-            }
+            } catch(e) {}
         }
     });
 
-    // 🚨 4. ADIM: HATA RAPORLARINI FIREBASE'E TAŞIMA 🚨
-    socket.on("reportQuestion", async (qObj) => {
-        if (db) {
-            try {
-                await db.collection("reports").add({ ...qObj, reportedAt: new Date().toLocaleString('tr-TR'), reportedBySocket: socket.id, serverTime: admin.firestore.FieldValue.serverTimestamp() });
-            } catch (e) { console.error("Raporlama hatası:", e.message); }
-        }
+    socket.on("reportQuestion", (qObj) => {
+        let reports = [];
+        if (fs.existsSync(REPORTS_FILE)) { try { reports = JSON.parse(fs.readFileSync(REPORTS_FILE, 'utf8')); } catch (e) { reports = []; } }
+        reports.push({ ...qObj, reportedAt: new Date().toLocaleString('tr-TR'), reportedBySocket: socket.id });
+        fs.writeFileSync(REPORTS_FILE, JSON.stringify(reports, null, 2));
     });
 
-    // 🚨 KORUMALI ALAN: Sadece Yönetici E-postası Raporları Çekebilir
-    socket.on("adminGetReports", async (adminEmail) => {
-        // Gelen e-posta senin e-postan değilse işlemi anında durdur!
-        if (adminEmail !== "kayamert319@gmail.com") {
-            console.warn(`🚨 Yetkisiz admin erişimi denemesi engellendi: ${adminEmail}`);
-            socket.emit("allReportsData", []); // Hırsıza boş liste gönder :)
-            return;
-        }
-
-        if (db) {
-            try {
-                const snap = await db.collection("reports").orderBy("serverTime", "desc").get();
-                socket.emit("allReportsData", snap.docs.map(doc => doc.data()));
-            } catch (e) { socket.emit("allReportsData", []); }
+    socket.on("adminGetReports", () => {
+        if (fs.existsSync(REPORTS_FILE)) {
+            try { socket.emit("allReportsData", JSON.parse(fs.readFileSync(REPORTS_FILE, 'utf8'))); } 
+            catch (e) { socket.emit("allReportsData", []); }
         } else { socket.emit("allReportsData", []); }
     });
 
@@ -415,38 +407,17 @@ io.on("connection", (socket) => {
         io.to(roomCode).emit("updatePlayerList", Object.values(rooms[roomCode].players));
     });
 
-    // 🚨 RAM DOSTU: HIZLI DENEME BAŞLATMA (FIREBASE SORGUSU İLE) 🚨
-    socket.on("startTrial", async (settings) => {
-        let pool = [];
-        
-        if (db) {
-            try {
-                let query = db.collection("kpss_sorular");
-                
-                // En büyük yükü (Ders filtrelemesini) Firebase'e yaptırıyoruz
-                if (settings.subject && settings.subject !== "HEPSI") {
-                    const hedefler = Array.isArray(settings.subject) ? settings.subject : [settings.subject];
-                    query = query.where("ders", "in", hedefler);
-                }
-                
-                const snapshot = await query.get();
-                pool = snapshot.docs.map(doc => doc.data());
-                
-                // Kalan ufak filtreleri hafızada yapıyoruz (Çok daha az veri var artık)
-                if (settings.deneme && settings.deneme !== "HEPSI") {
-                    const secilenler = Array.isArray(settings.deneme) ? settings.deneme : [settings.deneme];
-                    pool = pool.filter(q => secilenler.includes(q.deneme));
-                }
-                if (settings.difficulty && settings.difficulty !== "HEPSI") {
-                    pool = pool.filter(q => (q.zorluk || "ORTA").toLocaleUpperCase('tr') === settings.difficulty);
-                }
-            } catch(e) {
-                console.error("❌ Hızlı Deneme soruları çekilirken Firebase hatası:", e.message);
-                pool = [...tumSorular]; // Hata olursa eski usül yedekten devam
-            }
-        } else {
-            pool = [...tumSorular];
+    socket.on("startTrial", (settings) => {
+        let pool = [...tumSorular];
+        if (settings.deneme && settings.deneme !== "HEPSI") {
+            const secilenler = Array.isArray(settings.deneme) ? settings.deneme : [settings.deneme];
+            pool = pool.filter(q => secilenler.includes(q.deneme));
         }
+        if (settings.subject && settings.subject !== "HEPSI") {
+            const hedefler = Array.isArray(settings.subject) ? settings.subject : [settings.subject];
+            pool = pool.filter(q => hedefler.includes((q.ders || "GENEL").trim().toLocaleUpperCase('tr')));
+        }
+        if (settings.difficulty && settings.difficulty !== "HEPSI") pool = pool.filter(q => (q.zorluk || "ORTA").toLocaleUpperCase('tr') === settings.difficulty);
 
         fisherYatesShuffle(pool);
         const limit = parseInt(settings.count) || 10;
@@ -455,44 +426,26 @@ io.on("connection", (socket) => {
         socket.emit("trialStarted", { questions: trialQuestions, timerMode: settings.timerMode, duration: settings.duration });
     });
 
-// 🚨 RAM DOSTU: CANLI ODA SINAVI BAŞLATMA (FIREBASE SORGUSU İLE) 🚨
-    socket.on("startGame", async ({ roomCode, settings }) => {
+    socket.on("startGame", ({ roomCode, settings }) => {
         const room = rooms[roomCode];
         if (!room) return;
         
-        let pool = [];
-        if (db) {
-            try {
-                let query = db.collection("kpss_sorular");
-                
-                // Dersleri Firebase'den filtreleyerek çek
-                if (settings.subject && settings.subject !== "HEPSI") {
-                    const hedefler = Array.isArray(settings.subject) ? settings.subject : [settings.subject];
-                    query = query.where("ders", "in", hedefler);
-                }
-                
-                const snapshot = await query.get();
-                pool = snapshot.docs.map(doc => doc.data());
+        let pool = [...tumSorular];
+        const limit = parseInt(settings.count) || 10;
 
-                // Diğer detay filtreleri
-                if (settings.deneme && settings.deneme !== "HEPSI") {
-                    const secilenler = Array.isArray(settings.deneme) ? settings.deneme : [settings.deneme];
-                    pool = pool.filter(q => secilenler.includes(q.deneme));
-                }
-                if (settings.difficulty && settings.difficulty !== "HEPSI") {
-                    pool = pool.filter(q => (q.zorluk || "ORTA").toLocaleUpperCase('tr') === settings.difficulty);
-                }
-            } catch(e) {
-                console.error("❌ Oda soruları çekilirken Firebase hatası:", e.message);
-                pool = [...tumSorular];
-            }
-        } else {
-            pool = [...tumSorular];
+        if (settings.deneme && settings.deneme !== "HEPSI") {
+            const secilenler = Array.isArray(settings.deneme) ? settings.deneme : [settings.deneme];
+            pool = pool.filter(q => secilenler.includes(q.deneme));
+        }
+        if (settings.subject && settings.subject !== "HEPSI") {
+            const hedefler = Array.isArray(settings.subject) ? settings.subject : [settings.subject];
+            pool = pool.filter(q => hedefler.includes((q.ders || "GENEL").trim().toLocaleUpperCase('tr')));
+        }
+        if (settings.difficulty && settings.difficulty !== "HEPSI") {
+            pool = pool.filter(q => (q.zorluk || "ORTA").toLocaleUpperCase('tr') === settings.difficulty);
         }
 
-        const limit = parseInt(settings.count) || 10;
         fisherYatesShuffle(pool);
-        
         room.questions = pool.slice(0, limit).map(q => shuffleOptions(q, settings.optionsCount));
         room.settings = settings;
         room.timerMode = settings.timerMode || 'question';
@@ -509,6 +462,7 @@ io.on("connection", (socket) => {
         }
         sendQuestionToRoom(roomCode);
     });
+
     socket.on("submitAnswer", ({ roomCode, answerIndex }) => {
         const room = rooms[roomCode];
         if (!room || !room.gameStarted) return;
@@ -547,95 +501,39 @@ io.on("connection", (socket) => {
             }
         }
     });
-// 🚨 1. EKSİK: Sınıfın Ortak Yanlışlarını Kaydetme 🚨
-    socket.on("saveClassMistakes", async ({ classCode, mistakes }) => {
-        if(db && classCode && mistakes && mistakes.length > 0) {
-            try {
-                const batch = db.batch();
-                mistakes.forEach(m => {
-                    const docRef = db.collection("class_mistakes").doc();
-                    batch.set(docRef, { ...m, classCode: classCode, serverTime: admin.firestore.FieldValue.serverTimestamp() });
-                });
-                await batch.commit();
-            } catch(e) { console.error("❌ Sınıf yanlışları kaydedilirken hata:", e.message); }
-        }
-    });
 
-    // 🚨 2. EKSİK: Öğretmenin Sınıf Yanlışları Analizini Çekmesi 🚨
-    socket.on("getClassMistakes", async (classCode) => {
-        if(db && classCode) {
-            try {
-                const snap = await db.collection("class_mistakes").where("classCode", "==", classCode).get();
-                const mistakesMap = {};
-                
-                // Aynı soruları gruplayıp kaç kere yanlış yapıldığını sayıyoruz
-                snap.docs.forEach(doc => {
-                    const data = doc.data();
-                    const key = data.soru; // Soru metnini benzersiz anahtar (ID) kabul ediyoruz
-                    if(!mistakesMap[key]) {
-                        mistakesMap[key] = { ...data, count: 1 };
-                    } else {
-                        mistakesMap[key].count++;
-                    }
-                });
-                
-                // En çok yanlış yapılan soruyu en üste (Z'den A'ya) sıralıyoruz
-                const sortedMistakes = Object.values(mistakesMap).sort((a,b) => b.count - a.count);
-                socket.emit("classMistakesData", sortedMistakes);
-            } catch(e) {
-                console.error("❌ Sınıf yanlışları çekilirken hata:", e.message);
-                socket.emit("classMistakesData", []);
-            }
-        } else {
-            socket.emit("classMistakesData", []);
-        }
-    });
-
-    // 🚨 3. EKSİK: Öğrenci Yanlış Yaptığında Bulut Tekrar Kutusuna Ekleme 🚨
-    socket.on("addToReviewQueue", async ({ studentName, question }) => {
-        if(db && studentName && question) {
-            try {
-                const nextReview = Date.now() + (24 * 60 * 60 * 1000); // Otomatik 1 gün sonraya ertele
-                await db.collection("student_questions").add({
-                    ...question,
-                    studentName: studentName,
-                    nextReviewDate: nextReview,
-                    createdAt: admin.firestore.FieldValue.serverTimestamp()
-                });
-            } catch(e) { console.error("❌ Review kuyruğuna eklenirken hata:", e.message); }
-        }
-    });
-   
-    // 🚨 RAM TEMİZLİĞİ: ODA BOŞALIRSA SİL 🚨
-   // 1. Önce bağlantı içindeki son işlemi (disconnect) kapatıyoruz
     socket.on("disconnect", () => {
         for (const code in rooms) {
             if (rooms[code].players[socket.id]) {
                 delete rooms[code].players[socket.id];
                 io.to(code).emit("updatePlayerList", Object.values(rooms[code].players));
-                if (Object.keys(rooms[code].players).length === 0) {
-                    if (rooms[code].timerId) clearTimeout(rooms[code].timerId);
-                    if (rooms[code].globalTimeout) clearTimeout(rooms[code].globalTimeout);
-                    delete rooms[code];
-                }
             }
         }
     });
+});
 
-}); // 🚨 İŞTE BU KRİTİK PARANTEZ: io.on("connection") kapısını kapatır.
-
-// 2. Yardımcı Fonksiyon: Ana kapının dışında olmalı
 function sendQuestionToRoom(roomCode) {
     const room = rooms[roomCode];
-    if (!room) return;
+    if (!room || !room.gameStarted) return;
+    
+    if (room.currentQuestionIndex >= room.questions.length) {
+        if(room.globalTimeout) clearTimeout(room.globalTimeout);
+        io.to(roomCode).emit("gameOver", Object.values(room.players));
+        room.gameStarted = false; return;
+    }
 
-    io.to(roomCode).emit("nextQuestion", {
-        question: room.questions[room.currentQuestionIndex],
-        index: room.currentQuestionIndex,
-        total: room.questions.length,
-        endTime: room.endTime // Genel süre varsa
+    room.answerCount = 0;
+    Object.keys(room.players).forEach(id => { room.players[id].hasAnsweredThisRound = false; });
+    room.questionStartTime = Date.now();
+    const q = room.questions[room.currentQuestionIndex];
+    let remaining = room.timerMode === 'general' ? Math.max(0, Math.floor((room.endTime - Date.now()) / 1000)) : 0;
+
+    io.to(roomCode).emit("newQuestion", {
+        soru: q.soru, siklar: q.siklar, ders: q.ders, image: q.image,
+        index: room.currentQuestionIndex + 1, total: room.questions.length,
+        duration: parseInt(room.settings.duration), timerMode: room.timerMode, remainingTime: remaining
     });
-
+    
     if (room.timerMode === 'question' && room.settings.duration > 0) {
         if(room.timerId) clearTimeout(room.timerId);
         room.timerId = setTimeout(() => { 
@@ -652,8 +550,5 @@ function sendQuestionToRoom(roomCode) {
     }
 }
 
-// 3. Sunucu Başlatma: En altta kalmalı
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-    console.log(`🚀 Gazililer Eğitim Platformu Sunucusu ${PORT} portunda aktif.`);
-});
+server.listen(PORT, () => console.log(`🚀 Gazililer Eğitim Platformu Sunucusu ${PORT} portunda aktif.`));
