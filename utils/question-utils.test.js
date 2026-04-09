@@ -11,7 +11,10 @@ function withMockedRandom(sequence, callback) {
     const originalRandom = Math.random;
     let index = 0;
     Math.random = () => {
-        const value = sequence[index] ?? sequence[sequence.length - 1] ?? 0;
+        if (index >= sequence.length) {
+            throw new Error("Mocked random sequence exhausted; provide enough values for this test.");
+        }
+        const value = sequence[index];
         index += 1;
         return value;
     };
