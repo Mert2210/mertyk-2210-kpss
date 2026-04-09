@@ -354,6 +354,18 @@ io.on("connection", (socket) => {
         }
     });
 
+    socket.on("deleteStudentQuestion", async ({ questionId, studentName }) => {
+        if(db && questionId && studentName) {
+            try {
+                const docRef = db.collection("student_questions").doc(questionId);
+                const doc = await docRef.get();
+                if(doc.exists && doc.data().studentName === studentName) {
+                    await docRef.delete();
+                }
+            } catch(e) {}
+        }
+    });
+
     socket.on("getPendingTeachers", async () => {
         if(admin.apps.length) {
             try {

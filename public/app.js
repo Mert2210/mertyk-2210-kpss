@@ -585,6 +585,8 @@ onAuthStateChanged(auth, user => {
             window.showScreen('screen-main'); 
         }
 
+        if (!isTeacher) window.updateLocalListCounts();
+
     } else { 
         window.showScreen('screen-auth'); 
     }
@@ -892,6 +894,7 @@ window.uploadStudentQuestion = (target = 'cloud') => {
     stdUploadedImageBase64 = null; 
     stdSolutionBase64 = null;
     if (customKonuInput) customKonuInput.value = "";
+    window.updateLocalListCounts();
 };
 
 window.fetchStudentLibrary = (source = 'cloud', onlyReviews = false) => {
@@ -961,8 +964,9 @@ function renderStudentLibraryListOnly(data) {
             : '';
         div.innerHTML = data.map((q, i) => {
             return `
-            <div class="list-item" style="border: 2px solid #e67e22; background:#fff;">
-                <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:4px; margin-bottom:4px;">
+            <div class="list-item" style="border: 2px solid #e67e22; background:#fff; position:relative;">
+                <button onclick="reportQuestionFromLibrary(${i})" title="Hatalı Bildir" style="position:absolute; top:6px; right:6px; width:auto; padding:2px 7px; font-size:0.7rem; background:transparent; border:1px solid #e0e0e0; color:#bbb; border-radius:4px; cursor:pointer; line-height:1.4;">🚨</button>
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:4px; margin-bottom:4px; padding-right:36px;">
                     <div>
                         <span style="background:#1e3c72; color:#fff; padding:3px 8px; border-radius:4px; font-size:0.75rem; font-weight:bold;">${escapeHtml(q.ders || 'Genel')}</span>
                         <b style="color:#e67e22; margin-left:5px;">${escapeHtml(q.konu)}</b>${cloudBadge}
@@ -978,7 +982,7 @@ function renderStudentLibraryListOnly(data) {
                 <div id="sol-std-qbox-${i}" style="display:none; margin-top:10px; padding:10px; background:#e8f4f8; border-radius:8px; font-size:0.8rem; color:#333; text-align:left;"></div>
                 <div style="display:flex; gap:5px; margin-top:10px;">
                     ${q.id ? `<button onclick="updateReviewDate(${JSON.stringify(q.id)}, ${isLocal})" class="outline" style="flex:2; font-size:0.8rem; border-color:#27ae60; color:#27ae60;">✅ Tekrar Ettim (Ertele)</button>` : ''}
-                    <button onclick="reportQuestionFromLibrary(${i})" class="outline" style="flex:1; font-size:0.8rem; border-color:#c0392b; color:#c0392b;">🚨 Bildir</button>
+                    ${q.id ? `<button onclick="deleteStudentQuestion(${JSON.stringify(q.id)}, ${isLocal})" class="outline" style="flex:1; font-size:0.8rem; border-color:#c0392b; color:#c0392b;">🗑️ Sil</button>` : ''}
                 </div>
             </div>`;
         }).join(''); 
@@ -988,7 +992,7 @@ function renderStudentLibraryListOnly(data) {
 function renderStudentLibraryHTML(data, title) { 
     window.originalStdQuestions = data; 
     currentListType = "student_library"; 
-    document.getElementById('list-title').innerText = title; 
+    document.getElementById('list-title').innerText = `${title} (${data.length})`; 
     document.getElementById('library-filter-area').style.display = 'block'; 
     populateLibraryFilters(data);
 
@@ -1035,6 +1039,28 @@ window.updateReviewDate = (questionId, isLocal = false) => {
         showScreen('screen-main');
         const studentName = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "").trim() || "Gazi Adayı"; 
         socket.emit("checkNotebookReviews", studentName);
+    }
+};
+
+window.deleteStudentQuestion = (questionId, isLocal) => {
+    if (!confirm("Bu soruyu silmek istediğinizden emin misiniz?")) return;
+    if (!isLocal) {
+        if (socket) {
+            const studentName = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "").trim() || "Gazi Adayı";
+            socket.emit("deleteStudentQuestion", { questionId: questionId, studentName: studentName });
+        }
+    } else {
+        let localData = JSON.parse(localStorage.getItem('gazi_local_notebook')) || [];
+        localData = localData.filter(x => x.id !== questionId);
+        localStorage.setItem('gazi_local_notebook', JSON.stringify(localData));
+        window.updateLocalListCounts();
+    }
+    window.originalStdQuestions = window.originalStdQuestions.filter(q => q.id !== questionId);
+    window.tempStdQuestions = window.tempStdQuestions.filter(q => q.id !== questionId);
+    renderStudentLibraryListOnly(window.tempStdQuestions);
+    const titleEl = document.getElementById('list-title');
+    if (titleEl) {
+        titleEl.innerText = titleEl.innerText.replace(/\(\d+\)/, `(${window.originalStdQuestions.length})`);
     }
 };
 
@@ -1199,6 +1225,8 @@ if(socket) {
     socket.on("notebookReviewsCount", (count) => { 
         const box = document.getElementById('review-alert-box'); 
         const countEl = document.getElementById('review-q-count');
+        const btnCount = document.getElementById('review-btn-count');
+        if (btnCount) btnCount.innerText = count;
         if(box) { 
             if(count > 0) { 
                 box.style.display = 'block'; 
@@ -1408,6 +1436,17 @@ if(socket) socket.on("allReportsData", (data) => {
     showScreen('screen-list'); 
 });
 
+window.updateLocalListCounts = () => {
+    const keys = { 'wrong': 'kpss_wrongs', 'fav': 'kpss_favs', 'blank': 'kpss_blanks', 'report': 'kpss_reports' };
+    Object.entries(keys).forEach(([type, key]) => {
+        const el = document.getElementById('count-' + type);
+        if (el) el.innerText = (JSON.parse(localStorage.getItem(key)) || []).length;
+    });
+    const localNB = (JSON.parse(localStorage.getItem('gazi_local_notebook')) || []).length;
+    const btnLocal = document.getElementById('btn-local-open');
+    if (btnLocal) btnLocal.innerText = `💾 Cihazdan Aç (${localNB})`;
+};
+
 window.showLocalList = (type) => { 
     document.getElementById('library-filter-area').style.display = 'none'; 
     const reviewHeader = document.getElementById('review-section-header');
@@ -1417,8 +1456,8 @@ window.showLocalList = (type) => {
     currentListType = type; 
     const keys = { 'wrong': 'kpss_wrongs', 'fav': 'kpss_favs', 'blank': 'kpss_blanks', 'report': 'kpss_reports' }; 
     const titles = { 'wrong': '❌ Yanlışlarım', 'fav': '⭐ Favorilerim', 'blank': '⬜ Boş Bıraktıklarım', 'report': '🚨 Hatalı Bildirdiklerim' }; 
-    document.getElementById('list-title').innerText = titles[type]; 
     const list = JSON.parse(localStorage.getItem(keys[type])) || []; 
+    document.getElementById('list-title').innerText = `${titles[type]} (${list.length})`; 
     const contentDiv = document.getElementById('list-content'); 
     if(list.length === 0) contentDiv.innerHTML = "<p style='text-align:center;'>Bu liste şu an boş.</p>"; 
     else contentDiv.innerHTML = list.map((q, i) => `<div class="list-item"><b>Soru ${i+1}:</b> ${escapeHtml(q.soru)} <br><span style="color:#27ae60; font-weight:bold; font-size:0.9rem;">Cevap: ${escapeHtml(q.siklar ? q.siklar[q.dogru] : 'Bilinmiyor')}</span></div>`).join(''); 
@@ -1737,6 +1776,7 @@ window.finishTrial = () => {
     showScreen('screen-result'); 
     document.getElementById('result-board').innerHTML = `<h3 style="color:#333;">Doğru: ${d} | Yanlış: ${y} | Boş: ${b}</h3><h2>Puan: ${s}</h2>`; 
     confetti({ particleCount: 150 });
+    window.updateLocalListCounts();
 };
 
 function startQuestionTimer(s) { 
