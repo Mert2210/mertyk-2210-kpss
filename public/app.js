@@ -214,14 +214,14 @@ window.secilenDers = "";
 window.secilenKonu = "";
 
 window.applyCustomMufredat = () => {
-    const customExams = JSON.parse(localStorage.getItem('gazi_custom_exams')) || [];
+    const customExams = getStoredJSON('gazi_custom_exams', []);
     customExams.forEach(ex => {
         if (!window.mufredat[ex]) {
             window.mufredat[ex] = { "Genel": { "Genel Ders": [] } };
         }
     });
 
-    const customDersler = JSON.parse(localStorage.getItem('gazi_custom_dersler')) || [];
+    const customDersler = getStoredJSON('gazi_custom_dersler', []);
     if (window.secilenSinav && window.secilenGrup && window.mufredat[window.secilenSinav]) {
         customDersler.forEach(ders => {
             if (!window.mufredat[window.secilenSinav][window.secilenGrup][ders]) {
@@ -236,12 +236,24 @@ function escapeHtml(text) {
     return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
 }
 
+function getStoredJSON(key, fallback) {
+    try {
+        const rawValue = localStorage.getItem(key);
+        if (!rawValue) return fallback;
+        return JSON.parse(rawValue);
+    } catch (error) {
+        console.warn(`⚠️ '${key}' verisi bozuk olduğu için sıfırlandı.`);
+        localStorage.removeItem(key);
+        return fallback;
+    }
+}
+
 window.renderExams = (fromMemory = false) => {
     const container = document.getElementById('box-exams');
     if (!container) return;
 
     const exams = Object.keys(window.mufredat);
-    const customExams = JSON.parse(localStorage.getItem('gazi_custom_exams')) || [];
+    const customExams = getStoredJSON('gazi_custom_exams', []);
 
     container.innerHTML = exams.map(ex => {
         const isCustom = customExams.includes(ex);
@@ -265,7 +277,7 @@ window.renderExams = (fromMemory = false) => {
 };
 
 window.initEtiketleme = () => {
-    const mem = JSON.parse(localStorage.getItem('gazi_sticky_memory')) || {};
+    const mem = getStoredJSON('gazi_sticky_memory', {});
     if(mem.exam) window.secilenSinav = mem.exam;
     if(mem.group) window.secilenGrup = mem.group;
     if(mem.subject) window.secilenDers = mem.subject;
@@ -301,7 +313,7 @@ window.renderSubjects = (fromMemory = false) => {
     }
     
     const subjects = Object.keys(window.mufredat[window.secilenSinav][window.secilenGrup]);
-    const customDersler = JSON.parse(localStorage.getItem('gazi_custom_dersler')) || [];
+    const customDersler = getStoredJSON('gazi_custom_dersler', []);
 
     area.style.display = 'block';
     container.innerHTML = subjects.map(s => {
@@ -382,7 +394,7 @@ window.renderTopics = (fromMemory = false) => {
     if(!window.secilenDers) { area.style.display = 'none'; return; }
     
     let topics = window.mufredat[window.secilenSinav][window.secilenGrup][window.secilenDers] || [];
-    const customTopics = JSON.parse(localStorage.getItem('gazi_custom_topics')) || {};
+    const customTopics = getStoredJSON('gazi_custom_topics', {});
     if(customTopics[window.secilenDers]) topics = [...topics, ...customTopics[window.secilenDers]];
 
     area.style.display = 'block';
@@ -576,7 +588,7 @@ window.openSettingsPanel = () => {
         passArea.style.display = userNameText.includes("Misafir") ? 'none' : 'block';
     }
     
-    const savedExams = JSON.parse(localStorage.getItem('gazi_selected_exams')) || [];
+    const savedExams = getStoredJSON('gazi_selected_exams', []);
     document.querySelectorAll('.profile-exam-cb').forEach(cb => cb.checked = false);
     
     if (savedExams.length > 0) {
@@ -609,7 +621,7 @@ window.openSettingsPanel = () => {
         }, 100); 
     }
 
-    const savedSubjects = JSON.parse(localStorage.getItem('gazi_subjects_v2')) || [];
+    const savedSubjects = getStoredJSON('gazi_subjects_v2', []);
     const subjects = ['tarih', 'cografya', 'vatandaslik', 'matematik', 'turkce', 'egitim', 'fizik', 'kimya', 'biyoloji', 'fen'];
     subjects.forEach(sub => { 
         const cb = document.getElementById('subj-' + sub); 
@@ -622,7 +634,7 @@ window.openSettingsPanel = () => {
         } 
     });
 
-    const savedReminders = JSON.parse(localStorage.getItem('gazi_reminder_prefs'));
+    const savedReminders = getStoredJSON('gazi_reminder_prefs', null);
     if (savedReminders) {
         const autoReminderCb = document.getElementById('set-auto-reminder');
         const reminderDaysSel = document.getElementById('set-reminder-days');
@@ -858,7 +870,7 @@ onAuthStateChanged(auth, user => {
             if (!isTeacher) window.socket.emit("checkNotebookReviews", realName);
         }
 
-        const savedSubjects = JSON.parse(localStorage.getItem('gazi_subjects_v2')) || [];
+        const savedSubjects = getStoredJSON('gazi_subjects_v2', []);
         const dersSelect = document.getElementById('std-q-ders');
         if(dersSelect) { 
             dersSelect.innerHTML = savedSubjects.length > 0 
@@ -1118,7 +1130,7 @@ window.uploadStudentQuestion = (target = 'cloud') => {
     if(!window.stdUploadedImageBase64 && !qText) return alert("Lütfen bir fotoğraf yükleyin veya kendinize bir not yazın!");
 
     if(customKonu && finalDers !== "Genel Ders") {
-        let customTopics = JSON.parse(localStorage.getItem('gazi_custom_topics')) || {};
+        let customTopics = getStoredJSON('gazi_custom_topics', {});
         if(!customTopics[finalDers]) customTopics[finalDers] = [];
         if(!customTopics[finalDers].includes(customKonu)) {
             customTopics[finalDers].push(customKonu);
@@ -1363,7 +1375,7 @@ window.checkStdAnswer = (btn, selectedIdx, qIndex) => {
     if(overlay && content) {
         overlay.classList.add('active');
 
-        const prefs = JSON.parse(localStorage.getItem('gazi_overlay_prefs')) || { showResult: true, showText: true, showImage: true };
+        const prefs = getStoredJSON('gazi_overlay_prefs', { showResult: true, showText: true, showImage: true });
         
         let resultHTML = prefs.showResult ? `
             <p style="margin-bottom:5px;"><b>Senin Cevabın:</b> ${['A','B','C','D','E'][selectedIdx]}</p>
@@ -1756,7 +1768,7 @@ if(window.socket) {
 }
 
 window.saveToLocal = (key, qObj) => { 
-    let list = JSON.parse(localStorage.getItem(key)) || []; 
+    let list = getStoredJSON(key, []); 
     if(!list.find(x => x.soru === qObj.soru)) { 
         list.push(qObj); 
         localStorage.setItem(key, JSON.stringify(list)); 
@@ -1764,13 +1776,13 @@ window.saveToLocal = (key, qObj) => {
 };
 
 window.removeFromLocal = (key, qObj) => { 
-    let list = JSON.parse(localStorage.getItem(key)) || []; 
+    let list = getStoredJSON(key, []); 
     list = list.filter(x => x.soru !== qObj.soru); 
     localStorage.setItem(key, JSON.stringify(list)); 
 };
 
 window.checkIsFav = (qObj) => { 
-    return (JSON.parse(localStorage.getItem('kpss_favs')) || []).some(x => x.soru === qObj.soru); 
+    return getStoredJSON('kpss_favs', []).some(x => x.soru === qObj.soru); 
 };
 
 window.toggleFavCurrent = () => { 
@@ -1826,7 +1838,7 @@ window.showLocalList = (type) => {
     const keys = { 'wrong': 'kpss_wrongs', 'fav': 'kpss_favs', 'blank': 'kpss_blanks', 'report': 'kpss_reports' }; 
     const titles = { 'wrong': '❌ Yanlışlarım', 'fav': '⭐ Favorilerim', 'blank': '⬜ Boş Bıraktıklarım', 'report': '🚨 Hatalı Bildirdiklerim' }; 
     document.getElementById('list-title').innerText = titles[type]; 
-    const list = JSON.parse(localStorage.getItem(keys[type])) || []; 
+    const list = getStoredJSON(keys[type], []); 
     const contentDiv = document.getElementById('list-content'); 
     
     if(list.length === 0) {
@@ -1843,7 +1855,7 @@ window.showLocalList = (type) => {
 
 window.downloadPDF = () => { 
     const keys = { 'wrong': 'kpss_wrongs', 'fav': 'kpss_favs', 'blank': 'kpss_blanks', 'report': 'kpss_reports' }; 
-    const list = JSON.parse(localStorage.getItem(keys[window.currentListType])) || []; 
+    const list = getStoredJSON(keys[window.currentListType], []); 
     if(list.length === 0) return alert("Liste boş!"); 
     const win = window.open('', '', 'height=600,width=800'); 
     win.document.write('<html><body style="font-family:sans-serif;"><h2>Gazililer Yanlış Soru Kumbaram</h2><hr>'); 
@@ -2239,7 +2251,7 @@ window.openQuickAdd = (type, parentName) => {
 // 🛠️ YÖNETİM MODÜLÜ (SINAV/DERS EKLE-SİL)
 window.manageCustomItem = (type, action, itemName = '') => {
     let key = type === 'sinav' ? 'gazi_custom_exams' : (type === 'ders' ? 'gazi_custom_dersler' : 'gazi_custom_sources');
-    let list = JSON.parse(localStorage.getItem(key)) || [];
+    let list = getStoredJSON(key, []); 
 
     if (action === 'add') {
         const nameVal = itemName || document.getElementById(`custom-input-${type}`)?.value.trim();
