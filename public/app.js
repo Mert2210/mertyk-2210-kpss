@@ -707,17 +707,17 @@ window.processImageUpload = (e, type = 'question') => {
         img.onload = () => {
             const canvas = document.createElement('canvas'); 
             const MAX_WIDTH = 800; 
-            const scale = MAX_WIDTH / img.width;
-            canvas.width = MAX_WIDTH; 
+            const scale = img.width > MAX_WIDTH ? MAX_WIDTH / img.width : 1;
+            canvas.width = img.width * scale; 
             canvas.height = img.height * scale; 
             const ctx = canvas.getContext('2d'); 
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
             
             if (type === 'question') { 
-                uploadedImageBase64 = canvas.toDataURL('image/jpeg', 0.8); 
+                uploadedImageBase64 = canvas.toDataURL('image/jpeg', 0.7); 
                 document.getElementById(previewId).src = uploadedImageBase64; 
             } else { 
-                uploadedSolutionBase64 = canvas.toDataURL('image/jpeg', 0.8); 
+                uploadedSolutionBase64 = canvas.toDataURL('image/jpeg', 0.7); 
                 document.getElementById(previewId).src = uploadedSolutionBase64; 
             }
         }; 
@@ -741,17 +741,17 @@ window.processStudentImageUpload = (e, type = 'image') => {
         img.onload = () => {
             const canvas = document.createElement('canvas'); 
             const MAX_WIDTH = 800; 
-            const scale = MAX_WIDTH / img.width;
-            canvas.width = MAX_WIDTH; 
+            const scale = img.width > MAX_WIDTH ? MAX_WIDTH / img.width : 1;
+            canvas.width = img.width * scale; 
             canvas.height = img.height * scale; 
             const ctx = canvas.getContext('2d'); 
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
             
             if(type === 'image') { 
-                stdUploadedImageBase64 = canvas.toDataURL('image/jpeg', 0.8); 
+                stdUploadedImageBase64 = canvas.toDataURL('image/jpeg', 0.7); 
                 document.getElementById('std-img-preview').src = stdUploadedImageBase64; 
             } else { 
-                stdSolutionBase64 = canvas.toDataURL('image/jpeg', 0.8); 
+                stdSolutionBase64 = canvas.toDataURL('image/jpeg', 0.7); 
                 alert("✅ Çözüm fotoğrafı başarıyla eklendi!"); 
             }
         }; 
