@@ -436,11 +436,11 @@
     <div id="screen-game" class="screen">
         <div id="live-leaderboard" style="font-size:0.8rem; background:rgba(0,0,0,0.2); padding:8px; border-radius:5px; margin-bottom:10px; color:#f1c40f; font-weight:bold; display:none;">Canlı Skor: Bekleniyor...</div>
 
-        <div id="soru-haritasi-panel">
-            <button id="btn-map-toggle" onclick="toggleSoruHaritasi()" class="soru-haritasi-header">
-                <span>🗺️ Soru Haritası</span><span id="map-arrow" class="map-arrow">▼</span>
+        <div id="question-map-accordion" class="map-accordion" style="margin-bottom:10px; border-radius:8px; border:1px solid #bdc3c7; overflow:hidden;">
+            <button onclick="toggleMap()" class="soru-haritasi-header">
+                <span>🗺️ Soru Haritası</span><span id="map-arrow">▼</span>
             </button>
-            <div id="question-navigator"></div>
+            <div id="question-map-content" style="display:none;"></div>
         </div>
 
         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
