@@ -236,29 +236,25 @@ function escapeHtml(text) {
     return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
 }
 
+function isValidStoredValue(parsedValue, fallback) {
+    if (Array.isArray(fallback)) return Array.isArray(parsedValue);
+    if (fallback !== null && typeof fallback === 'object') {
+        return parsedValue !== null && typeof parsedValue === 'object' && !Array.isArray(parsedValue);
+    }
+    if (fallback !== null && typeof fallback !== 'object') {
+        return typeof parsedValue === typeof fallback;
+    }
+    return true;
+}
+
 function getStoredJSON(key, fallback) {
     try {
         const rawValue = localStorage.getItem(key);
         if (!rawValue) return fallback;
         const parsedValue = JSON.parse(rawValue);
 
-        if (Array.isArray(fallback) && !Array.isArray(parsedValue)) {
-            console.warn(`⚠️ '${key}' dizi formatında olmadığı için sıfırlandı.`);
-            localStorage.removeItem(key);
-            return fallback;
-        }
-
-        if (fallback !== null && typeof fallback === 'object' && !Array.isArray(fallback)) {
-            const isValidObject = parsedValue && typeof parsedValue === 'object' && !Array.isArray(parsedValue);
-            if (!isValidObject) {
-                console.warn(`⚠️ '${key}' nesne formatında olmadığı için sıfırlandı.`);
-                localStorage.removeItem(key);
-                return fallback;
-            }
-        }
-
-        if (fallback !== null && typeof fallback !== 'object' && typeof parsedValue !== typeof fallback) {
-            console.warn(`⚠️ '${key}' beklenen veri tipinde olmadığı için sıfırlandı.`);
+        if (!isValidStoredValue(parsedValue, fallback)) {
+            console.warn(`⚠️ '${key}' beklenen formatta olmadığı için sıfırlandı.`);
             localStorage.removeItem(key);
             return fallback;
         }
