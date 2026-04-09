@@ -212,12 +212,12 @@
 
         <div id="student-library-panel" style="display:none; background: #fdf2e9; padding: 15px; border-radius: 10px; margin-bottom: 15px; border: 2px solid #e67e22;">
             
-            <div style="display:flex; justify-content:space-between; align-items:center; cursor:pointer; margin-bottom:10px;" onclick="document.getElementById('library-content-wrapper').classList.toggle('hidden-panel')">
+            <div style="display:flex; justify-content:space-between; align-items:center; cursor:pointer; margin-bottom:10px;" onclick="toggleAccordion('library-content-wrapper')">
                 <h4 style="margin:0; color:#e67e22;">☁️ Yanlış Soru Kumbaram</h4>
                 <span style="color:#e67e22; font-size:0.8rem; font-weight:bold; background:#fff; padding:3px 8px; border-radius:5px; border:1px solid #e67e22;">🔽 GİZLE / GÖSTER</span>
             </div>
 
-            <div id="library-content-wrapper" class="">
+            <div id="library-content-wrapper" class="accordion-panel">
                 <div style="display:flex; gap:5px; margin-bottom:15px;">
                     <button onclick="fetchStudentLibrary('cloud', false)" class="outline" style="flex:1; font-size:0.75rem; border-color:#e67e22; color:#e67e22; padding:8px;">☁️ Arşivi Aç</button>
                     <button onclick="fetchStudentLibrary('local', false)" class="outline" style="flex:1; font-size:0.75rem; border-color:#3498db; color:#3498db; padding:8px;">💾 Cihazdan Aç</button>
@@ -290,11 +290,11 @@
         <button onclick="goToLobby('room')" class="orange" style="margin-top:10px;">🏠 Oda Kur / Katıl</button>
         
         <div id="instructor-panel" style="display:none; background: #1e3c72; border: 2px solid #e67e22; padding: 15px; border-radius: 10px; margin-top: 15px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; cursor:pointer; margin-bottom:10px;" onclick="document.getElementById('instructor-content').classList.toggle('hidden-panel')">
+            <div style="display:flex; justify-content:space-between; align-items:center; cursor:pointer; margin-bottom:10px;" onclick="toggleAccordion('instructor-content')">
                 <h4 style="margin:0; color:#fff;">📢 Eğitmen Kontrol Merkezi</h4>
                 <span style="font-size:0.75rem; background:rgba(255,255,255,0.2); padding:4px 8px; border-radius:5px; color:#fff;">Aç/Kapat 🔽</span>
             </div>
-            <div id="instructor-content" class="">
+            <div id="instructor-content" class="accordion-panel">
             
             <div style="background:rgba(255,255,255,0.1); padding:12px; border-radius:10px; margin-bottom:15px; border:1px solid rgba(255,255,255,0.2);">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">

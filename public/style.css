@@ -89,6 +89,20 @@ button.blue { background: #3498db; }
 .screen.active { display: block; } /* Sadece screen ID'li ekranlar block olsun */
 .hidden-panel { display: none !important; }
 
+/* 🎬 ACCORDION PANEL GEÇİŞ ANİMASYONU (Flash engelleyici) */
+.accordion-panel {
+    overflow: hidden;
+    opacity: 1;
+    pointer-events: auto;
+    /* max-height JS tarafından yönetilir; transition animasyonu için tanımlanıyor */
+    transition: max-height 0.35s ease, opacity 0.25s ease;
+}
+.accordion-panel.collapsed {
+    max-height: 0 !important;
+    opacity: 0;
+    pointer-events: none;
+}
+
 /* LOBİ VE NAVİGASYON */
 #lobby-players-area { background: #e8f4f8; padding: 10px; border-radius: 8px; border: 2px dashed #3498db; margin-top: 15px; text-align: left; }
 .player-badge { display: inline-block; background: #3498db; color: white; padding: 5px 10px; border-radius: 15px; font-size: 0.8rem; margin: 3px; font-weight: bold; }
