@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gazililer Yanlış Soru Kumbaram</title>
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#1e3c72">
@@ -19,11 +19,7 @@
     <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
-<div id="loading-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #1e3c72; z-index: 999999; display: none; flex-direction: column; justify-content: center; align-items: center; color: white;">
-    <div class="spinner"></div>
-    <h3 style="margin-top: 20px; color: #f1c40f;">Sistem Yükleniyor...</h3>
-</div>
-</div>
+
 <div id="intro-overlay" style="display:none;">
     <div id="slide-1" class="intro-slide active">
         <div class="intro-icon">📸</div>
@@ -89,13 +85,11 @@
         <h1 style="font-size: 1.8rem; color:#1e3c72; margin-bottom: 5px;">Gazililer <span id="role-subtitle" style="font-size: 1.1rem; color: #e67e22; font-weight:normal;">(Öğrenci)</span></h1>
         <h2 style="font-size: 1.1rem; color:#e67e22; margin-top: 0; margin-bottom:20px; font-weight:600;">Yanlış Soru Kumbaram</h2>
         
-       <div id="login-box" class="auth-form">
+        <div id="login-box" class="auth-form">
             <h3 style="margin-top:0; color:#1e3c72; text-align:center; font-size:1.2rem;">Hesabınıza Giriş Yapın</h3>
-            <form onsubmit="event.preventDefault(); handleLogin();">
-                <input type="email" id="login-email" placeholder="E-posta Adresiniz" required>
-                <input type="password" id="login-pass" placeholder="Şifreniz" required>
-                <button type="submit" class="green" style="padding:15px; font-size:1.1rem;">🚀 Giriş Yap</button>
-            </form>
+            <input type="email" id="login-email" placeholder="E-posta Adresiniz">
+            <input type="password" id="login-pass" placeholder="Şifreniz">
+            <button onclick="handleLogin()" class="green" style="padding:15px; font-size:1.1rem;">🚀 Giriş Yap</button>
             
             <div style="display:flex; gap:8px; margin-top:15px;">
                 <button onclick="handleGoogleLogin()" style="background:#db4437; flex:2; font-size:0.9rem; border-radius:8px;">🌐 Google ile Giriş Yap</button>
@@ -110,11 +104,10 @@
 
         <div id="reg-box" class="auth-form" style="display:none;">
             <h3 style="margin-top:0; color:#e67e22; text-align:center; font-size:1.2rem;">Yeni Kayıt</h3>
-            <form onsubmit="event.preventDefault(); handleRegister();">
-                <input type="text" id="reg-username" placeholder="İsim Soyisim / Kullanıcı Adı" required>
-                <input type="email" id="reg-email" placeholder="E-posta" required>
-                <input type="password" id="reg-pass" placeholder="Şifre Belirleyin" required>
-                <input type="password" id="reg-pass-confirm" placeholder="Şifre Tekrar" required>
+            <input type="text" id="reg-username" placeholder="İsim Soyisim / Kullanıcı Adı">
+            <input type="email" id="reg-email" placeholder="E-posta">
+            <input type="password" id="reg-pass" placeholder="Şifre Belirleyin">
+            <input type="password" id="reg-pass-confirm" placeholder="Şifre Tekrar">
             
             <div id="reg-student-options" style="background:#f9f9f9; padding:10px; border-radius:8px; margin-top:10px; border:1px solid #ddd;">
                 <label style="font-size:0.75rem; font-weight:bold; color:#1e3c72; display:block; margin-bottom:5px;">Hedef Sınavınız:</label>
@@ -150,54 +143,27 @@
 
             <p id="teacher-info-text" style="display:none; font-size:0.8rem; color:#c0392b; font-weight:bold; text-align:center; background:#fff3f3; padding:10px; border-radius:8px; border:1px solid #f5c6cb; margin-top:15px;">⚠️ Öğretmen kayıtları, yönetici onayından sonra aktifleşir.</p>
             
-            <button type="submit" class="orange" style="margin-top:15px; padding:15px; font-size:1.1rem;">Kayıt İşlemini Tamamla</button>
-            </form>
+            <button onclick="handleRegister()" class="orange" style="margin-top:15px; padding:15px; font-size:1.1rem;">Kayıt İşlemini Tamamla</button>
             <div style="text-align:center; margin-top:20px;">
                 <span class="auth-switch" onclick="switchAuth('login')">⬅️ Zaten hesabım var, Giriş Yap</span>
             </div>
         </div>
     </div>
 
-   <div id="screen-main" class="screen">
+    <div id="screen-main" class="screen">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
             <button onclick="logout()" class="outline" style="width:auto; font-size:0.8rem; padding:8px;">⬅️ Çıkış</button>
-            
-            <button onclick="document.getElementById('install-guide-modal').style.display='flex'" class="outline" style="width:auto; font-size:0.8rem; padding:8px; border-color:#8e44ad; color:#8e44ad; background:#fff; font-weight:bold;">📲 İndir</button>
-            
-            <div style="display:flex; gap:5px;">
-                <button onclick="toggleEditMode()" class="gold" style="width:35px; height:35px; padding:0; border-radius:50%; font-size:1.2rem; display:flex; justify-content:center; align-items:center; box-shadow:0 2px 5px rgba(0,0,0,0.2);" title="Müfredatı Düzenle">➕</button>
-                <button onclick="openSettingsPanel()" class="outline" style="width:auto; font-size:0.8rem; padding:8px; border-color:#8e44ad; color:#8e44ad;">⚙️ Profil</button>
-            </div>
-        </div>
-
-        <div id="main-custom-panel" style="display:none; background:#fdfdfd; padding:15px; border-radius:12px; border:2px dashed #e67e22; margin-bottom:15px; text-align:left;">
-            <h4 style="color:#e67e22; margin-top:0;">🛠️ Kendi Müfredatını Yarat</h4>
-            
-            <label style="font-size:0.75rem; font-weight:bold; color:#1e3c72;">🎯 Yeni Sınav Türü (Örn: ALES)</label>
-            <div style="display:flex; gap:5px; margin-bottom:10px;">
-                <input type="text" id="custom-input-sinav" placeholder="Sınav Adı..." style="margin:0; flex:2; font-size:0.85rem;">
-                <button onclick="manageCustomItem('sinav', 'add')" class="orange" style="margin:0; flex:1; font-size:0.8rem; padding:8px;">Ekle</button>
-            </div>
-
-            <label style="font-size:0.75rem; font-weight:bold; color:#1e3c72;">📖 Yeni Özel Ders (Örn: ÖABT)</label>
-            <div style="display:flex; gap:5px; margin-bottom:10px;">
-                <input type="text" id="custom-input-ders" placeholder="Ders Adı..." style="margin:0; flex:2; font-size:0.85rem;">
-                <button onclick="manageCustomItem('ders', 'add')" class="blue" style="margin:0; flex:1; font-size:0.8rem; padding:8px;">Ekle</button>
-            </div>
-
-            <label style="font-size:0.75rem; font-weight:bold; color:#1e3c72;">📚 Yeni Kaynak/Kitap</label>
-            <div style="display:flex; gap:5px; margin-bottom:5px;">
-                <input type="text" id="custom-input-kaynak" placeholder="Kitap/Yayın Adı..." style="margin:0; flex:2; font-size:0.85rem;">
-                <button onclick="manageCustomItem('kaynak', 'add')" class="green" style="margin:0; flex:1; font-size:0.8rem; padding:8px;">Ekle</button>
-            </div>
+            <button id="pwa-install-btn" onclick="installPWA()" class="green" style="display:none; width:auto; font-size:0.8rem; padding:8px;">📲 Uygulamayı İndir</button>
+            <button onclick="openSettingsPanel()" class="outline" style="width:auto; font-size:0.8rem; padding:8px; border-color:#8e44ad; color:#8e44ad;">⚙️ Profil & Ayarlar</button>
         </div>
 
         <h2 id="display-user" style="color:#e67e22; margin-top:0;">Hoş Geldin!</h2>
+        
         <div id="notification-center" style="display:flex; gap:10px; margin-bottom:15px;">
-            <div id="new-q-alert-box" style="flex:1; display:none; background:#e74c3c; color:white; padding:12px; border-radius:10px; cursor:pointer; box-shadow: 0 4px 10px rgba(231,76,60,0.3);" onclick="fetchStudentLibrary('cloud', false)">
-                <b style="font-size:1.1rem;">🔴 Yeni Sorular</b><br><small><span id="new-q-count">0</span> soru arşive eklendi.</small>
+            <div id="new-q-alert-box" style="flex:1; display:none; background:#e74c3c; color:white; padding:12px; border-radius:10px; cursor:pointer; box-shadow: 0 4px 10px rgba(231,76,60,0.3);" onclick="startLibraryTest('new')">
+                <b style="font-size:1.1rem;">🔴 Yeni Sorular</b><br><small><span id="new-q-count">0</span> soru çözülmeyi bekliyor.</small>
             </div>
-            <div id="review-alert-box" style="flex:1; display:none; background:#f39c12; color:white; padding:12px; border-radius:10px; cursor:pointer; box-shadow: 0 4px 10px rgba(243,156,18,0.3);" onclick="openReviewCalendar()">
+            <div id="review-alert-box" style="flex:1; display:none; background:#f39c12; color:white; padding:12px; border-radius:10px; cursor:pointer; box-shadow: 0 4px 10px rgba(243,156,18,0.3);" onclick="startLibraryTest('review')">
                 <b style="font-size:1.1rem;">🧠 Tekrar Vakti!</b><br><small><span id="review-q-count">0</span> soruya göz atmalısın.</small>
             </div>
         </div>
@@ -212,16 +178,15 @@
 
         <div id="student-library-panel" style="display:none; background: #fdf2e9; padding: 15px; border-radius: 10px; margin-bottom: 15px; border: 2px solid #e67e22;">
             
-            <div style="display:flex; justify-content:space-between; align-items:center; cursor:pointer; margin-bottom:10px;" onclick="toggleAccordion('library-content-wrapper')">
+            <div style="display:flex; justify-content:space-between; align-items:center; cursor:pointer; margin-bottom:10px;" onclick="document.getElementById('library-content-wrapper').classList.toggle('hidden-panel')">
                 <h4 style="margin:0; color:#e67e22;">☁️ Yanlış Soru Kumbaram</h4>
                 <span style="color:#e67e22; font-size:0.8rem; font-weight:bold; background:#fff; padding:3px 8px; border-radius:5px; border:1px solid #e67e22;">🔽 GİZLE / GÖSTER</span>
             </div>
 
-            <div id="library-content-wrapper" class="accordion-panel">
+            <div id="library-content-wrapper" class="">
                 <div style="display:flex; gap:5px; margin-bottom:15px;">
                     <button onclick="fetchStudentLibrary('cloud', false)" class="outline" style="flex:1; font-size:0.75rem; border-color:#e67e22; color:#e67e22; padding:8px;">☁️ Arşivi Aç</button>
                     <button onclick="fetchStudentLibrary('local', false)" class="outline" style="flex:1; font-size:0.75rem; border-color:#3498db; color:#3498db; padding:8px;">💾 Cihazdan Aç</button>
-                    <button onclick="openReviewCalendar()" class="outline" style="width:100%; font-size:0.85rem; border-color:#8e44ad; color:#8e44ad; margin-bottom:15px; padding:10px; font-weight:bold;">📅 Hatırlatılacak Soruları Aç </button>
                 </div>
 
                 <div style="border-top:1px solid #e67e22; padding-top:15px; text-align:left;">
@@ -278,8 +243,8 @@
                     </div>
 
                     <div style="display:flex; gap:5px;">
-                        <button type="button" onclick="uploadStudentQuestion('cloud', event)" class="orange" style="flex:1; padding:15px; font-size:0.9rem;">☁️ Buluta Kaydet</button>
-                        <button type="button" onclick="uploadStudentQuestion('local', event)" class="blue" style="flex:1; padding:15px; font-size:0.9rem;">💾 Cihaza Kaydet</button>
+                        <button onclick="uploadStudentQuestion('cloud')" class="orange" style="flex:1; padding:15px; font-size:0.9rem;">☁️ Buluta Kaydet</button>
+                        <button onclick="uploadStudentQuestion('local')" class="blue" style="flex:1; padding:15px; font-size:0.9rem;">💾 Cihaza Kaydet</button>
                     </div>
                 </div>
             </div>
@@ -289,12 +254,8 @@
         <button onclick="goToLobby('trial')" class="purple">📝 Hızlı Deneme (Offline)</button>
         <button onclick="goToLobby('room')" class="orange" style="margin-top:10px;">🏠 Oda Kur / Katıl</button>
         
-        <div id="instructor-panel" style="display:none; background: #1e3c72; border: 2px solid #e67e22; padding: 15px; border-radius: 10px; margin-top: 15px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; cursor:pointer; margin-bottom:10px;" onclick="toggleAccordion('instructor-content')">
-                <h4 style="margin:0; color:#fff;">📢 Eğitmen Kontrol Merkezi</h4>
-                <span style="font-size:0.75rem; background:rgba(255,255,255,0.2); padding:4px 8px; border-radius:5px; color:#fff;">Aç/Kapat 🔽</span>
-            </div>
-            <div id="instructor-content" class="accordion-panel">
+        <div id="instructor-panel" style="display:none;">
+            <h4 style="margin:0 0 10px 0;">📢 Eğitmen Kontrol Merkezi</h4>
             
             <div style="background:rgba(255,255,255,0.1); padding:12px; border-radius:10px; margin-bottom:15px; border:1px solid rgba(255,255,255,0.2);">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
@@ -381,62 +342,25 @@
                 <input type="password" id="profile-old-pass" placeholder="Mevcut (Eski) Şifreniz" style="margin-bottom:5px; font-size:0.85rem;">
                 <input type="password" id="profile-new-pass" placeholder="Yeni Şifre Belirleyin" style="margin-bottom:0; font-size:0.85rem;">
             </div>
-            
-            <h4 style="color:#1e3c72; border-bottom:2px solid #eee; padding-bottom:8px; margin-top:20px;">🧠 Akıllı Hatırlatma (Tekrar) Ayarları</h4>
-            <div style="background:#e8f4f8; padding:12px; border-radius:10px; margin-bottom:20px; border:1px dashed #3498db; text-align:left;">
-                <label class="checkbox-item" style="border:none; padding:5px 0;">
-                    <input type="checkbox" id="set-auto-reminder" checked> 
-                    <label style="color:#1e3c72; font-weight:bold; font-size:0.85rem;">Yanlış yaptığım soruları otomatik takvime ekle</label>
-                </label>
-                <div style="margin-top:10px;">
-                    <label style="font-size:0.8rem; font-weight:bold; color:#1e3c72; display:block;">Varsayılan Hatırlatma Süresi:</label>
-                    <select id="set-reminder-days" style="margin-top:5px; border-color:#3498db; font-weight:bold;">
-                        <option value="0.04">1 Saat Sonra (Çok Acil)</option>
-                        <option value="1" selected>1 Gün Sonra (Ertesi Gün)</option>
-                        <option value="3">3 Gün Sonra</option>
-                        <option value="7">1 Hafta Sonra</option>
-                        <option value="30">1 Ay Sonra</option>
-                    </select>
-                </div>
-            </div>
 
-            <div style="text-align: center; margin-bottom: 20px;">
-                <button onclick="window.askNotificationPermission()" style="background:#8e44ad; color:white; border:none; padding:10px 20px; border-radius:8px; font-weight:bold; width:100%; box-shadow: 0 4px 10px rgba(142,68,173,0.3); cursor:pointer;">
-                    🔔 Bildirim İzinlerini Aktif Et
-                </button>
-            </div>
-
-           <h4 style="color:#1e3c72; border-bottom:2px solid #eee; padding-bottom:8px; margin-top:20px;">🎯 Hedef Sınavlarınız (Birden Fazla Seçebilirsiniz)</h4>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; background:#f9f9f9; padding:12px; border-radius:10px; margin-bottom:15px;">
-                <label class="checkbox-item" style="border:none; padding:5px 0;"><input type="checkbox" class="profile-exam-cb" value="kpss_lisans"> KPSS Lisans</label>
-                <label class="checkbox-item" style="border:none; padding:5px 0;"><input type="checkbox" class="profile-exam-cb" value="kpss_onlisans"> Ön Lisans</label>
-                <label class="checkbox-item" style="border:none; padding:5px 0;"><input type="checkbox" class="profile-exam-cb" value="kpss_ortaogretim"> Ortaöğretim</label>
-                <label class="checkbox-item" style="border:none; padding:5px 0;"><input type="checkbox" class="profile-exam-cb" value="kpss_egitim"> Eğitim Bilimleri</label>
-                <label class="checkbox-item" style="border:none; padding:5px 0;"><input type="checkbox" class="profile-exam-cb" value="yks_tyt"> YKS - TYT</label>
-                <label class="checkbox-item" style="border:none; padding:5px 0;"><input type="checkbox" class="profile-exam-cb" value="yks_ayt"> YKS - AYT</label>
-                <label class="checkbox-item" style="border:none; padding:5px 0;"><input type="checkbox" class="profile-exam-cb" value="lise_okul"> Lise Okul</label>
-                <label class="checkbox-item" style="border:none; padding:5px 0;"><input type="checkbox" class="profile-exam-cb" value="ortaokul"> LGS</label>
-            </div>
+            <h4 style="color:#1e3c72; border-bottom:2px solid #eee; padding-bottom:8px; margin-top:20px;">🎯 Hedef Sınavınız</h4>
+            <select id="profile-exam-type" style="margin-bottom:15px; font-weight:bold; border-color:#3498db; color:#1e3c72;" onchange="updateGradeDropdown()">
+                <option value="kpss_lisans">KPSS Lisans</option>
+                <option value="kpss_onlisans">KPSS Ön Lisans</option>
+                <option value="kpss_ortaogretim">Ortaöğretim</option>
+                <option value="kpss_egitim">KPSS Eğitim Bilimleri</option>
+                <option value="yks_tyt">YKS - TYT</option>
+                <option value="yks_ayt">YKS - AYT</option>
+                <option value="lise_okul">Lise (Okul Dersleri)</option>
+                <option value="ortaokul">Ortaokul (LGS)</option>
+            </select>
 
             <div id="grade-selection-area" style="display:none; margin-bottom:20px; background:#f9f9f9; padding:10px; border-radius:8px; border:1px solid #eee;">
                 <label style="font-size:0.75rem; font-weight:bold; color:#c0392b; margin-bottom:5px; display:block;">🏫 BULUNDUĞUNUZ SINIF:</label>
                 <div id="grade-boxes" style="display:flex; gap:8px; flex-wrap:wrap;"></div>
                 <input type="hidden" id="profile-grade" value="">
             </div>
-            
-            <h4 style="color:#1e3c72; border-bottom:2px solid #eee; padding-bottom:8px; margin-top:20px;">🖼️ Çözüm Paneli Görünümü</h4>
-            <div style="background:#f1f2f6; padding:12px; border-radius:10px; margin-bottom:15px; text-align:left;">
-                <label class="checkbox-item" style="border:none; padding:5px 0;">
-                    <input type="checkbox" id="set-show-result" checked> <label>Kendi Cevabımı & Doğruyu Göster</label>
-                </label>
-                <label class="checkbox-item" style="border:none; padding:5px 0;">
-                    <input type="checkbox" id="set-show-text" checked> <label>Yazılı Çözüm Notunu Göster</label>
-                </label>
-                <label class="checkbox-item" style="border:none; padding:5px 0;">
-                    <input type="checkbox" id="set-show-image" checked> <label>Çözüm Fotoğrafını Göster</label>
-                </label>
-            </div>
-            
+
             <h4 style="color:#1e3c72; border-bottom:2px solid #eee; padding-bottom:8px; margin-top:20px;">📚 Sorumlu Olduğunuz Dersler</h4>
             <p style="font-size:0.75rem; color:#666; margin-top:0;">Dersleri seçip yanlarına çalışacağınız alt konuları belirtebilirsiniz.</p>
             
@@ -468,11 +392,6 @@
     <div id="screen-list" class="screen">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
             <h3 id="list-title" style="margin:0;">Liste</h3>
-            <div id="archive-filter-chips" style="display:none; gap:8px; padding:10px; overflow-x:auto; background:#f8f9fa; border-bottom:1px solid #eee;">
-                <button onclick="fetchStudentLibrary('local')" class="chip active" id="btn-filter-all" style="font-size:0.7rem; padding:5px 12px;">Hepsi</button>
-                <button onclick="fetchFilteredLibrary('exam')" class="chip" id="btn-filter-exam" style="font-size:0.7rem; padding:5px 12px; border-color:#2980b9; color:#2980b9;">🌟 Sınavlık</button>
-                <button onclick="fetchFilteredLibrary('wrong')" class="chip" id="btn-filter-wrong" style="font-size:0.7rem; padding:5px 12px; border-color:#c0392b; color:#c0392b;">❌ Yanlışlar</button>
-            </div>
             <button id="pdf-btn" onclick="downloadPDF()" class="orange" style="width:auto; font-size:0.8rem; padding:8px 12px;">📄 PDF İndir</button>
         </div>
         <div id="library-filter-area" class="filter-section" style="display:none;">
@@ -515,26 +434,6 @@
     </div>
 
     <div id="screen-game" class="screen">
-        <div id="solution-overlay" class="full-solution-overlay">
-        <h2 style="color:#1e3c72; border-bottom: 2px solid #eee; padding-bottom: 10px;">👨‍🏫 Soru Çözümü</h2>
-        <div id="overlay-solution-content" style="text-align: left; color: #333; font-size: 1.1rem; line-height: 1.6;">
-            </div>
-        
-        <div id="time-selector-area" style="display:none;">
-            <h3 style="color:#e67e22; margin-top:20px;">⏳ Ne Zaman Tekrar Soralım?</h3>
-            <div class="time-options-grid">
-                <button class="time-btn" onclick="scheduleAndNext(0.04)">1 Saat Sonra</button>
-                <button class="time-btn" onclick="scheduleAndNext(0.12)">3 Saat Sonra</button>
-                <button class="time-btn" onclick="scheduleAndNext(1)">1 Gün Sonra</button>
-                <button class="time-btn" onclick="scheduleAndNext(3)">3 Gün Sonra</button>
-                <button class="time-btn" onclick="scheduleAndNext(7)">1 Hafta Sonra</button>
-                <button class="time-btn" onclick="scheduleAndNext(30)">1 Ay Sonra</button>
-            </div>
-        </div>
-
-        <button class="action-fab fab-left" onclick="pushToBack()" title="Anlamadım, Sona At">🔄</button>
-        <button class="action-fab fab-right" onclick="showTimeOptions()" title="Takvime Planla">📅</button>
-    </div>
         <div id="live-leaderboard" style="font-size:0.8rem; background:rgba(0,0,0,0.2); padding:8px; border-radius:5px; margin-bottom:10px; color:#f1c40f; font-weight:bold; display:none;">Canlı Skor: Bekleniyor...</div>
         
         <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -574,31 +473,6 @@
         <button onclick="location.reload()" class="outline" style="margin-top:10px;">ANA MENÜ</button>
     </div>
 
-</div>
-
-<div id="install-guide-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; justify-content:center; align-items:center; flex-direction:column; padding:20px;">
-    <div style="background:white; border-radius:15px; padding:20px; max-width:400px; width:100%; text-align:center; position:relative;">
-        <button onclick="document.getElementById('install-guide-modal').style.display='none'" style="position:absolute; top:10px; right:10px; background:red; color:white; border:none; border-radius:50%; width:30px; height:30px; font-weight:bold; cursor:pointer;">X</button>
-        
-        <h3 style="color:#1e3c72; margin-bottom:15px;">📲 Uygulamayı Cihazına Kur</h3>
-        
-        <div style="background:#f4f6f7; padding:15px; border-radius:10px; margin-bottom:15px; text-align:left;">
-            <h4 style="color:#2980b9; margin-top:0;">🍎 iPhone / iPad</h4>
-            <p style="font-size:0.85rem; color:#555;">
-                <b>Safari'de:</b> Alt menüdeki <b>Paylaş</b> simgesine dokunun.<br>
-                <b>Chrome'da:</b> Sağ üst köşedeki <b>Paylaş</b> simgesine dokunun.
-            </p>
-            <p style="font-size:0.85rem; color:#555;">Ardından açılan menüyü aşağı kaydırıp <b>"Ana Ekrana Ekle"</b> (➕) seçeneğini seçin.</p>
-            <p style="font-size:0.75rem; color:#e74c3c; margin-top:5px; font-weight:bold;">* Eğer sorun yaşarsanız aşağıdaki butondan bağlantıyı kopyalayıp Safari'den açmayı deneyin.</p>
-            <button onclick="window.copyLinkAndAlert()" style="margin-top:10px; padding:8px; background:#3498db; color:white; border:none; border-radius:6px; font-size:0.8rem; cursor:pointer; width:100%;">🔗 Linki Kopyala</button>
-        </div>
-
-        <div style="background:#f4f6f7; padding:15px; border-radius:10px; text-align:left;">
-            <h4 style="color:#27ae60; margin-top:0;">🤖 Android (Chrome)</h4>
-            <p style="font-size:0.85rem; color:#555;">1. Sağ üst köşedeki <b>Üç Nokta</b> (⋮) menüsüne dokunun.</p>
-            <p style="font-size:0.85rem; color:#555;">2. <b>"Ana Ekrana Ekle"</b> veya "Uygulamayı Yükle" seçeneğine dokunun.</p>
-        </div>
-    </div>
 </div>
 
 <script type="module" src="app.js"></script>
