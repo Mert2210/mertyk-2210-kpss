@@ -231,6 +231,11 @@ window.applyCustomMufredat = () => {
     }
 };
 
+function escapeHtml(text) {
+    if (typeof text !== 'string') return '';
+    return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+}
+
 window.renderExams = (fromMemory = false) => {
     const container = document.getElementById('box-exams');
     if (!container) return;
@@ -244,12 +249,12 @@ window.renderExams = (fromMemory = false) => {
 
         if (window.isEditMode) {
             actionBtns = `
-                <span class="edit-plus-btn" title="Yeni Ders Ekle" onclick="event.stopPropagation(); window.openQuickAdd('ders', '${ex}')">➕</span>
-                ${isCustom ? `<span class="edit-del-btn" title="Sınavı Sil" onclick="event.stopPropagation(); window.manageCustomItem('sinav', 'remove', '${ex}')">✖</span>` : ''}
+                <span class="edit-plus-btn" title="Yeni Ders Ekle" onclick="event.stopPropagation(); window.openQuickAdd('ders', '${escapeHtml(ex)}')">➕</span>
+                ${isCustom ? `<span class="edit-del-btn" title="Sınavı Sil" onclick="event.stopPropagation(); window.manageCustomItem('sinav', 'remove', '${escapeHtml(ex)}')">✖</span>` : ''}
             `;
         }
 
-        return `<div class="chip ${window.secilenSinav === ex ? 'active' : ''}" onclick="window.selectExam('${ex}')">
+        return `<div class="chip ${window.secilenSinav === ex ? 'active' : ''}" onclick="window.selectExam('${escapeHtml(ex)}', false, this)">
                     ${ex} ${actionBtns}
                 </div>`;
     }).join('');
@@ -305,12 +310,12 @@ window.renderSubjects = (fromMemory = false) => {
 
         if (window.isEditMode) {
             actionBtns = `
-                <span class="edit-plus-btn" onclick="event.stopPropagation(); window.openQuickAdd('kaynak', '${s}')">➕</span>
-                ${isCustom ? `<span class="edit-del-btn" onclick="event.stopPropagation(); window.manageCustomItem('ders', 'remove', '${s}')">✖</span>` : ''}
+                <span class="edit-plus-btn" onclick="event.stopPropagation(); window.openQuickAdd('kaynak', '${escapeHtml(s)}')">➕</span>
+                ${isCustom ? `<span class="edit-del-btn" onclick="event.stopPropagation(); window.manageCustomItem('ders', 'remove', '${escapeHtml(s)}')">✖</span>` : ''}
             `;
         }
 
-        return `<div class="chip ${window.secilenDers === s ? 'active' : ''}" onclick="window.selectSubject('${s}')">
+        return `<div class="chip ${window.secilenDers === s ? 'active' : ''}" onclick="window.selectSubject('${escapeHtml(s)}', false, this)">
                     ${s} ${actionBtns}
                 </div>`;
     }).join('');
@@ -318,7 +323,7 @@ window.renderSubjects = (fromMemory = false) => {
     if(fromMemory && window.secilenDers) window.selectSubject(window.secilenDers, true);
 };
 
-window.selectExam = (ex, fromMemory = false) => {
+window.selectExam = (ex, fromMemory = false, el = null) => {
     window.secilenSinav = ex;
     if(!fromMemory) { window.secilenGrup = ""; window.secilenDers = ""; window.secilenKonu = ""; 
         const memBadge = document.getElementById('mem-badge');
@@ -326,7 +331,7 @@ window.selectExam = (ex, fromMemory = false) => {
     }
     
     document.querySelectorAll('#box-exams .chip').forEach(c => c.classList.remove('active'));
-    if(event && event.target) event.target.classList.add('active');
+    if(el && el.classList) el.classList.add('active');
     
     window.renderGroups(fromMemory);
 };
@@ -340,7 +345,7 @@ window.renderGroups = (fromMemory = false) => {
     
     const groups = Object.keys(window.mufredat[window.secilenSinav]);
     area.style.display = 'block';
-    container.innerHTML = groups.map(g => `<div class="chip ${window.secilenGrup === g ? 'active' : ''}" onclick="window.selectGroup('${g}')">${g}</div>`).join('');
+    container.innerHTML = groups.map(g => `<div class="chip ${window.secilenGrup === g ? 'active' : ''}" onclick="window.selectGroup('${escapeHtml(g)}', false, this)">${g}</div>`).join('');
     
     if(fromMemory && window.secilenGrup) window.selectGroup(window.secilenGrup, true);
     else {
@@ -349,22 +354,22 @@ window.renderGroups = (fromMemory = false) => {
     }
 };
 
-window.selectGroup = (g, fromMemory = false) => {
+window.selectGroup = (g, fromMemory = false, el = null) => {
     window.secilenGrup = g;
     if(!fromMemory) { window.secilenDers = ""; window.secilenKonu = ""; }
     
     document.querySelectorAll('#box-kpss-group .chip').forEach(c => c.classList.remove('active'));
-    if(event && event.target) event.target.classList.add('active');
+    if(el && el.classList) el.classList.add('active');
 
     window.renderSubjects(fromMemory);
 };
 
-window.selectSubject = (s, fromMemory = false) => {
+window.selectSubject = (s, fromMemory = false, el = null) => {
     window.secilenDers = s;
     if(!fromMemory) window.secilenKonu = "";
     
     document.querySelectorAll('#box-dersler .chip').forEach(c => c.classList.remove('active'));
-    if(event && event.target) event.target.classList.add('active');
+    if(el && el.classList) el.classList.add('active');
 
     window.renderTopics(fromMemory);
 };
@@ -381,13 +386,13 @@ window.renderTopics = (fromMemory = false) => {
     if(customTopics[window.secilenDers]) topics = [...topics, ...customTopics[window.secilenDers]];
 
     area.style.display = 'block';
-    container.innerHTML = topics.map(t => `<div class="chip ${window.secilenKonu === t ? 'active' : ''}" onclick="window.selectTopic('${t}')">${t}</div>`).join('');
+    container.innerHTML = topics.map(t => `<div class="chip ${window.secilenKonu === t ? 'active' : ''}" onclick="window.selectTopic('${escapeHtml(t)}', this)">${t}</div>`).join('');
 };
 
-window.selectTopic = (t) => {
+window.selectTopic = (t, el = null) => {
     window.secilenKonu = t;
     document.querySelectorAll('#box-konular .chip').forEach(c => c.classList.remove('active'));
-    if(event && event.target) event.target.classList.add('active');
+    if(el && el.classList) el.classList.add('active');
     const customInput = document.getElementById('custom-konu-input');
     if (customInput) customInput.value = ""; 
 };
@@ -396,24 +401,6 @@ document.addEventListener("DOMContentLoaded", () => {
     window.applyCustomMufredat(); 
     setTimeout(() => { window.initEtiketleme(); }, 500); 
 });
-
-// 🚨 BİLDİRİM İZİNLERİ MOTORU 🚨
-window.askNotificationPermission = () => {
-    if (!('Notification' in window)) {
-        return alert("Cihazınız veya tarayıcınız bildirim sistemini desteklemiyor.");
-    }
-    
-    Notification.requestPermission().then((permission) => {
-        if (permission === 'granted') {
-            alert("✅ Harika! Artık hatırlatmaları bildirim olarak alacaksın.");
-            new Notification("Gazi Kumbaram", { 
-                body: "Bildirimler başarıyla açıldı! Tekrar vakti geldiğinde sana haber vereceğim." 
-            });
-        } else {
-            alert("⚠️ Bildirimlere izin vermediniz. Çalışma masanızdan daha sonra tekrar açabilirsiniz.");
-        }
-    });
-};
 
 // 🚨 PWA VE TEMEL FONKSİYONLAR 🚨
 window.onload = () => { 
@@ -490,7 +477,7 @@ window.showScreen = (id) => {
     targetScreen.classList.add('active'); 
 };
 
-window.toggleDropdown = (id) => document.getElementById(id).classList.toggle('show');
+window.toggleDropdown = (id) => { const el = document.getElementById(id); if (el) el.classList.toggle('show'); };
 window.myClassCode = localStorage.getItem("gazi_class_code") || "";
 window.selectedRole = 'student';
 
@@ -521,8 +508,10 @@ window.setMainRole = (role) => {
 };
 
 window.switchAuth = (t) => { 
-    document.getElementById('login-box').style.display = t === 'login' ? 'block' : 'none'; 
-    document.getElementById('reg-box').style.display = t === 'register' ? 'block' : 'none'; 
+    const loginBox = document.getElementById('login-box');
+    const regBox = document.getElementById('reg-box');
+    if (loginBox) loginBox.style.display = t === 'login' ? 'block' : 'none'; 
+    if (regBox) regBox.style.display = t === 'register' ? 'block' : 'none'; 
 };
 
 window.updateRegGradeDropdown = () => {
@@ -553,7 +542,8 @@ window.updateGradeDropdown = () => {
     if(!area || !boxContainer) return;
 
     boxContainer.innerHTML = ''; 
-    document.getElementById('profile-grade').value = '';
+    const profileGrade = document.getElementById('profile-grade');
+    if (profileGrade) profileGrade.value = '';
 
     let grades = [];
     if(type === 'lise_okul') grades = ['9. Sınıf', '10. Sınıf', '11. Sınıf', '12. Sınıf', 'Mezun']; 
@@ -664,8 +654,10 @@ window.saveProfileSettings = async () => {
             await reauthenticateWithCredential(user, cred);
             await updatePassword(user, newPass);
             alert("✅ Şifreniz güvenle güncellendi!");
-            document.getElementById('profile-old-pass').value = '';
-            document.getElementById('profile-new-pass').value = '';
+            const oldPassEl = document.getElementById('profile-old-pass');
+            const newPassEl = document.getElementById('profile-new-pass');
+            if (oldPassEl) oldPassEl.value = '';
+            if (newPassEl) newPassEl.value = '';
         }
 
         const selectedExams = Array.from(document.querySelectorAll('.profile-exam-cb:checked')).map(cb => cb.value);
@@ -909,13 +901,13 @@ window.setTimerMode = (mode) => {
     document.getElementById('room-q-time').placeholder = mode === 'question' ? 'Örn: 45 (Saniye)' : 'Örn: 15 (Dakika)'; 
 };
 
-window.updateFilterText = (type) => {
+window.updateFilterText = (type, el = null) => {
     const checkboxes = document.querySelectorAll(`input[name="${type}-secim"]`);
-    if (window.event && window.event.target && window.event.target.type === 'checkbox') {
-        if (window.event.target.value === "HEPSI" && window.event.target.checked) { 
+    if (el && el.type === 'checkbox') {
+        if (el.value === "HEPSI" && el.checked) { 
             checkboxes.forEach(cb => { if(cb.value !== "HEPSI") cb.checked = false; }); 
         } 
-        else if (window.event.target.value !== "HEPSI" && window.event.target.checked) { 
+        else if (el.value !== "HEPSI" && el.checked) { 
             checkboxes.forEach(cb => { if(cb.value === "HEPSI") cb.checked = false; }); 
         }
     }
@@ -934,15 +926,15 @@ if(window.socket) {
     window.socket.on('updateFilters', data => {
         const dersContent = document.getElementById('ders-content');
         if (dersContent && data.dersler) { 
-            dersContent.innerHTML = `<div class="checkbox-item"><input type="checkbox" name="ders-secim" value="HEPSI" checked onchange="window.updateFilterText('ders')"><label>TÜMÜ</label></div>` + 
-            data.dersler.map(x => `<div class="checkbox-item"><input type="checkbox" name="ders-secim" value="${x}" onchange="window.updateFilterText('ders')"><label>${x}</label></div>`).join(''); 
+            dersContent.innerHTML = `<div class="checkbox-item"><input type="checkbox" name="ders-secim" value="HEPSI" checked onchange="window.updateFilterText('ders', this)"><label>TÜMÜ</label></div>` + 
+            data.dersler.map(x => `<div class="checkbox-item"><input type="checkbox" name="ders-secim" value="${x}" onchange="window.updateFilterText('ders', this)"><label>${x}</label></div>`).join(''); 
             window.updateFilterText('ders'); 
         }
         const denemeContent = document.getElementById('deneme-content');
         if (denemeContent && data.denemeler) { 
             const denemeKeys = Object.keys(data.denemeler); 
-            denemeContent.innerHTML = `<div class="checkbox-item"><input type="checkbox" name="deneme-secim" value="HEPSI" checked onchange="window.updateFilterText('deneme')"><label>TÜMÜ</label></div>` + 
-            denemeKeys.map(x => `<div class="checkbox-item"><input type="checkbox" name="deneme-secim" value="${x}" onchange="window.updateFilterText('deneme')"><label>${x}</label></div>`).join(''); 
+            denemeContent.innerHTML = `<div class="checkbox-item"><input type="checkbox" name="deneme-secim" value="HEPSI" checked onchange="window.updateFilterText('deneme', this)"><label>TÜMÜ</label></div>` + 
+            denemeKeys.map(x => `<div class="checkbox-item"><input type="checkbox" name="deneme-secim" value="${x}" onchange="window.updateFilterText('deneme', this)"><label>${x}</label></div>`).join(''); 
             window.updateFilterText('deneme'); 
         }
     });
@@ -1445,6 +1437,7 @@ window.closeOverlayAndNext = () => {
 window.fetchClassQuestions = () => { 
     const code = document.getElementById('class-code-input').value.trim().toUpperCase(); 
     if(!code) return alert("Lütfen önce sınıf kodunu girin!"); 
+    if (!window.socket) return alert("❌ Sunucu bağlantısı koptu. Sayfayı yenileyiniz.");
     window.socket.emit("getClassQuestions", code); 
 };
 
@@ -1753,9 +1746,12 @@ window.publishAlert = () => {
 if(window.socket) {
     window.socket.on("receiveGlobalAlert", (data) => { 
         const toast = document.getElementById('notification-toast'); 
-        document.getElementById('toast-message').innerHTML = `<span style="color:#e67e22;">${data.sender}:</span><br>${data.message}`; 
-        toast.classList.add('show'); 
-        setTimeout(() => { toast.classList.remove('show'); }, 6000); 
+        const toastMessage = document.getElementById('toast-message');
+        if (toast && toastMessage) {
+            toastMessage.innerHTML = `<span style="color:#e67e22;">${data.sender}:</span><br>${data.message}`; 
+            toast.classList.add('show'); 
+            setTimeout(() => { toast.classList.remove('show'); }, 6000); 
+        }
     });
 }
 
@@ -2241,7 +2237,7 @@ window.openQuickAdd = (type, parentName) => {
 };
 
 // 🛠️ YÖNETİM MODÜLÜ (SINAV/DERS EKLE-SİL)
-window.manageCustomItem = async (type, action, itemName = '') => {
+window.manageCustomItem = (type, action, itemName = '') => {
     let key = type === 'sinav' ? 'gazi_custom_exams' : (type === 'ders' ? 'gazi_custom_dersler' : 'gazi_custom_sources');
     let list = JSON.parse(localStorage.getItem(key)) || [];
 
