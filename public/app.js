@@ -14,7 +14,16 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const messaging = getMessaging(app);
+
+// 🛡️ 1. ZIRH: BİLDİRİM SİSTEMİ ÇÖKME KORUMASI
+let messaging;
+try {
+    // Bildirimleri başlatmayı dene
+    messaging = getMessaging(app);
+} catch (e) {
+    // Eğer hata çıkarsa çökme, sadece arka planda bu notu düş ve yola devam et
+    console.warn("Bildirim sistemi şu anki bağlantı türünde desteklenmiyor.");
+}
 
 // 🚨 YEREL VERİTABANI (INDEXED-DB) YÖNETİCİSİ 🚨
 const LocalDB = {
@@ -733,16 +742,6 @@ window.handleGuestLogin = async () => {
     } catch(e) { 
         document.getElementById('loading-overlay').style.display = 'none';
         alert("Bağlantı Hatası: İnternetinizi kontrol edin."); 
-    } 
-};
-
-window.handleGoogleLogin = async () => { 
-    try { 
-        document.getElementById('loading-overlay').style.display = 'flex';
-        await signInWithPopup(auth, new GoogleAuthProvider()); 
-    } catch(e) { 
-        document.getElementById('loading-overlay').style.display = 'none';
-        alert("Bağlantı iptal edildi veya hata oluştu: " + e.message); 
     } 
 };
 
