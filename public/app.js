@@ -1411,8 +1411,39 @@ window.startGame = () => {
         classCode: window.myClassCode 
     };
     
-    if (currentMode === 'trial' && socket) socket.emit('startTrial', s); 
-    else if (socket) socket.emit('startGame', { roomCode: myRoom, settings: s });
+    if (currentMode === 'trial' && socket) {
+        socket.emit('startTrial', s);
+    } else if (currentMode === 'trial') {
+        fetch('/questions.json')
+            .then(r => r.json())
+            .then(allQuestions => {
+                const filterSubject = s.subject !== "HEPSI" && Array.isArray(s.subject) && s.subject.length > 0;
+                const filterDeneme = s.deneme !== "HEPSI" && Array.isArray(s.deneme) && s.deneme.length > 0;
+                let pool = (filterSubject || filterDeneme)
+                    ? allQuestions.filter(q =>
+                        (!filterSubject || s.subject.includes(q.ders)) &&
+                        (!filterDeneme || s.deneme.includes(q.denemeName)))
+                    : allQuestions;
+                for (let i = pool.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [pool[i], pool[j]] = [pool[j], pool[i]];
+                }
+                const count = parseInt(s.count) || 10;
+                trialQuestions = pool.slice(0, count);
+                if (trialQuestions.length === 0) return alert("Soru bulunamadı!");
+                trialAnswers = new Array(trialQuestions.length).fill(null);
+                currentQIndex = 0;
+                document.getElementById('trial-nav-buttons').style.display = 'flex';
+                document.getElementById('btn-finish-trial').style.display = 'block';
+                showScreen('screen-game');
+                renderQuestionMap(trialQuestions.length, 0, []);
+                openMap();
+                renderTrialQuestion();
+            })
+            .catch(() => alert("Soru dosyası yüklenemedi. Lütfen daha sonra tekrar deneyin."));
+    } else if (socket) {
+        socket.emit('startGame', { roomCode: myRoom, settings: s });
+    }
 };
 
 if(socket) {
