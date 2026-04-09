@@ -801,7 +801,8 @@ window.uploadQuestion = () => {
 };
 
 // 🚨 YENİ GÜNCELLENMİŞ ÖĞRENCİ SORU YÜKLEME KODU (HAFIZALI) 🚨
-window.uploadStudentQuestion = (target = 'cloud') => {
+window.uploadStudentQuestion = (target = 'cloud', event) => {
+    if (event) event.preventDefault();
     const customKonuInput = document.getElementById('custom-konu-input');
     const customKonu = customKonuInput ? customKonuInput.value.trim() : "";
     const finalTopic = customKonu || window.secilenKonu || "Genel Konu";
