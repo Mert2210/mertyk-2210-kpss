@@ -1417,13 +1417,13 @@ window.startGame = () => {
         fetch('/questions.json')
             .then(r => r.json())
             .then(allQuestions => {
-                let pool = allQuestions;
-                if (s.subject !== "HEPSI" && Array.isArray(s.subject) && s.subject.length > 0) {
-                    pool = pool.filter(q => s.subject.includes(q.ders));
-                }
-                if (s.deneme !== "HEPSI" && Array.isArray(s.deneme) && s.deneme.length > 0) {
-                    pool = pool.filter(q => s.deneme.includes(q.denemeName));
-                }
+                const filterSubject = s.subject !== "HEPSI" && Array.isArray(s.subject) && s.subject.length > 0;
+                const filterDeneme = s.deneme !== "HEPSI" && Array.isArray(s.deneme) && s.deneme.length > 0;
+                let pool = (filterSubject || filterDeneme)
+                    ? allQuestions.filter(q =>
+                        (!filterSubject || s.subject.includes(q.ders)) &&
+                        (!filterDeneme || s.deneme.includes(q.denemeName)))
+                    : allQuestions;
                 for (let i = pool.length - 1; i > 0; i--) {
                     const j = Math.floor(Math.random() * (i + 1));
                     [pool[i], pool[j]] = [pool[j], pool[i]];
@@ -1440,7 +1440,7 @@ window.startGame = () => {
                 openMap();
                 renderTrialQuestion();
             })
-            .catch(() => alert("Sorular yüklenemedi. İnternet bağlantınızı kontrol edin."));
+            .catch(() => alert("Soru dosyası yüklenemedi. Lütfen daha sonra tekrar deneyin."));
     } else if (socket) {
         socket.emit('startGame', { roomCode: myRoom, settings: s });
     }
