@@ -182,10 +182,10 @@ io.on("connection", (socket) => {
 
     // 🚨 ADIM 2: İSİMLENDİRİLMİŞ SINIF OLUŞTURMA 🚨
     socket.on("createNamedClass", ({ teacherEmail, className }) => {
-        if (typeof className !== 'string' || typeof teacherEmail !== 'string') return;
+        if (typeof className !== 'string' || typeof teacherEmail !== 'string') return socket.emit("errorMsg", "Geçersiz istek.");
         const safeClassName = className.trim().substring(0, 100);
         const safeTeacherEmail = teacherEmail.trim().substring(0, 200);
-        if (!safeClassName || !safeTeacherEmail) return;
+        if (!safeClassName || !safeTeacherEmail) return socket.emit("errorMsg", "Sınıf adı ve e-posta zorunludur.");
         const classCode = Math.random().toString(36).substring(2, 8).toUpperCase();
         let classes = {};
         if (fs.existsSync(CLASSES_FILE)) {
@@ -267,12 +267,12 @@ io.on("connection", (socket) => {
     });
 
     socket.on("addNewQuestion", async (newQ) => {
-        if (!newQ || typeof newQ !== 'object') return;
-        if (typeof newQ.soru !== 'string' || typeof newQ.classCode !== 'string') return;
-        if (newQ.soru.trim() === '' || newQ.classCode.trim() === '') return;
+        if (!newQ || typeof newQ !== 'object') return socket.emit("errorMsg", "Geçersiz soru verisi.");
+        if (typeof newQ.soru !== 'string' || typeof newQ.classCode !== 'string') return socket.emit("errorMsg", "Soru metni ve sınıf kodu zorunludur.");
+        if (newQ.soru.trim() === '' || newQ.classCode.trim() === '') return socket.emit("errorMsg", "Soru metni ve sınıf kodu boş olamaz.");
         const MAX_IMAGE_SIZE = 2 * 1024 * 1024; // 2 MB base64 string length (~1.5 MB decoded)
-        if (newQ.image && (typeof newQ.image !== 'string' || newQ.image.length > MAX_IMAGE_SIZE)) return;
-        if (newQ.solutionImage && (typeof newQ.solutionImage !== 'string' || newQ.solutionImage.length > MAX_IMAGE_SIZE)) return;
+        if (newQ.image && (typeof newQ.image !== 'string' || newQ.image.length > MAX_IMAGE_SIZE)) return socket.emit("errorMsg", "Soru görseli çok büyük (max 2 MB).");
+        if (newQ.solutionImage && (typeof newQ.solutionImage !== 'string' || newQ.solutionImage.length > MAX_IMAGE_SIZE)) return socket.emit("errorMsg", "Çözüm görseli çok büyük (max 2 MB).");
         tumSorular.push(newQ);
         fs.writeFileSync(QUESTIONS_FILE, JSON.stringify(tumSorular, null, 2));
         if (db) { try { await db.collection("kpss_sorular").add({ ...newQ, createdAt: admin.firestore.FieldValue.serverTimestamp() }); } catch (e) {} }
