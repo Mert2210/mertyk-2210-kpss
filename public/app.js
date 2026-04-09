@@ -238,13 +238,11 @@ function escapeHtml(text) {
 
 function isValidStoredValue(parsedValue, fallback) {
     if (Array.isArray(fallback)) return Array.isArray(parsedValue);
+    if (fallback === null) return parsedValue === null || (parsedValue !== null && typeof parsedValue === 'object' && !Array.isArray(parsedValue));
     if (fallback !== null && typeof fallback === 'object') {
         return parsedValue !== null && typeof parsedValue === 'object' && !Array.isArray(parsedValue);
     }
-    if (fallback !== null && typeof fallback !== 'object') {
-        return typeof parsedValue === typeof fallback;
-    }
-    return true;
+    return typeof parsedValue === typeof fallback;
 }
 
 function getStoredJSON(key, fallback) {
