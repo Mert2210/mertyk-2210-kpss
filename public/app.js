@@ -283,6 +283,11 @@ window.showScreen = (id) => {
     document.getElementById(id).classList.add('active'); 
 };
 
+window.toggleSection = (id) => { 
+    const el = document.getElementById(id); 
+    if (el) el.classList.toggle('hidden-panel'); 
+};
+
 window.toggleDropdown = (id) => document.getElementById(id).classList.toggle('show');
 window.myClassCode = localStorage.getItem("gazi_class_code") || "";
 let selectedRole = 'student';
@@ -566,9 +571,13 @@ onAuthStateChanged(auth, user => {
         }
 
         if (isTeacher) {
-            const cachedClasses = JSON.parse(localStorage.getItem('gazi_teacher_classes'));
-            if (cachedClasses && cachedClasses.length > 0) {
-                renderTeacherClasses(cachedClasses);
+            try {
+                const cachedClasses = JSON.parse(localStorage.getItem('gazi_teacher_classes'));
+                if (cachedClasses && cachedClasses.length > 0) {
+                    renderTeacherClasses(cachedClasses);
+                }
+            } catch(e) {
+                localStorage.removeItem('gazi_teacher_classes');
             }
         }
 

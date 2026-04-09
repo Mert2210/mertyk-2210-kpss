@@ -269,7 +269,7 @@
             <h4 style="margin:0 0 10px 0;">📢 Eğitmen Kontrol Merkezi</h4>
             
             <div style="background:rgba(255,255,255,0.1); padding:12px; border-radius:10px; margin-bottom:15px; border:1px solid rgba(255,255,255,0.2);">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; cursor:pointer;" onclick="document.getElementById('sinif-yonetimi-body').classList.toggle('hidden-panel')">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; cursor:pointer;" onclick="toggleSection('sinif-yonetimi-body')">
                     <label style="font-size:0.85rem; font-weight:bold; color:#fff; margin:0; cursor:pointer;">🏫 Sınıf Yönetimi</label>
                     <button onclick="event.stopPropagation(); refreshTeacherClasses()" style="background:transparent; border:none; color:#f1c40f; padding:0; width:auto; font-size:0.8rem; cursor:pointer;">🔄 Yenile</button>
                 </div>
@@ -286,7 +286,7 @@
             </div>
 
             <div style="background:rgba(255,255,255,0.1); padding:12px; border-radius:10px; margin-bottom:15px; border:1px solid rgba(255,255,255,0.2);">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; cursor:pointer;" onclick="document.getElementById('rapor-body').classList.toggle('hidden-panel')">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; cursor:pointer;" onclick="toggleSection('rapor-body')">
                     <label style="font-size:0.85rem; font-weight:bold; color:#fff; margin:0; cursor:pointer;">📋 Raporlar &amp; Kütüphane</label>
                     <span style="color:#f1c40f; font-size:0.75rem;">🔽</span>
                 </div>
@@ -306,7 +306,7 @@
             </div>
             
             <div style="border-top:1px solid rgba(255,255,255,0.3); padding-top:10px; text-align:left;">
-                <h4 style="font-size:0.9rem; margin-top:0; color:#fff; cursor:pointer; display:flex; justify-content:space-between; align-items:center;" onclick="document.getElementById('yeni-soru-body').classList.toggle('hidden-panel')">
+                <h4 style="font-size:0.9rem; margin-top:0; color:#fff; cursor:pointer; display:flex; justify-content:space-between; align-items:center;" onclick="toggleSection('yeni-soru-body')">
                     <span>➕ Yeni Soru Ekle</span><span style="font-size:0.75rem;">🔽</span>
                 </h4>
                 
