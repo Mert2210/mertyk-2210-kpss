@@ -422,6 +422,36 @@
         </div>
         <div id="lobby-players-area"><div id="lobby-players-list">Bekleniyor...</div></div>
         <div id="lobby-settings" style="text-align: left; background: #f9f9f9; padding: 15px; border-radius: 10px; margin-top: 15px;">
+
+            <!-- Soru Kaynağı (Sadece Hızlı Deneme modunda) -->
+            <div id="trial-source-area" style="display:none; margin-bottom:15px; padding-bottom:15px; border-bottom:2px dashed #e67e22;">
+                <label style="font-size:0.75rem; font-weight:bold; color:#8e44ad;">SORU KAYNAĞI</label>
+                <select id="set-source" style="margin-top:5px; font-weight:bold; border-color:#8e44ad; color:#8e44ad;" onchange="onSourceChange()">
+                    <option value="sistem">📚 Sistem Soruları</option>
+                    <option value="yanlis">❌ Yanlışlarım</option>
+                    <option value="bos">⬜ Boş Bıraktıklarım</option>
+                    <option value="local">📓 Hata Defterim (Cihaz)</option>
+                </select>
+            </div>
+
+            <!-- Ders Filtresi (Sistem Soruları için, socket bağlantısında dolar) -->
+            <div id="ders-filter-section" style="display:none; margin-bottom:10px;">
+                <label style="font-size:0.75rem; font-weight:bold;">DERS FİLTRELEME</label>
+                <div class="dropdown-wrapper">
+                    <button id="ders-trigger" onclick="toggleDropdown('ders-content')" class="dropdown-trigger" style="font-size:0.8rem; padding:10px;">Tümü Seçili ▼</button>
+                    <div id="ders-content" class="dropdown-content"></div>
+                </div>
+            </div>
+
+            <!-- Deneme/Konu Filtresi (socket bağlantısında dolar) -->
+            <div id="deneme-filter-section" style="display:none; margin-bottom:10px;">
+                <label style="font-size:0.75rem; font-weight:bold;">DENEME / KONU FİLTRELEME</label>
+                <div class="dropdown-wrapper">
+                    <button id="deneme-trigger" onclick="toggleDropdown('deneme-content')" class="dropdown-trigger" style="font-size:0.8rem; padding:10px;">Tümü Seçili ▼</button>
+                    <div id="deneme-content" class="dropdown-content"></div>
+                </div>
+            </div>
+
             <label style="font-size:0.75rem; font-weight:bold; color:#c0392b;">SÜRE MODU</label>
             <div style="display:flex; gap:10px; margin-bottom:10px;">
                 <button id="btn-mode-sec" onclick="setTimerMode('question')" class="green" style="flex:1; font-size:0.8rem;">Soru Başına (Sn)</button>
