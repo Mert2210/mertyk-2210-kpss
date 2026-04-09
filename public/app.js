@@ -612,6 +612,7 @@ function safeImageSrc(src) {
 let socket; 
 try { socket = io(); } catch(e) { console.warn("Socket sunucusu yok."); }
 let currentMode = "room", myRoom = "", currentQIndex = 0, qInt = null, totalInt = null, trialQuestions = [], trialAnswers = [];
+let roomSolvedIndices = new Set(), roomTotalQuestions = 0;
 let currentQObject = null, currentListType = "", selectedTimerMode = "question";
 let uploadedImageBase64 = null; let uploadedSolutionBase64 = null; 
 let stdUploadedImageBase64 = null; let stdSolutionBase64 = null; 
@@ -1013,11 +1014,12 @@ window.startLibraryTest = () => {
     trialAnswers = new Array(trialQuestions.length).fill(null); 
     currentQIndex = 0; 
     currentMode = 'trial'; 
-    document.getElementById('question-navigator').innerHTML = '';
     document.getElementById('box-total').style.display = 'none'; 
     document.getElementById('trial-nav-buttons').style.display = 'flex'; 
     document.getElementById('btn-finish-trial').style.display = 'block'; 
-    showScreen('screen-game'); 
+    showScreen('screen-game');
+    renderQuestionMap(trialQuestions.length, 0, []);
+    openMap();
     renderTrialQuestion();
 };
 
@@ -1430,7 +1432,7 @@ if(socket) {
         if(d.timerMode === 'general' && d.index === 1) startTotalTimer(d.duration); 
         if(d.timerMode === 'question') startQuestionTimer(d.duration);
         
-        if(d.index === 1) document.getElementById('question-navigator').innerHTML = '';
+        if(d.index === 1) { roomSolvedIndices = new Set(); roomTotalQuestions = d.total; openMap(); }
         renderNavigator(d.total, currentQIndex, 'room');
         
         d.siklar.forEach((s, i) => {
@@ -1448,8 +1450,8 @@ if(socket) {
     });
 
     socket.on('answerResult', data => { 
-        const b = document.getElementById('nav-box-' + currentQIndex); 
-        if(b) b.classList.add(data.correct ? 'correct' : 'wrong'); 
+        if (!roomSolvedIndices.has(currentQIndex)) roomSolvedIndices.add(currentQIndex);
+        renderQuestionMap(roomTotalQuestions, currentQIndex, roomSolvedIndices);
         if(!data.correct) { 
             if(data.selectedIndex === -1) saveToLocal('kpss_blanks', currentQObject); 
             else saveToLocal('kpss_wrongs', currentQObject); 
@@ -1461,7 +1463,6 @@ if(socket) {
         if(trialQuestions.length === 0) return alert("Soru bulunamadı!");
         trialAnswers = new Array(trialQuestions.length).fill(null); 
         currentQIndex = 0;
-        document.getElementById('question-navigator').innerHTML = '';
         showScreen('screen-game'); 
         document.getElementById('trial-nav-buttons').style.display = 'flex'; 
         document.getElementById('btn-finish-trial').style.display = 'block';
@@ -1469,7 +1470,9 @@ if(socket) {
         if(data.timerMode === 'general') { 
             document.getElementById('box-total').style.display = 'block'; 
             startTotalTimer(data.duration); 
-        } 
+        }
+        renderQuestionMap(trialQuestions.length, 0, []);
+        openMap();
         renderTrialQuestion();
     });
 }
@@ -1595,45 +1598,47 @@ function startTotalTimer(minutes) {
     }, 1000); 
 }
 
-window.toggleSoruHaritasi = function() {
-    const nav = document.getElementById('question-navigator');
+window.toggleMap = function() {
+    const content = document.getElementById('question-map-content');
     const arrow = document.getElementById('map-arrow');
-    nav.classList.toggle('show-map');
-    if (arrow) arrow.textContent = nav.classList.contains('show-map') ? '▲' : '▼';
+    if (!content) return;
+    if (content.style.display === 'none' || content.style.display === '') {
+        content.style.display = 'flex';
+        if (arrow) arrow.textContent = '▲';
+    } else {
+        content.style.display = 'none';
+        if (arrow) arrow.textContent = '▼';
+    }
 };
 
-function renderQuestionMap(total, curr, mode) {
-    const div = document.getElementById('question-navigator');
-    if (div.children.length === 0) {
-        for (let i = 0; i < total; i++) {
-            const b = document.createElement('div');
-            b.id = 'nav-box-' + i;
-            b.className = 'nav-box';
-            b.innerText = i + 1;
-            b.title = `Soru ${i + 1}`;
-            if (mode === 'trial') {
-                b.onclick = () => { currentQIndex = i; renderTrialQuestion(); };
-            }
-            div.appendChild(b);
-        }
-        if (!div.classList.contains('show-map')) {
-            div.classList.add('show-map');
-            const arrow = document.getElementById('map-arrow');
-            if (arrow) arrow.textContent = '▲';
-        }
-    }
-    for (let i = 0; i < total; i++) {
-        const box = document.getElementById('nav-box-' + i);
-        if (!box) continue;
-        box.classList.remove('current', 'answered');
-        if (i === curr) {
-            box.classList.add('current');
-        } else if (mode === 'trial' && trialAnswers[i] !== null) {
-            box.classList.add('answered');
-        }
+function openMap() {
+    const content = document.getElementById('question-map-content');
+    const arrow = document.getElementById('map-arrow');
+    if (!content) return;
+    content.style.display = 'flex';
+    if (arrow) arrow.textContent = '▲';
+}
+
+function renderQuestionMap(totalQuestions, currentIndex, solvedArray) {
+    const div = document.getElementById('question-map-content');
+    if (!div) return;
+    div.innerHTML = '';
+    const solved = solvedArray instanceof Set ? solvedArray : new Set(solvedArray);
+    for (let i = 0; i < totalQuestions; i++) {
+        const b = document.createElement('div');
+        b.className = 'q-box';
+        b.innerText = i + 1;
+        b.title = `Soru ${i + 1}`;
+        if (solved.has(i)) b.classList.add('solved');
+        if (i === currentIndex) b.classList.add('active');
+        b.onclick = () => { if (currentMode === 'trial') { currentQIndex = i; renderTrialQuestion(); } };
+        div.appendChild(b);
     }
 }
 
-function renderNavigator(total, curr, mode) { 
-    renderQuestionMap(total, curr, mode); 
+function renderNavigator(total, curr, mode) {
+    const solved = mode === 'trial'
+        ? trialAnswers.reduce((acc, v, i) => { if (v !== null) acc.add(i); return acc; }, new Set())
+        : roomSolvedIndices;
+    renderQuestionMap(total, curr, solved);
 }
