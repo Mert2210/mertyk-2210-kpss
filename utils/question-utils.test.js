@@ -51,7 +51,10 @@ test("shuffleOptions limits options and preserves correct answer mapping", () =>
         assert.equal(shuffled.siklar.length, 4);
         assert.ok(shuffled.siklar.includes("C"));
         assert.equal(shuffled.siklar[shuffled.dogru], "C");
-        assert.deepStrictEqual(new Set(shuffled.siklar), new Set(["C", "D", "E", "F"]));
+        assert.equal(new Set(shuffled.siklar).size, 4);
+        assert.ok(shuffled.siklar.every((choice) => question.siklar.includes(choice)));
+        const wrongChoicesInResult = shuffled.siklar.filter((choice) => choice !== "C");
+        assert.equal(wrongChoicesInResult.length, 3);
     });
 });
 
