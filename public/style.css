@@ -85,6 +85,9 @@ input[type="checkbox"] { width: auto !important; margin: 0 10px 0 0 !important; 
 .opt-btn { background: #fff; color: #333; border: 2px solid #ddd; margin-bottom: 8px; text-align: left; }
 .opt-btn.selected { background: #e67e22 !important; color: #fff !important; border-color: #e67e22; }
 
+@keyframes solutionFadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+.solution-loaded { animation: solutionFadeIn 0.45s ease forwards; }
+
 .subject-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; background: #fff; padding: 8px; border-radius: 8px; border: 1px solid #eee; }
 .subject-row label { width: 110px; font-weight: bold; color: #1e3c72; font-size: 0.85rem; text-align: left; margin: 0; }
 .subject-row input[type="text"] { flex: 1; margin: 0; padding: 8px; font-size: 0.8rem; border: 1px solid #ccc; border-radius: 6px; }

@@ -283,6 +283,11 @@
                 </div>
             </div>
 
+            <label style="font-size:0.75rem; font-weight:bold; margin-bottom:5px; display:block; color:#fff;">📋 Rapor Alınacak Sınıf:</label>
+            <select id="report-class-select" style="margin-bottom:8px; font-weight:bold; color:#1e3c72; background:#fff;">
+                <option value="">--- Sınıf Seçin ---</option>
+            </select>
+
             <div style="display:flex; gap:5px; margin-bottom:5px;">
                 <button onclick="fetchTeacherReports()" class="outline" style="flex:1; font-size:0.75rem; border-color:#fff; color:#fff; padding:8px;">📊 Başarı İstihbaratı</button>
                 <button onclick="fetchClassMistakes()" class="outline" style="flex:1; font-size:0.75rem; border-color:#e74c3c; color:#e74c3c; background:rgba(255,255,255,0.9); padding:8px;">📉 Yanlış Analizi</button>
@@ -313,7 +318,14 @@
 
                 <textarea id="new-q-text" placeholder="Soru metni... (Veya sadece resim yükle)"></textarea>
                 <input type="text" id="new-q-opts" placeholder="Şıkları virgülle ayır (A,B,C,D,E)">
-                <input type="number" id="new-q-correct" placeholder="Doğru Şık İndeksi (0'dan başlar)">
+                <label style="font-size:0.75rem; font-weight:bold; margin-bottom:5px; display:block; color:#fff;">✅ DOĞRU ŞIKKI HANGİSİ?</label>
+                <select id="new-q-correct" style="font-weight:bold; color:#1e3c72; background:#fff; margin-bottom:10px;">
+                    <option value="0">A Şıkkı</option>
+                    <option value="1">B Şıkkı</option>
+                    <option value="2">C Şıkkı</option>
+                    <option value="3">D Şıkkı</option>
+                    <option value="4">E Şıkkı</option>
+                </select>
                 
                 <div style="margin-bottom:10px; background:rgba(255,255,255,0.1); padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,0.3);">
                     <label style="font-size:0.8rem; font-weight:bold; margin-bottom:5px; display:block; color:#fff;">✏️ Öğrenciler İçin Çözüm (İsteğe Bağlı)</label>

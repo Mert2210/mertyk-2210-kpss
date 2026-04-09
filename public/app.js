@@ -809,6 +809,7 @@ window.uploadQuestion = () => {
     document.getElementById('new-q-opts').value = ""; 
     document.getElementById('new-q-ders').value = ""; 
     document.getElementById('new-q-deneme').value = ""; 
+    document.getElementById('new-q-correct').value = "0"; 
     document.getElementById('img-preview').style.display = "none"; 
     uploadedImageBase64 = null; 
     document.getElementById('new-q-sol-text').value = ""; 
@@ -1047,6 +1048,7 @@ window.checkStdAnswer = (btn, selectedIdx, qIndex) => {
     
     const sDiv = document.getElementById('sol-' + boxId); 
     sDiv.style.display = 'block'; 
+    sDiv.className = 'solution-loaded';
     sDiv.innerHTML = `<b>✏️ Çözüm Notu:</b><br>${escapeHtml(q.solutionText || 'Yazılı çözüm notu bulunmuyor.')}<br>${q.solutionImage ? `<img src="${safeImageSrc(q.solutionImage)}" style="width:100%; margin-top:5px; border-radius:5px;">` : ''}`; 
 };
 
@@ -1149,15 +1151,17 @@ window.refreshTeacherClasses = () => {
 
 window.fetchTeacherReports = () => { 
     if(socket) { 
-        const code = prompt("Sınıf Kodunuzu Giriniz (Örn: GZ123):", window.myClassCode); 
-        if(code) socket.emit("getTeacherReports", code.toUpperCase()); 
+        const code = document.getElementById('report-class-select').value; 
+        if(!code) return alert("Lütfen rapor almak istediğiniz sınıfı seçin!"); 
+        socket.emit("getTeacherReports", code.toUpperCase()); 
     } 
 };
 
 window.fetchClassMistakes = () => { 
     if(socket) { 
-        const code = prompt("Sınıf Kodunuzu Giriniz (Örn: GZ123):", window.myClassCode); 
-        if(code) socket.emit("getClassMistakes", code.toUpperCase()); 
+        const code = document.getElementById('report-class-select').value; 
+        if(!code) return alert("Lütfen rapor almak istediğiniz sınıfı seçin!"); 
+        socket.emit("getClassMistakes", code.toUpperCase()); 
     } 
 };
 
@@ -1204,6 +1208,9 @@ if(socket) {
             </div>`).join('');
         
         select.innerHTML = '<option value="">--- Sınıf Seçin ---</option>' + classes.map(c => `<option value="${escapeHtml(c.code)}">${escapeHtml(c.name)}</option>`).join('');
+        
+        const reportSelect = document.getElementById('report-class-select');
+        if(reportSelect) reportSelect.innerHTML = '<option value="">--- Sınıf Seçin ---</option>' + classes.map(c => `<option value="${escapeHtml(c.code)}">${escapeHtml(c.name)}</option>`).join('');
     });
 }
 
@@ -1604,7 +1611,7 @@ function renderTrialQuestion() {
     if (trialAnswers[currentQIndex] !== null && (currentQObject.solutionText || currentQObject.solutionImage)) {
         solArea.style.display = 'block'; 
         solArea.innerHTML = `
-        <div style="margin-top:15px; padding:15px; background:#e8f4f8; border-radius:8px; border: 1px solid #3498db; text-align:left; color:#1e3c72; font-size:0.9rem;">
+        <div class="solution-loaded" style="margin-top:15px; padding:15px; background:#e8f4f8; border-radius:8px; border: 1px solid #3498db; text-align:left; color:#1e3c72; font-size:0.9rem;">
             <b>👨‍🏫 Çözüm Notu:</b><br>${escapeHtml(currentQObject.solutionText || 'Yazılı açıklama eklenmemiş.')}<br>
             ${currentQObject.solutionImage ? `<img src="${safeImageSrc(currentQObject.solutionImage)}" style="width:100%; border-radius:5px; margin-top:10px;">` : ''}
         </div>`;
