@@ -714,6 +714,7 @@ window.saveProfileSettings = async () => {
     }
 };
 
+// 🚨 GÜVENLİ GİRİŞ MOTORU VE ŞİFRE SIFIRLAMA (ZIRHLI VERSİYON) 🚨
 window.handleLogin = async () => { 
     const emailEl = document.getElementById('login-email');
     const passEl = document.getElementById('login-pass');
@@ -723,11 +724,14 @@ window.handleLogin = async () => {
     }
 
     try { 
-        document.getElementById('loading-overlay').style.display = 'flex'; 
+        const loader = document.getElementById('loading-overlay');
+        if(loader) loader.style.display = 'flex'; 
+        
         await signInWithEmailAndPassword(auth, emailEl.value.trim(), passEl.value); 
     } catch(e) { 
-        document.getElementById('loading-overlay').style.display = 'none'; 
-        alert("❌ Giriş Başarısız: E-posta veya şifre hatalı. (" + e.message + ")"); 
+        const loader = document.getElementById('loading-overlay');
+        if(loader) loader.style.display = 'none'; 
+        alert("❌ Giriş Başarısız: E-posta veya şifre hatalı."); 
     } 
 };
 
@@ -745,7 +749,9 @@ window.handleRegister = async () => {
     const regGrade = document.getElementById('reg-grade')?.value || "";
     
     try { 
-        document.getElementById('loading-overlay').style.display = 'flex';
+        const loader = document.getElementById('loading-overlay');
+        if(loader) loader.style.display = 'flex';
+        
         const res = await createUserWithEmailAndPassword(auth, e, p1); 
         await updateProfile(res.user, { displayName: u + "|" + selectedRole }); 
         await sendEmailVerification(res.user);
@@ -758,25 +764,54 @@ window.handleRegister = async () => {
             localStorage.setItem('gazi_teacher_exams', JSON.stringify(selectedExams)); 
         }
 
-        alert("✅ Kayıt başarılı! Lütfen doğrulama maili için Gelen Kutunuzu ve SPAM klasörünü kontrol edin.");
+        alert("✅ Kayıt başarılı! Lütfen doğrulama maili için Gelen Kutunuzu ve SPAM (gereksiz) klasörünü kontrol edin.");
         await signOut(auth); 
         location.reload(); 
     } catch(e) { 
-        document.getElementById('loading-overlay').style.display = 'none';
+        const loader = document.getElementById('loading-overlay');
+        if(loader) loader.style.display = 'none';
         alert("❌ Kayıt Hatası: " + e.message); 
     }
 };
 
 window.handleGuestLogin = async () => { 
     try { 
-        document.getElementById('loading-overlay').style.display = 'flex';
+        const loader = document.getElementById('loading-overlay');
+        if(loader) loader.style.display = 'flex';
+        
         const guestName = "Misafir-" + Math.floor(1000 + Math.random() * 9000); 
         const res = await signInAnonymously(auth); 
         await updateProfile(res.user, { displayName: guestName + "|student" }); 
     } catch(e) { 
-        document.getElementById('loading-overlay').style.display = 'none';
+        const loader = document.getElementById('loading-overlay');
+        if(loader) loader.style.display = 'none';
         alert("Bağlantı Hatası: İnternetinizi kontrol edin."); 
     } 
+};
+
+window.handleGoogleLogin = async () => { 
+    try { 
+        const loader = document.getElementById('loading-overlay');
+        if(loader) loader.style.display = 'flex';
+        
+        await signInWithPopup(auth, new GoogleAuthProvider()); 
+    } catch(e) { 
+        const loader = document.getElementById('loading-overlay');
+        if(loader) loader.style.display = 'none';
+        alert("Bağlantı iptal edildi veya hata oluştu: " + e.message); 
+    } 
+};
+
+window.handleResetPassword = async () => {
+    const email = prompt("Şifresini sıfırlamak istediğiniz E-posta adresinizi girin:");
+    if (!email) return;
+    
+    try {
+        await sendPasswordResetEmail(auth, email.trim());
+        alert("✅ Şifre sıfırlama bağlantısı gönderildi. Lütfen spam (gereksiz) kutunuzu da kontrol edin.");
+    } catch (error) {
+        alert("❌ Hata: Bu e-postaya ait kayıt bulunamadı veya geçersiz e-posta.");
+    }
 };
 
 onAuthStateChanged(auth, user => {
