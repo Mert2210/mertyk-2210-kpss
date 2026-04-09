@@ -593,13 +593,20 @@ onAuthStateChanged(auth, user => {
 window.logout = () => signOut(auth).then(() => location.reload());
 
 function escapeHtml(str) {
-    if (str == null) return '';
+    if (str === null || str === undefined) return '';
     return String(str)
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#39;');
+}
+
+function safeImageSrc(src) {
+    if (typeof src !== 'string') return '';
+    if (/^data:image\/(jpeg|png|gif|webp);base64,/.test(src)) return src;
+    if (/^https?:\/\//.test(src)) return src;
+    return '';
 }
 
 let socket; 
@@ -948,13 +955,13 @@ function renderStudentLibraryListOnly(data) {
                 <b style="color:#e67e22; margin-left:5px;">${escapeHtml(q.konu)}</b><br>
                 <small style="color:#666;"><b>Kaynak:</b> ${escapeHtml(q.kitap)}</small><br>
                 ${q.not ? `<small><b>Soru Notu:</b> ${escapeHtml(q.not)}</small><br>` : ''}
-                ${q.image ? `<img src="${escapeHtml(q.image)}" style="width:100%; border-radius:5px; margin-top:5px;">` : ''}
+                ${q.image ? `<img src="${safeImageSrc(q.image)}" style="width:100%; border-radius:5px; margin-top:5px;">` : ''}
                 <div class="abcde-grid" id="std-qbox-${i}">
                     ${['A','B','C','D','E'].map((s, idx) => `<button class="abcde-btn" onclick="checkStdAnswer(this, ${idx}, ${i})">${s}</button>`).join('')}
                 </div>
                 <div id="sol-std-qbox-${i}" style="display:none; margin-top:10px; padding:10px; background:#e8f4f8; border-radius:8px; font-size:0.8rem; color:#333; text-align:left;"></div>
                 <div style="display:flex; gap:5px; margin-top:10px;">
-                    ${q.id ? `<button onclick="updateReviewDate('${escapeHtml(q.id)}', ${isLocal})" class="outline" style="flex:2; font-size:0.8rem; border-color:#27ae60; color:#27ae60;">✅ Tekrar Ettim (Ertele)</button>` : ''}
+                    ${q.id ? `<button onclick="updateReviewDate(${JSON.stringify(q.id)}, ${isLocal})" class="outline" style="flex:2; font-size:0.8rem; border-color:#27ae60; color:#27ae60;">✅ Tekrar Ettim (Ertele)</button>` : ''}
                     <button onclick="reportQuestionFromLibrary(${i})" class="outline" style="flex:1; font-size:0.8rem; border-color:#c0392b; color:#c0392b;">🚨 Bildir</button>
                 </div>
             </div>`;
@@ -1037,7 +1044,7 @@ window.checkStdAnswer = (btn, selectedIdx, qIndex) => {
     
     const sDiv = document.getElementById('sol-' + boxId); 
     sDiv.style.display = 'block'; 
-    sDiv.innerHTML = `<b>✏️ Çözüm Notu:</b><br>${escapeHtml(q.solutionText || 'Yazılı çözüm notu bulunmuyor.')}<br>${q.solutionImage ? `<img src="${escapeHtml(q.solutionImage)}" style="width:100%; margin-top:5px; border-radius:5px;">` : ''}`; 
+    sDiv.innerHTML = `<b>✏️ Çözüm Notu:</b><br>${escapeHtml(q.solutionText || 'Yazılı çözüm notu bulunmuyor.')}<br>${q.solutionImage ? `<img src="${safeImageSrc(q.solutionImage)}" style="width:100%; margin-top:5px; border-radius:5px;">` : ''}`; 
 };
 
 window.fetchClassQuestions = () => { 
@@ -1105,7 +1112,7 @@ if(socket) {
                 <b>Soru:</b> ${escapeHtml(q.soru)} <br>
                 <span style="color:#27ae60;"><b>Cevap:</b> ${escapeHtml(q.siklar ? q.siklar[q.dogru] : 'Bilinmiyor')}</span> <br>
                 <small>Ders: ${escapeHtml(q.ders)} | Konu: ${escapeHtml(q.deneme)}</small><br>
-                ${q.image ? `<img src="${escapeHtml(q.image)}" style="width:100%; border-radius:5px; margin-top:10px;">` : ''} 
+                ${q.image ? `<img src="${safeImageSrc(q.image)}" style="width:100%; border-radius:5px; margin-top:10px;">` : ''} 
                 ${q.solutionText || q.solutionImage ? `<div style="background:#e8f4f8; padding:8px; border-radius:5px; margin-top:5px; font-size:0.8rem; color:#1e3c72;"><b>👨‍🏫 Çözüm:</b> ${escapeHtml(q.solutionText || '')} ${q.solutionImage ? '<br><span style="color:#27ae60;">[Görsel Ekli]</span>' : ''}</div>` : ''} 
                 <button onclick="reportQuestionFromLibrary(${i})" class="outline" style="margin-top:10px; font-size:0.75rem; border-color:#c0392b; color:#c0392b;">🚨 Hatalı Bildir</button>
             </div>`).join(''); 
@@ -1123,7 +1130,7 @@ if(socket) {
         document.getElementById('list-title').innerText = "👨‍🏫 Onay Bekleyen Öğretmenler"; 
         const div = document.getElementById('list-content'); 
         if(data.length === 0) div.innerHTML = "<p style='text-align:center;'>Onay bekleyen öğretmen bulunmuyor.</p>"; 
-        else div.innerHTML = data.map((t, i) => `<div class="list-item" style="border-left: 5px solid #8e44ad;"><b>İsim:</b> ${escapeHtml(t.name)} <br><b>E-posta:</b> ${escapeHtml(t.email)} <br><button onclick="approveTeacher('${escapeHtml(t.email)}')" class="green" style="margin-top:5px; padding:5px 10px; font-size:0.8rem; width:auto;">✅ Onayla</button></div>`).join(''); 
+        else div.innerHTML = data.map((t, i) => `<div class="list-item" style="border-left: 5px solid #8e44ad;"><b>İsim:</b> ${escapeHtml(t.name)} <br><b>E-posta:</b> ${escapeHtml(t.email)} <br><button onclick="approveTeacher(${JSON.stringify(t.email)})" class="green" style="margin-top:5px; padding:5px 10px; font-size:0.8rem; width:auto;">✅ Onayla</button></div>`).join(''); 
         showScreen('screen-list'); 
     });
 }
@@ -1190,7 +1197,7 @@ if(socket) {
         listDiv.innerHTML = classes.map(c => `
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px; background:rgba(255,255,255,0.1); padding:8px; border-radius:6px;">
                 <span><b>${escapeHtml(c.name)}</b> (${escapeHtml(c.code)})</span>
-                <button onclick="copyToClipboard('${escapeHtml(c.code)}')" style="width:auto; padding:4px 8px; font-size:0.7rem; background:#3498db; border:none; color:white; border-radius:4px; cursor:pointer;">Kopyala</button>
+                <button onclick="copyToClipboard(${JSON.stringify(c.code)})" style="width:auto; padding:4px 8px; font-size:0.7rem; background:#3498db; border:none; color:white; border-radius:4px; cursor:pointer;">Kopyala</button>
             </div>`).join('');
         
         select.innerHTML = '<option value="">--- Sınıf Seçin ---</option>' + classes.map(c => `<option value="${escapeHtml(c.code)}">${escapeHtml(c.name)}</option>`).join('');
@@ -1515,7 +1522,7 @@ function renderTrialQuestion() {
         solArea.innerHTML = `
         <div style="margin-top:15px; padding:15px; background:#e8f4f8; border-radius:8px; border: 1px solid #3498db; text-align:left; color:#1e3c72; font-size:0.9rem;">
             <b>👨‍🏫 Çözüm Notu:</b><br>${escapeHtml(currentQObject.solutionText || 'Yazılı açıklama eklenmemiş.')}<br>
-            ${currentQObject.solutionImage ? `<img src="${escapeHtml(currentQObject.solutionImage)}" style="width:100%; border-radius:5px; margin-top:10px;">` : ''}
+            ${currentQObject.solutionImage ? `<img src="${safeImageSrc(currentQObject.solutionImage)}" style="width:100%; border-radius:5px; margin-top:10px;">` : ''}
         </div>`;
     } else { 
         solArea.style.display = 'none'; 

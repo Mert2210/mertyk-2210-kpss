@@ -270,7 +270,7 @@ io.on("connection", (socket) => {
         if (!newQ || typeof newQ !== 'object') return;
         if (typeof newQ.soru !== 'string' || typeof newQ.classCode !== 'string') return;
         if (newQ.soru.trim() === '' || newQ.classCode.trim() === '') return;
-        const MAX_IMAGE_SIZE = 2 * 1024 * 1024; // 2 MB base64
+        const MAX_IMAGE_SIZE = 2 * 1024 * 1024; // 2 MB base64 string length (~1.5 MB decoded)
         if (newQ.image && (typeof newQ.image !== 'string' || newQ.image.length > MAX_IMAGE_SIZE)) return;
         if (newQ.solutionImage && (typeof newQ.solutionImage !== 'string' || newQ.solutionImage.length > MAX_IMAGE_SIZE)) return;
         tumSorular.push(newQ);
