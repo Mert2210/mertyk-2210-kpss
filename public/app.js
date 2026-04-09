@@ -1631,7 +1631,7 @@ function renderQuestionMap(totalQuestions, currentIndex, solvedArray) {
         b.title = `Soru ${i + 1}`;
         if (solved.has(i)) b.classList.add('solved');
         if (i === currentIndex) b.classList.add('active');
-        b.onclick = () => { if (currentMode === 'trial') { currentQIndex = i; renderTrialQuestion(); } };
+        b.onclick = () => { if (currentMode !== 'trial') return; currentQIndex = i; renderTrialQuestion(); };
         div.appendChild(b);
     }
 }
