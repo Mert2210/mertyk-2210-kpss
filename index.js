@@ -431,11 +431,11 @@ io.on("connection", (socket) => {
 
     socket.on("startTrial", (settings) => {
         let pool = [...tumSorular];
-        if (settings.deneme && settings.deneme !== "HEPSI") {
+        if (settings.deneme && settings.deneme !== "HEPSI" && (!Array.isArray(settings.deneme) || settings.deneme.length > 0)) {
             const secilenler = Array.isArray(settings.deneme) ? settings.deneme : [settings.deneme];
             pool = pool.filter(q => secilenler.includes(q.deneme));
         }
-        if (settings.subject && settings.subject !== "HEPSI") {
+        if (settings.subject && settings.subject !== "HEPSI" && (!Array.isArray(settings.subject) || settings.subject.length > 0)) {
             const hedefler = Array.isArray(settings.subject) ? settings.subject : [settings.subject];
             pool = pool.filter(q => hedefler.includes((q.ders || "GENEL").trim().toLocaleUpperCase('tr')));
         }
@@ -455,11 +455,11 @@ io.on("connection", (socket) => {
         let pool = [...tumSorular];
         const limit = parseInt(settings.count) || 10;
 
-        if (settings.deneme && settings.deneme !== "HEPSI") {
+        if (settings.deneme && settings.deneme !== "HEPSI" && (!Array.isArray(settings.deneme) || settings.deneme.length > 0)) {
             const secilenler = Array.isArray(settings.deneme) ? settings.deneme : [settings.deneme];
             pool = pool.filter(q => secilenler.includes(q.deneme));
         }
-        if (settings.subject && settings.subject !== "HEPSI") {
+        if (settings.subject && settings.subject !== "HEPSI" && (!Array.isArray(settings.subject) || settings.subject.length > 0)) {
             const hedefler = Array.isArray(settings.subject) ? settings.subject : [settings.subject];
             pool = pool.filter(q => hedefler.includes((q.ders || "GENEL").trim().toLocaleUpperCase('tr')));
         }

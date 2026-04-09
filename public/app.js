@@ -1359,7 +1359,24 @@ window.goToLobby = (mode) => {
         document.getElementById('room-code-display').style.display = 'none'; 
         document.getElementById('lobby-players-area').style.display = 'none'; 
     }
+
+    const trialSourceArea = document.getElementById('trial-source-area');
+    if (trialSourceArea) trialSourceArea.style.display = mode === 'trial' ? 'block' : 'none';
+
+    const dersFiltSec = document.getElementById('ders-filter-section');
+    const denemeFiltSec = document.getElementById('deneme-filter-section');
+    if (dersFiltSec) dersFiltSec.style.display = mode === 'room' ? 'block' : 'none';
+    if (denemeFiltSec) denemeFiltSec.style.display = mode === 'room' ? 'block' : 'none';
+
     showScreen('screen-lobby');
+};
+
+window.onSourceChange = () => {
+    const source = document.getElementById('set-source').value;
+    const dersFiltSec = document.getElementById('ders-filter-section');
+    const denemeFiltSec = document.getElementById('deneme-filter-section');
+    if (dersFiltSec) dersFiltSec.style.display = 'none';
+    if (denemeFiltSec) denemeFiltSec.style.display = 'none';
 };
 
 if(socket) {
@@ -1394,6 +1411,36 @@ if(socket) {
 
 window.startGame = () => {
     if(!socket && currentMode !== 'trial') return alert("Sunucu bağlantısı yok!");
+
+    const sourceEl = document.getElementById('set-source');
+    const source = (sourceEl && currentMode === 'trial') ? sourceEl.value : 'sistem';
+
+    // Yerel kaynaklardan (Yanlışlarım, Boşlarım, Hata Defteri) doğrudan başlat
+    if (currentMode === 'trial' && source !== 'sistem') {
+        const sourceKeys = { 'yanlis': 'kpss_wrongs', 'bos': 'kpss_blanks', 'local': 'gazi_local_notebook' };
+        const sourceNames = { 'yanlis': '❌ Yanlışlarım', 'bos': '⬜ Boş Bıraktıklarım', 'local': '📓 Hata Defterim' };
+        let pool = JSON.parse(localStorage.getItem(sourceKeys[source])) || [];
+        if (pool.length === 0) return alert(`${sourceNames[source]} listesi şu an boş! Önce sorularınızı kaydedin.`);
+        const count = parseInt(document.getElementById('set-count').value) || 10;
+        for (let i = pool.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [pool[i], pool[j]] = [pool[j], pool[i]];
+        }
+        trialQuestions = pool.slice(0, count);
+        trialAnswers = new Array(trialQuestions.length).fill(null);
+        currentQIndex = 0;
+        currentMode = 'trial';
+        document.getElementById('box-total').style.display = 'none';
+        document.getElementById('box-question').style.display = 'none';
+        document.getElementById('trial-nav-buttons').style.display = 'flex';
+        document.getElementById('btn-finish-trial').style.display = 'block';
+        showScreen('screen-game');
+        renderQuestionMap(trialQuestions.length, 0, []);
+        openMap();
+        renderTrialQuestion();
+        return;
+    }
+
     const dur = parseInt(document.getElementById('room-q-time').value); 
     if(!dur || dur <= 0) return alert("Süre zorunludur!");
     
