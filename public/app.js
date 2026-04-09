@@ -18,9 +18,11 @@ const auth = getAuth(app);
 // 🛡️ 1. ZIRH: BİLDİRİM SİSTEMİ ÇÖKME KORUMASI
 let messaging;
 try {
+    // Bildirimleri başlatmayı dene
     messaging = getMessaging(app);
 } catch (e) {
-    console.warn("Bildirim sistemi şu anki bağlantı türünde desteklenmiyor.");
+    // Eğer hata çıkarsa çökme, sadece arka planda bu notu düş ve yola devam et
+    console.warn("Bildirim sistemi şu anki bağlantı türünde desteklenmiyor, ama uygulama çalışmaya devam edecek.");
 }
 
 // 🚨 YENİ: FIREBASE BİLDİRİM (MESSAGING) İZNİ VE TOKEN ALMA FONKSİYONU
