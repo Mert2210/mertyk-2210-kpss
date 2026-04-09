@@ -44,13 +44,15 @@ button:hover { opacity: 0.9; } button.green { background: #27ae60; } button.oran
 #lobby-players-area { background: #e8f4f8; padding: 10px; border-radius: 8px; border: 2px dashed #3498db; margin-top: 15px; text-align: left; }
 .player-badge { display: inline-block; background: #3498db; color: white; padding: 5px 10px; border-radius: 15px; font-size: 0.8rem; margin: 3px; font-weight: bold; }
 
-#question-navigator { grid-template-columns: repeat(5, 1fr); gap: 5px; margin-top: 10px; display: none; }
-#question-navigator.show-map { display: grid; }
-.nav-box { width: 35px; height: 35px; display: flex; justify-content: center; align-items: center; background: #eee; border: 1px solid #ccc; border-radius: 6px; font-size: 0.85rem; font-weight: bold; color:#333; cursor: pointer; }
-.nav-box.current { border: 3px solid #e67e22; transform: scale(1.1); background:#fff; }
+#question-navigator { grid-template-columns: repeat(5, 1fr); gap: 5px; display: grid; max-height: 0; overflow: hidden; transition: max-height 0.35s ease, padding 0.35s ease; padding: 0; }
+#question-navigator.show-map { max-height: 600px; padding: 10px 0; }
+.nav-box { width: 35px; height: 35px; display: flex; justify-content: center; align-items: center; background: #eee; border: 1px solid #ccc; border-radius: 6px; font-size: 0.85rem; font-weight: bold; color:#333; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; }
+.nav-box.current { border: 3px solid #3498db; transform: scale(1.1); background: #e8f4fd; color: #1a6fa8; box-shadow: 0 0 8px rgba(52,152,219,0.7); }
 .nav-box.correct { background: #27ae60 !important; color: white !important; }
 .nav-box.wrong { background: #c0392b !important; color: white !important; }
-.nav-box.answered { background: #3498db; color: white; }
+.nav-box.answered { background: #27ae60; color: white; }
+@keyframes nav-pulse { 0%,100% { box-shadow: 0 0 6px rgba(52,152,219,0.6); } 50% { box-shadow: 0 0 14px rgba(52,152,219,1); } }
+.nav-box.current { animation: nav-pulse 1.2s ease-in-out infinite; }
 
 .dropdown-wrapper { position: relative; width: 100%; margin-bottom: 10px; }
 .dropdown-trigger { background: #fff; color: #333; border: 2px solid #e67e22; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; text-align: left; }

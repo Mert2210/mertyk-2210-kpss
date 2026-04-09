@@ -441,10 +441,10 @@
                 <div id="box-total" class="timer-box" style="background:#2980b9;">⌛ <span id="time-total">--:--</span></div>
                 <div id="box-question" class="timer-box" style="background:#c0392b; display:block;">⏱️ <span id="time-q">--s</span></div>
             </div>
-            <button onclick="document.getElementById('question-navigator').classList.toggle('show-map')" class="outline" style="width:auto; padding:8px; margin-left:10px;">🗺️ Harita</button>
+            <button id="btn-map-toggle" onclick="const nav=document.getElementById('question-navigator');nav.classList.toggle('show-map');this.querySelector('.map-arrow').textContent=nav.classList.contains('show-map')?'▲':'▼';" class="outline" style="width:auto; padding:8px; margin-left:10px;">🗺️ Harita <span class="map-arrow">▼</span></button>
         </div>
 
-        <div id="question-navigator"></div>
+        <div id="question-navigator" style="border-radius:8px; background:#f0f4f8; padding-left:8px; padding-right:8px;"></div>
         
         <div id="trial-nav-buttons" style="display:none; justify-content:space-between; margin-top:15px;">
             <button onclick="trialPrev()" class="outline" style="width:48%;">⬅️ Geri</button>
