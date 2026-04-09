@@ -242,6 +242,17 @@
                         </select>
                     </div>
 
+                    <div style="margin-bottom:10px;">
+                        <label style="font-size:0.75rem; font-weight:bold; color:#1e3c72; display:block; margin-bottom:5px;">🔁 Kaç Günde Tekrar Çözeyim?</label>
+                        <select id="std-q-reminder" style="font-weight:bold; border-color:#8e44ad; color:#8e44ad;">
+                            <option value="1">1 gün</option>
+                            <option value="3">3 gün</option>
+                            <option value="7" selected>7 gün</option>
+                            <option value="14">14 gün</option>
+                            <option value="30">30 gün</option>
+                        </select>
+                    </div>
+
                     <div style="display:flex; gap:5px;">
                         <button onclick="uploadStudentQuestion('cloud')" class="orange" style="flex:1; padding:15px; font-size:0.9rem;">☁️ Buluta Kaydet</button>
                         <button onclick="uploadStudentQuestion('local')" class="blue" style="flex:1; padding:15px; font-size:0.9rem;">💾 Cihaza Kaydet</button>
