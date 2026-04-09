@@ -209,7 +209,7 @@ function checkPWAPrompts() {
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
     const isAndroid = /Android/.test(navigator.userAgent);
     const isStandalone = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
-    const isChromeIOS = navigator.userAgent.match("CriOS") || navigator.userAgent.match("FxiOS");
+    const isChromeIOS = navigator.userAgent.includes('CriOS') || navigator.userAgent.includes('FxiOS');
     
     if (!isStandalone) {
         if (isIOS && isChromeIOS) {
@@ -585,6 +585,8 @@ onAuthStateChanged(auth, user => {
             window.showScreen('screen-main'); 
         }
 
+        if (!isTeacher) window.updateLocalListCounts();
+
     } else { 
         window.showScreen('screen-auth'); 
     }
@@ -892,6 +894,7 @@ window.uploadStudentQuestion = (target = 'cloud') => {
     stdUploadedImageBase64 = null; 
     stdSolutionBase64 = null;
     if (customKonuInput) customKonuInput.value = "";
+    window.updateLocalListCounts();
 };
 
 window.fetchStudentLibrary = (source = 'cloud', onlyReviews = false) => {
@@ -909,6 +912,12 @@ window.fetchStudentLibrary = (source = 'cloud', onlyReviews = false) => {
         }
         renderStudentLibraryHTML(localData, "💾 Cihaz Hata Defterim");
     }
+};
+
+window.applyReviewFilter = () => {
+    const now = Date.now();
+    const due = window.originalStdQuestions.filter(q => q.nextReviewDate && q.nextReviewDate <= now);
+    renderStudentLibraryListOnly(due);
 };
 
 window.applyLibraryFilters = () => {
@@ -949,12 +958,21 @@ function renderStudentLibraryListOnly(data) {
     if(data.length === 0) { 
         div.innerHTML = "<p style='text-align:center;'>Bu filtreye uygun soru bulunamadı.</p>"; 
     } else {
+        const isLocal = document.getElementById('list-title').innerText.includes("Cihaz");
+        const cloudBadge = !isLocal
+            ? `<span class="cloud-badge" title="Bu soru buluta kaydetilmiştir, internet bağlantısı gerektirir">☁️ ℹ️</span>`
+            : '';
         div.innerHTML = data.map((q, i) => {
-            const isLocal = document.getElementById('list-title').innerText.includes("Cihaz");
             return `
-            <div class="list-item" style="border: 2px solid #e67e22; background:#fff;">
-                <span style="background:#1e3c72; color:#fff; padding:3px 8px; border-radius:4px; font-size:0.75rem; font-weight:bold;">${escapeHtml(q.ders || 'Genel')}</span> 
-                <b style="color:#e67e22; margin-left:5px;">${escapeHtml(q.konu)}</b><br>
+            <div class="list-item" style="border: 2px solid #e67e22; background:#fff; position:relative;">
+                <button onclick="reportQuestionFromLibrary(${i})" title="Hatalı Bildir" style="position:absolute; top:6px; right:6px; width:auto; padding:2px 7px; font-size:0.7rem; background:transparent; border:1px solid #e0e0e0; color:#bbb; border-radius:4px; cursor:pointer; line-height:1.4;">🚨</button>
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:4px; margin-bottom:4px; padding-right:36px;">
+                    <div>
+                        <span style="background:#1e3c72; color:#fff; padding:3px 8px; border-radius:4px; font-size:0.75rem; font-weight:bold;">${escapeHtml(q.ders || 'Genel')}</span>
+                        <b style="color:#e67e22; margin-left:5px;">${escapeHtml(q.konu)}</b>${cloudBadge}
+                    </div>
+                    <div>${formatReminderDate(q.nextReviewDate)}</div>
+                </div>
                 <small style="color:#666;"><b>Kaynak:</b> ${escapeHtml(q.kitap)}</small><br>
                 ${q.not ? `<small><b>Soru Notu:</b> ${escapeHtml(q.not)}</small><br>` : ''}
                 ${q.image ? `<img src="${safeImageSrc(q.image)}" style="width:100%; border-radius:5px; margin-top:5px;">` : ''}
@@ -964,7 +982,7 @@ function renderStudentLibraryListOnly(data) {
                 <div id="sol-std-qbox-${i}" style="display:none; margin-top:10px; padding:10px; background:#e8f4f8; border-radius:8px; font-size:0.8rem; color:#333; text-align:left;"></div>
                 <div style="display:flex; gap:5px; margin-top:10px;">
                     ${q.id ? `<button onclick="updateReviewDate(${JSON.stringify(q.id)}, ${isLocal})" class="outline" style="flex:2; font-size:0.8rem; border-color:#27ae60; color:#27ae60;">✅ Tekrar Ettim (Ertele)</button>` : ''}
-                    <button onclick="reportQuestionFromLibrary(${i})" class="outline" style="flex:1; font-size:0.8rem; border-color:#c0392b; color:#c0392b;">🚨 Bildir</button>
+                    ${q.id ? `<button onclick="deleteStudentQuestion(${JSON.stringify(q.id)}, ${isLocal})" class="outline" style="flex:1; font-size:0.8rem; border-color:#c0392b; color:#c0392b;">🗑️ Sil</button>` : ''}
                 </div>
             </div>`;
         }).join(''); 
@@ -974,10 +992,30 @@ function renderStudentLibraryListOnly(data) {
 function renderStudentLibraryHTML(data, title) { 
     window.originalStdQuestions = data; 
     currentListType = "student_library"; 
-    document.getElementById('list-title').innerText = title; 
+    document.getElementById('list-title').innerText = `${title} (${data.length})`; 
     document.getElementById('library-filter-area').style.display = 'block'; 
-    populateLibraryFilters(data); 
+    populateLibraryFilters(data);
+
+    const now = Date.now();
+    const dueQuestions = data.filter(q => q.nextReviewDate && q.nextReviewDate <= now);
+    const reviewHeader = document.getElementById('review-section-header');
+    if (reviewHeader) {
+        if (dueQuestions.length > 0) {
+            reviewHeader.style.display = 'block';
+            reviewHeader.innerHTML = `<div style="background:#fff3cd; border:2px solid #f39c12; border-radius:10px; padding:10px; text-align:center; cursor:pointer;" onclick="applyReviewFilter()">
+                <b style="color:#e67e22;">🔔 Hatırlatılacak Sorular: ${dueQuestions.length} Soru</b><br>
+                <small style="color:#555;">Tekrar zamanı gelmiş sorular var. Görmek için tıklayın veya aşağı kaydırın.</small>
+            </div>`;
+        } else {
+            reviewHeader.style.display = 'none';
+        }
+    }
+
     renderStudentLibraryListOnly(data); 
+
+    const startBtn = document.getElementById('start-library-test-btn');
+    if (startBtn) startBtn.style.display = data.length > 0 ? 'block' : 'none';
+
     showScreen('screen-list'); 
 }
 
@@ -1001,6 +1039,28 @@ window.updateReviewDate = (questionId, isLocal = false) => {
         showScreen('screen-main');
         const studentName = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "").trim() || "Gazi Adayı"; 
         socket.emit("checkNotebookReviews", studentName);
+    }
+};
+
+window.deleteStudentQuestion = (questionId, isLocal) => {
+    if (!confirm("Bu soruyu silmek istediğinizden emin misiniz?")) return;
+    if (!isLocal) {
+        if (socket) {
+            const studentName = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "").trim() || "Gazi Adayı";
+            socket.emit("deleteStudentQuestion", { questionId: questionId, studentName: studentName });
+        }
+    } else {
+        let localData = JSON.parse(localStorage.getItem('gazi_local_notebook')) || [];
+        localData = localData.filter(x => x.id !== questionId);
+        localStorage.setItem('gazi_local_notebook', JSON.stringify(localData));
+        window.updateLocalListCounts();
+    }
+    window.originalStdQuestions = window.originalStdQuestions.filter(q => q.id !== questionId);
+    window.tempStdQuestions = window.tempStdQuestions.filter(q => q.id !== questionId);
+    renderStudentLibraryListOnly(window.tempStdQuestions);
+    const titleEl = document.getElementById('list-title');
+    if (titleEl) {
+        titleEl.innerText = titleEl.innerText.replace(/\(\d+\)/, `(${window.originalStdQuestions.length})`);
     }
 };
 
@@ -1052,6 +1112,41 @@ window.checkStdAnswer = (btn, selectedIdx, qIndex) => {
     sDiv.innerHTML = `<b>✏️ Çözüm Notu:</b><br>${escapeHtml(q.solutionText || 'Yazılı çözüm notu bulunmuyor.')}<br>${q.solutionImage ? `<img src="${safeImageSrc(q.solutionImage)}" style="width:100%; margin-top:5px; border-radius:5px;">` : ''}`; 
 };
 
+function formatReminderDate(nextReviewDate) {
+    if (!nextReviewDate) return '';
+    const MS_PER_DAY = 24 * 60 * 60 * 1000;
+    const now = Date.now();
+    const diff = nextReviewDate - now;
+    if (diff <= 0) return '<span style="color:#e74c3c; font-weight:bold; font-size:0.75rem;">⏰ Tekrar zamanı geldi!</span>';
+    const hours = Math.floor(diff / (60 * 60 * 1000));
+    const days = Math.ceil(diff / MS_PER_DAY);
+    if (hours < 24) return `<span style="color:#e67e22; font-size:0.75rem;">⏳ ${hours} saat sonra hatırlatılacak</span>`;
+    return `<span style="color:#8e44ad; font-size:0.75rem;">📅 ${days} gün sonra hatırlatılacak</span>`;
+}
+
+window.openReviewLibrary = () => {
+    if (!socket) return alert("Sunucu bağlantısı yok.");
+    const studentName = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "").trim() || "Gazi Adayı";
+    socket.emit("getStudentLibrary", { studentName: studentName, onlyReviews: true });
+};
+
+window.showInstallInstructions = () => {
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const isAndroid = /Android/.test(navigator.userAgent);
+    const isChromeIOS = navigator.userAgent.includes('CriOS') || navigator.userAgent.includes('FxiOS');
+    if (isIOS && isChromeIOS) {
+        document.getElementById('ios-chrome-prompt').style.display = 'flex';
+    } else if (isIOS) {
+        document.getElementById('ios-pwa-prompt').style.display = 'block';
+    } else if (isAndroid) {
+        document.getElementById('android-pwa-prompt').style.display = 'block';
+    } else if (deferredPrompt) {
+        window.installPWA();
+    } else {
+        alert("Uygulamayı indirmek için tarayıcınızın adres çubuğundaki 'Yükle' veya '⊕' simgesine tıklayın.");
+    }
+};
+
 window.fetchClassQuestions = () => { 
     const code = document.getElementById('class-code-input').value.trim().toUpperCase(); 
     if(!code) return alert("Lütfen önce sınıf kodunu girin!"); 
@@ -1069,7 +1164,10 @@ if(socket) {
     socket.on("teacherReportsData", (data) => {
         currentListType = "teacher_report"; 
         document.getElementById('list-title').innerText = "📊 Sınıf İstihbarat Raporu"; 
-        
+        const startBtn = document.getElementById('start-library-test-btn');
+        if (startBtn) startBtn.style.display = 'none';
+        const reviewHeader = document.getElementById('review-section-header');
+        if (reviewHeader) reviewHeader.style.display = 'none';
         const reports = data.reports || []; 
         const roster = data.roster || [];
         const solvedNames = reports.map(r => r.name); 
@@ -1125,9 +1223,18 @@ if(socket) {
     });
 
     socket.on("notebookReviewsCount", (count) => { 
-        const box = document.getElementById('notebook-alert-box'); 
-        if(count > 0) box.style.display = 'block'; 
-        else box.style.display = 'none'; 
+        const box = document.getElementById('review-alert-box'); 
+        const countEl = document.getElementById('review-q-count');
+        const btnCount = document.getElementById('review-btn-count');
+        if (btnCount) btnCount.innerText = count;
+        if(box) { 
+            if(count > 0) { 
+                box.style.display = 'block'; 
+                if(countEl) countEl.innerText = count; 
+            } else { 
+                box.style.display = 'none'; 
+            }
+        }
     });
     
     socket.on("pendingTeachersData", (data) => { 
@@ -1329,13 +1436,28 @@ if(socket) socket.on("allReportsData", (data) => {
     showScreen('screen-list'); 
 });
 
+window.updateLocalListCounts = () => {
+    const keys = { 'wrong': 'kpss_wrongs', 'fav': 'kpss_favs', 'blank': 'kpss_blanks', 'report': 'kpss_reports' };
+    Object.entries(keys).forEach(([type, key]) => {
+        const el = document.getElementById('count-' + type);
+        if (el) el.innerText = (JSON.parse(localStorage.getItem(key)) || []).length;
+    });
+    const localNB = (JSON.parse(localStorage.getItem('gazi_local_notebook')) || []).length;
+    const btnLocal = document.getElementById('btn-local-open');
+    if (btnLocal) btnLocal.innerText = `💾 Cihazdan Aç (${localNB})`;
+};
+
 window.showLocalList = (type) => { 
     document.getElementById('library-filter-area').style.display = 'none'; 
+    const reviewHeader = document.getElementById('review-section-header');
+    if (reviewHeader) reviewHeader.style.display = 'none';
+    const startBtn = document.getElementById('start-library-test-btn');
+    if (startBtn) startBtn.style.display = 'none';
     currentListType = type; 
     const keys = { 'wrong': 'kpss_wrongs', 'fav': 'kpss_favs', 'blank': 'kpss_blanks', 'report': 'kpss_reports' }; 
     const titles = { 'wrong': '❌ Yanlışlarım', 'fav': '⭐ Favorilerim', 'blank': '⬜ Boş Bıraktıklarım', 'report': '🚨 Hatalı Bildirdiklerim' }; 
-    document.getElementById('list-title').innerText = titles[type]; 
     const list = JSON.parse(localStorage.getItem(keys[type])) || []; 
+    document.getElementById('list-title').innerText = `${titles[type]} (${list.length})`; 
     const contentDiv = document.getElementById('list-content'); 
     if(list.length === 0) contentDiv.innerHTML = "<p style='text-align:center;'>Bu liste şu an boş.</p>"; 
     else contentDiv.innerHTML = list.map((q, i) => `<div class="list-item"><b>Soru ${i+1}:</b> ${escapeHtml(q.soru)} <br><span style="color:#27ae60; font-weight:bold; font-size:0.9rem;">Cevap: ${escapeHtml(q.siklar ? q.siklar[q.dogru] : 'Bilinmiyor')}</span></div>`).join(''); 
@@ -1654,6 +1776,7 @@ window.finishTrial = () => {
     showScreen('screen-result'); 
     document.getElementById('result-board').innerHTML = `<h3 style="color:#333;">Doğru: ${d} | Yanlış: ${y} | Boş: ${b}</h3><h2>Puan: ${s}</h2>`; 
     confetti({ particleCount: 150 });
+    window.updateLocalListCounts();
 };
 
 function startQuestionTimer(s) { 
