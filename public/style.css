@@ -140,3 +140,6 @@ input[type="checkbox"] { width: auto !important; margin: 0 10px 0 0 !important; 
 .q-box.solved { background: #27ae60; }
 .q-box.active { background: #2980b9; transform: scale(1.1); }
 #question-map-content { flex-wrap: wrap; gap: 4px; padding: 8px; background: #f0f4f8; }
+
+/* BULUT SORU BADGE */
+.cloud-badge { background: #3498db; color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; cursor: help; margin-left: 5px; display: inline-block; }
