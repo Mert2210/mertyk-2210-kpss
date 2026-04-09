@@ -165,33 +165,38 @@ io.on("connection", (socket) => {
             const prompt = `Sen uzman bir eğitimcisin. Aşağıdaki soruyu analiz et, doğru cevabı şıkkıyla belirt ve nedenini çok kısa, net şekilde açıkla: \n\nSoru: ${soruMetni} \nŞıklar: ${siklarText}`;
             const result = await aiModel.generateContent(prompt);
             socket.emit("geminiResponse", result.response.text());
-        } catch (e) { socket.emit("geminiResponse", "⚠️ Gemini AI Hatası: " + e.message); }
+        } catch (e) { socket.emit("geminiResponse", "⚠️ Gemini AI işlenirken bir hata oluştu. Lütfen tekrar deneyin."); }
     });
 
     socket.on("parseImageWithGemini", async ({ imageBase64 }) => {
         try {
             if(geminiApiKey === "ANAHTAR_YOK") { socket.emit("geminiParsedData", "⚠️ Sunucuda API Anahtarı yok."); return; }
+            if (!imageBase64 || typeof imageBase64 !== 'string') { socket.emit("geminiParsedData", "⚠️ Geçersiz görsel verisi."); return; }
             const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, "");
             const imageParts = [{ inlineData: { data: base64Data, mimeType: "image/jpeg" } }];
             const prompt = "Bu bir sınav sorusudur. Resmi analiz et. Soru metnini ve şıkları ayrı ayrı çıkar. Formatın şu olsun:\nSORU_METNI: [soruyu buraya yaz]\nSIKLAR: [A şıkkı] | [B şıkkı] | [C şıkkı] | [D şıkkı] | [E şıkkı]\nDOGRU_INDEKS: [sence doğru cevap hangisiyse 0'dan başlayarak sadece rakam yaz (A=0, B=1...)]";
             const result = await aiModel.generateContent([prompt, ...imageParts]);
             socket.emit("geminiParsedData", result.response.text());
-        } catch(e) { socket.emit("geminiParsedData", "HATA: " + e.message); }
+        } catch(e) { socket.emit("geminiParsedData", "⚠️ Görsel işlenirken bir hata oluştu. Lütfen tekrar deneyin."); }
     });
 
     // 🚨 ADIM 2: İSİMLENDİRİLMİŞ SINIF OLUŞTURMA 🚨
     socket.on("createNamedClass", ({ teacherEmail, className }) => {
+        if (typeof className !== 'string' || typeof teacherEmail !== 'string') return;
+        const safeClassName = className.trim().substring(0, 100);
+        const safeTeacherEmail = teacherEmail.trim().substring(0, 200);
+        if (!safeClassName || !safeTeacherEmail) return;
         const classCode = Math.random().toString(36).substring(2, 8).toUpperCase();
         let classes = {};
         if (fs.existsSync(CLASSES_FILE)) {
             try { classes = JSON.parse(fs.readFileSync(CLASSES_FILE, 'utf8')); } catch (e) { classes = {}; }
         }
-        classes[classCode] = { name: className, teacher: teacherEmail, students: [], createdAt: new Date().toISOString() };
+        classes[classCode] = { name: safeClassName, teacher: safeTeacherEmail, students: [], createdAt: new Date().toISOString() };
         fs.writeFileSync(CLASSES_FILE, JSON.stringify(classes, null, 2));
         
         // Hoca için listeyi tazele
         const teacherClasses = Object.keys(classes)
-            .filter(code => classes[code].teacher === teacherEmail)
+            .filter(code => classes[code].teacher === safeTeacherEmail)
             .map(code => ({ code, name: classes[code].name }));
         socket.emit("teacherClassesData", teacherClasses);
         socket.emit("classCreated", classCode);
@@ -211,15 +216,21 @@ io.on("connection", (socket) => {
     });
 
     socket.on("joinClass", ({ code, studentName }) => {
+        if (typeof code !== 'string' || typeof studentName !== 'string') return socket.emit("classJoined", { success: false });
+        const safeCode = code.trim().toUpperCase().substring(0, 20);
+        const safeName = studentName.trim().substring(0, 100);
+        if (!safeCode || !safeName) return socket.emit("classJoined", { success: false });
         if (fs.existsSync(CLASSES_FILE)) {
-            let classes = JSON.parse(fs.readFileSync(CLASSES_FILE, 'utf8'));
-            if (classes[code]) {
-                if (!classes[code].students.find(s => s.name === studentName)) {
-                    classes[code].students.push({ name: studentName, joinedAt: new Date().toLocaleString('tr-TR') });
-                    fs.writeFileSync(CLASSES_FILE, JSON.stringify(classes, null, 2));
-                }
-                socket.emit("classJoined", { success: true, teacher: classes[code].teacher, code: code });
-            } else { socket.emit("classJoined", { success: false }); }
+            try {
+                let classes = JSON.parse(fs.readFileSync(CLASSES_FILE, 'utf8'));
+                if (classes[safeCode]) {
+                    if (!classes[safeCode].students.find(s => s.name === safeName)) {
+                        classes[safeCode].students.push({ name: safeName, joinedAt: new Date().toLocaleString('tr-TR') });
+                        fs.writeFileSync(CLASSES_FILE, JSON.stringify(classes, null, 2));
+                    }
+                    socket.emit("classJoined", { success: true, teacher: classes[safeCode].teacher, code: safeCode });
+                } else { socket.emit("classJoined", { success: false }); }
+            } catch (e) { socket.emit("classJoined", { success: false }); }
         }
     });
 
@@ -246,12 +257,22 @@ io.on("connection", (socket) => {
     });
 
     socket.on("sendGlobalAlert", (data) => {
-        io.emit("receiveGlobalAlert", { message: data.message, sender: data.sender || "Eğitmen" });
+        if (!data || typeof data !== 'object') return;
+        if (typeof data.message !== 'string' || data.message.trim() === '') return;
+        const safeMessage = data.message.trim().substring(0, 500);
+        const safeSender = typeof data.sender === 'string' ? data.sender.trim().substring(0, 100) : "Eğitmen";
+        io.emit("receiveGlobalAlert", { message: safeMessage, sender: safeSender });
         // Eğer istersen ileride bu duyuruyu bildirim (push) olarak da attırabiliriz:
         // sendPushNotification("global", "📢 " + (data.sender || "Eğitmen"), data.message);
     });
 
     socket.on("addNewQuestion", async (newQ) => {
+        if (!newQ || typeof newQ !== 'object') return;
+        if (typeof newQ.soru !== 'string' || typeof newQ.classCode !== 'string') return;
+        if (newQ.soru.trim() === '' || newQ.classCode.trim() === '') return;
+        const MAX_IMAGE_SIZE = 2 * 1024 * 1024; // 2 MB base64
+        if (newQ.image && (typeof newQ.image !== 'string' || newQ.image.length > MAX_IMAGE_SIZE)) return;
+        if (newQ.solutionImage && (typeof newQ.solutionImage !== 'string' || newQ.solutionImage.length > MAX_IMAGE_SIZE)) return;
         tumSorular.push(newQ);
         fs.writeFileSync(QUESTIONS_FILE, JSON.stringify(tumSorular, null, 2));
         if (db) { try { await db.collection("kpss_sorular").add({ ...newQ, createdAt: admin.firestore.FieldValue.serverTimestamp() }); } catch (e) {} }
@@ -370,6 +391,7 @@ io.on("connection", (socket) => {
     });
 
     socket.on("reportQuestion", (qObj) => {
+        if (!qObj || typeof qObj !== 'object') return;
         let reports = [];
         if (fs.existsSync(REPORTS_FILE)) { try { reports = JSON.parse(fs.readFileSync(REPORTS_FILE, 'utf8')); } catch (e) { reports = []; } }
         reports.push({ ...qObj, reportedAt: new Date().toLocaleString('tr-TR'), reportedBySocket: socket.id });
