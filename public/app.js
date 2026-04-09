@@ -248,13 +248,19 @@ function getStoredJSON(key, fallback) {
             return fallback;
         }
 
-        if (fallback && typeof fallback === 'object' && !Array.isArray(fallback)) {
+        if (fallback !== null && typeof fallback === 'object' && !Array.isArray(fallback)) {
             const isValidObject = parsedValue && typeof parsedValue === 'object' && !Array.isArray(parsedValue);
             if (!isValidObject) {
                 console.warn(`⚠️ '${key}' nesne formatında olmadığı için sıfırlandı.`);
                 localStorage.removeItem(key);
                 return fallback;
             }
+        }
+
+        if (fallback !== null && typeof fallback !== 'object' && typeof parsedValue !== typeof fallback) {
+            console.warn(`⚠️ '${key}' beklenen veri tipinde olmadığı için sıfırlandı.`);
+            localStorage.removeItem(key);
+            return fallback;
         }
 
         return parsedValue;
