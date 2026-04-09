@@ -1411,8 +1411,39 @@ window.startGame = () => {
         classCode: window.myClassCode 
     };
     
-    if (currentMode === 'trial' && socket) socket.emit('startTrial', s); 
-    else if (socket) socket.emit('startGame', { roomCode: myRoom, settings: s });
+    if (currentMode === 'trial' && socket) {
+        socket.emit('startTrial', s);
+    } else if (currentMode === 'trial') {
+        fetch('/questions.json')
+            .then(r => r.json())
+            .then(allQuestions => {
+                let pool = allQuestions;
+                if (s.subject !== "HEPSI" && Array.isArray(s.subject) && s.subject.length > 0) {
+                    pool = pool.filter(q => s.subject.includes(q.ders));
+                }
+                if (s.deneme !== "HEPSI" && Array.isArray(s.deneme) && s.deneme.length > 0) {
+                    pool = pool.filter(q => s.deneme.includes(q.denemeName));
+                }
+                for (let i = pool.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [pool[i], pool[j]] = [pool[j], pool[i]];
+                }
+                const count = parseInt(s.count) || 10;
+                trialQuestions = pool.slice(0, count);
+                if (trialQuestions.length === 0) return alert("Soru bulunamadı!");
+                trialAnswers = new Array(trialQuestions.length).fill(null);
+                currentQIndex = 0;
+                document.getElementById('trial-nav-buttons').style.display = 'flex';
+                document.getElementById('btn-finish-trial').style.display = 'block';
+                showScreen('screen-game');
+                renderQuestionMap(trialQuestions.length, 0, []);
+                openMap();
+                renderTrialQuestion();
+            })
+            .catch(() => alert("Sorular yüklenemedi. İnternet bağlantınızı kontrol edin."));
+    } else if (socket) {
+        socket.emit('startGame', { roomCode: myRoom, settings: s });
+    }
 };
 
 if(socket) {
