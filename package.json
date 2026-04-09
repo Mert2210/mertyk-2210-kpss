@@ -4,7 +4,8 @@
   "description": "Gazililer Yanlış Soru Kumbaram - Akıllı Tekrar ve Sınıf Sistemi",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "test": "node --test"
   },
   "dependencies": {
     "@google/generative-ai": "^0.11.0",
