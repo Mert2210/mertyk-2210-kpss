@@ -592,6 +592,23 @@ onAuthStateChanged(auth, user => {
 
 window.logout = () => signOut(auth).then(() => location.reload());
 
+function escapeHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function safeImageSrc(src) {
+    if (typeof src !== 'string') return '';
+    if (/^data:image\/(jpeg|png|gif|webp);base64,/.test(src)) return src;
+    if (/^https?:\/\//.test(src)) return src;
+    return '';
+}
+
 let socket; 
 try { socket = io(); } catch(e) { console.warn("Socket sunucusu yok."); }
 let currentMode = "room", myRoom = "", currentQIndex = 0, qInt = null, totalInt = null, trialQuestions = [], trialAnswers = [];
@@ -633,14 +650,14 @@ if(socket) {
         const dersContent = document.getElementById('ders-content');
         if (dersContent && data.dersler) { 
             dersContent.innerHTML = `<div class="checkbox-item"><input type="checkbox" name="ders-secim" value="HEPSI" checked onchange="updateFilterText('ders')"><label>TÜMÜ</label></div>` + 
-            data.dersler.map(x => `<div class="checkbox-item"><input type="checkbox" name="ders-secim" value="${x}" onchange="updateFilterText('ders')"><label>${x}</label></div>`).join(''); 
+            data.dersler.map(x => `<div class="checkbox-item"><input type="checkbox" name="ders-secim" value="${escapeHtml(x)}" onchange="updateFilterText('ders')"><label>${escapeHtml(x)}</label></div>`).join(''); 
             updateFilterText('ders'); 
         }
         const denemeContent = document.getElementById('deneme-content');
         if (denemeContent && data.denemeler) { 
             const denemeKeys = Object.keys(data.denemeler); 
             denemeContent.innerHTML = `<div class="checkbox-item"><input type="checkbox" name="deneme-secim" value="HEPSI" checked onchange="updateFilterText('deneme')"><label>TÜMÜ</label></div>` + 
-            denemeKeys.map(x => `<div class="checkbox-item"><input type="checkbox" name="deneme-secim" value="${x}" onchange="updateFilterText('deneme')"><label>${x}</label></div>`).join(''); 
+            denemeKeys.map(x => `<div class="checkbox-item"><input type="checkbox" name="deneme-secim" value="${escapeHtml(x)}" onchange="updateFilterText('deneme')"><label>${escapeHtml(x)}</label></div>`).join(''); 
             updateFilterText('deneme'); 
         }
     });
@@ -683,10 +700,10 @@ if(socket) {
         } else { 
             histDiv.innerHTML = history.slice(0,10).map(r => `
                 <div class="list-item" style="border-left: 5px solid #2980b9;">
-                    <span style="float:right; color:#666; font-size:0.8rem;">${r.date}</span>
-                    <b style="color:#1e3c72;">Puan: ${r.score}</b> <br>
-                    <small style="color:#27ae60; font-weight:bold;">Doğru: ${r.correct}</small> | 
-                    <small style="color:#c0392b; font-weight:bold;">Yanlış: ${r.wrong}</small>
+                    <span style="float:right; color:#666; font-size:0.8rem;">${escapeHtml(r.date)}</span>
+                    <b style="color:#1e3c72;">Puan: ${escapeHtml(r.score)}</b> <br>
+                    <small style="color:#27ae60; font-weight:bold;">Doğru: ${escapeHtml(r.correct)}</small> | 
+                    <small style="color:#c0392b; font-weight:bold;">Yanlış: ${escapeHtml(r.wrong)}</small>
                 </div>`).join(''); 
         }
         showScreen('screen-stats');
@@ -918,9 +935,9 @@ function populateLibraryFilters(data) {
         if (q.kitap) kitaplar.add(q.kitap); 
     });
     
-    document.getElementById('filter-ders').innerHTML = '<option value="ALL">Tüm Dersler</option>' + Array.from(dersler).map(d => `<option value="${d}">${d}</option>`).join('');
-    document.getElementById('filter-konu').innerHTML = '<option value="ALL">Tüm Konular</option>' + Array.from(konular).map(k => `<option value="${k}">${k}</option>`).join('');
-    document.getElementById('filter-kitap').innerHTML = '<option value="ALL">Tüm Kaynaklar/Kitaplar</option>' + Array.from(kitaplar).map(k => `<option value="${k}">${k}</option>`).join('');
+    document.getElementById('filter-ders').innerHTML = '<option value="ALL">Tüm Dersler</option>' + Array.from(dersler).map(d => `<option value="${escapeHtml(d)}">${escapeHtml(d)}</option>`).join('');
+    document.getElementById('filter-konu').innerHTML = '<option value="ALL">Tüm Konular</option>' + Array.from(konular).map(k => `<option value="${escapeHtml(k)}">${escapeHtml(k)}</option>`).join('');
+    document.getElementById('filter-kitap').innerHTML = '<option value="ALL">Tüm Kaynaklar/Kitaplar</option>' + Array.from(kitaplar).map(k => `<option value="${escapeHtml(k)}">${escapeHtml(k)}</option>`).join('');
 }
 
 function renderStudentLibraryListOnly(data) {
@@ -934,17 +951,17 @@ function renderStudentLibraryListOnly(data) {
             const isLocal = document.getElementById('list-title').innerText.includes("Cihaz");
             return `
             <div class="list-item" style="border: 2px solid #e67e22; background:#fff;">
-                <span style="background:#1e3c72; color:#fff; padding:3px 8px; border-radius:4px; font-size:0.75rem; font-weight:bold;">${q.ders || 'Genel'}</span> 
-                <b style="color:#e67e22; margin-left:5px;">${q.konu}</b><br>
-                <small style="color:#666;"><b>Kaynak:</b> ${q.kitap}</small><br>
-                ${q.not ? `<small><b>Soru Notu:</b> ${q.not}</small><br>` : ''}
-                ${q.image ? `<img src="${q.image}" style="width:100%; border-radius:5px; margin-top:5px;">` : ''}
+                <span style="background:#1e3c72; color:#fff; padding:3px 8px; border-radius:4px; font-size:0.75rem; font-weight:bold;">${escapeHtml(q.ders || 'Genel')}</span> 
+                <b style="color:#e67e22; margin-left:5px;">${escapeHtml(q.konu)}</b><br>
+                <small style="color:#666;"><b>Kaynak:</b> ${escapeHtml(q.kitap)}</small><br>
+                ${q.not ? `<small><b>Soru Notu:</b> ${escapeHtml(q.not)}</small><br>` : ''}
+                ${q.image ? `<img src="${safeImageSrc(q.image)}" style="width:100%; border-radius:5px; margin-top:5px;">` : ''}
                 <div class="abcde-grid" id="std-qbox-${i}">
                     ${['A','B','C','D','E'].map((s, idx) => `<button class="abcde-btn" onclick="checkStdAnswer(this, ${idx}, ${i})">${s}</button>`).join('')}
                 </div>
                 <div id="sol-std-qbox-${i}" style="display:none; margin-top:10px; padding:10px; background:#e8f4f8; border-radius:8px; font-size:0.8rem; color:#333; text-align:left;"></div>
                 <div style="display:flex; gap:5px; margin-top:10px;">
-                    ${q.id ? `<button onclick="updateReviewDate('${q.id}', ${isLocal})" class="outline" style="flex:2; font-size:0.8rem; border-color:#27ae60; color:#27ae60;">✅ Tekrar Ettim (Ertele)</button>` : ''}
+                    ${q.id ? `<button onclick="updateReviewDate(${JSON.stringify(q.id)}, ${isLocal})" class="outline" style="flex:2; font-size:0.8rem; border-color:#27ae60; color:#27ae60;">✅ Tekrar Ettim (Ertele)</button>` : ''}
                     <button onclick="reportQuestionFromLibrary(${i})" class="outline" style="flex:1; font-size:0.8rem; border-color:#c0392b; color:#c0392b;">🚨 Bildir</button>
                 </div>
             </div>`;
@@ -1027,7 +1044,7 @@ window.checkStdAnswer = (btn, selectedIdx, qIndex) => {
     
     const sDiv = document.getElementById('sol-' + boxId); 
     sDiv.style.display = 'block'; 
-    sDiv.innerHTML = `<b>✏️ Çözüm Notu:</b><br>${q.solutionText || 'Yazılı çözüm notu bulunmuyor.'}<br>${q.solutionImage ? `<img src="${q.solutionImage}" style="width:100%; margin-top:5px; border-radius:5px;">` : ''}`; 
+    sDiv.innerHTML = `<b>✏️ Çözüm Notu:</b><br>${escapeHtml(q.solutionText || 'Yazılı çözüm notu bulunmuyor.')}<br>${q.solutionImage ? `<img src="${safeImageSrc(q.solutionImage)}" style="width:100%; margin-top:5px; border-radius:5px;">` : ''}`; 
 };
 
 window.fetchClassQuestions = () => { 
@@ -1055,11 +1072,11 @@ if(socket) {
         
         let html = `<h4 style="color:#27ae60; margin-top:0;">✅ Çözenler</h4>`;
         if(reports.length === 0) html += "<p style='font-size:0.85rem;'>Henüz çözen öğrenci yok.</p>";
-        else html += reports.map(r => `<div class="list-item" style="border-left:4px solid #27ae60;"><b>${r.name}</b> <span style="float:right; color:#27ae60; font-weight:bold;">${r.score} Puan</span></div>`).join('');
+        else html += reports.map(r => `<div class="list-item" style="border-left:4px solid #27ae60;"><b>${escapeHtml(r.name)}</b> <span style="float:right; color:#27ae60; font-weight:bold;">${escapeHtml(r.score)} Puan</span></div>`).join('');
         
         html += `<h4 style="color:#c0392b; margin-top:20px;">💤 Çözmeyenler</h4>`;
         if(notSolved.length === 0) html += "<p style='font-size:0.85rem;'>Sınıf listesi boş veya tüm sınıf görevini tamamlamış!</p>";
-        else html += notSolved.map(name => `<div class="list-item" style="border-left:4px solid #c0392b; color:#666;">${name}</div>`).join('');
+        else html += notSolved.map(name => `<div class="list-item" style="border-left:4px solid #c0392b; color:#666;">${escapeHtml(name)}</div>`).join('');
         
         document.getElementById('list-content').innerHTML = html; 
         showScreen('screen-list');
@@ -1073,10 +1090,10 @@ if(socket) {
         if(data.length === 0) div.innerHTML = "<p style='text-align:center;'>Bu sınıfa ait hata kaydı bulunamadı.</p>"; 
         else div.innerHTML = data.map(m => `
             <div class="list-item" style="border-left: 5px solid #c0392b;">
-                <small style="color:#1e3c72; font-weight:bold;">${m.ders} | ${m.konu}</small><br>
-                <b>Soru Metni:</b> ${m.soru} <br>
+                <small style="color:#1e3c72; font-weight:bold;">${escapeHtml(m.ders)} | ${escapeHtml(m.konu)}</small><br>
+                <b>Soru Metni:</b> ${escapeHtml(m.soru)} <br>
                 <div style="margin-top:5px; background:#fff3f3; padding:5px; border-radius:5px; color:#c0392b; font-weight:bold; font-size:0.85rem;">
-                    ⚠️ Bu soru sınıfta toplam ${m.count} kez yanlış yapıldı!
+                    ⚠️ Bu soru sınıfta toplam ${escapeHtml(m.count)} kez yanlış yapıldı!
                 </div>
             </div>`).join(''); 
         showScreen('screen-list');
@@ -1092,11 +1109,11 @@ if(socket) {
         if(data.length === 0) div.innerHTML = "<p style='text-align:center;'>Kütüphanenizde henüz soru bulunmuyor.</p>"; 
         else div.innerHTML = data.map((q, i) => `
             <div class="list-item" style="border-left: 5px solid #e67e22;">
-                <b>Soru:</b> ${q.soru} <br>
-                <span style="color:#27ae60;"><b>Cevap:</b> ${q.siklar ? q.siklar[q.dogru] : 'Bilinmiyor'}</span> <br>
-                <small>Ders: ${q.ders} | Konu: ${q.deneme}</small><br>
-                ${q.image ? `<img src="${q.image}" style="width:100%; border-radius:5px; margin-top:10px;">` : ''} 
-                ${q.solutionText || q.solutionImage ? `<div style="background:#e8f4f8; padding:8px; border-radius:5px; margin-top:5px; font-size:0.8rem; color:#1e3c72;"><b>👨‍🏫 Çözüm:</b> ${q.solutionText || ''} ${q.solutionImage ? '<br><span style="color:#27ae60;">[Görsel Ekli]</span>' : ''}</div>` : ''} 
+                <b>Soru:</b> ${escapeHtml(q.soru)} <br>
+                <span style="color:#27ae60;"><b>Cevap:</b> ${escapeHtml(q.siklar ? q.siklar[q.dogru] : 'Bilinmiyor')}</span> <br>
+                <small>Ders: ${escapeHtml(q.ders)} | Konu: ${escapeHtml(q.deneme)}</small><br>
+                ${q.image ? `<img src="${safeImageSrc(q.image)}" style="width:100%; border-radius:5px; margin-top:10px;">` : ''} 
+                ${q.solutionText || q.solutionImage ? `<div style="background:#e8f4f8; padding:8px; border-radius:5px; margin-top:5px; font-size:0.8rem; color:#1e3c72;"><b>👨‍🏫 Çözüm:</b> ${escapeHtml(q.solutionText || '')} ${q.solutionImage ? '<br><span style="color:#27ae60;">[Görsel Ekli]</span>' : ''}</div>` : ''} 
                 <button onclick="reportQuestionFromLibrary(${i})" class="outline" style="margin-top:10px; font-size:0.75rem; border-color:#c0392b; color:#c0392b;">🚨 Hatalı Bildir</button>
             </div>`).join(''); 
         showScreen('screen-list'); 
@@ -1113,7 +1130,7 @@ if(socket) {
         document.getElementById('list-title').innerText = "👨‍🏫 Onay Bekleyen Öğretmenler"; 
         const div = document.getElementById('list-content'); 
         if(data.length === 0) div.innerHTML = "<p style='text-align:center;'>Onay bekleyen öğretmen bulunmuyor.</p>"; 
-        else div.innerHTML = data.map((t, i) => `<div class="list-item" style="border-left: 5px solid #8e44ad;"><b>İsim:</b> ${t.name} <br><b>E-posta:</b> ${t.email} <br><button onclick="approveTeacher('${t.email}')" class="green" style="margin-top:5px; padding:5px 10px; font-size:0.8rem; width:auto;">✅ Onayla</button></div>`).join(''); 
+        else div.innerHTML = data.map((t, i) => `<div class="list-item" style="border-left: 5px solid #8e44ad;"><b>İsim:</b> ${escapeHtml(t.name)} <br><b>E-posta:</b> ${escapeHtml(t.email)} <br><button onclick="approveTeacher(${JSON.stringify(t.email)})" class="green" style="margin-top:5px; padding:5px 10px; font-size:0.8rem; width:auto;">✅ Onayla</button></div>`).join(''); 
         showScreen('screen-list'); 
     });
 }
@@ -1179,11 +1196,11 @@ if(socket) {
         
         listDiv.innerHTML = classes.map(c => `
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px; background:rgba(255,255,255,0.1); padding:8px; border-radius:6px;">
-                <span><b>${c.name}</b> (${c.code})</span>
-                <button onclick="copyToClipboard('${c.code}')" style="width:auto; padding:4px 8px; font-size:0.7rem; background:#3498db; border:none; color:white; border-radius:4px; cursor:pointer;">Kopyala</button>
+                <span><b>${escapeHtml(c.name)}</b> (${escapeHtml(c.code)})</span>
+                <button onclick="copyToClipboard(${JSON.stringify(c.code)})" style="width:auto; padding:4px 8px; font-size:0.7rem; background:#3498db; border:none; color:white; border-radius:4px; cursor:pointer;">Kopyala</button>
             </div>`).join('');
         
-        select.innerHTML = '<option value="">--- Sınıf Seçin ---</option>' + classes.map(c => `<option value="${c.code}">${c.name}</option>`).join('');
+        select.innerHTML = '<option value="">--- Sınıf Seçin ---</option>' + classes.map(c => `<option value="${escapeHtml(c.code)}">${escapeHtml(c.name)}</option>`).join('');
     });
 }
 
@@ -1247,7 +1264,7 @@ window.publishAlert = () => {
 
 if(socket) socket.on("receiveGlobalAlert", (data) => { 
     const toast = document.getElementById('notification-toast'); 
-    document.getElementById('toast-message').innerHTML = `<span style="color:#e67e22;">${data.sender}:</span><br>${data.message}`; 
+    document.getElementById('toast-message').innerHTML = `<span style="color:#e67e22;">${escapeHtml(data.sender)}:</span><br>${escapeHtml(data.message)}`; 
     toast.classList.add('show'); 
     setTimeout(() => { toast.classList.remove('show'); }, 6000); 
 });
@@ -1298,7 +1315,7 @@ if(socket) socket.on("allReportsData", (data) => {
     document.getElementById('list-title').innerText = "👑 Merkezi Hata Raporları"; 
     const contentDiv = document.getElementById('list-content'); 
     if(data.length === 0) contentDiv.innerHTML = "<p style='text-align:center;'>Henüz rapor yok.</p>"; 
-    else contentDiv.innerHTML = data.map((q, i) => `<div class="list-item" style="border-left: 5px solid #c0392b;"><b>Soru:</b> ${q.soru} <br><span style="color:#27ae60;"><b>Cevap:</b> ${q.siklar ? q.siklar[q.dogru] : '---'}</span> <br><small style="color:#666;">Tarih: ${q.reportedAt || '---'}</small></div>`).join(''); 
+    else contentDiv.innerHTML = data.map((q, i) => `<div class="list-item" style="border-left: 5px solid #c0392b;"><b>Soru:</b> ${escapeHtml(q.soru)} <br><span style="color:#27ae60;"><b>Cevap:</b> ${escapeHtml(q.siklar ? q.siklar[q.dogru] : '---')}</span> <br><small style="color:#666;">Tarih: ${escapeHtml(q.reportedAt || '---')}</small></div>`).join(''); 
     showScreen('screen-list'); 
 });
 
@@ -1311,7 +1328,7 @@ window.showLocalList = (type) => {
     const list = JSON.parse(localStorage.getItem(keys[type])) || []; 
     const contentDiv = document.getElementById('list-content'); 
     if(list.length === 0) contentDiv.innerHTML = "<p style='text-align:center;'>Bu liste şu an boş.</p>"; 
-    else contentDiv.innerHTML = list.map((q, i) => `<div class="list-item"><b>Soru ${i+1}:</b> ${q.soru} <br><span style="color:#27ae60; font-weight:bold; font-size:0.9rem;">Cevap: ${q.siklar ? q.siklar[q.dogru] : 'Bilinmiyor'}</span></div>`).join(''); 
+    else contentDiv.innerHTML = list.map((q, i) => `<div class="list-item"><b>Soru ${i+1}:</b> ${escapeHtml(q.soru)} <br><span style="color:#27ae60; font-weight:bold; font-size:0.9rem;">Cevap: ${escapeHtml(q.siklar ? q.siklar[q.dogru] : 'Bilinmiyor')}</span></div>`).join(''); 
     showScreen('screen-list'); 
 };
 
@@ -1321,7 +1338,7 @@ window.downloadPDF = () => {
     if(list.length === 0) return alert("Liste boş!"); 
     const win = window.open('', '', 'height=600,width=800'); 
     win.document.write('<html><body style="font-family:sans-serif;"><h2>Gazililer Yanlış Soru Kumbaram</h2><hr>'); 
-    list.forEach((q, i) => win.document.write(`<p><b>Soru ${i+1}:</b> ${q.soru}<br><span style="color:green;">Cevap: ${q.siklar[q.dogru]}</span></p>`)); 
+    list.forEach((q, i) => win.document.write(`<p><b>Soru ${i+1}:</b> ${escapeHtml(q.soru)}<br><span style="color:green;">Cevap: ${escapeHtml(q.siklar[q.dogru])}</span></p>`)); 
     win.document.write('</body></html>'); 
     win.document.close(); 
     win.print(); 
@@ -1504,8 +1521,8 @@ function renderTrialQuestion() {
         solArea.style.display = 'block'; 
         solArea.innerHTML = `
         <div style="margin-top:15px; padding:15px; background:#e8f4f8; border-radius:8px; border: 1px solid #3498db; text-align:left; color:#1e3c72; font-size:0.9rem;">
-            <b>👨‍🏫 Çözüm Notu:</b><br>${currentQObject.solutionText || 'Yazılı açıklama eklenmemiş.'}<br>
-            ${currentQObject.solutionImage ? `<img src="${currentQObject.solutionImage}" style="width:100%; border-radius:5px; margin-top:10px;">` : ''}
+            <b>👨‍🏫 Çözüm Notu:</b><br>${escapeHtml(currentQObject.solutionText || 'Yazılı açıklama eklenmemiş.')}<br>
+            ${currentQObject.solutionImage ? `<img src="${safeImageSrc(currentQObject.solutionImage)}" style="width:100%; border-radius:5px; margin-top:10px;">` : ''}
         </div>`;
     } else { 
         solArea.style.display = 'none'; 
