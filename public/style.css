@@ -175,3 +175,80 @@ input[type="checkbox"] { width: auto !important; margin: 0 10px 0 0 !important; 
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+
+@media (max-width: 768px) {
+    body {
+        padding: 12px 0 calc(16px + env(safe-area-inset-bottom));
+    }
+
+    .container {
+        width: calc(100% - 16px);
+        max-width: 100%;
+        padding: 14px;
+        border-radius: 12px;
+        margin-bottom: 12px;
+    }
+
+    .card-action-bar {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .card-action-btn {
+        width: 100%;
+        font-size: 0.95rem;
+        padding: 12px 10px;
+    }
+
+    .timer-container {
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    #question-navigator {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+
+    .nav-box {
+        width: 100%;
+        max-width: 34px;
+        height: 34px;
+        margin: 0 auto;
+    }
+
+    #notification-toast {
+        top: 12px;
+        right: 8px;
+        left: 8px;
+        max-width: none;
+        width: auto;
+    }
+
+    .action-fab {
+        width: 52px;
+        height: 52px;
+        bottom: calc(14px + env(safe-area-inset-bottom));
+    }
+
+    .fab-right { right: 12px; }
+    .fab-left { left: 12px; }
+}
+
+@media (max-width: 480px) {
+    h1 { font-size: 1.45rem !important; }
+    h2 { font-size: 1.2rem !important; }
+    h3, h4 { font-size: 1rem !important; }
+
+    input, select, button, textarea {
+        font-size: 0.95rem;
+        padding: 11px;
+    }
+
+    .abcde-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .time-options-grid {
+        grid-template-columns: 1fr;
+    }
+}
