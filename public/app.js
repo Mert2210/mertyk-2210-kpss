@@ -18,12 +18,44 @@ const auth = getAuth(app);
 // 🛡️ 1. ZIRH: BİLDİRİM SİSTEMİ ÇÖKME KORUMASI
 let messaging;
 try {
-    // Bildirimleri başlatmayı dene
     messaging = getMessaging(app);
 } catch (e) {
-    // Eğer hata çıkarsa çökme, sadece arka planda bu notu düş ve yola devam et
     console.warn("Bildirim sistemi şu anki bağlantı türünde desteklenmiyor.");
 }
+
+// 🚨 YENİ: FIREBASE BİLDİRİM (MESSAGING) İZNİ VE TOKEN ALMA FONKSİYONU
+window.askNotificationPermission = async () => {
+    if (!('Notification' in window)) {
+        return alert("Cihazınız bildirim sistemini desteklemiyor.");
+    }
+    
+    try {
+        const permission = await Notification.requestPermission();
+        if (permission === 'granted') {
+            if (!messaging) return alert("Bildirim sistemi şu an aktif değil.");
+            
+            // Firebase'den Cihaza Özel Bir Kimlik (Token) İste
+            const currentToken = await getToken(messaging, { 
+                // BURAYA SENİN VAPID ANAHTARINI EKLEDİK
+                vapidKey: "BDX4qn3lgjY4ymc5lCAyJVsF8aOCx7suWf12o9m5tA5WLcOLADHPPYxfGL1plWjOMMB_kgxXIfU1WY1yZgMYbmE" 
+            });
+
+            if (currentToken) {
+                console.log("✅ Bildirim Token'ı Alındı:", currentToken);
+                // Token'ı LocalStorage'a kaydet (daha sonra sunucuya gönderebilirsin)
+                localStorage.setItem('gazi_fcm_token', currentToken);
+                alert("✅ Harika! Bildirimler aktif edildi.");
+            } else {
+                console.warn("Token alınamadı, izin verilmemiş olabilir.");
+            }
+        } else {
+            alert("⚠️ Bildirimlere izin vermediniz.");
+        }
+    } catch (error) {
+        console.error("Bildirim İzni Hatası:", error);
+        alert("Bildirim izni alınırken bir sorun oluştu.");
+    }
+};
 
 // 🚨 YEREL VERİTABANI (INDEXED-DB) YÖNETİCİSİ 🚨
 const LocalDB = {
