@@ -1013,7 +1013,6 @@ window.startLibraryTest = () => {
     trialAnswers = new Array(trialQuestions.length).fill(null); 
     currentQIndex = 0; 
     currentMode = 'trial'; 
-    document.getElementById('question-navigator').innerHTML = '';
     document.getElementById('box-total').style.display = 'none'; 
     document.getElementById('trial-nav-buttons').style.display = 'flex'; 
     document.getElementById('btn-finish-trial').style.display = 'block'; 
@@ -1430,7 +1429,6 @@ if(socket) {
         if(d.timerMode === 'general' && d.index === 1) startTotalTimer(d.duration); 
         if(d.timerMode === 'question') startQuestionTimer(d.duration);
         
-        if(d.index === 1) document.getElementById('question-navigator').innerHTML = '';
         renderNavigator(d.total, currentQIndex, 'room');
         
         d.siklar.forEach((s, i) => {
@@ -1460,8 +1458,7 @@ if(socket) {
         trialQuestions = data.questions || data; 
         if(trialQuestions.length === 0) return alert("Soru bulunamadı!");
         trialAnswers = new Array(trialQuestions.length).fill(null); 
-        currentQIndex = 0;
-        document.getElementById('question-navigator').innerHTML = '';
+        currentQIndex = 0; 
         showScreen('screen-game'); 
         document.getElementById('trial-nav-buttons').style.display = 'flex'; 
         document.getElementById('btn-finish-trial').style.display = 'block';
@@ -1595,45 +1592,28 @@ function startTotalTimer(minutes) {
     }, 1000); 
 }
 
-window.toggleSoruHaritasi = function() {
-    const nav = document.getElementById('question-navigator');
-    const arrow = document.getElementById('map-arrow');
-    nav.classList.toggle('show-map');
-    if (arrow) arrow.textContent = nav.classList.contains('show-map') ? '▲' : '▼';
-};
-
-function renderQuestionMap(total, curr, mode) {
-    const div = document.getElementById('question-navigator');
-    if (div.children.length === 0) {
-        for (let i = 0; i < total; i++) {
-            const b = document.createElement('div');
-            b.id = 'nav-box-' + i;
-            b.className = 'nav-box';
-            b.innerText = i + 1;
-            b.title = `Soru ${i + 1}`;
-            if (mode === 'trial') {
-                b.onclick = () => { currentQIndex = i; renderTrialQuestion(); };
-            }
-            div.appendChild(b);
-        }
-        if (!div.classList.contains('show-map')) {
-            div.classList.add('show-map');
-            const arrow = document.getElementById('map-arrow');
-            if (arrow) arrow.textContent = '▲';
-        }
-    }
-    for (let i = 0; i < total; i++) {
-        const box = document.getElementById('nav-box-' + i);
-        if (!box) continue;
-        box.classList.remove('current', 'answered');
-        if (i === curr) {
-            box.classList.add('current');
-        } else if (mode === 'trial' && trialAnswers[i] !== null) {
-            box.classList.add('answered');
-        }
-    }
-}
-
 function renderNavigator(total, curr, mode) { 
-    renderQuestionMap(total, curr, mode); 
+    const div = document.getElementById('question-navigator'); 
+    if(div.innerHTML === "") { 
+        for(let i=0; i<total; i++) { 
+            const b = document.createElement('div'); 
+            b.id = 'nav-box-'+i; 
+            b.className = 'nav-box'; 
+            b.innerText = i+1; 
+            if(mode === 'trial') b.onclick = () => { currentQIndex = i; renderTrialQuestion(); }; 
+            div.appendChild(b); 
+        } 
+    } 
+    document.querySelectorAll('.nav-box').forEach(x => x.classList.remove('current')); 
+    const cb = document.getElementById('nav-box-' + curr); 
+    if(cb) { 
+        cb.classList.add('current'); 
+        if(mode === 'trial') { 
+            for(let i=0; i<total; i++) { 
+                let box = document.getElementById('nav-box-'+i); 
+                if(trialAnswers[i] !== null) box.classList.add('answered'); 
+                else box.classList.remove('answered'); 
+            } 
+        } 
+    } 
 }
