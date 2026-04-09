@@ -237,10 +237,11 @@ function escapeHtml(text) {
 }
 
 function isValidStoredValue(parsedValue, fallback) {
+    const isPlainObject = parsedValue !== null && typeof parsedValue === 'object' && !Array.isArray(parsedValue);
     if (Array.isArray(fallback)) return Array.isArray(parsedValue);
-    if (fallback === null) return parsedValue === null || (parsedValue !== null && typeof parsedValue === 'object' && !Array.isArray(parsedValue));
+    if (fallback === null) return parsedValue === null || isPlainObject;
     if (fallback !== null && typeof fallback === 'object') {
-        return parsedValue !== null && typeof parsedValue === 'object' && !Array.isArray(parsedValue);
+        return isPlainObject;
     }
     return typeof parsedValue === typeof fallback;
 }
