@@ -236,11 +236,29 @@ function escapeHtml(text) {
     return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
 }
 
+function isValidStoredValue(parsedValue, fallback) {
+    const isPlainObject = parsedValue !== null && typeof parsedValue === 'object' && !Array.isArray(parsedValue);
+    if (Array.isArray(fallback)) return Array.isArray(parsedValue);
+    if (fallback === null) return parsedValue === null || isPlainObject;
+    if (fallback !== null && typeof fallback === 'object') {
+        return isPlainObject;
+    }
+    return typeof parsedValue === typeof fallback;
+}
+
 function getStoredJSON(key, fallback) {
     try {
         const rawValue = localStorage.getItem(key);
         if (!rawValue) return fallback;
-        return JSON.parse(rawValue);
+        const parsedValue = JSON.parse(rawValue);
+
+        if (!isValidStoredValue(parsedValue, fallback)) {
+            console.warn(`⚠️ '${key}' beklenen formatta olmadığı için sıfırlandı.`);
+            localStorage.removeItem(key);
+            return fallback;
+        }
+
+        return parsedValue;
     } catch (error) {
         console.warn(`⚠️ '${key}' verisi bozuk olduğu için sıfırlandı.`);
         localStorage.removeItem(key);
@@ -1218,6 +1236,7 @@ window.fetchStudentLibrary = async (source = 'cloud', onlyReviews = false) => {
 
         } else {
             let localData = await window.LocalDB.getAllQuestions();
+            if (!Array.isArray(localData)) localData = [];
             
             if(onlyReviews) {
                 const now = Date.now();
@@ -1275,11 +1294,12 @@ window.populateLibraryFilters = (data) => {
 };
 
 window.renderStudentLibraryListOnly = (data) => {
-    window.tempStdQuestions = data; 
+    const safeData = Array.isArray(data) ? data : [];
+    window.tempStdQuestions = safeData; 
     const div = document.getElementById('list-content');
     if (!div) return;
     
-    if(!data || data.length === 0) { 
+    if(safeData.length === 0) { 
         div.innerHTML = `
         <div style="text-align:center; padding:30px; background:#fff3f3; border-radius:10px; border:2px dashed #e74c3c; margin-top:20px;">
             <h1 style="font-size:3rem; margin:0;">📭</h1>
@@ -1290,7 +1310,7 @@ window.renderStudentLibraryListOnly = (data) => {
         const listTitleEl = document.getElementById('list-title');
         const isLocal = listTitleEl ? listTitleEl.innerText.includes("Cihaz") : false;
 
-        div.innerHTML = data.map((q, i) => `
+        div.innerHTML = safeData.map((q, i) => `
         <div class="list-item" style="border: 2px solid #e67e22; background:#fff; margin-bottom:10px; padding: 15px; border-radius: 8px;">
             <span style="background:#1e3c72; color:#fff; padding:3px 8px; border-radius:4px; font-size:0.75rem; font-weight:bold;">${q.ders || 'Genel'}</span> 
             <b style="color:#e67e22; margin-left:5px;">${q.konu || ''}</b><br>
@@ -1311,7 +1331,8 @@ window.renderStudentLibraryListOnly = (data) => {
 
 window.renderStudentLibraryHTML = (data, title) => { 
     try {
-        window.originalStdQuestions = data; 
+        const safeData = Array.isArray(data) ? data : [];
+        window.originalStdQuestions = safeData; 
         window.currentListType = "student_library"; 
         
         const titleEl = document.getElementById('list-title');
@@ -1320,8 +1341,8 @@ window.renderStudentLibraryHTML = (data, title) => {
         const filterArea = document.getElementById('library-filter-area');
         if(filterArea) filterArea.style.display = 'block'; 
         
-        window.populateLibraryFilters(data); 
-        window.renderStudentLibraryListOnly(data); 
+        window.populateLibraryFilters(safeData); 
+        window.renderStudentLibraryListOnly(safeData); 
         window.showScreen('screen-list'); 
     } catch (e) {
         alert("Ekrana çizim yapılırken hata oluştu: " + e.message);
