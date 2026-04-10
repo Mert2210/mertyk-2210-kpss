@@ -2,7 +2,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebas
 import { getAuth, onAuthStateChanged, updateProfile, updatePassword, EmailAuthProvider, reauthenticateWithCredential, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInAnonymously, signOut, GoogleAuthProvider, signInWithPopup, sendEmailVerification, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-messaging.js";
 
-const firebaseConfig = { 
+const fallbackFirebaseConfig = { 
     apiKey: "AIzaSyDkZI-LxCOaog4kyb4YSquEK6ZpLNH2pqs", 
     authDomain: "kpss-genel-kultur-soru-havuzu.firebaseapp.com", 
     projectId: "kpss-genel-kultur-soru-havuzu", 
@@ -11,6 +11,12 @@ const firebaseConfig = {
     appId: "1:435941343639:web:3ce323e0f8386d796c04d2",
     measurementId: "G-CMLQJ746WT"
 };
+
+const runtimeConfig = window.__APP_CONFIG__ || {};
+const runtimeFirebase = runtimeConfig.firebaseConfig || {};
+const firebaseConfig = runtimeFirebase.apiKey
+    ? { ...fallbackFirebaseConfig, ...runtimeFirebase }
+    : fallbackFirebaseConfig;
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -673,6 +679,24 @@ window.handleGoogleLogin = async () => {
     } 
 };
 
+async function syncSocketUserContext(user, role, name) {
+    if (!socket) return;
+    try {
+        const idToken = user && !user.isAnonymous ? await user.getIdToken() : null;
+        socket.emit("setUserContext", {
+            idToken,
+            fallbackRole: role || "student",
+            fallbackName: name || "Kullanıcı"
+        });
+    } catch (e) {
+        socket.emit("setUserContext", {
+            idToken: null,
+            fallbackRole: role || "student",
+            fallbackName: name || "Kullanıcı"
+        });
+    }
+}
+
 onAuthStateChanged(auth, user => {
     const adminBtn = document.getElementById('admin-report-btn'); 
     const adminApproveBtn = document.getElementById('admin-approve-btn'); 
@@ -690,6 +714,7 @@ onAuthStateChanged(auth, user => {
         const nameParts = nameFromAuth.split('|'); 
         const realName = nameParts[0]; 
         const role = nameParts[1] || "student";
+        APP_STATE.currentUser = { name: realName, role, email: user.email || "" };
         
         document.getElementById('display-user').innerText = "Hoş Geldin, " + realName; 
         document.getElementById('profile-new-name').value = realName;
@@ -713,6 +738,7 @@ onAuthStateChanged(auth, user => {
         }
 
         if(typeof socket !== 'undefined') {
+            syncSocketUserContext(user, role, realName);
             if (isTeacher) socket.emit("getTeacherClass", user.email);
             socket.emit("getFilters", window.myClassCode || "");
             if (!isTeacher) socket.emit("checkNotebookReviews", realName);
@@ -752,6 +778,7 @@ onAuthStateChanged(auth, user => {
         if (!isTeacher) window.updateLocalListCounts();
 
     } else { 
+        APP_STATE.currentUser = { name: "", role: "guest", email: "" };
         window.showScreen('screen-auth'); 
     }
 });
@@ -777,6 +804,14 @@ function safeImageSrc(src) {
 
 let socket; 
 try { socket = io(); } catch(e) { console.warn("Socket sunucusu yok."); }
+
+const APP_STATE = {
+    currentUser: { name: "", role: "guest", email: "" },
+    room: { code: "", mode: "room" },
+    quiz: { index: 0, total: 0, timerMode: "question" },
+    activeListType: ""
+};
+
 let currentMode = "room", myRoom = "", currentQIndex = 0, qInt = null, totalInt = null, trialQuestions = [], trialAnswers = [];
 let roomSolvedIndices = new Set(), roomTotalQuestions = 0;
 let currentQObject = null, currentListType = "", selectedTimerMode = "question";
@@ -827,6 +862,10 @@ if(socket) {
             denemeKeys.map(x => `<div class="checkbox-item"><input type="checkbox" name="deneme-secim" value="${escapeHtml(x)}" onchange="updateFilterText('deneme')"><label>${escapeHtml(x)}</label></div>`).join(''); 
             updateFilterText('deneme'); 
         }
+    });
+    socket.on("errorMsg", (msg) => {
+        const safeMsg = typeof msg === "string" && msg.trim() ? msg : "İşlem sırasında bir hata oluştu.";
+        alert(`⚠️ ${safeMsg}`);
     });
 }
 
@@ -1516,6 +1555,24 @@ if(socket) {
         }
         renderTeacherClasses(classes);
     });
+    socket.on("evaluationData", (payload) => {
+        const reports = Array.isArray(payload?.reports) ? payload.reports : [];
+        const averageScore = Number(payload?.averageScore) || 0;
+        const board = document.getElementById('eval-content') || document.getElementById('list-content');
+        if (!board) return;
+        board.innerHTML = `
+            <div class="list-item" style="border-left:5px solid #2980b9;">
+                <b>📊 Ortalama Puan:</b> ${averageScore}<br>
+                <small>Toplam kayıt: ${reports.length}</small>
+            </div>
+        ` + reports.slice(0, 20).map(r => `
+            <div class="list-item">
+                <b>${escapeHtml(r.name || 'Öğrenci')}</b>
+                <span style="float:right; color:#27ae60; font-weight:bold;">${escapeHtml(String(r.score || 0))} Puan</span>
+                <br><small>${escapeHtml(r.date || '-')}</small>
+            </div>
+        `).join('');
+    });
 }
 
 function renderTeacherClasses(classes) {
@@ -1699,6 +1756,7 @@ window.downloadPDF = () => {
 
 window.goToLobby = (mode) => {
     currentMode = mode;
+    APP_STATE.room.mode = mode;
     const realName = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "").trim() || "Gazi Adayı"; 
     if (mode === 'room' && socket) { 
         socket.emit('createRoom', { username: realName }); 
@@ -1730,7 +1788,7 @@ window.onSourceChange = () => {
 };
 
 if(socket) {
-    socket.on('roomCreated', c => { myRoom = c; document.getElementById('lobby-room-code').innerText = c; });
+    socket.on('roomCreated', c => { myRoom = c; APP_STATE.room.code = c; document.getElementById('lobby-room-code').innerText = c; });
     socket.on('updatePlayerList', p => { 
         const l = document.getElementById('lobby-players-list'); 
         if(l) l.innerHTML = p.map(x => `<span class="player-badge">${x.username}</span>`).join(''); 
@@ -1849,6 +1907,9 @@ if(socket) {
         currentQObject = d; 
         document.getElementById('opts-area').innerHTML = ""; 
         currentQIndex = d.index - 1; 
+        APP_STATE.quiz.index = currentQIndex;
+        APP_STATE.quiz.total = d.total || 0;
+        APP_STATE.quiz.timerMode = d.timerMode || "question";
         document.getElementById('q-text').innerText = d.soru;
         
         const imgDisp = document.getElementById('q-image-display'); 
