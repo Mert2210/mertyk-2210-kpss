@@ -447,7 +447,7 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js').then(() => console.log("PWA Aktif."));
 }
 
-const BOTTOM_NAV_SCREENS = new Set(['screen-main', 'screen-settings', 'screen-gelisim', 'screen-friends', 'screen-stats', 'screen-list']);
+const BOTTOM_NAV_SCREENS = new Set(['screen-main', 'screen-settings', 'screen-gelisim', 'screen-friends', 'screen-stats', 'screen-list', 'screen-teacher']);
 const NAV_ITEM_MAP = {
     'screen-main': 'nav-ev',
     'screen-settings': null, // set dynamically by mode
@@ -455,6 +455,18 @@ const NAV_ITEM_MAP = {
     'screen-friends': 'nav-arkadaslar',
     'screen-stats': 'nav-gelisim',
     'screen-list': 'nav-gelisim',
+    'screen-teacher': 'nav-ogretmen',
+};
+let activeNavRole = 'student';
+
+window.applyRoleBasedBottomNav = (role = 'student') => {
+    activeNavRole = role === 'teacher' ? 'teacher' : 'student';
+    document.querySelectorAll('.student-only').forEach((el) => {
+        el.style.display = activeNavRole === 'student' ? 'flex' : 'none';
+    });
+    document.querySelectorAll('.teacher-only').forEach((el) => {
+        el.style.display = activeNavRole === 'teacher' ? 'flex' : 'none';
+    });
 };
 
 window.showScreen = (id) => { 
@@ -483,12 +495,18 @@ window.openProfilePanel = () => {
 };
 
 window.openDerslerimPanel = () => {
+    if (activeNavRole !== 'student') return;
     const settingsEl = document.getElementById('screen-settings');
     settingsEl.classList.remove('profile-mode');
     settingsEl.classList.add('derslerim-mode');
     document.getElementById('settings-screen-title').textContent = '📚 Derslerim';
     NAV_ITEM_MAP['screen-settings'] = 'nav-derslerim';
     window.openSettingsPanel();
+};
+
+window.openTeacherPanel = () => {
+    if (activeNavRole !== 'teacher') return;
+    window.showScreen('screen-teacher');
 };
 
 window.openGelisimPanel = () => {
@@ -793,6 +811,17 @@ onAuthStateChanged(auth, user => {
         if (studentLibPanel) studentLibPanel.style.display = isTeacher ? "none" : "block";
         if (adminBtn) adminBtn.style.display = isAdmin ? "block" : "none";
         if (adminApproveBtn) adminApproveBtn.style.display = isAdmin ? "block" : "none";
+        window.applyRoleBasedBottomNav(isTeacher ? 'teacher' : 'student');
+
+        if (isTeacher) {
+            const settingsEl = document.getElementById('screen-settings');
+            settingsEl.classList.remove('derslerim-mode');
+            settingsEl.classList.add('profile-mode');
+            document.getElementById('settings-screen-title').textContent = '👤 Profil & Ayarlar';
+            NAV_ITEM_MAP['screen-settings'] = 'nav-profil';
+        } else if (!NAV_ITEM_MAP['screen-settings']) {
+            NAV_ITEM_MAP['screen-settings'] = 'nav-derslerim';
+        }
 
         const stdClassCode = localStorage.getItem("gazi_class_code");
         if(stdClassCode && !isTeacher) { 

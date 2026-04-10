@@ -273,7 +273,10 @@
         <button onclick="goToLobby('trial')" class="purple">📝 Hızlı Deneme (Offline)</button>
         <button onclick="goToLobby('room')" class="orange" style="margin-top:10px;">🏠 Oda Kur / Katıl</button>
         
-        <div id="instructor-panel" style="display:none;">
+    </div>
+
+    <div id="screen-teacher" class="screen">
+        <div id="instructor-panel" class="content-card" style="display:none;">
             <h4 style="margin:0 0 10px 0;">📢 Eğitmen Kontrol Merkezi</h4>
             
             <div style="background:rgba(255,255,255,0.1); padding:12px; border-radius:10px; margin-bottom:15px; border:1px solid rgba(255,255,255,0.2);">
@@ -359,8 +362,6 @@
                 </div>
             </div>
         </div>
-
-        </div>
     </div>
 
     <div id="screen-settings" class="screen">
@@ -368,7 +369,7 @@
             <h3 id="settings-screen-title" style="margin:0; color:#8e44ad;">⚙️ Çalışma Masam</h3>
             <button onclick="window.showScreen('screen-main')" class="outline" style="width:auto; padding:8px; font-size:0.8rem;">⬅️ İptal</button>
         </div>
-        <div style="background:#fdfdfd; padding:20px; border-radius:12px; text-align:left; border: 1px solid #ddd; box-shadow:0 10px 25px rgba(0,0,0,0.05);">
+        <div class="content-card" style="background:#fdfdfd; padding:20px; border-radius:12px; text-align:left; border: 1px solid #ddd; box-shadow:0 10px 25px rgba(0,0,0,0.05);">
             <div class="settings-profile-section">
                 <h4 style="color:#1e3c72; border-bottom:2px solid #eee; padding-bottom:8px; margin-top:0;">👤 Hesap Bilgileri</h4>
                 <input type="text" id="profile-new-name" placeholder="Kullanıcı Adı / İsim" style="background:#f1f2f6;">
@@ -410,7 +411,7 @@
     <div id="screen-gelisim" class="screen">
         <h2 style="color:#1e3c72; margin-top:0;">📊 Gelişim & Takip</h2>
         <button onclick="fetchMyStats()" class="blue" style="margin-bottom:15px; width:100%; padding:15px; font-size:1rem;">📊 Gelişim Raporum (Karnem)</button>
-        <div style="background: rgba(0,0,0,0.03); padding: 15px; border-radius: 10px;">
+        <div class="content-card" style="background: rgba(0,0,0,0.03); padding: 15px; border-radius: 10px;">
             <h4 style="margin: 0 0 10px 0; text-align: left; color:#333;">Yerel İzleme Listelerim</h4>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
                 <button onclick="showLocalList('wrong')" class="red" style="font-size:0.85rem;" id="btn-local-wrong">❌ Yanlışlar (<span id="count-wrong">0</span>)</button>
@@ -575,9 +576,13 @@
         <span class="nav-icon">👥</span>
         <span class="nav-label">Arkadaşlarım</span>
     </div>
-    <div class="nav-item" id="nav-derslerim" onclick="openDerslerimPanel()">
+    <div class="nav-item student-only" id="nav-derslerim" onclick="openDerslerimPanel()">
         <span class="nav-icon">📚</span>
         <span class="nav-label">Derslerim</span>
+    </div>
+    <div class="nav-item teacher-only" id="nav-ogretmen" style="display:none;" onclick="openTeacherPanel()">
+        <span class="nav-icon">👨‍🏫</span>
+        <span class="nav-label">Öğretmen</span>
     </div>
     <div class="nav-item nav-home" id="nav-ev" onclick="showScreen('screen-main')">
         <span class="nav-icon">🏠</span>
