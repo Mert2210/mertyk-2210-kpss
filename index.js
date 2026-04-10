@@ -21,7 +21,7 @@ const server = http.createServer(app);
 const adminEmailsFromEnv = process.env.ADMIN_EMAILS || process.env.ADMIN_EMAIL || "";
 const ADMIN_EMAILS = adminEmailsFromEnv
     .split(",")
-    .map((x) => x.trim().toLocaleLowerCase("tr"))
+    .map((x) => x.trim().toLowerCase())
     .filter(Boolean);
 if (ADMIN_EMAILS.length === 0) {
     console.warn("⚠️ ADMIN_EMAILS (veya ADMIN_EMAIL) tanımlı değil. Yönetici işlemleri devre dışı kalacaktır.");
@@ -203,7 +203,7 @@ io.on("connection", (socket) => {
             const userRecord = await admin.auth().getUser(decoded.uid);
             const displayName = userRecord.displayName || "";
             const roleFromName = (displayName.split("|")[1] || "student").trim();
-            const email = (userRecord.email || "").toLocaleLowerCase("tr");
+            const email = (userRecord.email || "").toLowerCase();
             const isAdmin = ADMIN_EMAILS.includes(email);
             socket.data.user = {
                 uid: decoded.uid,
