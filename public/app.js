@@ -761,7 +761,7 @@ window.handleGoogleLogin = async () => {
             window.showScreen('screen-main');
         }
     } catch(e) {
-        const fallbackToRedirect = ['auth/popup-blocked', 'auth/cancelled-popup-request', 'auth/operation-not-supported-in-this-environment'].includes(e?.code);
+        const fallbackToRedirect = ['auth/popup-blocked', 'auth/operation-not-supported-in-this-environment'].includes(e?.code);
         if (fallbackToRedirect) {
             await signInWithRedirect(auth, provider);
             return;
