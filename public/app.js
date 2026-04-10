@@ -819,7 +819,7 @@ onAuthStateChanged(auth, user => {
             settingsEl.classList.add('profile-mode');
             document.getElementById('settings-screen-title').textContent = '👤 Profil & Ayarlar';
             NAV_ITEM_MAP['screen-settings'] = 'nav-profil';
-        } else if (!NAV_ITEM_MAP['screen-settings']) {
+        } else {
             NAV_ITEM_MAP['screen-settings'] = 'nav-derslerim';
         }
 
