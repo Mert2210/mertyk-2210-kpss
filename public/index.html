@@ -229,7 +229,15 @@
                         </div>
                     </div>
 
+                    <button type="button" class="outline" style="font-size:0.8rem; padding:8px; margin-bottom:8px; border-color:#8e44ad; color:#8e44ad;" onclick="window.toggleReadySourcesPanel()">🗂️ Kayıtlı Hazır Kaynakçalarım</button>
+                    <div id="ready-sources-panel" class="hidden-panel" style="background:#faf7ff; border:1px solid #d7c5f5; border-radius:8px; padding:8px; margin-bottom:10px;">
+                        <div id="ready-sources-list" class="ready-source-list"></div>
+                    </div>
+
                     <input type="text" id="std-q-kitap" placeholder="Kitap / Kaynak / Test No (Örn: Yargı TG-1)">
+                    <button type="button" class="outline" style="font-size:0.8rem; padding:8px; margin-bottom:8px; border-color:#9b59b6; color:#9b59b6;" onclick="document.getElementById('std-source-image-file').click()">🖼️ Kaynakça Resmi Ekle (İsteğe Bağlı)</button>
+                    <input type="file" id="std-source-image-file" accept="image/*" style="display:none;" onchange="processStudentImageUpload(event, 'source')">
+                    <img id="std-source-image-preview" src="" style="width:100%; max-height:130px; object-fit:contain; display:none; margin-bottom:10px; border-radius:8px; border: 2px dashed #9b59b6;">
                     <textarea id="std-q-text" placeholder="Soru metni veya kendine notun..."></textarea>
                     
                     <div style="background: #e8f4f8; padding: 12px; border-radius: 8px; margin-bottom:10px; border: 1px dashed #3498db;">
@@ -402,18 +410,7 @@
             <h4 style="color:#1e3c72; border-bottom:2px solid #eee; padding-bottom:8px; margin-top:20px;">📚 Sorumlu Olduğunuz Dersler</h4>
             <p style="font-size:0.75rem; color:#666; margin-top:0;">Dersleri seçip yanlarına çalışacağınız alt konuları belirtebilirsiniz.</p>
             
-            <div id="profile-subjects-area" style="max-height: 250px; overflow-y:auto; background:#fff; padding:8px; border-radius:8px; border:1px solid #ddd;">
-                <div class="subject-row"><input type="checkbox" id="subj-tarih" value="Tarih"><label for="subj-tarih">Tarih</label><input type="text" id="topic-tarih" placeholder="Alt Konu"></div>
-                <div class="subject-row"><input type="checkbox" id="subj-cografya" value="Coğrafya"><label for="subj-cografya">Coğrafya</label><input type="text" id="topic-cografya" placeholder="Alt Konu"></div>
-                <div class="subject-row"><input type="checkbox" id="subj-vatandaslik" value="Vatandaşlık"><label for="subj-vatandaslik">Vatandaşlık</label><input type="text" id="topic-vatandaslik" placeholder="Alt Konu"></div>
-                <div class="subject-row"><input type="checkbox" id="subj-matematik" value="Matematik"><label for="subj-matematik">Matematik</label><input type="text" id="topic-matematik" placeholder="Alt Konu"></div>
-                <div class="subject-row"><input type="checkbox" id="subj-turkce" value="Türkçe"><label for="subj-turkce">Türkçe</label><input type="text" id="topic-turkce" placeholder="Alt Konu"></div>
-                <div class="subject-row"><input type="checkbox" id="subj-egitim" value="Eğitim Bilimleri"><label for="subj-egitim">Eğitim Bil.</label><input type="text" id="topic-egitim" placeholder="Alt Konu"></div>
-                <div class="subject-row"><input type="checkbox" id="subj-fizik" value="Fizik"><label for="subj-fizik">Fizik</label><input type="text" id="topic-fizik" placeholder="Alt Konu"></div>
-                <div class="subject-row"><input type="checkbox" id="subj-kimya" value="Kimya"><label for="subj-kimya">Kimya</label><input type="text" id="topic-kimya" placeholder="Alt Konu"></div>
-                <div class="subject-row"><input type="checkbox" id="subj-biyoloji" value="Biyoloji"><label for="subj-biyoloji">Biyoloji</label><input type="text" id="topic-biyoloji" placeholder="Alt Konu"></div>
-                <div class="subject-row"><input type="checkbox" id="subj-fen" value="Fen Bilimleri"><label for="subj-fen">Fen Bilimleri</label><input type="text" id="topic-fen" placeholder="Alt Konu"></div>
-            </div>
+            <div id="profile-subjects-area" style="max-height: 250px; overflow-y:auto; background:#fff; padding:8px; border-radius:8px; border:1px solid #ddd;"></div>
 
             <button onclick="saveProfileSettings()" class="green" style="margin-top:20px; width:100%; padding:15px; font-size:1.1rem; border-radius:10px;">💾 Masamı ve Ayarlarımı Kaydet</button>
         </div>
