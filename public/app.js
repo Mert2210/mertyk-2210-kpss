@@ -454,7 +454,7 @@ const NAV_ITEM_MAP = {
     'screen-gelisim': 'nav-gelisim',
     'screen-friends': 'nav-arkadaslar',
     'screen-stats': 'nav-gelisim',
-    'screen-list': null,
+    'screen-list': 'nav-gelisim',
 };
 
 window.showScreen = (id) => { 
