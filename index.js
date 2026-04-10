@@ -454,6 +454,15 @@ io.on("connection", (socket) => {
         } else { socket.emit("studentLibraryData", []); }
     });
 
+    socket.on("getStudentLibraryCount", async ({ studentName }) => {
+        if(db && studentName) {
+            try {
+                const snap = await db.collection("student_questions").where("studentName", "==", studentName).get();
+                socket.emit("studentLibraryCountData", snap.size);
+            } catch(e) { socket.emit("studentLibraryCountData", 0); }
+        } else { socket.emit("studentLibraryCountData", 0); }
+    });
+
     socket.on("updateReviewDate", async ({ questionId, additionalDays }) => {
         const safeDays = Number(additionalDays);
         if (!Number.isFinite(safeDays) || safeDays <= 0) return socket.emit("errorMsg", "Geçerli bir erteleme süresi seçin.");

@@ -1487,6 +1487,13 @@ if(socket) {
             }
         }
     });
+
+    socket.on("studentLibraryCountData", (count) => {
+        const el = document.getElementById('count-cloud');
+        if (el) el.innerText = count || 0;
+        // Takvim rozetini güncelle (bulut verileri de dahil)
+        updateCalendarBadge();
+    });
     
     socket.on("pendingTeachersData", (data) => { 
         currentListType = "admin_approval"; 
@@ -1661,7 +1668,27 @@ if(socket) socket.on("receiveGlobalAlert", (data) => {
     const toast = document.getElementById('notification-toast'); 
     document.getElementById('toast-message').innerHTML = `<span style="color:#e67e22;">${escapeHtml(data.sender)}:</span><br>${escapeHtml(data.message)}`; 
     toast.classList.add('show'); 
-    setTimeout(() => { toast.classList.remove('show'); }, 6000); 
+    setTimeout(() => { toast.classList.remove('show'); }, 6000);
+
+    // Duyuruyu localStorage'a kaydet
+    const announcements = JSON.parse(localStorage.getItem('gazi_announcements') || '[]');
+    announcements.unshift({ sender: data.sender, message: data.message, time: Date.now(), read: false });
+    if (announcements.length > 50) announcements.splice(50);
+    localStorage.setItem('gazi_announcements', JSON.stringify(announcements));
+    updateAnnounceBadge();
+
+    // Push bildirimi gönder (izin varsa)
+    if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+        try {
+            navigator.serviceWorker.ready.then(reg => {
+                reg.showNotification(`📢 ${escapeHtml(data.sender)}`, {
+                    body: data.message,
+                    icon: '/icon-192.png',
+                    badge: '/icon-192.png'
+                });
+            });
+        } catch(e) {}
+    }
 });
 
 function saveToLocal(key, qObj) { 
@@ -1723,6 +1750,15 @@ window.updateLocalListCounts = () => {
     const localNB = (JSON.parse(localStorage.getItem('gazi_local_notebook')) || []).length;
     const btnLocal = document.getElementById('btn-local-open');
     if (btnLocal) btnLocal.innerText = `💾 Cihazdan Aç (${localNB})`;
+
+    // Bulut arşiv sayısını sunucudan iste
+    if (socket) {
+        const studentName = document.getElementById('display-user')?.innerText.replace("Hoş Geldin, ", "").trim() || "Gazi Adayı";
+        socket.emit("getStudentLibraryCount", { studentName });
+    }
+
+    // Takvim rozeti güncelle (yerel + tarihli sorular)
+    updateCalendarBadge();
 };
 
 window.showLocalList = (type) => { 
@@ -1825,6 +1861,35 @@ window.startGame = () => {
 
     // Yerel kaynaklardan (Yanlışlarım, Boşlarım, Hata Defteri) doğrudan başlat
     if (currentMode === 'trial' && source !== 'sistem') {
+        // Bulut kumbara kaynağı için sunucudan soruları al, sonra başlat
+        if (source === 'cloud') {
+            if (!socket) return alert("Bulut kumbarasına erişmek için internet bağlantısı gerekiyor.");
+            const studentName = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "").trim() || "Gazi Adayı";
+            const count = parseInt(document.getElementById('set-count').value) || 10;
+            socket.emit("getStudentLibrary", { studentName, onlyReviews: false });
+            socket.once("studentLibraryData", (data) => {
+                if (!data || data.length === 0) return alert("☁️ Bulut Kumbaranız şu an boş! Önce soru ekleyin.");
+                let pool = [...data];
+                for (let i = pool.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [pool[i], pool[j]] = [pool[j], pool[i]];
+                }
+                trialQuestions = pool.slice(0, count);
+                trialAnswers = new Array(trialQuestions.length).fill(null);
+                currentQIndex = 0;
+                currentMode = 'trial';
+                document.getElementById('box-total').style.display = 'none';
+                document.getElementById('box-question').style.display = 'none';
+                document.getElementById('trial-nav-buttons').style.display = 'flex';
+                document.getElementById('btn-finish-trial').style.display = 'block';
+                showScreen('screen-game');
+                renderQuestionMap(trialQuestions.length, 0, []);
+                openMap();
+                renderTrialQuestion();
+            });
+            return;
+        }
+
         const sourceKeys = { 'yanlis': 'kpss_wrongs', 'bos': 'kpss_blanks', 'local': 'gazi_local_notebook' };
         const sourceNames = { 'yanlis': '❌ Yanlışlarım', 'bos': '⬜ Boş Bıraktıklarım', 'local': '📓 Hata Defterim' };
         let pool = JSON.parse(localStorage.getItem(sourceKeys[source])) || [];
@@ -2132,3 +2197,219 @@ function renderNavigator(total, curr, mode) {
         : roomSolvedIndices;
     renderQuestionMap(total, curr, solved);
 }
+
+// =====================================================================
+// 📢 BİLDİRİM İZNİ VE DUYURULAR
+// =====================================================================
+
+window.requestNotificationPermission = async () => {
+    if (typeof Notification === 'undefined') return;
+    if (Notification.permission === 'default') {
+        const result = await Notification.requestPermission();
+        if (result === 'granted') {
+            alert("✅ Bildirimler açıldı! Artık duyuruları ve hatırlatmaları alabilirsiniz.");
+        }
+    }
+};
+
+function updateAnnounceBadge() {
+    const badge = document.getElementById('announce-badge');
+    if (!badge) return;
+    const announcements = JSON.parse(localStorage.getItem('gazi_announcements') || '[]');
+    const unread = announcements.filter(a => !a.read).length;
+    if (unread > 0) {
+        badge.style.display = 'inline-block';
+        badge.innerText = unread;
+    } else {
+        badge.style.display = 'none';
+    }
+}
+
+window.openAnnouncementsScreen = () => {
+    // Önce bildirim izni iste (henüz istenmemişse)
+    if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
+        window.requestNotificationPermission();
+    }
+
+    const announcements = JSON.parse(localStorage.getItem('gazi_announcements') || '[]');
+    // Tümünü okundu olarak işaretle
+    announcements.forEach(a => { a.read = true; });
+    localStorage.setItem('gazi_announcements', JSON.stringify(announcements));
+    updateAnnounceBadge();
+
+    const listEl = document.getElementById('announcements-list');
+    if (!listEl) return;
+
+    if (announcements.length === 0) {
+        listEl.innerHTML = `<div style="text-align:center; color:#999; padding:30px 0;">
+            <div style="font-size:3rem; margin-bottom:10px;">📭</div>
+            <p>Henüz duyuru yok.</p>
+            <small>Yönetici veya öğretmen tarafından gönderilen duyurular burada görünecek.</small>
+        </div>`;
+    } else {
+        listEl.innerHTML = announcements.map(a => {
+            const date = new Date(a.time);
+            const dateStr = `${date.toLocaleDateString('tr-TR')} ${date.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}`;
+            return `<div class="list-item" style="border-left:4px solid #e67e22; background:#fff;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+                    <b style="color:#e67e22;">📢 ${escapeHtml(a.sender)}</b>
+                    <small style="color:#999;">${dateStr}</small>
+                </div>
+                <p style="margin:0; color:#333; font-size:0.95rem;">${escapeHtml(a.message)}</p>
+            </div>`;
+        }).join('');
+    }
+    showScreen('screen-announcements');
+};
+
+// Sayfa yüklenince bildirim rozetini güncelle
+updateAnnounceBadge();
+
+// Bildirim izni istenmemişse kullanıcıya sor (uygulama açılınca, sessizce)
+if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
+    setTimeout(() => window.requestNotificationPermission(), 3000);
+}
+
+// =====================================================================
+// 📅 YANLIŞ SORU TAKVİMİ
+// =====================================================================
+
+let calendarYear = new Date().getFullYear();
+let calendarMonth = new Date().getMonth(); // 0-based
+
+function getAllReviewDates() {
+    // Yerel not defterindeki soruların tekrar tarihlerini al
+    const localData = JSON.parse(localStorage.getItem('gazi_local_notebook') || '[]');
+    const dateMap = {};
+    localData.forEach(q => {
+        if (q.nextReviewDate) {
+            const d = new Date(q.nextReviewDate);
+            const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+            if (!dateMap[key]) dateMap[key] = [];
+            dateMap[key].push(q);
+        }
+    });
+    // Bulut verileri (eğer daha önce çekildiyse originalStdQuestions içinde olabilir)
+    if (window.originalStdQuestions && window.originalStdQuestions.length > 0) {
+        window.originalStdQuestions.forEach(q => {
+            if (q.nextReviewDate) {
+                const d = new Date(q.nextReviewDate);
+                const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+                if (!dateMap[key]) dateMap[key] = [];
+                // Aynı soruyu iki kez ekleme
+                if (!dateMap[key].find(x => x.id === q.id)) dateMap[key].push(q);
+            }
+        });
+    }
+    return dateMap;
+}
+
+function updateCalendarBadge() {
+    const badge = document.getElementById('calendar-badge');
+    if (!badge) return;
+    const dateMap = getAllReviewDates();
+    const today = new Date();
+    const todayKey = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
+    const todayCount = (dateMap[todayKey] || []).length;
+    if (todayCount > 0) {
+        badge.style.display = 'inline-block';
+        badge.innerText = todayCount;
+    } else {
+        badge.style.display = 'none';
+    }
+}
+
+window.openCalendarScreen = () => {
+    calendarYear = new Date().getFullYear();
+    calendarMonth = new Date().getMonth();
+    renderCalendar();
+    showScreen('screen-calendar');
+};
+
+window.calendarPrevMonth = () => {
+    calendarMonth--;
+    if (calendarMonth < 0) { calendarMonth = 11; calendarYear--; }
+    renderCalendar();
+};
+
+window.calendarNextMonth = () => {
+    calendarMonth++;
+    if (calendarMonth > 11) { calendarMonth = 0; calendarYear++; }
+    renderCalendar();
+};
+
+function renderCalendar() {
+    const monthNames = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+    const label = document.getElementById('calendar-month-label');
+    if (label) label.innerText = `${monthNames[calendarMonth]} ${calendarYear}`;
+
+    const grid = document.getElementById('calendar-grid');
+    if (!grid) return;
+
+    const dateMap = getAllReviewDates();
+    const today = new Date();
+    const firstDay = new Date(calendarYear, calendarMonth, 1).getDay(); // 0=Pazar
+    const daysInMonth = new Date(calendarYear, calendarMonth + 1, 0).getDate();
+    // Pazar=0 olarak alınıyor, Pazartesi başlangıç için düzelt
+    const startOffset = (firstDay + 6) % 7;
+
+    let html = `<div style="display:grid; grid-template-columns: repeat(7, 1fr); gap:3px; text-align:center;">`;
+    const dayNames = ['Pt','Sa','Ça','Pe','Cu','Ct','Pz'];
+    dayNames.forEach(d => {
+        html += `<div style="font-size:0.7rem; font-weight:bold; color:#1e3c72; padding:4px 0;">${d}</div>`;
+    });
+
+    for (let i = 0; i < startOffset; i++) {
+        html += `<div></div>`;
+    }
+
+    for (let day = 1; day <= daysInMonth; day++) {
+        const key = `${calendarYear}-${calendarMonth}-${day}`;
+        const questions = dateMap[key] || [];
+        const count = questions.length;
+        const isToday = (today.getFullYear() === calendarYear && today.getMonth() === calendarMonth && today.getDate() === day);
+        const isPast = new Date(calendarYear, calendarMonth, day) < new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        let bgColor = '#f9f9f9';
+        let textColor = '#333';
+        let border = '1px solid #eee';
+        if (count > 0) {
+            bgColor = isPast ? '#fde8e8' : '#e8f8e8';
+            textColor = isPast ? '#c0392b' : '#27ae60';
+            border = `2px solid ${isPast ? '#e74c3c' : '#27ae60'}`;
+        }
+        if (isToday) {
+            border = '2px solid #3498db';
+            textColor = textColor === '#333' ? '#3498db' : textColor;
+        }
+        html += `<div onclick="showCalendarDay(${day})" style="cursor:${count > 0 ? 'pointer' : 'default'}; padding:6px 2px; border-radius:6px; background:${bgColor}; border:${border}; color:${textColor}; font-size:0.85rem; font-weight:${isToday ? 'bold' : 'normal'}; position:relative;">
+            ${day}
+            ${count > 0 ? `<span style="position:absolute; top:1px; right:2px; font-size:0.55rem; background:${isPast ? '#e74c3c' : '#27ae60'}; color:#fff; border-radius:50%; width:12px; height:12px; line-height:12px; text-align:center; display:inline-block;">${count}</span>` : ''}
+        </div>`;
+    }
+    html += `</div>`;
+    grid.innerHTML = html;
+
+    document.getElementById('calendar-day-detail').innerHTML = '';
+}
+
+window.showCalendarDay = (day) => {
+    const dateMap = getAllReviewDates();
+    const key = `${calendarYear}-${calendarMonth}-${day}`;
+    const questions = dateMap[key] || [];
+    const detail = document.getElementById('calendar-day-detail');
+    if (!detail) return;
+
+    if (questions.length === 0) {
+        detail.innerHTML = '';
+        return;
+    }
+
+    const monthNames = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+    detail.innerHTML = `<h4 style="color:#1e3c72; margin-bottom:10px;">📋 ${day} ${monthNames[calendarMonth]} ${calendarYear} - ${questions.length} Soru</h4>` +
+        questions.map(q => `<div class="list-item" style="border-left:4px solid #27ae60;">
+            <span style="background:#1e3c72; color:#fff; padding:2px 6px; border-radius:4px; font-size:0.7rem;">${escapeHtml(q.ders || 'Genel')}</span>
+            <b style="margin-left:5px; color:#e67e22;">${escapeHtml(q.konu || '')}</b><br>
+            <small style="color:#666;">${escapeHtml(q.kitap || '')}</small>
+            ${q.not ? `<br><small>${escapeHtml(q.not)}</small>` : ''}
+        </div>`).join('');
+};

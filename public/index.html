@@ -151,10 +151,14 @@
     </div>
 
     <div id="screen-main" class="screen">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:5px;">
             <button onclick="logout()" class="outline" style="width:auto; font-size:0.8rem; padding:8px;">⬅️ Çıkış</button>
             <button id="pwa-install-btn" onclick="installPWA()" class="green" style="display:none; width:auto; font-size:0.8rem; padding:8px;">📲 Uygulamayı İndir</button>
             <button onclick="showInstallInstructions()" class="outline" style="width:auto; font-size:0.8rem; padding:8px; border-color:#3498db; color:#3498db;">📲 Nasıl İndiririm?</button>
+            <div style="display:flex; gap:5px;">
+                <button onclick="openCalendarScreen()" class="outline" style="width:auto; font-size:0.9rem; padding:8px; border-color:#27ae60; color:#27ae60; position:relative;" title="Yanlış Soru Takvimi">📅 <span id="calendar-badge" style="display:none; position:absolute; top:-4px; right:-4px; background:#e74c3c; color:#fff; border-radius:50%; width:16px; height:16px; font-size:0.6rem; line-height:16px; text-align:center; font-weight:bold;"></span></button>
+                <button onclick="openAnnouncementsScreen()" class="outline" style="width:auto; font-size:0.9rem; padding:8px; border-color:#e67e22; color:#e67e22; position:relative;" title="Duyurular">📢 <span id="announce-badge" style="display:none; position:absolute; top:-4px; right:-4px; background:#e74c3c; color:#fff; border-radius:50%; width:16px; height:16px; font-size:0.6rem; line-height:16px; text-align:center; font-weight:bold;"></span></button>
+            </div>
             <button onclick="openSettingsPanel()" class="outline" style="width:auto; font-size:0.8rem; padding:8px; border-color:#8e44ad; color:#8e44ad;">⚙️ Profil & Ayarlar</button>
         </div>
 
@@ -186,7 +190,7 @@
 
             <div id="library-content-wrapper" class="">
                 <div style="display:flex; gap:5px; margin-bottom:15px;">
-                    <button onclick="fetchStudentLibrary('cloud', false)" class="outline" style="flex:1; font-size:0.75rem; border-color:#e67e22; color:#e67e22; padding:8px;">☁️ Arşivi Aç</button>
+                    <button onclick="fetchStudentLibrary('cloud', false)" class="outline" style="flex:1; font-size:0.75rem; border-color:#e67e22; color:#e67e22; padding:8px;" id="btn-cloud-open">☁️ Arşivi Aç (<span id="count-cloud">0</span>)</button>
                     <button onclick="fetchStudentLibrary('local', false)" class="outline" style="flex:1; font-size:0.75rem; border-color:#3498db; color:#3498db; padding:8px;" id="btn-local-open">💾 Cihazdan Aç</button>
                     <button onclick="openReviewLibrary()" class="outline" style="flex:1; font-size:0.75rem; border-color:#f39c12; color:#f39c12; padding:8px;">🔔 Hatırlatılacak (<span id="review-btn-count">0</span>)</button>
                 </div>
@@ -463,6 +467,7 @@
                     <option value="yanlis">❌ Yanlışlarım</option>
                     <option value="bos">⬜ Boş Bıraktıklarım</option>
                     <option value="local">📓 Hata Defterim (Cihaz)</option>
+                    <option value="cloud">☁️ Bulut Kumbaramdan</option>
                 </select>
             </div>
 
@@ -550,9 +555,29 @@
         <button onclick="location.reload()" class="outline" style="margin-top:10px;">ANA MENÜ</button>
     </div>
 
-</div>
+    <div id="screen-announcements" class="screen">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h3 style="margin:0; color:#e67e22;">📢 Duyurular</h3>
+            <button onclick="showScreen('screen-main')" class="outline" style="width:auto; padding:8px; font-size:0.8rem;">⬅️ Geri</button>
+        </div>
+        <div id="announcements-list" style="text-align:left;"></div>
+    </div>
 
-<script>
+    <div id="screen-calendar" class="screen">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h3 style="margin:0; color:#27ae60;">📅 Yanlış Soru Takvimi</h3>
+            <button onclick="showScreen('screen-main')" class="outline" style="width:auto; padding:8px; font-size:0.8rem;">⬅️ Geri</button>
+        </div>
+        <div id="calendar-nav" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <button onclick="calendarPrevMonth()" class="outline" style="width:auto; padding:6px 12px;">◀</button>
+            <b id="calendar-month-label" style="color:#1e3c72; font-size:1rem;"></b>
+            <button onclick="calendarNextMonth()" class="outline" style="width:auto; padding:6px 12px;">▶</button>
+        </div>
+        <div id="calendar-grid" style="margin-bottom:15px;"></div>
+        <div id="calendar-day-detail" style="text-align:left;"></div>
+    </div>
+
+</div>
 window.__APP_CONFIG__ = {};
 fetch('/app-config')
     .then((r) => r.ok ? r.json() : {})
