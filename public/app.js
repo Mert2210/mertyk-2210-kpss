@@ -450,10 +450,10 @@ if ('serviceWorker' in navigator) {
 
 const ROLE_STUDENT = 'student';
 const ROLE_TEACHER = 'teacher';
-const BOTTOM_NAV_SCREENS = new Set(['screen-main', 'screen-settings', 'screen-gelisim', 'screen-friends', 'screen-stats', 'screen-list', 'screen-teacher']);
 const NAV_ITEM_MAP = {
     'screen-main': 'nav-ev',
     'screen-settings': null, // set dynamically by mode
+    'screen-secure-logout': null, // follows settings mode dynamically
     'screen-gelisim': 'nav-gelisim',
     'screen-friends': 'nav-arkadaslar',
     'screen-stats': 'nav-gelisim',
@@ -477,7 +477,7 @@ window.showScreen = (id) => {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); 
     document.getElementById(id).classList.add('active');
     const nav = document.getElementById('bottom-nav');
-    if (BOTTOM_NAV_SCREENS.has(id)) {
+    if (id !== 'screen-auth') {
         nav.style.display = 'flex';
         document.body.classList.add('nav-visible');
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -506,6 +506,11 @@ window.openDerslerimPanel = () => {
     document.getElementById('settings-screen-title').textContent = '📚 Derslerim';
     NAV_ITEM_MAP['screen-settings'] = 'nav-derslerim';
     window.openSettingsPanel();
+};
+
+window.openSecureLogoutScreen = () => {
+    NAV_ITEM_MAP['screen-secure-logout'] = NAV_ITEM_MAP['screen-settings'] || 'nav-profil';
+    window.showScreen('screen-secure-logout');
 };
 
 window.openTeacherPanel = () => {
@@ -813,6 +818,7 @@ onAuthStateChanged(auth, user => {
     const instPanel = document.getElementById('instructor-panel'); 
     const studentArea = document.getElementById('student-class-area');
     const studentLibPanel = document.getElementById('student-library-panel');
+    const teacherMainTools = document.getElementById('teacher-main-tools');
 
     if (user) { 
         let nameFromAuth = user.displayName;
@@ -844,6 +850,7 @@ onAuthStateChanged(auth, user => {
         if (instPanel) instPanel.style.display = isTeacher ? "block" : "none";
         if (studentArea) studentArea.style.display = isTeacher ? "none" : "block"; 
         if (studentLibPanel) studentLibPanel.style.display = isTeacher ? "none" : "block";
+        if (teacherMainTools) teacherMainTools.style.display = isTeacher ? "block" : "none";
         if (adminBtn) adminBtn.style.display = isAdmin ? "block" : "none";
         if (adminApproveBtn) adminApproveBtn.style.display = isAdmin ? "block" : "none";
         window.applyRoleBasedBottomNav(isTeacher ? ROLE_TEACHER : ROLE_STUDENT);
