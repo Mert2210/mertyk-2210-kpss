@@ -149,3 +149,85 @@ input[type="checkbox"] { width: auto !important; margin: 0 10px 0 0 !important; 
 
 /* BULUT SORU BADGE */
 .cloud-badge { background: #3498db; color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; cursor: help; margin-left: 5px; display: inline-block; }
+
+/* ALT NAVİGASYON ÇUBUĞU */
+#bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 95%;
+    max-width: 480px;
+    background: #fff;
+    border-top: 1px solid #e0e0e0;
+    border-radius: 16px 16px 0 0;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 6px 0;
+    padding-bottom: calc(6px + env(safe-area-inset-bottom));
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+    z-index: 9000;
+}
+
+.nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 4px 0;
+    border-radius: 10px;
+    transition: 0.2s;
+    min-width: 0;
+}
+
+.nav-item:active { transform: scale(0.92); }
+
+.nav-icon { font-size: 1.4rem; line-height: 1; }
+
+.nav-label {
+    font-size: 0.62rem;
+    font-weight: 600;
+    color: #999;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 60px;
+}
+
+.nav-item.active .nav-label { color: #1e3c72; }
+.nav-item.active .nav-icon { filter: drop-shadow(0 2px 4px rgba(30,60,114,0.3)); }
+
+.nav-home .nav-icon {
+    font-size: 1.9rem;
+    background: #1e3c72;
+    color: white;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    box-shadow: 0 4px 12px rgba(30,60,114,0.4);
+    margin-top: -10px;
+}
+
+.nav-home.active .nav-icon {
+    background: #e67e22;
+    box-shadow: 0 4px 12px rgba(230,126,34,0.5);
+}
+
+.nav-home .nav-label { color: #1e3c72; font-weight: 700; }
+.nav-home.active .nav-label { color: #e67e22; }
+
+/* Giriş yapıldığında container alt boşluk */
+body.nav-visible .container {
+    margin-bottom: calc(70px + env(safe-area-inset-bottom));
+}
+
+/* Derslerim / Profil mod desteği */
+#screen-settings.profile-mode .settings-derslerim-section { display: none !important; }
+#screen-settings.derslerim-mode .settings-profile-section { display: none !important; }

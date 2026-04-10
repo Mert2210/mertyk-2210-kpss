@@ -447,9 +447,57 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js').then(() => console.log("PWA Aktif."));
 }
 
+const BOTTOM_NAV_SCREENS = new Set(['screen-main', 'screen-settings', 'screen-gelisim', 'screen-friends', 'screen-stats', 'screen-list']);
+const NAV_ITEM_MAP = {
+    'screen-main': 'nav-ev',
+    'screen-settings': null, // set dynamically by mode
+    'screen-gelisim': 'nav-gelisim',
+    'screen-friends': 'nav-arkadaslar',
+    'screen-stats': 'nav-gelisim',
+    'screen-list': 'nav-gelisim',
+};
+
 window.showScreen = (id) => { 
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); 
-    document.getElementById(id).classList.add('active'); 
+    document.getElementById(id).classList.add('active');
+    const nav = document.getElementById('bottom-nav');
+    if (BOTTOM_NAV_SCREENS.has(id)) {
+        nav.style.display = 'flex';
+        document.body.classList.add('nav-visible');
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        const activeNavId = NAV_ITEM_MAP[id];
+        if (activeNavId) document.getElementById(activeNavId)?.classList.add('active');
+    } else {
+        nav.style.display = 'none';
+        document.body.classList.remove('nav-visible');
+    }
+};
+
+window.openProfilePanel = () => {
+    const settingsEl = document.getElementById('screen-settings');
+    settingsEl.classList.remove('derslerim-mode');
+    settingsEl.classList.add('profile-mode');
+    document.getElementById('settings-screen-title').textContent = '👤 Profil & Ayarlar';
+    NAV_ITEM_MAP['screen-settings'] = 'nav-profil';
+    window.openSettingsPanel();
+};
+
+window.openDerslerimPanel = () => {
+    const settingsEl = document.getElementById('screen-settings');
+    settingsEl.classList.remove('profile-mode');
+    settingsEl.classList.add('derslerim-mode');
+    document.getElementById('settings-screen-title').textContent = '📚 Derslerim';
+    NAV_ITEM_MAP['screen-settings'] = 'nav-derslerim';
+    window.openSettingsPanel();
+};
+
+window.openGelisimPanel = () => {
+    window.updateLocalListCounts();
+    window.showScreen('screen-gelisim');
+};
+
+window.openFriendsPanel = () => {
+    window.showScreen('screen-friends');
 };
 
 window.toggleSection = (id) => { 
