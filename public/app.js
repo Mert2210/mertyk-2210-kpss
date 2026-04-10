@@ -175,11 +175,14 @@ window.renderReadySources = () => {
         return;
     }
     listEl.innerHTML = sources.map(source => `
-        <div class="ready-source-card" onclick="window.selectReadySource('${encodeURIComponent(source.name)}')">
+        <div class="ready-source-card" data-source-name="${escapeHtml(encodeURIComponent(source.name))}">
             ${source.image ? `<img src="${safeImageSrc(source.image)}" alt="${escapeHtml(source.name)}">` : `<img src="${PLACEHOLDER_IMAGE_SRC}" alt="">`}
             <div class="ready-source-name">${escapeHtml(source.name)}</div>
         </div>
     `).join('');
+    listEl.querySelectorAll('.ready-source-card').forEach(card => {
+        card.addEventListener('click', () => window.selectReadySource(card.dataset.sourceName || ''));
+    });
 };
 
 window.toggleReadySourcesPanel = () => {
@@ -197,7 +200,7 @@ window.selectReadySource = (encodedName) => {
         return;
     }
     name = String(name || '').trim();
-    if (!name || /[<>]/.test(name)) return;
+    if (!name) return;
     const bookInput = document.getElementById('std-q-kitap');
     const preview = document.getElementById('std-source-image-preview');
     if (!bookInput) return;
