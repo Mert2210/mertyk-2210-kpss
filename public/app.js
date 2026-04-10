@@ -75,6 +75,153 @@ window.secilenGrup = "";
 window.secilenDers = "";
 window.secilenKonu = "";
 
+const DEFAULT_PROFILE_SUBJECTS = ['Tarih', 'Coğrafya', 'Vatandaşlık', 'Matematik', 'Türkçe', 'Eğitim Bilimleri', 'Fizik', 'Kimya', 'Biyoloji', 'Fen Bilimleri'];
+const READY_SOURCES_STORAGE_KEY = 'gazi_ready_sources_v1';
+const MAX_READY_SOURCES = 30;
+// 1x1 şeffaf GIF placeholder (kaynak görseli olmayan kartlar için)
+const PLACEHOLDER_IMAGE_SRC = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
+
+function normalizeText(v) {
+    return String(v || '').trim().toLocaleLowerCase('tr');
+}
+
+function slugifySubjectName(v) {
+    return String(v || '')
+        .toLocaleLowerCase('tr')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '') || 'ders';
+}
+
+function uniqueSubjects(list) {
+    return Array.from(new Set((Array.isArray(list) ? list : []).filter(Boolean).map(s => String(s).trim()).filter(Boolean)));
+}
+
+function getReadySources() {
+    try {
+        const parsed = JSON.parse(localStorage.getItem(READY_SOURCES_STORAGE_KEY)) || [];
+        return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+        return [];
+    }
+}
+
+function saveReadySource(name, image = null) {
+    const sourceName = String(name || '').trim();
+    if (!sourceName) return;
+    const current = getReadySources();
+    const idx = current.findIndex(s => normalizeText(s.name) === normalizeText(sourceName));
+    const existing = idx >= 0 ? current[idx] : null;
+    const finalImage = image || (existing ? existing.image : '');
+    const payload = { name: sourceName, image: finalImage || '', updatedAt: Date.now() };
+    if (idx >= 0) current[idx] = payload;
+    else current.unshift(payload);
+    const sorted = [...current].sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0)).slice(0, MAX_READY_SOURCES);
+    localStorage.setItem(READY_SOURCES_STORAGE_KEY, JSON.stringify(sorted));
+}
+
+function getSubjectsByExamType(examType) {
+    const mapByType = {
+        kpss_lisans: ['KPSS', ['B Grubu (Tümü)', 'Eğitim Bilimleri']],
+        kpss_onlisans: ['KPSS', ['B Grubu (Tümü)']],
+        kpss_ortaogretim: ['KPSS', ['B Grubu (Tümü)']],
+        kpss_egitim: ['KPSS', ['Eğitim Bilimleri']],
+        yks_tyt: ['YKS', ['TYT']],
+        yks_ayt: ['YKS', ['AYT']],
+        lise_okul: ['YKS', ['TYT', 'AYT']],
+        ortaokul: ['LGS', ['Sayısal', 'Sözel']]
+    };
+    const conf = mapByType[examType];
+    if (!conf || !window.mufredat[conf[0]]) return DEFAULT_PROFILE_SUBJECTS;
+    const [examKey, groups] = conf;
+    const subjectNames = [];
+    groups.forEach(group => {
+        const groupData = window.mufredat[examKey][group];
+        if (groupData) subjectNames.push(...Object.keys(groupData));
+    });
+    return uniqueSubjects(subjectNames.length > 0 ? subjectNames : DEFAULT_PROFILE_SUBJECTS);
+}
+
+window.renderProfileSubjectsByExam = (savedSubjectsInput = null) => {
+    const container = document.getElementById('profile-subjects-area');
+    const examTypeEl = document.getElementById('profile-exam-type');
+    if (!container || !examTypeEl) return;
+    const subjects = getSubjectsByExamType(examTypeEl.value);
+    const savedSubjects = Array.isArray(savedSubjectsInput) ? savedSubjectsInput : (JSON.parse(localStorage.getItem('gazi_subjects_v2')) || []);
+    const savedMap = new Map(savedSubjects.map(item => [normalizeText(item.name), item.topics || '']));
+    container.innerHTML = subjects.map((subject, i) => {
+        const key = slugifySubjectName(subject);
+        const checkboxId = `subj-dyn-${key}-${i}`;
+        const topicId = `topic-dyn-${key}-${i}`;
+        const savedTopic = savedMap.get(normalizeText(subject)) || '';
+        const checked = savedMap.has(normalizeText(subject)) ? 'checked' : '';
+        return `
+            <div class="subject-row" data-subject-name="${escapeHtml(subject)}">
+                <input type="checkbox" id="${checkboxId}" value="${escapeHtml(subject)}" ${checked}>
+                <label for="${checkboxId}">${escapeHtml(subject)}</label>
+                <input type="text" id="${topicId}" value="${escapeHtml(savedTopic)}" placeholder="Alt Konu">
+            </div>
+        `;
+    }).join('');
+};
+
+window.renderReadySources = () => {
+    const listEl = document.getElementById('ready-sources-list');
+    if (!listEl) return;
+    const sources = getReadySources();
+    if (sources.length === 0) {
+        listEl.innerHTML = `<small style="color:#7f8c8d;">Henüz kayıtlı kaynakça yok. İlk soruyu kaydedince burada gözükecek.</small>`;
+        return;
+    }
+    listEl.innerHTML = sources.map(source => `
+        <div class="ready-source-card" data-source-name="${escapeHtml(encodeURIComponent(source.name))}">
+            ${source.image ? `<img src="${safeImageSrc(source.image)}" alt="${escapeHtml(source.name)}">` : `<img src="${PLACEHOLDER_IMAGE_SRC}" alt="">`}
+            <div class="ready-source-name">${escapeHtml(source.name)}</div>
+        </div>
+    `).join('');
+    listEl.querySelectorAll('.ready-source-card').forEach(card => {
+        card.addEventListener('click', () => window.selectReadySource(card.dataset.sourceName || ''));
+    });
+};
+
+window.toggleReadySourcesPanel = () => {
+    const panel = document.getElementById('ready-sources-panel');
+    if (!panel) return;
+    panel.classList.toggle('hidden-panel');
+    if (!panel.classList.contains('hidden-panel')) window.renderReadySources();
+};
+
+window.selectReadySource = (encodedName) => {
+    let name = '';
+    try {
+        name = decodeURIComponent(encodedName || '');
+    } catch (e) {
+        return;
+    }
+    name = String(name || '').trim();
+    if (!name) return;
+    const bookInput = document.getElementById('std-q-kitap');
+    const preview = document.getElementById('std-source-image-preview');
+    if (!bookInput) return;
+    const source = getReadySources().find(s => s.name === name);
+    if (!source) return;
+    bookInput.value = source.name;
+    if (source.image) {
+        stdSourceImageBase64 = source.image;
+        if (preview) {
+            preview.src = safeImageSrc(source.image);
+            preview.style.display = 'block';
+        }
+    } else {
+        stdSourceImageBase64 = null;
+        if (preview) {
+            preview.src = '';
+            preview.style.display = 'none';
+        }
+    }
+};
+
 window.initEtiketleme = () => {
     const mem = JSON.parse(localStorage.getItem('gazi_sticky_memory')) || {};
     if(mem.exam) window.secilenSinav = mem.exam;
@@ -85,12 +232,21 @@ window.initEtiketleme = () => {
         const bookInput = document.getElementById('std-q-kitap');
         if (bookInput) bookInput.value = mem.book;
     }
+    if(mem.sourceImage) {
+        const sourceImgPreview = document.getElementById('std-source-image-preview');
+        if (sourceImgPreview) {
+            stdSourceImageBase64 = mem.sourceImage;
+            sourceImgPreview.src = safeImageSrc(mem.sourceImage);
+            sourceImgPreview.style.display = 'block';
+        }
+    }
 
     if(mem.exam) {
         const memBadge = document.getElementById('mem-badge');
         if (memBadge) memBadge.style.display = "inline-block";
     }
 
+    window.renderReadySources();
     window.renderExams(mem.exam ? true : false);
 };
 
@@ -368,6 +524,7 @@ window.updateGradeDropdown = () => {
     } else { 
         area.style.display = 'none'; 
     }
+    window.renderProfileSubjectsByExam();
 };
 
 window.openSettingsPanel = () => {
@@ -392,17 +549,7 @@ window.openSettingsPanel = () => {
     }
 
     const savedSubjects = JSON.parse(localStorage.getItem('gazi_subjects_v2')) || [];
-    const subjects = ['tarih', 'cografya', 'vatandaslik', 'matematik', 'turkce', 'egitim', 'fizik', 'kimya', 'biyoloji', 'fen'];
-    subjects.forEach(sub => { 
-        const cb = document.getElementById('subj-' + sub); 
-        const txt = document.getElementById('topic-' + sub); 
-        if(cb && txt) { 
-            cb.checked = false; 
-            txt.value = ''; 
-            const found = savedSubjects.find(s => s.name === cb.value); 
-            if(found) { cb.checked = true; txt.value = found.topics; } 
-        } 
-    });
+    window.renderProfileSubjectsByExam(savedSubjects);
     showScreen('screen-settings');
 };
 
@@ -434,10 +581,11 @@ window.saveProfileSettings = () => {
     localStorage.setItem('gazi_grade', document.getElementById('profile-grade').value);
     
     const subjectsData = [];
-    ['tarih', 'cografya', 'vatandaslik', 'matematik', 'turkce', 'egitim', 'fizik', 'kimya', 'biyoloji', 'fen'].forEach(sub => { 
-        const cb = document.getElementById('subj-' + sub); 
-        if(cb && cb.checked) {
-            subjectsData.push({ name: cb.value, topics: document.getElementById('topic-' + sub).value.trim() }); 
+    document.querySelectorAll('#profile-subjects-area .subject-row').forEach(row => {
+        const cb = row.querySelector('input[type="checkbox"]');
+        const txt = row.querySelector('input[type="text"]');
+        if (cb && cb.checked) {
+            subjectsData.push({ name: cb.value, topics: (txt ? txt.value : '').trim() });
         }
     });
 
@@ -633,7 +781,7 @@ let currentMode = "room", myRoom = "", currentQIndex = 0, qInt = null, totalInt 
 let roomSolvedIndices = new Set(), roomTotalQuestions = 0;
 let currentQObject = null, currentListType = "", selectedTimerMode = "question";
 let uploadedImageBase64 = null; let uploadedSolutionBase64 = null; 
-let stdUploadedImageBase64 = null; let stdSolutionBase64 = null; 
+let stdUploadedImageBase64 = null; let stdSolutionBase64 = null; let stdSourceImageBase64 = null;
 window.tempStdQuestions = []; window.originalStdQuestions = [];
 
 window.setTimerMode = (mode) => { 
@@ -769,6 +917,12 @@ window.processStudentImageUpload = (e, type = 'image') => {
     if(type === 'image') { 
         document.getElementById('std-img-preview').style.display = 'block'; 
         document.getElementById('std-img-preview').src = "https://i.gifer.com/ZKZg.gif"; 
+    } else if (type === 'source') {
+        const sourcePreview = document.getElementById('std-source-image-preview');
+        if (sourcePreview) {
+            sourcePreview.style.display = 'block';
+            sourcePreview.src = "https://i.gifer.com/ZKZg.gif";
+        }
     }
     
     const reader = new FileReader();
@@ -786,9 +940,19 @@ window.processStudentImageUpload = (e, type = 'image') => {
             if(type === 'image') { 
                 stdUploadedImageBase64 = canvas.toDataURL('image/jpeg', 0.7); 
                 document.getElementById('std-img-preview').src = stdUploadedImageBase64; 
-            } else { 
+            } else if (type === 'solution') { 
                 stdSolutionBase64 = canvas.toDataURL('image/jpeg', 0.7); 
                 alert("✅ Çözüm fotoğrafı başarıyla eklendi!"); 
+            } else if (type === 'source') {
+                stdSourceImageBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                const sourcePreview = document.getElementById('std-source-image-preview');
+                if (sourcePreview) {
+                    sourcePreview.src = stdSourceImageBase64;
+                    sourcePreview.style.display = 'block';
+                }
+                alert("✅ Kaynakça resmi eklendi.");
+            } else {
+                return;
             }
         }; 
         img.src = event.target.result;
@@ -868,8 +1032,10 @@ window.uploadStudentQuestion = (target = 'cloud') => {
     }
 
     localStorage.setItem('gazi_sticky_memory', JSON.stringify({
-        exam: window.secilenSinav, group: window.secilenGrup, subject: finalDers, topic: finalTopic, book: qKitap
+        exam: window.secilenSinav, group: window.secilenGrup, subject: finalDers, topic: finalTopic, book: qKitap, sourceImage: stdSourceImageBase64 || null
     }));
+    saveReadySource(qKitap, stdSourceImageBase64);
+    window.renderReadySources();
     
     const memBadge = document.getElementById('mem-badge');
     if (memBadge) memBadge.style.display = "inline-block";
@@ -881,6 +1047,7 @@ window.uploadStudentQuestion = (target = 'cloud') => {
         kitap: qKitap, 
         konu: finalTopic, 
         not: qText, 
+        sourceImage: stdSourceImageBase64 || null,
         image: stdUploadedImageBase64, 
         nextReviewDate: nextReviewDate, 
         solutionImage: stdSolutionBase64, 
