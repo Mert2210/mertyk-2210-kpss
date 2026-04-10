@@ -155,7 +155,6 @@
             <button onclick="logout()" class="outline" style="width:auto; font-size:0.8rem; padding:8px;">⬅️ Çıkış</button>
             <button id="pwa-install-btn" onclick="installPWA()" class="green" style="display:none; width:auto; font-size:0.8rem; padding:8px;">📲 Uygulamayı İndir</button>
             <button onclick="showInstallInstructions()" class="outline" style="width:auto; font-size:0.8rem; padding:8px; border-color:#3498db; color:#3498db;">📲 Nasıl İndiririm?</button>
-            <button onclick="openSettingsPanel()" class="outline" style="width:auto; font-size:0.8rem; padding:8px; border-color:#8e44ad; color:#8e44ad;">⚙️ Profil & Ayarlar</button>
         </div>
 
         <h2 id="display-user" style="color:#e67e22; margin-top:0;">Hoş Geldin!</h2>
@@ -271,7 +270,6 @@
             </div>
         </div>
 
-        <button onclick="fetchMyStats()" class="blue" style="margin-bottom:15px; width:100%;">📊 Gelişim Raporum (Karnem)</button>
         <button onclick="goToLobby('trial')" class="purple">📝 Hızlı Deneme (Offline)</button>
         <button onclick="goToLobby('room')" class="orange" style="margin-top:10px;">🏠 Oda Kur / Katıl</button>
         
@@ -362,7 +360,57 @@
             </div>
         </div>
 
-        <div style="background: rgba(0,0,0,0.03); padding: 15px; border-radius: 10px; margin-top: 20px;">
+        </div>
+    </div>
+
+    <div id="screen-settings" class="screen">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h3 id="settings-screen-title" style="margin:0; color:#8e44ad;">⚙️ Çalışma Masam</h3>
+            <button onclick="window.showScreen('screen-main')" class="outline" style="width:auto; padding:8px; font-size:0.8rem;">⬅️ İptal</button>
+        </div>
+        <div style="background:#fdfdfd; padding:20px; border-radius:12px; text-align:left; border: 1px solid #ddd; box-shadow:0 10px 25px rgba(0,0,0,0.05);">
+            <div class="settings-profile-section">
+                <h4 style="color:#1e3c72; border-bottom:2px solid #eee; padding-bottom:8px; margin-top:0;">👤 Hesap Bilgileri</h4>
+                <input type="text" id="profile-new-name" placeholder="Kullanıcı Adı / İsim" style="background:#f1f2f6;">
+                <div id="password-update-area" style="background:#fff3f3; padding:10px; border-radius:8px; border:1px solid #f5c6cb; margin-bottom:15px; margin-top:5px;">
+                    <label style="font-size:0.75rem; font-weight:bold; color:#c0392b; display:block; margin-bottom:5px;">Şifre Güncelle (İsteğe Bağlı)</label>
+                    <input type="password" id="profile-old-pass" placeholder="Mevcut (Eski) Şifreniz" style="margin-bottom:5px; font-size:0.85rem;">
+                    <input type="password" id="profile-new-pass" placeholder="Yeni Şifre Belirleyin" style="margin-bottom:0; font-size:0.85rem;">
+                </div>
+            </div>
+
+            <div class="settings-derslerim-section">
+                <h4 style="color:#1e3c72; border-bottom:2px solid #eee; padding-bottom:8px; margin-top:20px;">🎯 Hedef Sınavınız</h4>
+                <select id="profile-exam-type" style="margin-bottom:15px; font-weight:bold; border-color:#3498db; color:#1e3c72;" onchange="updateGradeDropdown()">
+                    <option value="kpss_lisans">KPSS Lisans</option>
+                    <option value="kpss_onlisans">KPSS Ön Lisans</option>
+                    <option value="kpss_ortaogretim">Ortaöğretim</option>
+                    <option value="kpss_egitim">KPSS Eğitim Bilimleri</option>
+                    <option value="yks_tyt">YKS - TYT</option>
+                    <option value="yks_ayt">YKS - AYT</option>
+                    <option value="lise_okul">Lise (Okul Dersleri)</option>
+                    <option value="ortaokul">Ortaokul (LGS)</option>
+                </select>
+
+                <div id="grade-selection-area" style="display:none; margin-bottom:20px; background:#f9f9f9; padding:10px; border-radius:8px; border:1px solid #eee;">
+                    <label style="font-size:0.75rem; font-weight:bold; color:#c0392b; margin-bottom:5px; display:block;">🏫 BULUNDUĞUNUZ SINIF:</label>
+                    <div id="grade-boxes" style="display:flex; gap:8px; flex-wrap:wrap;"></div>
+                    <input type="hidden" id="profile-grade" value="">
+                </div>
+
+                <h4 style="color:#1e3c72; border-bottom:2px solid #eee; padding-bottom:8px; margin-top:20px;">📚 Sorumlu Olduğunuz Dersler</h4>
+                <p style="font-size:0.75rem; color:#666; margin-top:0;">Dersleri seçip yanlarına çalışacağınız alt konuları belirtebilirsiniz.</p>
+                <div id="profile-subjects-area" style="max-height: 250px; overflow-y:auto; background:#fff; padding:8px; border-radius:8px; border:1px solid #ddd;"></div>
+            </div>
+
+            <button onclick="saveProfileSettings()" class="green" style="margin-top:20px; width:100%; padding:15px; font-size:1.1rem; border-radius:10px;">💾 Masamı ve Ayarlarımı Kaydet</button>
+        </div>
+    </div>
+
+    <div id="screen-gelisim" class="screen">
+        <h2 style="color:#1e3c72; margin-top:0;">📊 Gelişim & Takip</h2>
+        <button onclick="fetchMyStats()" class="blue" style="margin-bottom:15px; width:100%; padding:15px; font-size:1rem;">📊 Gelişim Raporum (Karnem)</button>
+        <div style="background: rgba(0,0,0,0.03); padding: 15px; border-radius: 10px;">
             <h4 style="margin: 0 0 10px 0; text-align: left; color:#333;">Yerel İzleme Listelerim</h4>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
                 <button onclick="showLocalList('wrong')" class="red" style="font-size:0.85rem;" id="btn-local-wrong">❌ Yanlışlar (<span id="count-wrong">0</span>)</button>
@@ -375,49 +423,19 @@
         </div>
     </div>
 
-    <div id="screen-settings" class="screen">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-            <h3 style="margin:0; color:#8e44ad;">⚙️ Çalışma Masam</h3>
-            <button onclick="window.showScreen('screen-main')" class="outline" style="width:auto; padding:8px; font-size:0.8rem;">⬅️ İptal</button>
-        </div>
-        <div style="background:#fdfdfd; padding:20px; border-radius:12px; text-align:left; border: 1px solid #ddd; box-shadow:0 10px 25px rgba(0,0,0,0.05);">
-            <h4 style="color:#1e3c72; border-bottom:2px solid #eee; padding-bottom:8px; margin-top:0;">👤 Hesap Bilgileri</h4>
-            <input type="text" id="profile-new-name" placeholder="Kullanıcı Adı / İsim" style="background:#f1f2f6;">
-            <div id="password-update-area" style="background:#fff3f3; padding:10px; border-radius:8px; border:1px solid #f5c6cb; margin-bottom:15px; margin-top:5px;">
-                <label style="font-size:0.75rem; font-weight:bold; color:#c0392b; display:block; margin-bottom:5px;">Şifre Güncelle (İsteğe Bağlı)</label>
-                <input type="password" id="profile-old-pass" placeholder="Mevcut (Eski) Şifreniz" style="margin-bottom:5px; font-size:0.85rem;">
-                <input type="password" id="profile-new-pass" placeholder="Yeni Şifre Belirleyin" style="margin-bottom:0; font-size:0.85rem;">
+    <div id="screen-friends" class="screen">
+        <div style="text-align:center; padding: 40px 20px;">
+            <div style="font-size:4rem; margin-bottom:20px;">🚧</div>
+            <h2 style="color:#e67e22; margin-bottom:10px;">Bakım Aşamasında</h2>
+            <p style="color:#666; font-size:1rem; line-height:1.5; max-width:300px; margin:0 auto 30px;">Arkadaşlarım özelliği yakında hizmetinizde olacak. Çok yakında güzel sürprizler geliyor!</p>
+            <div style="background:#fdf2e9; border:2px dashed #e67e22; border-radius:12px; padding:20px;">
+                <p style="color:#e67e22; font-weight:bold; margin:0; font-size:0.9rem;">🔔 Bu özellik tamamlandığında bildirim alacaksınız.</p>
             </div>
-
-            <h4 style="color:#1e3c72; border-bottom:2px solid #eee; padding-bottom:8px; margin-top:20px;">🎯 Hedef Sınavınız</h4>
-            <select id="profile-exam-type" style="margin-bottom:15px; font-weight:bold; border-color:#3498db; color:#1e3c72;" onchange="updateGradeDropdown()">
-                <option value="kpss_lisans">KPSS Lisans</option>
-                <option value="kpss_onlisans">KPSS Ön Lisans</option>
-                <option value="kpss_ortaogretim">Ortaöğretim</option>
-                <option value="kpss_egitim">KPSS Eğitim Bilimleri</option>
-                <option value="yks_tyt">YKS - TYT</option>
-                <option value="yks_ayt">YKS - AYT</option>
-                <option value="lise_okul">Lise (Okul Dersleri)</option>
-                <option value="ortaokul">Ortaokul (LGS)</option>
-            </select>
-
-            <div id="grade-selection-area" style="display:none; margin-bottom:20px; background:#f9f9f9; padding:10px; border-radius:8px; border:1px solid #eee;">
-                <label style="font-size:0.75rem; font-weight:bold; color:#c0392b; margin-bottom:5px; display:block;">🏫 BULUNDUĞUNUZ SINIF:</label>
-                <div id="grade-boxes" style="display:flex; gap:8px; flex-wrap:wrap;"></div>
-                <input type="hidden" id="profile-grade" value="">
-            </div>
-
-            <h4 style="color:#1e3c72; border-bottom:2px solid #eee; padding-bottom:8px; margin-top:20px;">📚 Sorumlu Olduğunuz Dersler</h4>
-            <p style="font-size:0.75rem; color:#666; margin-top:0;">Dersleri seçip yanlarına çalışacağınız alt konuları belirtebilirsiniz.</p>
-            
-            <div id="profile-subjects-area" style="max-height: 250px; overflow-y:auto; background:#fff; padding:8px; border-radius:8px; border:1px solid #ddd;"></div>
-
-            <button onclick="saveProfileSettings()" class="green" style="margin-top:20px; width:100%; padding:15px; font-size:1.1rem; border-radius:10px;">💾 Masamı ve Ayarlarımı Kaydet</button>
         </div>
     </div>
 
     <div id="screen-stats" class="screen">
-        <button onclick="showScreen('screen-main')" class="outline" style="width:auto; margin-bottom:15px;">⬅️ Ana Menüye Dön</button>
+        <button onclick="showScreen('screen-gelisim')" class="outline" style="width:auto; margin-bottom:15px;">⬅️ Geri Dön</button>
         <h2>📊 Gelişim Raporum</h2>
         <div id="stats-summary" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:20px; color:white;"></div>
         <h3 style="text-align:left; border-bottom:1px solid #ccc; padding-bottom:5px; color:#1e3c72;">Geçmiş Denemelerim</h3>
@@ -552,7 +570,28 @@
 
 </div>
 
-<script>
+<nav id="bottom-nav" style="display:none;">
+    <div class="nav-item" id="nav-profil" onclick="openProfilePanel()">
+        <span class="nav-icon">👤</span>
+        <span class="nav-label">Profil</span>
+    </div>
+    <div class="nav-item" id="nav-derslerim" onclick="openDerslerimPanel()">
+        <span class="nav-icon">📚</span>
+        <span class="nav-label">Derslerim</span>
+    </div>
+    <div class="nav-item nav-home" id="nav-ev" onclick="showScreen('screen-main')">
+        <span class="nav-icon">🏠</span>
+        <span class="nav-label">Ev</span>
+    </div>
+    <div class="nav-item" id="nav-gelisim" onclick="openGelisimPanel()">
+        <span class="nav-icon">📊</span>
+        <span class="nav-label">Gelişim</span>
+    </div>
+    <div class="nav-item" id="nav-arkadaslar" onclick="openFriendsPanel()">
+        <span class="nav-icon">👥</span>
+        <span class="nav-label">Arkadaşlar</span>
+    </div>
+</nav>
 window.__APP_CONFIG__ = {};
 fetch('/app-config')
     .then((r) => r.ok ? r.json() : {})
