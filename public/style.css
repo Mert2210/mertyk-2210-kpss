@@ -14,7 +14,7 @@ html, body {
 .custom-input { width: 100%; margin-top: 8px; padding: 8px; font-size: 0.85rem; border: 1px dashed #3498db; border-radius: 8px; box-sizing: border-box; }
 
 /* ANA TASARIM KODLARI (HİÇBİR ŞEY EKSİLMEDİ) */
-body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: #fff; text-align: center; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; width: 100%; overflow-x: hidden; }
+body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: #fff; text-align: center; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; width: 100%; max-width: 100vw; overflow-x: hidden; box-sizing: border-box; }
 .container { background: rgba(255,255,255,0.95); color: #333; width: 95%; max-width: 480px; padding: 20px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); margin-bottom: 20px; position: relative; box-sizing: border-box; overflow-x: hidden; }
 h1, h2, h3, h4 { margin-top: 0; color: #1e3c72; }
 input, select, button, textarea { width: 100%; padding: 12px; margin-bottom: 8px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; font-size: 1rem; font-family: inherit; }
@@ -35,7 +35,7 @@ button:hover { opacity: 0.9; } button.green { background: #27ae60; } button.oran
 #instructor-panel, #instructor-panel h4, #instructor-panel label { color: #ffffff !important; }
 #instructor-panel { background: #1e3c72 !important; border: 2px solid #e67e22; padding: 15px; border-radius: 10px; margin-top: 15px; }
 
-.auth-form { background: #fff; padding: 20px; border-radius: 12px; margin-top: 10px; text-align: left; box-shadow: 0 5px 15px rgba(0,0,0,0.05); border: 1px solid #eee; }
+.auth-form { background: #fff; padding: 20px; border-radius: 12px; margin: 10px auto 0; text-align: left; box-shadow: 0 5px 15px rgba(0,0,0,0.05); border: 1px solid #eee; max-width: 100vw; overflow-x: hidden; box-sizing: border-box; }
 .auth-switch { color: #e67e22; font-size: 0.85rem; text-decoration: underline; cursor: pointer; text-align: center; display: block; margin-top: 10px; font-weight: bold; }
 
 .role-toggle { display: flex; background: #e8f4f8; border-radius: 10px; padding: 5px; margin-bottom: 20px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.05); }
@@ -46,7 +46,8 @@ button:hover { opacity: 0.9; } button.green { background: #27ae60; } button.oran
 .grade-btn:hover { background: #e8f4f8; border-color: #3498db; }
 .grade-btn.selected { background: #e67e22; color: #fff; border-color: #e67e22; box-shadow: 0 4px 10px rgba(230,126,34,0.3); }
 
-.screen { display: none; width: 100%; overflow-x: hidden; }
+.screen { display: none; width: 100%; max-width: 100vw; overflow-x: hidden; box-sizing: border-box; }
+.content-card { max-width: 100vw; overflow-x: hidden; box-sizing: border-box; margin: 0 auto; }
 .screen * { box-sizing: border-box; min-width: 0; }
 .screen input,
 .screen select,
