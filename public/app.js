@@ -1681,7 +1681,7 @@ if(socket) socket.on("receiveGlobalAlert", (data) => {
     if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
         try {
             navigator.serviceWorker.ready.then(reg => {
-                reg.showNotification(`📢 ${escapeHtml(data.sender)}`, {
+                reg.showNotification(`📢 ${data.sender}`, {
                     body: data.message,
                     icon: '/icon-192.png',
                     badge: '/icon-192.png'
@@ -2265,11 +2265,6 @@ window.openAnnouncementsScreen = () => {
 // Sayfa yüklenince bildirim rozetini güncelle
 updateAnnounceBadge();
 
-// Bildirim izni istenmemişse kullanıcıya sor (uygulama açılınca, sessizce)
-if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
-    setTimeout(() => window.requestNotificationPermission(), 3000);
-}
-
 // =====================================================================
 // 📅 YANLIŞ SORU TAKVİMİ
 // =====================================================================
@@ -2291,13 +2286,15 @@ function getAllReviewDates() {
     });
     // Bulut verileri (eğer daha önce çekildiyse originalStdQuestions içinde olabilir)
     if (window.originalStdQuestions && window.originalStdQuestions.length > 0) {
+        // Yerel sorulardan zaten eklenenlerı takip etmek için Set kullan (O(n) karmaşıklığı)
+        const seenIds = new Set(localData.map(q => q.id).filter(Boolean));
         window.originalStdQuestions.forEach(q => {
-            if (q.nextReviewDate) {
+            if (q.nextReviewDate && q.id && !seenIds.has(q.id)) {
                 const d = new Date(q.nextReviewDate);
                 const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
                 if (!dateMap[key]) dateMap[key] = [];
-                // Aynı soruyu iki kez ekleme
-                if (!dateMap[key].find(x => x.id === q.id)) dateMap[key].push(q);
+                dateMap[key].push(q);
+                seenIds.add(q.id);
             }
         });
     }
@@ -2350,7 +2347,8 @@ function renderCalendar() {
     const today = new Date();
     const firstDay = new Date(calendarYear, calendarMonth, 1).getDay(); // 0=Pazar
     const daysInMonth = new Date(calendarYear, calendarMonth + 1, 0).getDate();
-    // Pazar=0 olarak alınıyor, Pazartesi başlangıç için düzelt
+    // JS'de getDay() 0=Pazar, 1=Pt...6=Ct döndürür. Takvimimiz Pazartesi başlıyor.
+    // (firstDay + 6) % 7: Pazartesi=0, Salı=1, ..., Pazar=6 şeklinde dönüştürür.
     const startOffset = (firstDay + 6) % 7;
 
     let html = `<div style="display:grid; grid-template-columns: repeat(7, 1fr); gap:3px; text-align:center;">`;
