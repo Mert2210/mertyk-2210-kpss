@@ -966,9 +966,16 @@ function populateLibraryFilters(data) {
     document.getElementById('filter-kitap').innerHTML = '<option value="ALL">Tüm Kaynaklar/Kitaplar</option>' + Array.from(kitaplar).map(k => `<option value="${escapeHtml(k)}">${escapeHtml(k)}</option>`).join('');
 }
 
+function getSavedReviewDelayDays() {
+    const saved = localStorage.getItem('gazi_review_delay_days');
+    const allowed = ['1', '3', '7', '14', '30'];
+    return allowed.includes(saved) ? saved : '7';
+}
+
 function renderStudentLibraryListOnly(data) {
     window.tempStdQuestions = data; 
     const div = document.getElementById('list-content');
+    const savedReviewDelayDays = getSavedReviewDelayDays();
     
     if(data.length === 0) { 
         div.innerHTML = "<p style='text-align:center;'>Bu filtreye uygun soru bulunamadı.</p>"; 
@@ -995,9 +1002,19 @@ function renderStudentLibraryListOnly(data) {
                     ${['A','B','C','D','E'].map((s, idx) => `<button class="abcde-btn" onclick="checkStdAnswer(this, ${idx}, ${i})">${s}</button>`).join('')}
                 </div>
                 <div id="sol-std-qbox-${i}" style="display:none; margin-top:10px; padding:10px; background:#e8f4f8; border-radius:8px; font-size:0.8rem; color:#333; text-align:left;"></div>
+                ${q.id ? `<div style="margin-top:10px;">
+                    <label style="font-size:0.72rem; font-weight:bold; color:#8e44ad; display:block; margin-bottom:4px;">🔁 Erteleme Süresi</label>
+                    <select id="std-review-delay-${i}" style="font-weight:bold; border-color:#8e44ad; color:#8e44ad; width:100%;">
+                        <option value="1" ${savedReviewDelayDays === '1' ? 'selected' : ''}>1 gün</option>
+                        <option value="3" ${savedReviewDelayDays === '3' ? 'selected' : ''}>3 gün</option>
+                        <option value="7" ${savedReviewDelayDays === '7' ? 'selected' : ''}>7 gün</option>
+                        <option value="14" ${savedReviewDelayDays === '14' ? 'selected' : ''}>14 gün</option>
+                        <option value="30" ${savedReviewDelayDays === '30' ? 'selected' : ''}>30 gün</option>
+                    </select>
+                </div>` : ''}
                 <div style="display:flex; gap:5px; margin-top:10px;">
-                    ${q.id ? `<button onclick="updateReviewDate(${JSON.stringify(q.id)}, ${isLocal})" class="outline" style="flex:2; font-size:0.8rem; border-color:#27ae60; color:#27ae60;">✅ Tekrar Ettim (Ertele)</button>` : ''}
-                    ${q.id ? `<button onclick="deleteStudentQuestion(${JSON.stringify(q.id)}, ${isLocal})" class="outline" style="flex:1; font-size:0.8rem; border-color:#c0392b; color:#c0392b;">🗑️ Sil</button>` : ''}
+                    ${q.id ? `<button onclick="updateReviewDateByIndex(${i}, ${isLocal})" class="outline" style="flex:2; font-size:0.8rem; border-color:#27ae60; color:#27ae60;">✅ Tekrar Ettim (Ertele)</button>` : ''}
+                    ${q.id ? `<button onclick="deleteStudentQuestionByIndex(${i}, ${isLocal})" class="outline" style="flex:1; font-size:0.8rem; border-color:#c0392b; color:#c0392b;">🗑️ Sil</button>` : ''}
                 </div>
             </div>`;
         }).join(''); 
@@ -1034,11 +1051,18 @@ function renderStudentLibraryHTML(data, title) {
     showScreen('screen-list'); 
 }
 
-window.updateReviewDate = (questionId, isLocal = false) => {
-    const d = prompt("Harika! Bu soruyu tekrar ettin. Peki sana bir daha ne zaman hatırlatayım? \n(Örn: 1 Saat için 0.04, Akşam için 0.25, Yarın Sabah için 0.5, 3 Gün için 3 yazın)");
-    const days = parseFloat(d ? d.replace(',', '.') : 0);
-    
+window.updateReviewDateByIndex = (questionIndex, isLocal = false) => {
+    const q = window.tempStdQuestions[questionIndex];
+    if (!q || !q.id) return;
+    const selectedEl = document.getElementById(`std-review-delay-${questionIndex}`);
+    const selectedDays = parseFloat(selectedEl ? selectedEl.value : getSavedReviewDelayDays());
+    window.updateReviewDate(q.id, isLocal, selectedDays);
+};
+
+window.updateReviewDate = (questionId, isLocal = false, selectedDays = null) => {
+    const days = parseFloat(selectedDays || getSavedReviewDelayDays());
     if(days && days > 0) {
+        localStorage.setItem('gazi_review_delay_days', String(days));
         const newDate = Date.now() + (days * 24 * 60 * 60 * 1000);
         if(!isLocal) { 
             socket.emit("updateReviewDate", { questionId: questionId, additionalDays: days }); 
@@ -1055,6 +1079,12 @@ window.updateReviewDate = (questionId, isLocal = false) => {
         const studentName = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "").trim() || "Gazi Adayı"; 
         socket.emit("checkNotebookReviews", studentName);
     }
+};
+
+window.deleteStudentQuestionByIndex = (questionIndex, isLocal) => {
+    const q = window.tempStdQuestions[questionIndex];
+    if (!q || !q.id) return;
+    window.deleteStudentQuestion(q.id, isLocal);
 };
 
 window.deleteStudentQuestion = (questionId, isLocal) => {
