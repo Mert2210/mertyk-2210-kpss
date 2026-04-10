@@ -77,6 +77,8 @@ window.secilenKonu = "";
 
 const DEFAULT_PROFILE_SUBJECTS = ['Tarih', 'Coğrafya', 'Vatandaşlık', 'Matematik', 'Türkçe', 'Eğitim Bilimleri', 'Fizik', 'Kimya', 'Biyoloji', 'Fen Bilimleri'];
 const READY_SOURCES_STORAGE_KEY = 'gazi_ready_sources_v1';
+const MAX_READY_SOURCES = 30;
+const PLACEHOLDER_IMAGE_SRC = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
 
 function normalizeText(v) {
     return String(v || '').trim().toLocaleLowerCase('tr');
@@ -114,7 +116,7 @@ function saveReadySource(name, image = null) {
     const payload = { name: sourceName, image: finalImage || '', updatedAt: Date.now() };
     if (idx >= 0) current[idx] = payload;
     else current.unshift(payload);
-    const sorted = current.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0)).slice(0, 30);
+    const sorted = current.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0)).slice(0, MAX_READY_SOURCES);
     localStorage.setItem(READY_SOURCES_STORAGE_KEY, JSON.stringify(sorted));
 }
 
@@ -173,7 +175,7 @@ window.renderReadySources = () => {
     }
     listEl.innerHTML = sources.map(source => `
         <div class="ready-source-card" onclick="window.selectReadySource('${encodeURIComponent(source.name)}')">
-            ${source.image ? `<img src="${safeImageSrc(source.image)}" alt="${escapeHtml(source.name)}">` : `<img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="">`}
+            ${source.image ? `<img src="${safeImageSrc(source.image)}" alt="${escapeHtml(source.name)}">` : `<img src="${PLACEHOLDER_IMAGE_SRC}" alt="">`}
             <div class="ready-source-name">${escapeHtml(source.name)}</div>
         </div>
     `).join('');
@@ -187,7 +189,14 @@ window.toggleReadySourcesPanel = () => {
 };
 
 window.selectReadySource = (encodedName) => {
-    const name = decodeURIComponent(encodedName || '');
+    let name = '';
+    try {
+        name = decodeURIComponent(encodedName || '');
+    } catch (e) {
+        return;
+    }
+    name = String(name || '').trim();
+    if (!name || /[<>]/.test(name)) return;
     const bookInput = document.getElementById('std-q-kitap');
     const preview = document.getElementById('std-source-image-preview');
     if (!bookInput) return;
