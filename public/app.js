@@ -78,6 +78,7 @@ window.secilenKonu = "";
 const DEFAULT_PROFILE_SUBJECTS = ['Tarih', 'Coğrafya', 'Vatandaşlık', 'Matematik', 'Türkçe', 'Eğitim Bilimleri', 'Fizik', 'Kimya', 'Biyoloji', 'Fen Bilimleri'];
 const READY_SOURCES_STORAGE_KEY = 'gazi_ready_sources_v1';
 const MAX_READY_SOURCES = 30;
+// 1x1 şeffaf GIF placeholder (kaynak görseli olmayan kartlar için)
 const PLACEHOLDER_IMAGE_SRC = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
 
 function normalizeText(v) {
@@ -116,7 +117,7 @@ function saveReadySource(name, image = null) {
     const payload = { name: sourceName, image: finalImage || '', updatedAt: Date.now() };
     if (idx >= 0) current[idx] = payload;
     else current.unshift(payload);
-    const sorted = current.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0)).slice(0, MAX_READY_SOURCES);
+    const sorted = [...current].sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0)).slice(0, MAX_READY_SOURCES);
     localStorage.setItem(READY_SOURCES_STORAGE_KEY, JSON.stringify(sorted));
 }
 
@@ -200,8 +201,9 @@ window.selectReadySource = (encodedName) => {
     const bookInput = document.getElementById('std-q-kitap');
     const preview = document.getElementById('std-source-image-preview');
     if (!bookInput) return;
-    bookInput.value = name;
     const source = getReadySources().find(s => s.name === name);
+    if (!source) return;
+    bookInput.value = source.name;
     if (source && source.image) {
         stdSourceImageBase64 = source.image;
         if (preview) {
