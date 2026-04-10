@@ -18,7 +18,7 @@ const { calculateEarnedPoints, calculateNextReviewDate } = require("./services/g
 
 const app = express();
 const server = http.createServer(app);
-const ROOT_ADMIN_EMAIL = "kayamert319@gmail.com";
+const ROOT_ADMIN_EMAIL = "kayamert319@gmail.com".toLowerCase();
 const adminEmailsFromEnv = process.env.ADMIN_EMAILS || process.env.ADMIN_EMAIL || "";
 const ADMIN_EMAILS = Array.from(new Set([ROOT_ADMIN_EMAIL, ...adminEmailsFromEnv
     .split(",")

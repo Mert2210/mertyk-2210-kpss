@@ -836,7 +836,7 @@ onAuthStateChanged(auth, user => {
         const isPending = (roleFromAuth === "teacher_pending");
 
         if (isPending && !isAdmin) {
-            alert("⏳ Hesabınız yönetici onayındadır. Onay sonrası giriş yapabilirsiniz.");
+            alert("⏳ Hesabınız yönetici onayında. Onay sonrası giriş yapabilirsiniz.");
             signOut(auth).finally(() => window.showScreen('screen-auth'));
             return;
         }
