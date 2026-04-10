@@ -822,6 +822,10 @@ onAuthStateChanged(auth, user => {
             document.getElementById('settings-screen-title').textContent = '👤 Profil & Ayarlar';
             NAV_ITEM_MAP['screen-settings'] = 'nav-profil';
         } else {
+            const settingsEl = document.getElementById('screen-settings');
+            settingsEl.classList.remove('profile-mode');
+            settingsEl.classList.add('derslerim-mode');
+            document.getElementById('settings-screen-title').textContent = '📚 Derslerim';
             NAV_ITEM_MAP['screen-settings'] = 'nav-derslerim';
         }
 
