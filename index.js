@@ -8,11 +8,30 @@ const { Server } = require("socket.io");
 const fs = require("fs");
 const path = require("path");
 const cors = require("cors");
+const rateLimit = require("express-rate-limit");
 const admin = require("firebase-admin");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
+const { fisherYatesShuffle, shuffleOptions, getFiltersData } = require("./utils/question-utils");
+const { readJsonFile, writeJsonFile } = require("./services/json-store");
+const { sanitizeString, isValidImageDataUrl, isTeacherRole, isAdminRole } = require("./services/security-utils");
+const { calculateEarnedPoints, calculateNextReviewDate } = require("./services/game-rules");
 
 const app = express();
 const server = http.createServer(app);
+const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || "")
+    .split(",")
+    .map((x) => x.trim().toLocaleLowerCase("tr"))
+    .filter(Boolean);
+if (ADMIN_EMAILS.length === 0) {
+    console.warn("⚠️ ADMIN_EMAILS tanımlı değil. Yönetici işlemleri devre dışı kalacaktır.");
+}
+const staticFileLimiter = rateLimit({
+    windowMs: 60 * 1000,
+    max: 120,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: "Çok fazla istek. Lütfen daha sonra tekrar deneyin." }
+});
 
 // VERİ İŞLEME KAPASİTESİ (Resimli sorular için kritik)
 app.use(express.json({ limit: '10mb' }));
@@ -43,7 +62,7 @@ if (serviceAccount) {
 }
 const db = admin.apps.length ? admin.firestore() : null;
 
-app.get('/', (req, res) => {
+app.get('/', staticFileLimiter, (req, res) => {
     const indexPath = fs.existsSync(path.join(__dirname, 'public', 'index.html')) 
         ? path.join(__dirname, 'public', 'index.html') 
         : path.join(__dirname, 'index.html');
@@ -51,27 +70,44 @@ app.get('/', (req, res) => {
 });
 
 // UYGULAMA İKON VE MANIFEST YÖNLENDİRMELERİ
-app.get('/icon-192.png', (req, res) => { 
+app.get('/icon-192.png', staticFileLimiter, (req, res) => { 
     const iconPath = fs.existsSync(path.join(__dirname, 'public', 'icon-192.png')) ? path.join(__dirname, 'public', 'icon-192.png') : path.join(__dirname, 'icon-192.png');
     res.sendFile(iconPath); 
 });
-app.get('/icon-512.png', (req, res) => { 
+app.get('/icon-512.png', staticFileLimiter, (req, res) => { 
     const iconPath = fs.existsSync(path.join(__dirname, 'public', 'icon-512.png')) ? path.join(__dirname, 'public', 'icon-512.png') : path.join(__dirname, 'icon-512.png');
     res.sendFile(iconPath); 
 });
-app.get('/logo-square.png', (req, res) => { 
+app.get('/logo-square.png', staticFileLimiter, (req, res) => { 
     const iconPath = fs.existsSync(path.join(__dirname, 'public', 'logo-square.png')) ? path.join(__dirname, 'public', 'logo-square.png') : path.join(__dirname, 'logo-square.png');
     res.sendFile(iconPath); 
 });
-app.get('/manifest.json', (req, res) => { 
+app.get('/manifest.json', staticFileLimiter, (req, res) => { 
     const manifestPath = fs.existsSync(path.join(__dirname, 'public', 'manifest.json')) ? path.join(__dirname, 'public', 'manifest.json') : path.join(__dirname, 'manifest.json');
     res.sendFile(manifestPath); 
+});
+
+app.get('/app-config', staticFileLimiter, (req, res) => {
+    res.json({
+        firebaseConfig: {
+            apiKey: process.env.FIREBASE_API_KEY || "",
+            authDomain: process.env.FIREBASE_AUTH_DOMAIN || "",
+            projectId: process.env.FIREBASE_PROJECT_ID || "",
+            storageBucket: process.env.FIREBASE_STORAGE_BUCKET || "",
+            messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID || "",
+            appId: process.env.FIREBASE_APP_ID || "",
+            measurementId: process.env.FIREBASE_MEASUREMENT_ID || ""
+        }
+    });
 });
 
 let tumSorular = [];
 const QUESTIONS_FILE = path.join(__dirname, 'questions.json');
 const REPORTS_FILE = path.join(__dirname, 'reports.json'); 
 const CLASSES_FILE = path.join(__dirname, 'classes.json');
+const CLASS_MISTAKES_FILE = path.join(__dirname, 'class_mistakes.json');
+const REVIEW_QUEUE_FILE = path.join(__dirname, 'review_queue.json');
+const DEFAULT_VISUAL_QUESTION_TEXT = "Görsel soru";
 
 const geminiApiKey = process.env.GEMINI_API_KEY || "ANAHTAR_YOK";
 const genAI = new GoogleGenerativeAI(geminiApiKey);
@@ -99,37 +135,38 @@ sorulariYukle();
 
 const rooms = {};
 
-function fisherYatesShuffle(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
-}
-
-function shuffleOptions(q, maxOptions = 5) {
-    if (!q || !q.siklar) return q;
-    const originalCorrectText = q.siklar[q.dogru];
-    let newSiklar = [...q.siklar];
-    if (newSiklar.length > maxOptions) {
-        const wrongOptions = newSiklar.filter((s, i) => i !== q.dogru);
-        fisherYatesShuffle(wrongOptions); 
-        newSiklar = [originalCorrectText, ...wrongOptions.slice(0, maxOptions - 1)]; 
-    }
-    fisherYatesShuffle(newSiklar);
-    const newCorrectIndex = newSiklar.indexOf(originalCorrectText);
-    return { ...q, siklar: newSiklar, dogru: newCorrectIndex };
-}
-
-function getFiltersData() {
-    const denemeler = {};
-    const dersler = [...new Set(tumSorular.map(q => (q.ders || "Genel").trim().toLocaleUpperCase('tr')).filter(x => x))].sort();
-    tumSorular.forEach(q => { if (q.deneme) denemeler[q.deneme] = (denemeler[q.deneme] || 0) + 1; });
-    return { dersler, denemeler };
-}
-
 function listeleriHerkesinEkranindaGuncelle() {
-    io.emit('updateFilters', getFiltersData());
+    io.emit('updateFilters', getFiltersData(tumSorular));
+}
+
+function readClasses() {
+    return readJsonFile(CLASSES_FILE, {});
+}
+
+function writeClasses(classes) {
+    writeJsonFile(CLASSES_FILE, classes);
+}
+
+function currentUser(socket) {
+    return socket.data.user || { role: "guest", isVerified: false, email: "", name: "" };
+}
+
+function ensureTeacher(socket) {
+    const user = currentUser(socket);
+    if (!isTeacherRole(user.role)) {
+        socket.emit("errorMsg", "Bu işlem için öğretmen yetkisi gerekir.");
+        return false;
+    }
+    return true;
+}
+
+function ensureAdmin(socket) {
+    const user = currentUser(socket);
+    if (!isAdminRole(user.role)) {
+        socket.emit("errorMsg", "Bu işlem için yönetici yetkisi gerekir.");
+        return false;
+    }
+    return true;
 }
 
 // 🚨 BİLDİRİM (PUSH) GÖNDERME FONKSİYONU 🚨
@@ -149,10 +186,35 @@ async function sendPushNotification(topic, title, body) {
 }
 
 io.on("connection", (socket) => {
-    socket.emit('updateFilters', getFiltersData());
+    socket.emit('updateFilters', getFiltersData(tumSorular));
 
     socket.on("getFilters", () => {
-        socket.emit('updateFilters', getFiltersData());
+        socket.emit('updateFilters', getFiltersData(tumSorular));
+    });
+
+    socket.on("setUserContext", async ({ idToken, fallbackName }) => {
+        const safeName = sanitizeString(fallbackName, 120) || "Kullanıcı";
+        socket.data.user = { name: safeName, role: "student", isVerified: false, isAdmin: false, email: "" };
+
+        if (!idToken || !admin.apps.length) return;
+        try {
+            const decoded = await admin.auth().verifyIdToken(idToken);
+            const userRecord = await admin.auth().getUser(decoded.uid);
+            const displayName = userRecord.displayName || "";
+            const roleFromName = (displayName.split("|")[1] || "student").trim();
+            const email = (userRecord.email || "").toLocaleLowerCase("tr");
+            const isAdmin = ADMIN_EMAILS.includes(email);
+            socket.data.user = {
+                uid: decoded.uid,
+                email: userRecord.email || "",
+                name: sanitizeString(displayName.split("|")[0] || safeName, 120),
+                role: isAdmin ? "admin" : roleFromName,
+                isVerified: true,
+                isAdmin
+            };
+        } catch (error) {
+            socket.emit("errorMsg", "Kimlik doğrulama yapılamadı. Bazı işlemler kısıtlanabilir.");
+        }
     });
 
     socket.on("askGemini", async (qObj) => {
@@ -172,6 +234,8 @@ io.on("connection", (socket) => {
         try {
             if(geminiApiKey === "ANAHTAR_YOK") { socket.emit("geminiParsedData", "⚠️ Sunucuda API Anahtarı yok."); return; }
             if (!imageBase64 || typeof imageBase64 !== 'string') { socket.emit("geminiParsedData", "⚠️ Geçersiz görsel verisi."); return; }
+            if (!/^data:image\/(jpeg|jpg|png|gif|webp);base64,/i.test(imageBase64)) { socket.emit("geminiParsedData", "⚠️ Görsel formatı desteklenmiyor."); return; }
+            if (imageBase64.length > 2 * 1024 * 1024) { socket.emit("geminiParsedData", "⚠️ Görsel dosyası çok büyük (max 2 MB)."); return; }
             const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, "");
             const imageParts = [{ inlineData: { data: base64Data, mimeType: "image/jpeg" } }];
             const prompt = "Bu bir sınav sorusudur. Resmi analiz et. Soru metnini ve şıkları ayrı ayrı çıkar. Formatın şu olsun:\nSORU_METNI: [soruyu buraya yaz]\nSIKLAR: [A şıkkı] | [B şıkkı] | [C şıkkı] | [D şıkkı] | [E şıkkı]\nDOGRU_INDEKS: [sence doğru cevap hangisiyse 0'dan başlayarak sadece rakam yaz (A=0, B=1...)]";
@@ -182,17 +246,17 @@ io.on("connection", (socket) => {
 
     // 🚨 ADIM 2: İSİMLENDİRİLMİŞ SINIF OLUŞTURMA 🚨
     socket.on("createNamedClass", ({ teacherEmail, className }) => {
+        if (!ensureTeacher(socket)) return;
         if (typeof className !== 'string' || typeof teacherEmail !== 'string') return socket.emit("errorMsg", "Geçersiz istek.");
-        const safeClassName = className.trim().substring(0, 100);
-        const safeTeacherEmail = teacherEmail.trim().substring(0, 200);
+        const safeClassName = sanitizeString(className, 100);
+        const requestedEmail = sanitizeString(teacherEmail, 200);
+        const verifiedEmail = sanitizeString(currentUser(socket).email, 200);
+        const safeTeacherEmail = verifiedEmail || requestedEmail;
         if (!safeClassName || !safeTeacherEmail) return socket.emit("errorMsg", "Sınıf adı ve e-posta zorunludur.");
         const classCode = Math.random().toString(36).substring(2, 8).toUpperCase();
-        let classes = {};
-        if (fs.existsSync(CLASSES_FILE)) {
-            try { classes = JSON.parse(fs.readFileSync(CLASSES_FILE, 'utf8')); } catch (e) { classes = {}; }
-        }
+        const classes = readClasses();
         classes[classCode] = { name: safeClassName, teacher: safeTeacherEmail, students: [], createdAt: new Date().toISOString() };
-        fs.writeFileSync(CLASSES_FILE, JSON.stringify(classes, null, 2));
+        writeClasses(classes);
         
         // Hoca için listeyi tazele
         const teacherClasses = Object.keys(classes)
@@ -202,35 +266,56 @@ io.on("connection", (socket) => {
         socket.emit("classCreated", classCode);
     });
 
+    socket.on("createClass", (teacherName) => {
+        if (!ensureTeacher(socket)) return;
+        const user = currentUser(socket);
+        const safeTeacherEmail = sanitizeString(user.email, 200);
+        if (!safeTeacherEmail) return socket.emit("errorMsg", "Öğretmen e-posta bilgisi bulunamadı.");
+        const classCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+        const safeTeacherName = sanitizeString(teacherName, 100) || user.name || "Öğretmen";
+        const classes = readClasses();
+        classes[classCode] = {
+            name: `${safeTeacherName} Sınıfı`,
+            teacher: safeTeacherEmail,
+            students: [],
+            createdAt: new Date().toISOString()
+        };
+        writeClasses(classes);
+        socket.emit("classCreated", classCode);
+        socket.emit("teacherClassFound", classCode);
+        const teacherClasses = Object.keys(classes)
+            .filter(code => classes[code].teacher === safeTeacherEmail)
+            .map(code => ({ code, name: classes[code].name }));
+        socket.emit("teacherClassesData", teacherClasses);
+    });
+
     // 🚨 ADIM 2: HOCANIN SINIFLARINI GETİRME 🚨
     socket.on("getTeacherClass", (email) => {
-        if (fs.existsSync(CLASSES_FILE)) {
-            try {
-                const classes = JSON.parse(fs.readFileSync(CLASSES_FILE, 'utf8'));
-                const teacherClasses = Object.keys(classes)
-                    .filter(code => classes[code].teacher === email)
-                    .map(code => ({ code, name: classes[code].name }));
-                socket.emit("teacherClassesData", teacherClasses);
-            } catch (e) { socket.emit("teacherClassesData", []); }
-        }
+        if (!ensureTeacher(socket)) return;
+        const classes = readClasses();
+        const userEmail = sanitizeString(currentUser(socket).email, 200);
+        const requestedEmail = sanitizeString(email, 200);
+        const targetEmail = userEmail || requestedEmail;
+        const teacherClasses = Object.keys(classes)
+            .filter(code => classes[code].teacher === targetEmail)
+            .map(code => ({ code, name: classes[code].name }));
+        socket.emit("teacherClassesData", teacherClasses);
     });
 
     socket.on("joinClass", ({ code, studentName }) => {
         if (typeof code !== 'string' || typeof studentName !== 'string') return socket.emit("classJoined", { success: false });
-        const safeCode = code.trim().toUpperCase().substring(0, 20);
-        const safeName = studentName.trim().substring(0, 100);
+        const safeCode = sanitizeString(code, 20).toUpperCase();
+        const safeName = sanitizeString(studentName, 100);
         if (!safeCode || !safeName) return socket.emit("classJoined", { success: false });
-        if (fs.existsSync(CLASSES_FILE)) {
-            try {
-                let classes = JSON.parse(fs.readFileSync(CLASSES_FILE, 'utf8'));
-                if (classes[safeCode]) {
-                    if (!classes[safeCode].students.find(s => s.name === safeName)) {
-                        classes[safeCode].students.push({ name: safeName, joinedAt: new Date().toLocaleString('tr-TR') });
-                        fs.writeFileSync(CLASSES_FILE, JSON.stringify(classes, null, 2));
-                    }
-                    socket.emit("classJoined", { success: true, teacher: classes[safeCode].teacher, code: safeCode });
-                } else { socket.emit("classJoined", { success: false }); }
-            } catch (e) { socket.emit("classJoined", { success: false }); }
+        const classes = readClasses();
+        if (classes[safeCode]) {
+            if (!classes[safeCode].students.find(s => s.name === safeName)) {
+                classes[safeCode].students.push({ name: safeName, joinedAt: new Date().toLocaleString('tr-TR') });
+                writeClasses(classes);
+            }
+            socket.emit("classJoined", { success: true, teacher: classes[safeCode].teacher, code: safeCode });
+        } else {
+            socket.emit("classJoined", { success: false });
         }
     });
 
@@ -248,42 +333,65 @@ io.on("connection", (socket) => {
     });
 
     socket.on("getTeacherReports", async (classCode) => {
-        if(db && classCode) {
+        if (!ensureTeacher(socket)) return;
+        const safeClassCode = sanitizeString(classCode, 20).toUpperCase();
+        const classes = readClasses();
+        const roster = (classes[safeClassCode]?.students || []).map(s => sanitizeString(s.name, 100)).filter(Boolean);
+        if(db && safeClassCode) {
             try {
-                const snap = await db.collection("kpss_results").where("classCode", "==", classCode).orderBy("serverTime", "desc").get();
-                socket.emit("teacherReportsData", snap.docs.map(doc => doc.data()));
-            } catch(e) { socket.emit("teacherReportsData", []); }
-        } else { socket.emit("teacherReportsData", []); }
+                const snap = await db.collection("kpss_results").where("classCode", "==", safeClassCode).orderBy("serverTime", "desc").get();
+                socket.emit("teacherReportsData", { reports: snap.docs.map(doc => doc.data()), roster });
+            } catch(e) { socket.emit("teacherReportsData", { reports: [], roster }); }
+        } else { socket.emit("teacherReportsData", { reports: [], roster }); }
     });
 
     socket.on("sendGlobalAlert", (data) => {
+        if (!ensureTeacher(socket)) return;
         if (!data || typeof data !== 'object') return;
         if (typeof data.message !== 'string' || data.message.trim() === '') return;
-        const safeMessage = data.message.trim().substring(0, 500);
-        const safeSender = typeof data.sender === 'string' ? data.sender.trim().substring(0, 100) : "Eğitmen";
+        const safeMessage = sanitizeString(data.message, 500);
+        const safeSender = sanitizeString(data.sender || currentUser(socket).name || "Eğitmen", 100);
         io.emit("receiveGlobalAlert", { message: safeMessage, sender: safeSender });
         // Eğer istersen ileride bu duyuruyu bildirim (push) olarak da attırabiliriz:
         // sendPushNotification("global", "📢 " + (data.sender || "Eğitmen"), data.message);
     });
 
     socket.on("addNewQuestion", async (newQ) => {
+        if (!ensureTeacher(socket)) return;
         if (!newQ || typeof newQ !== 'object') return socket.emit("errorMsg", "Geçersiz soru verisi.");
         if (typeof newQ.soru !== 'string' || typeof newQ.classCode !== 'string') return socket.emit("errorMsg", "Soru metni ve sınıf kodu zorunludur.");
-        if (newQ.soru.trim() === '' || newQ.classCode.trim() === '') return socket.emit("errorMsg", "Soru metni ve sınıf kodu boş olamaz.");
-        const MAX_IMAGE_SIZE = 2 * 1024 * 1024; // 2 MB base64 string length (~1.5 MB decoded)
-        if (newQ.image && (typeof newQ.image !== 'string' || newQ.image.length > MAX_IMAGE_SIZE)) return socket.emit("errorMsg", "Soru görseli çok büyük (max 2 MB).");
-        if (newQ.solutionImage && (typeof newQ.solutionImage !== 'string' || newQ.solutionImage.length > MAX_IMAGE_SIZE)) return socket.emit("errorMsg", "Çözüm görseli çok büyük (max 2 MB).");
-        tumSorular.push(newQ);
-        fs.writeFileSync(QUESTIONS_FILE, JSON.stringify(tumSorular, null, 2));
-        if (db) { try { await db.collection("kpss_sorular").add({ ...newQ, createdAt: admin.firestore.FieldValue.serverTimestamp() }); } catch (e) {} }
+        const safeQuestionText = sanitizeString(newQ.soru, 10000);
+        const safeClassCode = sanitizeString(newQ.classCode, 20).toUpperCase();
+        if (!safeQuestionText || !safeClassCode) return socket.emit("errorMsg", "Soru metni ve sınıf kodu boş olamaz.");
+        if (newQ.image && !isValidImageDataUrl(newQ.image)) return socket.emit("errorMsg", "Soru görseli geçersiz veya çok büyük (max 2 MB).");
+        if (newQ.solutionImage && !isValidImageDataUrl(newQ.solutionImage)) return socket.emit("errorMsg", "Çözüm görseli geçersiz veya çok büyük (max 2 MB).");
+        const classes = readClasses();
+        const teacherEmail = sanitizeString(currentUser(socket).email, 200);
+        if (!classes[safeClassCode] || !classes[safeClassCode].teacher) {
+            return socket.emit("errorMsg", "Geçerli bir sınıf seçmeden soru ekleyemezsiniz.");
+        }
+        if (!teacherEmail || classes[safeClassCode].teacher !== teacherEmail) {
+            return socket.emit("errorMsg", "Bu sınıfa soru ekleme yetkiniz yok.");
+        }
+        const safeQ = {
+            ...newQ,
+            soru: safeQuestionText,
+            classCode: safeClassCode,
+            ders: sanitizeString(newQ.ders || "GENEL", 60).toLocaleUpperCase("tr"),
+            deneme: sanitizeString(newQ.deneme || "", 200),
+            solutionText: sanitizeString(newQ.solutionText || "", 5000)
+        };
+        tumSorular.push(safeQ);
+        writeJsonFile(QUESTIONS_FILE, tumSorular);
+        if (db) { try { await db.collection("kpss_sorular").add({ ...safeQ, createdAt: admin.firestore.FieldValue.serverTimestamp() }); } catch (e) {} }
         listeleriHerkesinEkranindaGuncelle();
         
         // 🚨 YENİ SORU EKLENDİĞİNDE BİLDİRİM GÖNDER 🚨
-        if (newQ.classCode) {
+        if (safeQ.classCode) {
             sendPushNotification(
-                newQ.classCode, 
+                safeQ.classCode, 
                 "👨‍🏫 Öğretmenin Yeni Bir Soru Ekledi!", 
-                `${newQ.ders} dersinden çözülmeyi bekleyen yeni bir soru var. Haydi kumbaraya!`
+                `${safeQ.ders} dersinden çözülmeyi bekleyen yeni bir soru var. Haydi kumbaraya!`
             );
         }
     });
@@ -346,9 +454,11 @@ io.on("connection", (socket) => {
     });
 
     socket.on("updateReviewDate", async ({ questionId, additionalDays }) => {
+        const safeDays = Number(additionalDays);
+        if (!Number.isFinite(safeDays) || safeDays <= 0) return socket.emit("errorMsg", "Geçerli bir erteleme süresi seçin.");
         if(db && questionId) {
             try {
-                const newDate = Date.now() + (additionalDays * 24 * 60 * 60 * 1000);
+                const newDate = calculateNextReviewDate(safeDays);
                 await db.collection("student_questions").doc(questionId).update({ nextReviewDate: newDate });
             } catch(e) {}
         }
@@ -366,7 +476,74 @@ io.on("connection", (socket) => {
         }
     });
 
+    socket.on("saveClassMistakes", ({ classCode, mistakes }) => {
+        if (!classCode || !Array.isArray(mistakes)) return;
+        const safeClassCode = sanitizeString(classCode, 20).toUpperCase();
+        const classes = readClasses();
+        const teacherEmail = sanitizeString(currentUser(socket).email, 200);
+        if (classes[safeClassCode] && classes[safeClassCode].teacher && teacherEmail && classes[safeClassCode].teacher !== teacherEmail) {
+            return socket.emit("errorMsg", "Bu sınıf için hata analizi kaydetme yetkiniz yok.");
+        }
+        const allMistakes = readJsonFile(CLASS_MISTAKES_FILE, {});
+        if (!allMistakes[safeClassCode]) allMistakes[safeClassCode] = [];
+        mistakes.forEach((m) => {
+            const soru = sanitizeString(m?.soru || m?.not || DEFAULT_VISUAL_QUESTION_TEXT, 10000);
+            const ders = sanitizeString(m?.ders || "GENEL", 60).toLocaleUpperCase("tr");
+            const konu = sanitizeString(m?.konu || m?.deneme || "-", 120);
+            const safeSoru = soru || DEFAULT_VISUAL_QUESTION_TEXT;
+            allMistakes[safeClassCode].push({ soru: safeSoru, ders, konu, createdAt: Date.now() });
+        });
+        writeJsonFile(CLASS_MISTAKES_FILE, allMistakes);
+    });
+
+    socket.on("getClassMistakes", (classCode) => {
+        if (!ensureTeacher(socket)) return;
+        const safeClassCode = sanitizeString(classCode, 20).toUpperCase();
+        const allMistakes = readJsonFile(CLASS_MISTAKES_FILE, {});
+        const list = allMistakes[safeClassCode] || [];
+        const map = new Map();
+        list.forEach((item) => {
+            const key = `${item.ders}|${item.konu}|${item.soru}`;
+            const prev = map.get(key) || { ders: item.ders, konu: item.konu, soru: item.soru, count: 0 };
+            prev.count += 1;
+            map.set(key, prev);
+        });
+        socket.emit("classMistakesData", Array.from(map.values()).sort((a, b) => b.count - a.count));
+    });
+
+    socket.on("addToReviewQueue", ({ studentName, question }) => {
+        const queue = readJsonFile(REVIEW_QUEUE_FILE, []);
+        queue.push({
+            studentName: sanitizeString(studentName, 100),
+            question: {
+                soru: sanitizeString(question?.soru || question?.not || "", 10000),
+                ders: sanitizeString(question?.ders || "", 60),
+                konu: sanitizeString(question?.konu || question?.deneme || "", 120)
+            },
+            createdAt: Date.now()
+        });
+        writeJsonFile(REVIEW_QUEUE_FILE, queue.slice(-5000));
+    });
+
+    socket.on("getEvaluationData", async (classCode) => {
+        if (!ensureTeacher(socket)) return;
+        const safeClassCode = sanitizeString(classCode, 20).toUpperCase();
+        if (!safeClassCode) return socket.emit("evaluationData", { reports: [], averageScore: 0 });
+        try {
+            let reports = [];
+            if (db) {
+                const snap = await db.collection("kpss_results").where("classCode", "==", safeClassCode).orderBy("serverTime", "desc").get();
+                reports = snap.docs.map(doc => doc.data());
+            }
+            const avg = reports.length ? Math.round(reports.reduce((acc, x) => acc + (Number(x.score) || 0), 0) / reports.length) : 0;
+            socket.emit("evaluationData", { reports, averageScore: avg });
+        } catch (error) {
+            socket.emit("evaluationData", { reports: [], averageScore: 0 });
+        }
+    });
+
     socket.on("getPendingTeachers", async () => {
+        if (!ensureAdmin(socket)) return;
         if(admin.apps.length) {
             try {
                 const listUsersResult = await admin.auth().listUsers(1000);
@@ -382,6 +559,7 @@ io.on("connection", (socket) => {
     });
 
     socket.on("approveTeacher", async (email) => {
+        if (!ensureAdmin(socket)) return;
         if(admin.apps.length) {
             try {
                 const userRecord = await admin.auth().getUserByEmail(email);
@@ -404,17 +582,13 @@ io.on("connection", (socket) => {
 
     socket.on("reportQuestion", (qObj) => {
         if (!qObj || typeof qObj !== 'object') return;
-        let reports = [];
-        if (fs.existsSync(REPORTS_FILE)) { try { reports = JSON.parse(fs.readFileSync(REPORTS_FILE, 'utf8')); } catch (e) { reports = []; } }
+        let reports = readJsonFile(REPORTS_FILE, []);
         reports.push({ ...qObj, reportedAt: new Date().toLocaleString('tr-TR'), reportedBySocket: socket.id });
-        fs.writeFileSync(REPORTS_FILE, JSON.stringify(reports, null, 2));
+        writeJsonFile(REPORTS_FILE, reports);
     });
 
     socket.on("adminGetReports", () => {
-        if (fs.existsSync(REPORTS_FILE)) {
-            try { socket.emit("allReportsData", JSON.parse(fs.readFileSync(REPORTS_FILE, 'utf8'))); } 
-            catch (e) { socket.emit("allReportsData", []); }
-        } else { socket.emit("allReportsData", []); }
+        socket.emit("allReportsData", readJsonFile(REPORTS_FILE, []));
     });
 
     socket.on("createRoom", (data) => {
@@ -511,7 +685,7 @@ io.on("connection", (socket) => {
 
             if (isCorrect) {
                 const gecen = (Date.now() - room.questionStartTime) / 1000;
-                earnedPoints = 10 + Math.ceil(Math.max(0, 20 - gecen) / 2);
+                earnedPoints = calculateEarnedPoints(gecen);
                 player.score += earnedPoints;
             } else if (answerIndex !== -1) { player.score -= 5; }
             
