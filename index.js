@@ -18,14 +18,12 @@ const { calculateEarnedPoints, calculateNextReviewDate } = require("./services/g
 
 const app = express();
 const server = http.createServer(app);
+const ROOT_ADMIN_EMAIL = "kayamert319@gmail.com";
 const adminEmailsFromEnv = process.env.ADMIN_EMAILS || process.env.ADMIN_EMAIL || "";
-const ADMIN_EMAILS = adminEmailsFromEnv
+const ADMIN_EMAILS = Array.from(new Set([ROOT_ADMIN_EMAIL, ...adminEmailsFromEnv
     .split(",")
     .map((x) => x.trim().toLowerCase())
-    .filter(Boolean);
-if (ADMIN_EMAILS.length === 0) {
-    console.warn("⚠️ ADMIN_EMAILS (veya ADMIN_EMAIL) tanımlı değil. Yönetici işlemleri devre dışı kalacaktır.");
-}
+    .filter(Boolean)]));
 const staticFileLimiter = rateLimit({
     windowMs: 60 * 1000,
     max: 120,
@@ -213,6 +211,16 @@ io.on("connection", (socket) => {
                 isVerified: true,
                 isAdmin
             };
+            if (db && roleFromName === "teacher_pending" && !isAdmin) {
+                await db.collection("teacher_approvals").doc(decoded.uid).set({
+                    uid: decoded.uid,
+                    email: userRecord.email || "",
+                    name: sanitizeString(displayName.split("|")[0] || safeName, 120),
+                    status: "pending",
+                    isApproved: false,
+                    updatedAt: admin.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+            }
         } catch (error) {
             socket.emit("errorMsg", "Kimlik doğrulama yapılamadı. Bazı işlemler kısıtlanabilir.");
         }
@@ -567,6 +575,17 @@ io.on("connection", (socket) => {
                 if(userRecord.displayName && userRecord.displayName.includes("|teacher_pending")) {
                     const newName = userRecord.displayName.replace("teacher_pending", "teacher");
                     await admin.auth().updateUser(userRecord.uid, { displayName: newName });
+                    if (db) {
+                        await db.collection("teacher_approvals").doc(userRecord.uid).set({
+                            uid: userRecord.uid,
+                            email: userRecord.email || "",
+                            name: sanitizeString(newName.split("|")[0] || "", 120),
+                            status: "approved",
+                            isApproved: true,
+                            approvedAt: admin.firestore.FieldValue.serverTimestamp(),
+                            updatedAt: admin.firestore.FieldValue.serverTimestamp()
+                        }, { merge: true });
+                    }
                     
                     const listUsersResult = await admin.auth().listUsers(1000);
                     const pending = [];

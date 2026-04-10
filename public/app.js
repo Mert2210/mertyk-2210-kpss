@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-import { getAuth, onAuthStateChanged, updateProfile, updatePassword, EmailAuthProvider, reauthenticateWithCredential, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInAnonymously, signOut, GoogleAuthProvider, signInWithRedirect, getRedirectResult, sendEmailVerification, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+import { getAuth, onAuthStateChanged, updateProfile, updatePassword, EmailAuthProvider, reauthenticateWithCredential, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInAnonymously, signOut, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, sendEmailVerification, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-messaging.js";
 
 const fallbackFirebaseConfig = { 
@@ -21,6 +21,7 @@ const firebaseConfig = runtimeFirebase.apiKey
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const messaging = getMessaging(app);
+const ROOT_ADMIN_EMAIL = "kayamert319@gmail.com";
 const APP_STATE = {
     currentUser: { name: "", role: "guest", email: "" },
     room: { code: "", mode: "room" },
@@ -748,20 +749,45 @@ window.handleResetPassword = async () => {
 };
 
 window.handleGoogleLogin = async () => { 
-    try { 
-        await signInWithRedirect(auth, new GoogleAuthProvider()); 
-    } catch(e) { 
-        alert(e.message); 
+    const provider = new GoogleAuthProvider();
+    try {
+        const cred = await signInWithPopup(auth, provider);
+        const signedInUser = cred?.user || auth.currentUser;
+        if (signedInUser && (!signedInUser.displayName || !signedInUser.displayName.includes("|"))) {
+            const fallbackName = (signedInUser.displayName || signedInUser.email?.split('@')[0] || "Kullanıcı").trim();
+            await updateProfile(signedInUser, { displayName: `${fallbackName}|student` });
+        }
+        if (!(signedInUser?.displayName || "").includes("|teacher_pending")) {
+            window.showScreen('screen-main');
+        }
+    } catch(e) {
+        const fallbackToRedirect = ['auth/popup-blocked', 'auth/cancelled-popup-request', 'auth/operation-not-supported-in-this-environment'].includes(e?.code);
+        if (fallbackToRedirect) {
+            await signInWithRedirect(auth, provider);
+            return;
+        }
+        alert("❌ Google girişi başarısız: " + (e?.message || "Bilinmeyen hata"));
     } 
 };
 
-getRedirectResult(auth).catch(e => {
-    if (!e) return;
-    const ignoredCodes = ['auth/no-current-user', 'auth/cancelled-popup-request', 'auth/popup-closed-by-user'];
-    if (!ignoredCodes.includes(e.code)) {
-        alert("❌ Google girişi başarısız: " + e.message);
-    }
-});
+getRedirectResult(auth)
+    .then(async (result) => {
+        const redirectUser = result?.user;
+        if (redirectUser && (!redirectUser.displayName || !redirectUser.displayName.includes("|"))) {
+            const fallbackName = (redirectUser.displayName || redirectUser.email?.split('@')[0] || "Kullanıcı").trim();
+            await updateProfile(redirectUser, { displayName: `${fallbackName}|student` });
+        }
+        if (redirectUser && !(redirectUser.displayName || "").includes("|teacher_pending")) {
+            window.showScreen('screen-main');
+        }
+    })
+    .catch(e => {
+        if (!e) return;
+        const ignoredCodes = ['auth/no-current-user', 'auth/cancelled-popup-request', 'auth/popup-closed-by-user'];
+        if (!ignoredCodes.includes(e.code)) {
+            alert("❌ Google girişi başarısız: " + e.message);
+        }
+    });
 
 async function syncSocketUserContext(user, role, name) {
     if (!socket) return;
@@ -797,17 +823,23 @@ onAuthStateChanged(auth, user => {
         
         const nameParts = nameFromAuth.split('|'); 
         const realName = nameParts[0]; 
-        const role = nameParts[1] || "student";
+        const roleFromAuth = nameParts[1] || "student";
+        const normalizedEmail = (user.email || "").toLowerCase();
+        const isAdmin = (normalizedEmail === ROOT_ADMIN_EMAIL);
+        const role = isAdmin ? "admin" : roleFromAuth;
         APP_STATE.currentUser = { name: realName, role, email: user.email || "" };
         
         document.getElementById('display-user').innerText = "Hoş Geldin, " + realName; 
         document.getElementById('profile-new-name').value = realName;
         
-        const isAdmin = (user.email === "kayamert319@gmail.com"); 
         const isTeacher = (role === "teacher" || isAdmin); 
-        const isPending = (role === "teacher_pending");
+        const isPending = (roleFromAuth === "teacher_pending");
 
-        if(isPending && !isAdmin) alert("⏳ Öğretmen hesabınız yönetici onayı bekliyor. Şimdilik öğrenci görünümündesiniz.");
+        if (isPending && !isAdmin) {
+            alert("⏳ Hesabınız yönetici onayındadır. Onay sonrası giriş yapabilirsiniz.");
+            signOut(auth).finally(() => window.showScreen('screen-auth'));
+            return;
+        }
         
         if (instPanel) instPanel.style.display = isTeacher ? "block" : "none";
         if (studentArea) studentArea.style.display = isTeacher ? "none" : "block"; 
