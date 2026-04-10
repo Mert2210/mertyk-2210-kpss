@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-import { getAuth, onAuthStateChanged, updateProfile, updatePassword, EmailAuthProvider, reauthenticateWithCredential, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInAnonymously, signOut, GoogleAuthProvider, signInWithPopup, sendEmailVerification, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+import { getAuth, onAuthStateChanged, updateProfile, updatePassword, EmailAuthProvider, reauthenticateWithCredential, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInAnonymously, signOut, GoogleAuthProvider, signInWithRedirect, getRedirectResult, sendEmailVerification, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-messaging.js";
 
 const fallbackFirebaseConfig = { 
@@ -728,11 +728,19 @@ window.handleResetPassword = async () => {
 
 window.handleGoogleLogin = async () => { 
     try { 
-        await signInWithPopup(auth, new GoogleAuthProvider()); 
+        await signInWithRedirect(auth, new GoogleAuthProvider()); 
     } catch(e) { 
         alert(e.message); 
     } 
 };
+
+getRedirectResult(auth).catch(e => {
+    if (!e) return;
+    const ignoredCodes = ['auth/no-current-user', 'auth/cancelled-popup-request', 'auth/popup-closed-by-user'];
+    if (!ignoredCodes.includes(e.code)) {
+        alert("❌ Google girişi başarısız: " + e.message);
+    }
+});
 
 async function syncSocketUserContext(user, role, name) {
     if (!socket) return;
