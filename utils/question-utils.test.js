@@ -125,6 +125,9 @@ test("getFiltersData normalizes lessons and counts deneme values", () => {
 });
 
 test("getFiltersData returns empty structures for empty input", () => {
-    const filters = getFiltersData();
-    assert.deepStrictEqual(filters, { dersler: [], denemeler: {} });
+    const filtersFromUndefined = getFiltersData();
+    const filtersFromEmptyArray = getFiltersData([]);
+
+    assert.deepStrictEqual(filtersFromUndefined, { dersler: [], denemeler: {} });
+    assert.deepStrictEqual(filtersFromEmptyArray, { dersler: [], denemeler: {} });
 });
