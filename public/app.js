@@ -204,7 +204,7 @@ window.selectReadySource = (encodedName) => {
     const source = getReadySources().find(s => s.name === name);
     if (!source) return;
     bookInput.value = source.name;
-    if (source && source.image) {
+    if (source.image) {
         stdSourceImageBase64 = source.image;
         if (preview) {
             preview.src = safeImageSrc(source.image);
@@ -940,7 +940,7 @@ window.processStudentImageUpload = (e, type = 'image') => {
             } else if (type === 'solution') { 
                 stdSolutionBase64 = canvas.toDataURL('image/jpeg', 0.7); 
                 alert("✅ Çözüm fotoğrafı başarıyla eklendi!"); 
-            } else {
+            } else if (type === 'source') {
                 stdSourceImageBase64 = canvas.toDataURL('image/jpeg', 0.7);
                 const sourcePreview = document.getElementById('std-source-image-preview');
                 if (sourcePreview) {
@@ -948,6 +948,8 @@ window.processStudentImageUpload = (e, type = 'image') => {
                     sourcePreview.style.display = 'block';
                 }
                 alert("✅ Kaynakça resmi eklendi.");
+            } else {
+                return;
             }
         }; 
         img.src = event.target.result;
