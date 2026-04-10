@@ -36,6 +36,13 @@ test("fisherYatesShuffle shuffles in place and keeps all elements", () => {
     });
 });
 
+test("fisherYatesShuffle safely handles empty arrays", () => {
+    const items = [];
+    const result = fisherYatesShuffle(items);
+    assert.strictEqual(result, items);
+    assert.deepStrictEqual(result, []);
+});
+
 test("shuffleOptions returns input unchanged when question is invalid", () => {
     assert.strictEqual(shuffleOptions(null), null);
     const questionWithoutOptions = { soru: "x" };
@@ -75,6 +82,35 @@ test("shuffleOptions shuffles all options when option count is within max", () =
     });
 });
 
+test("shuffleOptions does not mutate the original options array", () => {
+    const question = {
+        soru: "Mutasyon testi",
+        siklar: ["A", "B", "C", "D", "E", "F"],
+        dogru: 4
+    };
+    const originalOptions = [...question.siklar];
+
+    withMockedRandom([0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2], () => {
+        shuffleOptions(question, 4);
+    });
+
+    assert.deepStrictEqual(question.siklar, originalOptions);
+});
+
+test("shuffleOptions keeps only correct option when maxOptions is 1", () => {
+    const question = {
+        soru: "Tek seçenek testi",
+        siklar: ["A", "B", "C", "D"],
+        dogru: 2
+    };
+
+    withMockedRandom([0.9, 0.8, 0.7], () => {
+        const shuffled = shuffleOptions(question, 1);
+        assert.deepStrictEqual(shuffled.siklar, ["C"]);
+        assert.equal(shuffled.dogru, 0);
+    });
+});
+
 test("getFiltersData normalizes lessons and counts deneme values", () => {
     const filters = getFiltersData([
         { ders: " tarih ", deneme: "D1" },
@@ -86,4 +122,9 @@ test("getFiltersData normalizes lessons and counts deneme values", () => {
 
     assert.deepStrictEqual(filters.dersler, ["COĞRAFYA", "GENEL", "TARİH"]);
     assert.deepStrictEqual(filters.denemeler, { D1: 3, D2: 1 });
+});
+
+test("getFiltersData returns empty structures for empty input", () => {
+    const filters = getFiltersData();
+    assert.deepStrictEqual(filters, { dersler: [], denemeler: {} });
 });
