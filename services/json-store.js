@@ -5,6 +5,7 @@ function readJsonFile(filePath, fallbackValue) {
     try {
         return JSON.parse(fs.readFileSync(filePath, "utf8"));
     } catch (error) {
+        console.error(`JSON parse error at ${filePath}:`, error.message);
         return fallbackValue;
     }
 }

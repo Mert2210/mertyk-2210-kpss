@@ -6,7 +6,7 @@ function sanitizeString(value, maxLength = 100) {
 function isValidImageDataUrl(value, maxLength = 2 * 1024 * 1024) {
     if (!value || typeof value !== "string") return false;
     if (value.length > maxLength) return false;
-    return /^data:image\/(jpeg|jpg|png|gif|webp);base64,[a-zA-Z0-9+/=\s]+$/.test(value);
+    return /^data:image\/(jpeg|jpg|png|gif|webp);base64,[a-zA-Z0-9+/=]+$/.test(value);
 }
 
 function isTeacherRole(role) {

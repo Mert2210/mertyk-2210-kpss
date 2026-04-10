@@ -21,6 +21,13 @@ const firebaseConfig = runtimeFirebase.apiKey
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const messaging = getMessaging(app);
+const APP_STATE = {
+    currentUser: { name: "", role: "guest", email: "" },
+    room: { code: "", mode: "room" },
+    quiz: { index: 0, total: 0, timerMode: "question" },
+    activeListType: ""
+};
+const DEFAULT_ERROR_MESSAGE = "İşlem sırasında bir hata oluştu.";
 
 // 🚨 YENİ NESİL MÜFREDAT AĞACI VE KAPSÜL (BUTON) SİSTEMİ BAŞLANGICI 🚨
 window.mufredat = {
@@ -805,13 +812,6 @@ function safeImageSrc(src) {
 let socket; 
 try { socket = io(); } catch(e) { console.warn("Socket sunucusu yok."); }
 
-const APP_STATE = {
-    currentUser: { name: "", role: "guest", email: "" },
-    room: { code: "", mode: "room" },
-    quiz: { index: 0, total: 0, timerMode: "question" },
-    activeListType: ""
-};
-
 let currentMode = "room", myRoom = "", currentQIndex = 0, qInt = null, totalInt = null, trialQuestions = [], trialAnswers = [];
 let roomSolvedIndices = new Set(), roomTotalQuestions = 0;
 let currentQObject = null, currentListType = "", selectedTimerMode = "question";
@@ -864,7 +864,7 @@ if(socket) {
         }
     });
     socket.on("errorMsg", (msg) => {
-        const safeMsg = typeof msg === "string" && msg.trim() ? msg : "İşlem sırasında bir hata oluştu.";
+        const safeMsg = typeof msg === "string" && msg.trim() ? msg : DEFAULT_ERROR_MESSAGE;
         alert(`⚠️ ${safeMsg}`);
     });
 }

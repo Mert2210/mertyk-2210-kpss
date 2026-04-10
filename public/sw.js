@@ -1,3 +1,5 @@
+self.OFFLINE_HTML = '<!doctype html><html lang="tr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Çevrimdışı</title></head><body><h3>Çevrimdışısınız</h3><p>Lütfen internet bağlantınızı kontrol edin.</p></body></html>';
+
 self.addEventListener('install', (e) => {
     console.log('[Service Worker] Kuruldu');
     self.skipWaiting();
@@ -11,7 +13,7 @@ self.addEventListener('fetch', (e) => {
         fetch(e.request).catch(() => {
             if (e.request.mode === 'navigate') {
                 return new Response(
-                    '<!doctype html><html><body><h3>Çevrimdışısınız</h3><p>Lütfen internet bağlantınızı kontrol edin.</p></body></html>',
+                    self.OFFLINE_HTML,
                     { headers: { 'Content-Type': 'text/html; charset=UTF-8' }, status: 200 }
                 );
             }
