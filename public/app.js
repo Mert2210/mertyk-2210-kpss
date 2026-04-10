@@ -447,6 +447,8 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js').then(() => console.log("PWA Aktif."));
 }
 
+const ROLE_STUDENT = 'student';
+const ROLE_TEACHER = 'teacher';
 const BOTTOM_NAV_SCREENS = new Set(['screen-main', 'screen-settings', 'screen-gelisim', 'screen-friends', 'screen-stats', 'screen-list', 'screen-teacher']);
 const NAV_ITEM_MAP = {
     'screen-main': 'nav-ev',
@@ -457,15 +459,15 @@ const NAV_ITEM_MAP = {
     'screen-list': 'nav-gelisim',
     'screen-teacher': 'nav-ogretmen',
 };
-let activeNavRole = 'student';
+let activeNavRole = ROLE_STUDENT;
 
-window.applyRoleBasedBottomNav = (role = 'student') => {
-    activeNavRole = role === 'teacher' ? 'teacher' : 'student';
+window.applyRoleBasedBottomNav = (role = ROLE_STUDENT) => {
+    activeNavRole = role === ROLE_TEACHER ? ROLE_TEACHER : ROLE_STUDENT;
     document.querySelectorAll('.student-only').forEach((el) => {
-        el.style.display = activeNavRole === 'student' ? 'flex' : 'none';
+        el.style.display = activeNavRole === ROLE_STUDENT ? 'flex' : 'none';
     });
     document.querySelectorAll('.teacher-only').forEach((el) => {
-        el.style.display = activeNavRole === 'teacher' ? 'flex' : 'none';
+        el.style.display = activeNavRole === ROLE_TEACHER ? 'flex' : 'none';
     });
 };
 
@@ -495,7 +497,7 @@ window.openProfilePanel = () => {
 };
 
 window.openDerslerimPanel = () => {
-    if (activeNavRole !== 'student') return;
+    if (activeNavRole !== ROLE_STUDENT) return;
     const settingsEl = document.getElementById('screen-settings');
     settingsEl.classList.remove('profile-mode');
     settingsEl.classList.add('derslerim-mode');
@@ -505,7 +507,7 @@ window.openDerslerimPanel = () => {
 };
 
 window.openTeacherPanel = () => {
-    if (activeNavRole !== 'teacher') return;
+    if (activeNavRole !== ROLE_TEACHER) return;
     window.showScreen('screen-teacher');
 };
 
@@ -811,7 +813,7 @@ onAuthStateChanged(auth, user => {
         if (studentLibPanel) studentLibPanel.style.display = isTeacher ? "none" : "block";
         if (adminBtn) adminBtn.style.display = isAdmin ? "block" : "none";
         if (adminApproveBtn) adminApproveBtn.style.display = isAdmin ? "block" : "none";
-        window.applyRoleBasedBottomNav(isTeacher ? 'teacher' : 'student');
+        window.applyRoleBasedBottomNav(isTeacher ? ROLE_TEACHER : ROLE_STUDENT);
 
         if (isTeacher) {
             const settingsEl = document.getElementById('screen-settings');
