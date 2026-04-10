@@ -18,7 +18,8 @@ const { calculateEarnedPoints, calculateNextReviewDate } = require("./services/g
 
 const app = express();
 const server = http.createServer(app);
-const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || "")
+const DEFAULT_ADMIN_EMAILS = "kayamert319@gmail.com";
+const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || DEFAULT_ADMIN_EMAILS)
     .split(",")
     .map((x) => x.trim().toLocaleLowerCase("tr"))
     .filter(Boolean);
