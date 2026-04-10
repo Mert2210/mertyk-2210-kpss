@@ -459,10 +459,11 @@ const NAV_ITEM_MAP = {
     'screen-list': 'nav-gelisim',
     'screen-teacher': 'nav-ogretmen',
 };
-let activeNavRole = ROLE_STUDENT;
+let activeNavRole = localStorage.getItem('gazi_nav_role') === ROLE_TEACHER ? ROLE_TEACHER : ROLE_STUDENT;
 
 window.applyRoleBasedBottomNav = (role = ROLE_STUDENT) => {
     activeNavRole = role === ROLE_TEACHER ? ROLE_TEACHER : ROLE_STUDENT;
+    localStorage.setItem('gazi_nav_role', activeNavRole);
     document.querySelectorAll('.student-only').forEach((el) => {
         el.style.display = activeNavRole === ROLE_STUDENT ? 'flex' : 'none';
     });
@@ -815,14 +816,13 @@ onAuthStateChanged(auth, user => {
         if (adminApproveBtn) adminApproveBtn.style.display = isAdmin ? "block" : "none";
         window.applyRoleBasedBottomNav(isTeacher ? ROLE_TEACHER : ROLE_STUDENT);
 
+        const settingsEl = document.getElementById('screen-settings');
         if (isTeacher) {
-            const settingsEl = document.getElementById('screen-settings');
             settingsEl.classList.remove('derslerim-mode');
             settingsEl.classList.add('profile-mode');
             document.getElementById('settings-screen-title').textContent = '👤 Profil & Ayarlar';
             NAV_ITEM_MAP['screen-settings'] = 'nav-profil';
         } else {
-            const settingsEl = document.getElementById('screen-settings');
             settingsEl.classList.remove('profile-mode');
             settingsEl.classList.add('derslerim-mode');
             document.getElementById('settings-screen-title').textContent = '📚 Derslerim';
