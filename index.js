@@ -98,7 +98,8 @@ app.get('/app-config', staticFileLimiter, (req, res) => {
             messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID || "",
             appId: process.env.FIREBASE_APP_ID || "",
             measurementId: process.env.FIREBASE_MEASUREMENT_ID || ""
-        }
+        },
+        vapidKey: process.env.FIREBASE_VAPID_KEY || "BDX4qn3lgjY4ymc5ICAyjVsF8a0Cx7suWf12o9m5tA5WLcOLADHPPYxfGL1plWj0MMB_kgxXIfU1WY1yZgMYbmE"
     });
 });
 
@@ -191,6 +192,19 @@ io.on("connection", (socket) => {
 
     socket.on("getFilters", () => {
         socket.emit('updateFilters', getFiltersData(tumSorular));
+    });
+
+    socket.on("saveFcmToken", async ({ token, classCode }) => {
+        if (!admin.apps.length) return;
+        const safeToken = sanitizeString(token, 512);
+        const safeClass = sanitizeString(classCode, 20).toUpperCase();
+        if (!safeToken) return;
+        try {
+            await admin.messaging().subscribeToTopic([safeToken], 'global');
+            if (safeClass) await admin.messaging().subscribeToTopic([safeToken], safeClass);
+        } catch (e) {
+            console.error("⚠️ FCM topic aboneliği hatası:", e.message);
+        }
     });
 
     socket.on("setUserContext", async ({ idToken, fallbackName }) => {
@@ -353,8 +367,7 @@ io.on("connection", (socket) => {
         const safeMessage = sanitizeString(data.message, 500);
         const safeSender = sanitizeString(data.sender || currentUser(socket).name || "Eğitmen", 100);
         io.emit("receiveGlobalAlert", { message: safeMessage, sender: safeSender });
-        // Eğer istersen ileride bu duyuruyu bildirim (push) olarak da attırabiliriz:
-        // sendPushNotification("global", "📢 " + (data.sender || "Eğitmen"), data.message);
+        sendPushNotification("global", "📢 " + safeSender, safeMessage);
     });
 
     socket.on("addNewQuestion", async (newQ) => {

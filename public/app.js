@@ -1622,13 +1622,15 @@ if(socket) {
         document.getElementById('generated-code').innerText = "KODUNUZ: " + code; 
         window.myClassCode = code; 
         localStorage.setItem("gazi_class_code", code); 
-        socket.emit("getFilters", window.myClassCode); 
+        socket.emit("getFilters", window.myClassCode);
+        if (typeof Notification !== 'undefined' && Notification.permission === 'granted') registerFcmToken();
     }); 
     socket.on("teacherClassFound", (code) => { 
         document.getElementById('generated-code').innerText = "KODUNUZ: " + code; 
         window.myClassCode = code; 
         localStorage.setItem("gazi_class_code", code); 
-        socket.emit("getFilters", window.myClassCode); 
+        socket.emit("getFilters", window.myClassCode);
+        if (typeof Notification !== 'undefined' && Notification.permission === 'granted') registerFcmToken();
     }); 
 }
 
@@ -1648,7 +1650,10 @@ if(socket) socket.on("classJoined", (res) => {
         localStorage.setItem("gazi_class_code", res.code); 
         socket.emit("getFilters", window.myClassCode); 
         alert("✅ Sınıfa katıldın!"); 
-        document.getElementById('btn-class-questions').style.display = 'block'; 
+        document.getElementById('btn-class-questions').style.display = 'block';
+        if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+            registerFcmToken();
+        }
     } else {
         alert("❌ Geçersiz Sınıf Kodu!"); 
     }
@@ -2202,15 +2207,43 @@ function renderNavigator(total, curr, mode) {
 // 📢 BİLDİRİM İZNİ VE DUYURULAR
 // =====================================================================
 
+async function registerFcmToken() {
+    if (!('serviceWorker' in navigator) || !socket) return;
+    try {
+        const vapidKey = (window.__APP_CONFIG__ && window.__APP_CONFIG__.vapidKey)
+            || "BDX4qn3lgjY4ymc5ICAyjVsF8a0Cx7suWf12o9m5tA5WLcOLADHPPYxfGL1plWj0MMB_kgxXIfU1WY1yZgMYbmE";
+        const swReg = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+        const token = await getToken(messaging, { vapidKey, serviceWorkerRegistration: swReg });
+        if (token) {
+            socket.emit("saveFcmToken", { token, classCode: window.myClassCode || "" });
+        }
+    } catch (e) {
+        console.warn("FCM token alınamadı:", e);
+    }
+}
+
 window.requestNotificationPermission = async () => {
     if (typeof Notification === 'undefined') return;
     if (Notification.permission === 'default') {
         const result = await Notification.requestPermission();
         if (result === 'granted') {
             alert("✅ Bildirimler açıldı! Artık duyuruları ve hatırlatmaları alabilirsiniz.");
+            registerFcmToken();
         }
+    } else if (Notification.permission === 'granted') {
+        registerFcmToken();
     }
 };
+
+onMessage(messaging, (payload) => {
+    const title = (payload.notification && payload.notification.title) || 'Yeni Bildirim';
+    const body = (payload.notification && payload.notification.body) || '';
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.ready.then(reg => {
+            reg.showNotification(title, { body, icon: '/icon-192.png', badge: '/icon-192.png' });
+        }).catch(() => {});
+    }
+});
 
 function updateAnnounceBadge() {
     const badge = document.getElementById('announce-badge');
