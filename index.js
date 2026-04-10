@@ -18,13 +18,13 @@ const { calculateEarnedPoints, calculateNextReviewDate } = require("./services/g
 
 const app = express();
 const server = http.createServer(app);
-const DEFAULT_ADMIN_EMAILS = "kayamert319@gmail.com";
-const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || DEFAULT_ADMIN_EMAILS)
+const adminEmailsFromEnv = process.env.ADMIN_EMAILS || process.env.ADMIN_EMAIL || "";
+const ADMIN_EMAILS = adminEmailsFromEnv
     .split(",")
     .map((x) => x.trim().toLocaleLowerCase("tr"))
     .filter(Boolean);
 if (ADMIN_EMAILS.length === 0) {
-    console.warn("⚠️ ADMIN_EMAILS tanımlı değil. Yönetici işlemleri devre dışı kalacaktır.");
+    console.warn("⚠️ ADMIN_EMAILS (veya ADMIN_EMAIL) tanımlı değil. Yönetici işlemleri devre dışı kalacaktır.");
 }
 const staticFileLimiter = rateLimit({
     windowMs: 60 * 1000,
