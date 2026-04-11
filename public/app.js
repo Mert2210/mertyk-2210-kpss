@@ -1,6 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, updateProfile, updatePassword, EmailAuthProvider, reauthenticateWithCredential, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInAnonymously, signOut, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, sendEmailVerification, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-messaging.js";
+import { getStorage, ref as storageRef, uploadString, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
 
 const fallbackFirebaseConfig = { 
     apiKey: "AIzaSyDkZI-LxCOaog4kyb4YSquEK6ZpLNH2pqs", 
@@ -21,6 +22,7 @@ const firebaseConfig = runtimeFirebase.apiKey
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const messaging = getMessaging(app);
+const storage = getStorage(app);
 const ROOT_ADMIN_EMAIL = "kayamert319@gmail.com";
 const APP_STATE = {
     currentUser: { name: "", role: "guest", email: "" },
@@ -939,6 +941,24 @@ function safeImageSrc(src) {
     return '';
 }
 
+function getImageExtensionFromDataUrl(dataUrl) {
+    const match = /^data:image\/(jpeg|png|gif|webp);base64,/.exec(dataUrl || '');
+    if (!match) return 'jpg';
+    if (match[1] === 'jpeg') return 'jpg';
+    return match[1];
+}
+
+async function uploadImageDataUrlIfNeeded(dataUrl, folder) {
+    if (!dataUrl || typeof dataUrl !== 'string') return null;
+    if (/^https?:\/\//.test(dataUrl)) return dataUrl;
+    if (!/^data:image\/(jpeg|png|gif|webp);base64,/.test(dataUrl)) return null;
+    const ext = getImageExtensionFromDataUrl(dataUrl);
+    const fileName = `${Date.now()}_${Math.random().toString(36).slice(2, 10)}.${ext}`;
+    const fileRef = storageRef(storage, `${folder}/${fileName}`);
+    await uploadString(fileRef, dataUrl, 'data_url');
+    return getDownloadURL(fileRef);
+}
+
 let socket; 
 try { socket = io(); } catch(e) { console.warn("Socket sunucusu yok."); }
 
@@ -1129,7 +1149,7 @@ window.processStudentImageUpload = (e, type = 'image') => {
     reader.readAsDataURL(file);
 };
 
-window.uploadQuestion = () => {
+window.uploadQuestion = async () => {
     if(!socket) return alert("Sunucuya bağlanılamadı!");
     
     const qDers = document.getElementById('new-q-ders').value.trim(); 
@@ -1142,16 +1162,28 @@ window.uploadQuestion = () => {
     if(!qDers || !qKonu) return alert("Lütfen Ders ve Konu alanlarını doldurun!"); 
     if(!window.myClassCode) return alert("⚠️ Lütfen önce bir sınıf seçin veya oluşturun!");
     
+    let questionImageUrl = null;
+    let solutionImageUrl = null;
+    try {
+        [questionImageUrl, solutionImageUrl] = await Promise.all([
+            uploadImageDataUrlIfNeeded(uploadedImageBase64, 'questions'),
+            uploadImageDataUrlIfNeeded(uploadedSolutionBase64, 'solutions')
+        ]);
+    } catch (err) {
+        console.error("Soru görselleri Storage'a yüklenemedi:", err);
+        return alert("⚠️ Görsel yükleme sırasında hata oluştu. Lütfen tekrar deneyin.");
+    }
+
     const q = { 
         soru: qSoru, 
         siklar: qSiklar, 
         dogru: qDogru, 
         ders: qDers.toUpperCase(), 
         deneme: qKonu, 
-        image: uploadedImageBase64, 
+        image: questionImageUrl, 
         classCode: window.myClassCode, 
         solutionText: qSolText, 
-        solutionImage: uploadedSolutionBase64 
+        solutionImage: solutionImageUrl 
     };
     
     socket.emit("addNewQuestion", q);
@@ -1170,7 +1202,7 @@ window.uploadQuestion = () => {
 };
 
 // 🚨 YENİ GÜNCELLENMİŞ ÖĞRENCİ SORU YÜKLEME KODU (HAFIZALI) 🚨
-window.uploadStudentQuestion = (target = 'cloud') => {
+window.uploadStudentQuestion = async (target = 'cloud') => {
     const customKonuInput = document.getElementById('custom-konu-input');
     const customKonu = customKonuInput ? customKonuInput.value.trim() : "";
     const finalTopic = customKonu || window.secilenKonu || "Genel Konu";
@@ -1209,6 +1241,27 @@ window.uploadStudentQuestion = (target = 'cloud') => {
     const memBadge = document.getElementById('mem-badge');
     if (memBadge) memBadge.style.display = "inline-block";
 
+    if (target === 'cloud' && !socket) {
+        return alert("Buluta bağlanılamadı, lütfen Cihaza Kaydet seçeneğini kullanın.");
+    }
+
+    let questionImageForSave = stdUploadedImageBase64;
+    let solutionImageForSave = stdSolutionBase64;
+    let sourceImageForSave = stdSourceImageBase64 || null;
+
+    if (target === 'cloud') {
+        try {
+            [questionImageForSave, solutionImageForSave, sourceImageForSave] = await Promise.all([
+                uploadImageDataUrlIfNeeded(stdUploadedImageBase64, 'questions'),
+                uploadImageDataUrlIfNeeded(stdSolutionBase64, 'solutions'),
+                uploadImageDataUrlIfNeeded(stdSourceImageBase64, 'sources')
+            ]);
+        } catch (err) {
+            console.error("Öğrenci soru görselleri Storage'a yüklenemedi:", err);
+            return alert("⚠️ Görseller buluta yüklenirken hata oluştu. Lütfen tekrar deneyin.");
+        }
+    }
+
     const q = { 
         id: 'local_' + Date.now(), 
         studentName: studentName, 
@@ -1216,10 +1269,10 @@ window.uploadStudentQuestion = (target = 'cloud') => {
         kitap: qKitap, 
         konu: finalTopic, 
         not: qText, 
-        sourceImage: stdSourceImageBase64 || null,
-        image: stdUploadedImageBase64, 
+        sourceImage: sourceImageForSave || null,
+        image: questionImageForSave, 
         nextReviewDate: nextReviewDate, 
-        solutionImage: stdSolutionBase64, 
+        solutionImage: solutionImageForSave, 
         solutionText: qSolText, 
         dogru: correctIdx, 
         soru: qText || "Görseli inceleyiniz.", 
@@ -1227,7 +1280,6 @@ window.uploadStudentQuestion = (target = 'cloud') => {
     };
     
     if (target === 'cloud') {
-        if(!socket) return alert("Buluta bağlanılamadı, lütfen Cihaza Kaydet seçeneğini kullanın."); 
         delete q.id; 
         socket.emit("addStudentQuestion", q);
         alert(`✅ Soru BULUT Hata Defterinize eklendi!`);
