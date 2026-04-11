@@ -825,7 +825,7 @@ function buildSavedTopicIndexForDerslerim() {
     const localNotebookRaw = CLIENT_STORE.getJSON('gazi_local_notebook', []);
     const localNotebook = Array.isArray(localNotebookRaw) ? localNotebookRaw : [];
     if (!Array.isArray(localNotebookRaw)) {
-        console.warn('Derslerim kayıtlı soru listesi beklenen dizide değil. Alınan tip:', typeof localNotebookRaw);
+        console.warn('Derslerim kayıtlı soru listesi beklenen dizide değil. Alınan tip:', typeof localNotebookRaw, 'Lütfen uygulamayı yeniden yükleyin veya destek ile iletişime geçin.');
     }
     localNotebook.forEach((q) => addPair(q?.ders, q?.konu || q?.deneme));
     const activeLibrary = Array.isArray(window.originalStdQuestions) ? window.originalStdQuestions : [];
@@ -2173,7 +2173,12 @@ window.uploadStudentQuestion = async (target = 'cloud') => {
     }
 
     CLIENT_STORE.setJSON('gazi_sticky_memory', {
-        exam: window.secilenSinav, group: window.secilenGrup, subject: finalDers, topic: finalTopic, book: finalBook, sourceImage: stdSourceImageBase64 || null
+        exam: String(window.secilenSinav || ''),
+        group: String(window.secilenGrup || ''),
+        subject: String(finalDers || ''),
+        topic: String(finalTopic || ''),
+        book: String(finalBook || ''),
+        sourceImage: stdSourceImageBase64 || null
     });
     
     const memBadge = document.getElementById('mem-badge');
@@ -2517,6 +2522,7 @@ window.checkStdAnswer = (btn, selectedIdx, qIndex) => {
     const sDiv = document.getElementById('sol-' + boxId); 
     sDiv.style.display = 'block'; 
     sDiv.classList.remove('solution-revealed');
+    void sDiv.offsetWidth;
     sDiv.classList.add('solution-revealed');
     sDiv.innerHTML = `<b>✏️ Çözüm Notu:</b><br>${escapeHtml(q.solutionText || 'Yazılı çözüm notu bulunmuyor.')}<br>${q.solutionImage ? `<img src="${safeImageSrc(q.solutionImage)}" class="list-item-question-image">` : ''}`; 
 };
