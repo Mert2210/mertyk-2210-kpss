@@ -3,6 +3,7 @@
 ## Client → Server (principal events)
 - `setUserContext`
 - `getFilters`
+- `getUserCurriculum`, `upsertUserCurriculum`
 - `askGemini`, `parseImageWithGemini`
 - `createNamedClass`, `createClass`, `getTeacherClass`, `joinClass`
 - `addNewQuestion`, `getTeacherLibrary`, `getClassQuestions`
@@ -16,6 +17,7 @@
 
 ## Server → Client (principal events)
 - `updateFilters`
+- `userCurriculumData`
 - `geminiResponse`, `geminiParsedData`
 - `errorMsg`
 - `teacherClassesData`, `classCreated`, `teacherClassFound`, `classJoined`

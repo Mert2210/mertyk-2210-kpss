@@ -193,9 +193,12 @@
                 <div style="border-top:1px solid #e67e22; padding-top:15px; text-align:left;">
                     <h4 style="font-size:0.9rem; margin-top:0; color:#333;">➕ Yapamadığın Soruyu Ekle</h4>
                     
-                    <div style="display:flex; gap:10px; margin-bottom:10px;">
-                        <button type="button" class="outline" style="flex:1; font-size:0.85rem; padding:8px;" onclick="document.getElementById('std-img-upload-camera').click()">📸 Soru Çek</button>
-                        <button type="button" class="outline" style="flex:1; font-size:0.85rem; padding:8px;" onclick="document.getElementById('std-img-upload-file').click()">📁 Galeriden</button>
+                    <div style="display:flex; gap:10px; margin-bottom:10px; align-items:center;">
+                        <button type="button" class="outline" style="flex:1; font-size:0.85rem; padding:8px;" onclick="window.openStudentPhotoPicker()">📸 Fotoğraf Ekle</button>
+                        <select id="student-photo-source-select" style="flex:1; font-size:0.85rem; padding:8px; margin:0;">
+                            <option value="camera">Kamera</option>
+                            <option value="gallery">Galeri</option>
+                        </select>
                     </div>
                     
                     <input type="file" id="std-img-upload-camera" accept="image/*" capture="environment" multiple style="display:none;" onchange="processStudentImageUpload(event, 'image')">
@@ -205,27 +208,8 @@
                     <div id="std-img-count" style="text-align:center; color:#3498db; font-weight:bold; font-size:0.85rem; display:none; margin-bottom:10px;"></div>
                     
                     <div id="dynamic-selection-area" style="background: #fdfdfd; padding: 10px; border-radius: 8px; border: 1px solid #ddd; margin-bottom:10px; text-align:left; position:relative;">
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <label style="font-size:0.75rem; font-weight:bold; color:#1e3c72;">🎯 Sınav Türü:</label>
-                            <span id="mem-badge" style="font-size:0.65rem; background:#27ae60; color:#fff; padding:2px 6px; border-radius:4px; display:none;">💾 Hafızadan Yüklendi</span>
-                        </div>
-                        <div id="box-exams" class="chip-container"></div>
-                        
-                        <div id="area-kpss-group" style="display:none; margin-top:10px;">
-                            <label style="font-size:0.75rem; font-weight:bold; color:#1e3c72;">📚 Grup / Bölüm:</label>
-                            <div id="box-kpss-group" class="chip-container"></div>
-                        </div>
-
-                        <div id="area-ders" style="display:none; margin-top:10px;">
-                            <label style="font-size:0.75rem; font-weight:bold; color:#1e3c72;">📖 Ders:</label>
-                            <div id="box-dersler" class="chip-container"></div>
-                        </div>
-
-                        <div id="area-konu" style="display:none; margin-top:10px;">
-                            <label style="font-size:0.75rem; font-weight:bold; color:#1e3c72;">📝 Konu:</label>
-                            <div id="box-konular" class="chip-container"></div>
-                            <input type="text" id="custom-konu-input" class="custom-input" placeholder="Konu listede yoksa buraya yazın (Özel Etiket)...">
-                        </div>
+                        <button type="button" id="select-folder-btn" aria-label="Klasör seç" class="outline" style="width:100%; font-size:0.85rem; padding:8px; border-color:#1e3c72; color:#1e3c72;" onclick="window.openFolderSelector()">📁 Klasör Seç</button>
+                        <p id="selected-folder-text" style="margin:8px 0 0 0; font-size:0.78rem; color:#1e3c72; font-weight:600;"></p>
                     </div>
 
                     <button type="button" class="outline" style="font-size:0.8rem; padding:8px; margin-bottom:8px; border-color:#8e44ad; color:#8e44ad;" onclick="window.toggleReadySourcesPanel()">🗂️ Kayıtlı Hazır Kaynakçalarım</button>
@@ -234,9 +218,6 @@
                     </div>
 
                     <input type="text" id="std-q-kitap" placeholder="Kitap / Kaynak / Test No (Örn: Yargı TG-1)">
-                    <button type="button" class="outline" style="font-size:0.8rem; padding:8px; margin-bottom:8px; border-color:#9b59b6; color:#9b59b6;" onclick="document.getElementById('std-source-image-file').click()">🖼️ Kaynakça Resmi Ekle (İsteğe Bağlı)</button>
-                    <input type="file" id="std-source-image-file" accept="image/*" style="display:none;" onchange="processStudentImageUpload(event, 'source')">
-                    <img id="std-source-image-preview" src="" style="width:100%; max-height:130px; object-fit:contain; display:none; margin-bottom:10px; border-radius:8px; border: 2px dashed #9b59b6;">
                     <textarea id="std-q-text" placeholder="Soru metni veya kendine notun..."></textarea>
                     
                     <div style="background: #e8f4f8; padding: 12px; border-radius: 8px; margin-bottom:10px; border: 1px dashed #3498db;">
@@ -262,9 +243,12 @@
                         </select>
                     </div>
 
-                    <div style="display:flex; gap:5px;">
-                        <button onclick="uploadStudentQuestion('cloud')" class="orange" style="flex:1; padding:15px; font-size:0.9rem;">☁️ Buluta Kaydet</button>
-                        <button onclick="uploadStudentQuestion('local')" class="blue" style="flex:1; padding:15px; font-size:0.9rem;">💾 Cihaza Kaydet</button>
+                    <div style="display:flex; gap:5px; align-items:center;">
+                        <button onclick="window.saveStudentQuestionWithPreference()" class="blue" style="flex:1; padding:15px; font-size:0.9rem;">💾 Kaydet</button>
+                        <select id="student-save-target-select" style="flex:1; font-size:0.85rem; padding:10px; margin:0;">
+                            <option value="cloud">Bulut</option>
+                            <option value="local">Cihaz</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -585,6 +569,16 @@
         <button onclick="location.reload()" class="outline" style="margin-top:10px;">ANA MENÜ</button>
     </div>
 
+</div>
+
+<div id="library-modal-overlay" class="library-modal-overlay" style="display:none;" onclick="window.closeLibraryModal(event)">
+    <div id="library-modal" class="library-modal" onclick="event.stopPropagation()">
+        <div class="library-modal-header">
+            <h3 id="library-modal-title">📁 Kütüphane Klasörü Seç</h3>
+            <button type="button" class="library-modal-close" onclick="window.closeLibraryModal()">✕</button>
+        </div>
+        <div id="library-modal-content" class="library-modal-content gpu-transition"></div>
+    </div>
 </div>
 
 <nav id="bottom-nav" style="display:none;">
