@@ -214,6 +214,7 @@ function ensureCurriculumPath(subject, topic) {
 window.userCurriculum = buildInitialUserCurriculum();
 window.selectedLibraryPath = { subject: "", topic: "" };
 window.currentLibraryModalSubject = "";
+window.pendingLibraryFilter = null;
 
 function updateSelectedFolderText(subject, topic) {
     const selectedFolderText = document.getElementById('selected-folder-text');
@@ -554,6 +555,87 @@ window.renderProfileSubjectsByExam = (savedSubjectsInput = null) => {
                 <label for="${checkboxId}">${escapeHtml(subject)}</label>
                 <input type="text" id="${topicId}" value="${escapeHtml(savedTopic)}" placeholder="Alt Konu">
             </div>
+        `;
+    }).join('');
+};
+
+window.toggleDerslerimSection = (contentId, arrowId) => {
+    const content = document.getElementById(contentId);
+    const arrow = document.getElementById(arrowId);
+    if (!content) return;
+    content.classList.toggle('collapsed');
+    if (arrow) arrow.textContent = content.classList.contains('collapsed') ? '▶' : '▼';
+};
+
+function getDerslerimSubjectsFromStorage() {
+    try {
+        const saved = JSON.parse(localStorage.getItem('gazi_subjects_v2')) || [];
+        const selected = saved
+            .map(item => String(item?.name || '').trim())
+            .filter(Boolean);
+        return uniqueSubjects(selected);
+    } catch (e) {
+        return [];
+    }
+}
+
+function getTopicsForDerslerimSubject(subject) {
+    const safeSubject = String(subject || '').trim();
+    if (!safeSubject) return [];
+    const fromCurriculum = Array.isArray(window.userCurriculum?.[safeSubject]) ? window.userCurriculum[safeSubject] : [];
+    if (fromCurriculum.length > 0) return uniqueSubjects(fromCurriculum);
+    try {
+        const saved = JSON.parse(localStorage.getItem('gazi_subjects_v2')) || [];
+        const row = saved.find(item => String(item?.name || '').trim() === safeSubject);
+        const parsedTopics = String(row?.topics || '')
+            .split(',')
+            .map(t => t.trim())
+            .filter(Boolean);
+        return uniqueSubjects(parsedTopics);
+    } catch (e) {
+        return [];
+    }
+}
+
+window.openLibraryTopicFromDerslerim = (subject, topic) => {
+    const safeSubject = String(subject || '').trim();
+    const safeTopic = String(topic || '').trim();
+    if (!safeSubject || !safeTopic) return;
+    window.pendingLibraryFilter = { ders: safeSubject, konu: safeTopic };
+    window.openStudentLibrary();
+};
+
+window.toggleDerslerimLibrarySubject = (subjectSlug) => {
+    const el = document.getElementById(`derslerim-topics-${subjectSlug}`);
+    const arrowEl = document.getElementById(`derslerim-subj-arrow-${subjectSlug}`);
+    if (!el) return;
+    el.classList.toggle('open');
+    if (arrowEl) arrowEl.textContent = el.classList.contains('open') ? '▲' : '▼';
+};
+
+window.renderDerslerimLibraryTree = () => {
+    const treeEl = document.getElementById('derslerim-library-tree');
+    if (!treeEl) return;
+    const selectedSubjects = getDerslerimSubjectsFromStorage();
+    const subjectList = selectedSubjects.length > 0
+        ? selectedSubjects
+        : Object.keys(window.userCurriculum || {});
+    if (!subjectList.length) {
+        treeEl.innerHTML = `<small style="color:#6b7280;">Önce Derslerim bölümünden ders ekleyin.</small>`;
+        return;
+    }
+    treeEl.innerHTML = subjectList.map((subject, index) => {
+        const slug = `${slugifySubjectName(subject)}-${index}`;
+        const topics = getTopicsForDerslerimSubject(subject);
+        const topicHtml = topics.length > 0
+            ? topics.map((topic) => `<button type="button" class="derslerim-topic-btn" onclick="window.openLibraryTopicFromDerslerim(${JSON.stringify(subject)}, ${JSON.stringify(topic)})">📄 ${escapeHtml(topic)}</button>`).join('')
+            : `<small style="color:#7f8c8d;">Konu bulunamadı.</small>`;
+        return `
+            <button type="button" class="derslerim-library-subject" onclick="window.toggleDerslerimLibrarySubject('${slug}')">
+                <span>📘 ${escapeHtml(subject)}</span>
+                <span id="derslerim-subj-arrow-${slug}">▼</span>
+            </button>
+            <div id="derslerim-topics-${slug}" class="derslerim-library-topics">${topicHtml}</div>
         `;
     }).join('');
 };
@@ -1033,6 +1115,9 @@ window.openSettingsPanel = () => {
 
     const savedSubjects = JSON.parse(localStorage.getItem('gazi_subjects_v2')) || [];
     window.renderProfileSubjectsByExam(savedSubjects);
+    if (document.getElementById('screen-settings')?.classList.contains('derslerim-mode')) {
+        window.renderDerslerimLibraryTree();
+    }
     showScreen('screen-settings');
 };
 
@@ -1074,6 +1159,7 @@ window.saveProfileSettings = () => {
 
     localStorage.setItem('gazi_subjects_v2', JSON.stringify(subjectsData)); 
     localStorage.setItem('gazi_onboarding_done', 'true');
+    window.renderDerslerimLibraryTree();
     
     alert("✅ Çalışma Masası Ayarlarınız Kaydedildi!");
     
@@ -1928,7 +2014,20 @@ function renderStudentLibraryHTML(data, title) {
         }
     }
 
-    renderStudentLibraryListOnly(data); 
+    const pendingFilter = window.pendingLibraryFilter;
+    if (pendingFilter && typeof pendingFilter === 'object') {
+        const dersSelect = document.getElementById('filter-ders');
+        const konuSelect = document.getElementById('filter-konu');
+        const hasDers = !!dersSelect && Array.from(dersSelect.options).some(o => o.value === pendingFilter.ders);
+        const hasKonu = !!konuSelect && Array.from(konuSelect.options).some(o => o.value === pendingFilter.konu);
+        if (hasDers) dersSelect.value = pendingFilter.ders;
+        if (hasKonu) konuSelect.value = pendingFilter.konu;
+        if (hasDers || hasKonu) window.applyLibraryFilters();
+        else renderStudentLibraryListOnly(data);
+        window.pendingLibraryFilter = null;
+    } else {
+        renderStudentLibraryListOnly(data);
+    }
 
     const startBtn = document.getElementById('start-library-test-btn');
     if (startBtn) startBtn.style.display = data.length > 0 ? 'block' : 'none';

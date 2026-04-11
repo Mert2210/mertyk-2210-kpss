@@ -374,27 +374,45 @@
             </div>
 
             <div class="settings-derslerim-section">
-                <h4 style="color:#1e3c72; border-bottom:2px solid #eee; padding-bottom:8px; margin-top:20px;">🎯 Hedef Sınavınız</h4>
-                <select id="profile-exam-type" style="margin-bottom:15px; font-weight:bold; border-color:#3498db; color:#1e3c72;" onchange="updateGradeDropdown()">
-                    <option value="kpss_lisans">KPSS Lisans</option>
-                    <option value="kpss_onlisans">KPSS Ön Lisans</option>
-                    <option value="kpss_ortaogretim">Ortaöğretim</option>
-                    <option value="kpss_egitim">KPSS Eğitim Bilimleri</option>
-                    <option value="yks_tyt">YKS - TYT</option>
-                    <option value="yks_ayt">YKS - AYT</option>
-                    <option value="lise_okul">Lise (Okul Dersleri)</option>
-                    <option value="ortaokul">Ortaokul (LGS)</option>
-                </select>
-
-                <div id="grade-selection-area" style="display:none; margin-bottom:20px; background:#f9f9f9; padding:10px; border-radius:8px; border:1px solid #eee;">
-                    <label style="font-size:0.75rem; font-weight:bold; color:#c0392b; margin-bottom:5px; display:block;">🏫 BULUNDUĞUNUZ SINIF:</label>
-                    <div id="grade-boxes" style="display:flex; gap:8px; flex-wrap:wrap;"></div>
-                    <input type="hidden" id="profile-grade" value="">
+                <div class="derslerim-collapsible-card">
+                    <button type="button" class="derslerim-collapse-trigger" onclick="window.toggleDerslerimSection('derslerim-exam-content', 'derslerim-exam-arrow')">
+                        <span>🎯 Hedef Sınavınız</span>
+                        <span id="derslerim-exam-arrow">▼</span>
+                    </button>
+                    <div id="derslerim-exam-content" class="derslerim-collapse-content">
+                        <select id="profile-exam-type" style="margin-bottom:15px; font-weight:bold; border-color:#3498db; color:#1e3c72;" onchange="updateGradeDropdown()">
+                            <option value="kpss_lisans">KPSS Lisans</option>
+                            <option value="kpss_onlisans">KPSS Ön Lisans</option>
+                            <option value="kpss_ortaogretim">Ortaöğretim</option>
+                            <option value="kpss_egitim">KPSS Eğitim Bilimleri</option>
+                            <option value="yks_tyt">YKS - TYT</option>
+                            <option value="yks_ayt">YKS - AYT</option>
+                            <option value="lise_okul">Lise (Okul Dersleri)</option>
+                            <option value="ortaokul">Ortaokul (LGS)</option>
+                        </select>
+    
+                        <div id="grade-selection-area" style="display:none; margin-bottom:20px; background:#f9f9f9; padding:10px; border-radius:8px; border:1px solid #eee;">
+                            <label style="font-size:0.75rem; font-weight:bold; color:#c0392b; margin-bottom:5px; display:block;">🏫 BULUNDUĞUNUZ SINIF:</label>
+                            <div id="grade-boxes" style="display:flex; gap:8px; flex-wrap:wrap;"></div>
+                            <input type="hidden" id="profile-grade" value="">
+                        </div>
+                    </div>
                 </div>
 
                 <h4 style="color:#1e3c72; border-bottom:2px solid #eee; padding-bottom:8px; margin-top:20px;">📚 Sorumlu Olduğunuz Dersler</h4>
                 <p style="font-size:0.75rem; color:#666; margin-top:0;">Dersleri seçip yanlarına çalışacağınız alt konuları belirtebilirsiniz.</p>
                 <div id="profile-subjects-area" style="max-height: 250px; overflow-y:auto; background:#fff; padding:8px; border-radius:8px; border:1px solid #ddd;"></div>
+
+                <div class="derslerim-collapsible-card" style="margin-top:15px;">
+                    <button type="button" class="derslerim-collapse-trigger" onclick="window.toggleDerslerimSection('derslerim-library-content', 'derslerim-library-arrow')">
+                        <span>📚 Kütüphanem</span>
+                        <span id="derslerim-library-arrow">▼</span>
+                    </button>
+                    <div id="derslerim-library-content" class="derslerim-collapse-content">
+                        <small style="display:block; color:#6b7280; margin-bottom:8px;">Ders > Konu seçerek doğrudan ilgili sorulara geçebilirsiniz.</small>
+                        <div id="derslerim-library-tree"></div>
+                    </div>
+                </div>
             </div>
 
             <button onclick="saveProfileSettings()" class="green" style="margin-top:20px; width:100%; padding:15px; font-size:1.1rem; border-radius:10px;">💾 Kütüphaneme Kaydet</button>
