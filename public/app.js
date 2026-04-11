@@ -93,6 +93,7 @@ window.secilenKonu = "";
 
 const DEFAULT_PROFILE_SUBJECTS = ['Tarih', 'Coğrafya', 'Vatandaşlık', 'Matematik', 'Türkçe', 'Eğitim Bilimleri', 'Fizik', 'Kimya', 'Biyoloji', 'Fen Bilimleri'];
 const READY_SOURCES_STORAGE_KEY = 'gazi_ready_sources_v1';
+const ADD_QUESTION_UI_PREFS_STORAGE_KEY = 'gazi_add_question_ui_prefs_v1';
 const MAX_READY_SOURCES = 30;
 const FLOAT_COMPARISON_EPSILON = 0.001;
 const IMAGE_OPTIMIZATION_CONFIG = Object.freeze({
@@ -130,6 +131,84 @@ function slugifySubjectName(v) {
 function uniqueSubjects(list) {
     return Array.from(new Set((Array.isArray(list) ? list : []).filter(Boolean).map(s => String(s).trim()).filter(Boolean)));
 }
+
+function getAddQuestionUIPrefs() {
+    try {
+        const parsed = JSON.parse(localStorage.getItem(ADD_QUESTION_UI_PREFS_STORAGE_KEY)) || {};
+        return parsed && typeof parsed === 'object' ? parsed : {};
+    } catch (e) {
+        return {};
+    }
+}
+
+function saveAddQuestionUIPrefs(nextPrefs = {}) {
+    const current = getAddQuestionUIPrefs();
+    localStorage.setItem(ADD_QUESTION_UI_PREFS_STORAGE_KEY, JSON.stringify({ ...current, ...nextPrefs }));
+}
+
+function updateSelectedFolderText(subject, topic) {
+    const selectedFolderText = document.getElementById('selected-folder-text');
+    if (!selectedFolderText) return;
+    selectedFolderText.textContent = `Seçili Klasör: ${subject} / ${topic}`;
+}
+
+window.restoreAddQuestionUISelections = () => {
+    const prefs = getAddQuestionUIPrefs();
+
+    const photoSourceSelect = document.getElementById('student-photo-source-select');
+    const saveTargetSelect = document.getElementById('student-save-target-select');
+
+    if (photoSourceSelect && (prefs.photoSource === 'camera' || prefs.photoSource === 'gallery')) {
+        photoSourceSelect.value = prefs.photoSource;
+    }
+    if (saveTargetSelect && (prefs.saveTarget === 'cloud' || prefs.saveTarget === 'local')) {
+        saveTargetSelect.value = prefs.saveTarget;
+    }
+
+    const folderSubject = (prefs.folderSubject || window.secilenDers || 'Genel Ders').trim();
+    const folderTopic = (prefs.folderTopic || window.secilenKonu || 'Genel Konu').trim();
+    window.secilenDers = folderSubject;
+    window.secilenKonu = folderTopic;
+    updateSelectedFolderText(folderSubject, folderTopic);
+};
+
+window.openFolderSelector = () => {
+    const currentSubject = (window.secilenDers || 'Genel Ders').trim();
+    const currentTopic = (window.secilenKonu || 'Genel Konu').trim();
+    const currentValue = `${currentSubject} / ${currentTopic}`;
+    const selected = window.prompt('Klasör seçimi için "Ders / Konu" formatında giriş yapın:', currentValue);
+    if (selected === null) return;
+
+    const normalized = String(selected).trim();
+    if (!normalized) return;
+
+    const [subjectRaw, ...topicParts] = normalized.split('/');
+    const nextSubject = (subjectRaw || '').trim() || 'Genel Ders';
+    const nextTopic = (topicParts.join('/').trim()) || 'Genel Konu';
+
+    window.secilenDers = nextSubject;
+    window.secilenKonu = nextTopic;
+    updateSelectedFolderText(nextSubject, nextTopic);
+    saveAddQuestionUIPrefs({ folderSubject: nextSubject, folderTopic: nextTopic });
+};
+
+window.openStudentPhotoPicker = () => {
+    const photoSourceSelect = document.getElementById('student-photo-source-select');
+    const selectedSource = photoSourceSelect ? photoSourceSelect.value : 'camera';
+    saveAddQuestionUIPrefs({ photoSource: selectedSource });
+
+    const targetInput = selectedSource === 'gallery'
+        ? document.getElementById('std-img-upload-file')
+        : document.getElementById('std-img-upload-camera');
+    if (targetInput) targetInput.click();
+};
+
+window.saveStudentQuestionWithPreference = () => {
+    const saveTargetSelect = document.getElementById('student-save-target-select');
+    const saveTarget = saveTargetSelect ? saveTargetSelect.value : 'cloud';
+    saveAddQuestionUIPrefs({ saveTarget: saveTarget === 'local' ? 'local' : 'cloud' });
+    window.uploadStudentQuestion(saveTarget === 'local' ? 'local' : 'cloud');
+};
 
 function getReadySources() {
     try {
@@ -281,6 +360,7 @@ window.initEtiketleme = () => {
 
     window.renderReadySources();
     window.renderExams(mem.exam ? true : false);
+    window.restoreAddQuestionUISelections();
 };
 
 window.renderExams = (fromMemory = false) => {
@@ -384,6 +464,20 @@ window.selectTopic = (t) => {
 };
 
 document.addEventListener("DOMContentLoaded", () => {
+    const photoSourceSelect = document.getElementById('student-photo-source-select');
+    if (photoSourceSelect) {
+        photoSourceSelect.addEventListener('change', (e) => {
+            saveAddQuestionUIPrefs({ photoSource: e.target.value === 'gallery' ? 'gallery' : 'camera' });
+        });
+    }
+
+    const saveTargetSelect = document.getElementById('student-save-target-select');
+    if (saveTargetSelect) {
+        saveTargetSelect.addEventListener('change', (e) => {
+            saveAddQuestionUIPrefs({ saveTarget: e.target.value === 'local' ? 'local' : 'cloud' });
+        });
+    }
+
     setTimeout(() => { window.initEtiketleme(); }, 500);
 });
 // 🚨 YENİ NESİL MÜFREDAT AĞACI BİTİŞ 🚨
@@ -1322,7 +1416,7 @@ window.uploadStudentQuestion = async (target = 'cloud') => {
     const stdQKitap = document.getElementById('std-q-kitap');
     const qKitap = stdQKitap ? stdQKitap.value.trim() : ""; 
     
-    if(!qKitap || finalTopic === "Genel Konu" || finalDers === "Genel Ders") return alert("Komutanım, lütfen Sınav, Ders, Konu ve Kaynak alanlarını eksiksiz doldurun!");
+    if(!qKitap) return alert("Komutanım, lütfen Kaynak alanını doldurun!");
     
     const qText = document.getElementById('std-q-text').value.trim(); 
     const qSolText = document.getElementById('std-q-sol-text').value.trim(); 
