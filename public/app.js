@@ -94,15 +94,22 @@ window.secilenKonu = "";
 const DEFAULT_PROFILE_SUBJECTS = ['Tarih', 'Coğrafya', 'Vatandaşlık', 'Matematik', 'Türkçe', 'Eğitim Bilimleri', 'Fizik', 'Kimya', 'Biyoloji', 'Fen Bilimleri'];
 const READY_SOURCES_STORAGE_KEY = 'gazi_ready_sources_v1';
 const MAX_READY_SOURCES = 30;
+const FLOAT_COMPARISON_EPSILON = 0.001;
 const IMAGE_OPTIMIZATION_CONFIG = Object.freeze({
     maxWidth: 1280,
     minWidth: 720,
+    // 1GB toplam bulut kota için soru/çözüm görsellerinde ortalama dosya boyutunu düşük tutar.
     targetBytes: 220 * 1024,
     initialQuality: 0.82,
     minQuality: 0.68,
     qualityStep: 0.04,
     scaleStep: 0.9,
     maxAttempts: 14
+});
+// Kaynakça görselleri genelde metin ağırlıklı olduğu için daha düşük hedef boyut kullanılır.
+const SOURCE_IMAGE_OPTIMIZATION_OVERRIDES = Object.freeze({
+    targetBytes: 170 * 1024,
+    maxWidth: 1100
 });
 // 1x1 şeffaf GIF placeholder (kaynak görseli olmayan kartlar için)
 const PLACEHOLDER_IMAGE_SRC = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
@@ -993,7 +1000,7 @@ async function optimizeImageFileForUpload(file, options = {}) {
         img.src = originalDataUrl;
     });
 
-    const baseWidth = Math.max(1, Math.round(image.width > config.maxWidth ? config.maxWidth : image.width));
+    const baseWidth = Math.max(1, Math.round(Math.min(image.width, config.maxWidth)));
     let width = baseWidth;
     let height = Math.max(1, Math.round((image.height * width) / Math.max(1, image.width)));
     let quality = config.initialQuality;
@@ -1030,7 +1037,7 @@ async function optimizeImageFileForUpload(file, options = {}) {
         }
         if (bytes > 0 && bytes <= config.targetBytes) break;
 
-        if (quality > config.minQuality + 0.001) {
+        if (quality > config.minQuality + FLOAT_COMPARISON_EPSILON) {
             quality = Math.max(config.minQuality, quality - config.qualityStep);
             continue;
         }
@@ -1215,7 +1222,7 @@ window.processStudentImageUpload = async (e, type = 'image') => {
     }
     
     try {
-        const optimizedDataUrl = await optimizeImageFileForUpload(file, type === 'source' ? { targetBytes: 170 * 1024, maxWidth: 1100 } : {});
+        const optimizedDataUrl = await optimizeImageFileForUpload(file, type === 'source' ? SOURCE_IMAGE_OPTIMIZATION_OVERRIDES : {});
         if (!optimizedDataUrl) throw new Error('Görsel verisi üretilemedi.');
 
         if(type === 'image') { 
@@ -1368,7 +1375,6 @@ window.uploadStudentQuestion = async (target = 'cloud') => {
     }
 
     const q = { 
-        ...(target === 'cloud' ? {} : { id: generateUniqueId('local') }),
         studentName: studentName, 
         ders: finalDers, 
         kitap: qKitap, 
@@ -1383,6 +1389,7 @@ window.uploadStudentQuestion = async (target = 'cloud') => {
         soru: qText || "Görseli inceleyiniz.", 
         siklar: ["A", "B", "C", "D", "E"] 
     };
+    if (target !== 'cloud') q.id = generateUniqueId('local');
     
     if (target === 'cloud') {
         socket.emit("addStudentQuestion", q);
