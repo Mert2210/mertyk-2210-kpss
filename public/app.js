@@ -1913,6 +1913,16 @@ window.uploadQuestion = async () => {
 
 // 🚨 YENİ GÜNCELLENMİŞ ÖĞRENCİ SORU YÜKLEME KODU (HAFIZALI) 🚨
 window.uploadStudentQuestion = async (target = 'cloud') => {
+    if (window.isStudentUploadInProgress) {
+        return alert("Kaydetme işlemi devam ediyor, lütfen bekleyin.");
+    }
+    const saveBtn = document.getElementById('student-save-btn');
+    window.isStudentUploadInProgress = true;
+    if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.textContent = '⏳ Kaydediliyor...';
+    }
+    try {
     const customKonuInput = document.getElementById('custom-konu-input');
     const customKonu = customKonuInput ? customKonuInput.value.trim() : "";
     const finalTopic = (customKonu || window.secilenKonu || "").trim();
@@ -1920,7 +1930,7 @@ window.uploadStudentQuestion = async (target = 'cloud') => {
     
     const stdQKitap = document.getElementById('std-q-kitap');
     const qKitap = stdQKitap ? stdQKitap.value.trim() : ""; 
-    const finalBook = qKitap || "Kaynak Girilmemiş";
+    const finalBook = qKitap;
     
     if(!finalTopic || !finalDers) return alert("Komutanım, lütfen önce Kütüphane/Ders seçimini tamamlayın!");
     
@@ -1950,7 +1960,7 @@ window.uploadStudentQuestion = async (target = 'cloud') => {
     const memBadge = document.getElementById('mem-badge');
     if (memBadge) memBadge.style.display = "inline-block";
 
-    if (target === 'cloud' && !socket) {
+    if (target === 'cloud' && (!socket || socket.connected !== true)) {
         return alert("Buluta bağlanılamadı, lütfen Cihaza Kaydet seçeneğini kullanın.");
     }
 
@@ -2009,6 +2019,13 @@ window.uploadStudentQuestion = async (target = 'cloud') => {
     stdSolutionBase64 = null;
     if (customKonuInput) customKonuInput.value = "";
     window.updateLocalListCounts();
+    } finally {
+        window.isStudentUploadInProgress = false;
+        if (saveBtn) {
+            saveBtn.disabled = false;
+            window.updateStudentSaveTargetLabel();
+        }
+    }
 };
 
 window.fetchStudentLibrary = (source = 'cloud', onlyReviews = false) => {
@@ -2084,6 +2101,8 @@ function renderStudentLibraryListOnly(data) {
             ? `<span class="cloud-badge" title="Bu soru buluta kaydetilmiştir, internet bağlantısı gerektirir">☁️ ℹ️</span>`
             : '';
         div.innerHTML = data.map((q, i) => {
+            const kitapText = typeof q.kitap === 'string' ? q.kitap.trim() : '';
+            const showKitap = !!kitapText && kitapText.toLowerCase() !== 'kaynak girilmemiş';
             return `
             <div class="list-item" style="border: 2px solid #e67e22; background:#fff; position:relative;">
                 <button onclick="reportQuestionFromLibrary(${i})" title="Hatalı Bildir" style="position:absolute; top:6px; right:6px; width:auto; padding:2px 7px; font-size:0.7rem; background:transparent; border:1px solid #e0e0e0; color:#bbb; border-radius:4px; cursor:pointer; line-height:1.4;">🚨</button>
@@ -2094,7 +2113,7 @@ function renderStudentLibraryListOnly(data) {
                     </div>
                     <div>${formatReminderDate(q.nextReviewDate)}</div>
                 </div>
-                <small style="color:#666;"><b>Kaynak:</b> ${escapeHtml(q.kitap)}</small><br>
+                ${showKitap ? `<small style="color:#666;"><b>Kaynak:</b> ${escapeHtml(kitapText)}</small><br>` : ''}
                 ${q.not ? `<small><b>Soru Notu:</b> ${escapeHtml(q.not)}</small><br>` : ''}
                 ${q.image ? `<img src="${safeImageSrc(q.image)}" style="width:100%; border-radius:5px; margin-top:5px;">` : ''}
                 <div class="abcde-grid" id="std-qbox-${i}">
