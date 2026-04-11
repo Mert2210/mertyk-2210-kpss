@@ -97,6 +97,7 @@ const ADD_QUESTION_UI_PREFS_STORAGE_KEY = 'gazi_add_question_ui_prefs_v1';
 const USER_CURRICULUM_STORAGE_KEY = 'gazi_user_curriculum_v1';
 // CSS'teki .gpu-transition (0.3s) ile senkron tutulur.
 const LIBRARY_MODAL_SWAP_DELAY_MS = 300;
+const LIBRARY_MODAL_WILL_CHANGE_CLEANUP_BUFFER_MS = 20;
 const MAX_READY_SOURCES = 30;
 const FLOAT_COMPARISON_EPSILON = 0.001;
 const IMAGE_OPTIMIZATION_CONFIG = Object.freeze({
@@ -238,7 +239,7 @@ function setSelectedLibraryPath(subject, topic) {
 function animateLibraryModalSwap(renderFn, direction = 'left') {
     const content = document.getElementById('library-modal-content');
     if (!content || typeof renderFn !== 'function') {
-        if (typeof console !== 'undefined') console.warn('Library modal transition skipped: invalid content/renderFn.');
+        console.warn('Library modal transition skipped: invalid content/renderFn.');
         return;
     }
 
@@ -256,7 +257,7 @@ function animateLibraryModalSwap(renderFn, direction = 'left') {
             content.style.opacity = '1';
             setTimeout(() => {
                 content.style.willChange = '';
-            }, LIBRARY_MODAL_SWAP_DELAY_MS + 20);
+            }, LIBRARY_MODAL_SWAP_DELAY_MS + LIBRARY_MODAL_WILL_CHANGE_CLEANUP_BUFFER_MS);
         });
     }, LIBRARY_MODAL_SWAP_DELAY_MS);
 }
