@@ -953,7 +953,10 @@ async function uploadImageDataUrlIfNeeded(dataUrl, folder) {
     if (/^https?:\/\//.test(dataUrl)) return dataUrl;
     if (!/^data:image\/(jpeg|png|gif|webp);base64,/.test(dataUrl)) return null;
     const ext = getImageExtensionFromDataUrl(dataUrl);
-    const fileName = `${Date.now()}_${Math.random().toString(36).slice(2, 10)}.${ext}`;
+    const uniqueId = (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function')
+        ? crypto.randomUUID()
+        : `${Date.now()}_${Math.random().toString(36).slice(2, 12)}`;
+    const fileName = `${uniqueId}.${ext}`;
     const fileRef = storageRef(storage, `${folder}/${fileName}`);
     await uploadString(fileRef, dataUrl, 'data_url');
     return getDownloadURL(fileRef);
@@ -1170,8 +1173,9 @@ window.uploadQuestion = async () => {
             uploadImageDataUrlIfNeeded(uploadedSolutionBase64, 'solutions')
         ]);
     } catch (err) {
-        console.error("Soru görselleri Storage'a yüklenemedi:", err);
-        return alert("⚠️ Görsel yükleme sırasında hata oluştu. Lütfen tekrar deneyin.");
+        console.error("Soru/çözüm görselleri Storage'a yüklenemedi:", err);
+        const errDetail = err && err.message ? ` (${err.message})` : '';
+        return alert(`⚠️ Soru veya çözüm görseli yüklenemedi${errDetail}. Lütfen tekrar deneyin.`);
     }
 
     const q = { 
@@ -1257,8 +1261,9 @@ window.uploadStudentQuestion = async (target = 'cloud') => {
                 uploadImageDataUrlIfNeeded(stdSourceImageBase64, 'sources')
             ]);
         } catch (err) {
-            console.error("Öğrenci soru görselleri Storage'a yüklenemedi:", err);
-            return alert("⚠️ Görseller buluta yüklenirken hata oluştu. Lütfen tekrar deneyin.");
+            console.error("Öğrenci soru/çözüm/kaynak görselleri Storage'a yüklenemedi:", err);
+            const errDetail = err && err.message ? ` (${err.message})` : '';
+            return alert(`⚠️ Soru, çözüm veya kaynak görseli buluta yüklenemedi${errDetail}. Lütfen tekrar deneyin.`);
         }
     }
 
