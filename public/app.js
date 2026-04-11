@@ -640,7 +640,7 @@ window.toggleDerslerimSection = (contentId, arrowId) => {
     if (arrow) arrow.textContent = content.classList.contains('collapsed') ? '▶' : '▼';
 };
 
-window.applySoftDerslerimTheme = (enabled) => {
+window.applyDerslerimTheme = (enabled) => {
     const isEnabled = !!enabled;
     document.body.classList.toggle('full-dark-theme', isEnabled);
     document.body.classList.remove('soft-dark-theme');
@@ -653,15 +653,19 @@ window.applySoftDerslerimTheme = (enabled) => {
     }
 };
 
-window.toggleSoftDerslerimTheme = () => {
+window.toggleDerslerimTheme = () => {
     const nextValue = !document.body.classList.contains('full-dark-theme');
-    window.applySoftDerslerimTheme(nextValue);
+    window.applyDerslerimTheme(nextValue);
 };
 
-window.restoreSoftDerslerimTheme = () => {
+window.restoreDerslerimTheme = () => {
     const saved = localStorage.getItem(SOFT_DARK_THEME_STORAGE_KEY) === '1';
-    window.applySoftDerslerimTheme(saved);
+    window.applyDerslerimTheme(saved);
 };
+// Eski global isimler için geriye dönük uyumluluk
+window.applySoftDerslerimTheme = window.applyDerslerimTheme;
+window.toggleSoftDerslerimTheme = window.toggleDerslerimTheme;
+window.restoreSoftDerslerimTheme = window.restoreDerslerimTheme;
 
 function getDerslerimSubjectsFromStorage() {
     try {
@@ -949,7 +953,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     setTimeout(() => { window.initEtiketleme(); }, 500);
-    window.restoreSoftDerslerimTheme();
+    window.restoreDerslerimTheme();
 });
 // 🚨 YENİ NESİL MÜFREDAT AĞACI BİTİŞ 🚨
 
@@ -1225,7 +1229,7 @@ window.openSettingsPanel = () => {
     if (document.getElementById('screen-settings')?.classList.contains('derslerim-mode')) {
         window.renderDerslerimLibraryTree();
     }
-    window.restoreSoftDerslerimTheme();
+    window.restoreDerslerimTheme();
     showScreen('screen-settings');
 };
 
