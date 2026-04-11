@@ -149,6 +149,10 @@ function saveAddQuestionUIPrefs(nextPrefs = {}) {
 function updateSelectedFolderText(subject, topic) {
     const selectedFolderText = document.getElementById('selected-folder-text');
     if (!selectedFolderText) return;
+    if (!subject || !topic) {
+        selectedFolderText.textContent = 'Seçili Klasör: Henüz seçilmedi';
+        return;
+    }
     selectedFolderText.textContent = `Seçili Klasör: ${subject} / ${topic}`;
 }
 
@@ -165,17 +169,17 @@ window.restoreAddQuestionUISelections = () => {
         saveTargetSelect.value = prefs.saveTarget;
     }
 
-    const folderSubject = (prefs.folderSubject || window.secilenDers || 'Genel Ders').trim();
-    const folderTopic = (prefs.folderTopic || window.secilenKonu || 'Genel Konu').trim();
+    const folderSubject = (prefs.folderSubject || window.secilenDers || '').trim();
+    const folderTopic = (prefs.folderTopic || window.secilenKonu || '').trim();
     window.secilenDers = folderSubject;
     window.secilenKonu = folderTopic;
     updateSelectedFolderText(folderSubject, folderTopic);
 };
 
 window.openFolderSelector = () => {
-    const currentSubject = (window.secilenDers || 'Genel Ders').trim();
-    const currentTopic = (window.secilenKonu || 'Genel Konu').trim();
-    const currentValue = `${currentSubject} / ${currentTopic}`;
+    const currentSubject = (window.secilenDers || '').trim();
+    const currentTopic = (window.secilenKonu || '').trim();
+    const currentValue = currentSubject && currentTopic ? `${currentSubject} / ${currentTopic}` : '';
     const selected = window.prompt('Klasör seçimi için "Ders / Konu" formatında giriş yapın:', currentValue);
     if (selected === null) return;
 
@@ -183,8 +187,12 @@ window.openFolderSelector = () => {
     if (!normalized) return;
 
     const [subjectRaw, ...topicParts] = normalized.split('/');
-    const nextSubject = (subjectRaw || '').trim() || 'Genel Ders';
-    const nextTopic = (topicParts.join('/').trim()) || 'Genel Konu';
+    const nextSubject = (subjectRaw || '').trim();
+    const nextTopic = topicParts.join('/').trim();
+    if (!nextSubject || !nextTopic) {
+        alert('Lütfen "Ders / Konu" formatında geçerli bir klasör seçimi girin.');
+        return;
+    }
 
     window.secilenDers = nextSubject;
     window.secilenKonu = nextTopic;
@@ -1411,13 +1419,13 @@ window.uploadQuestion = async () => {
 window.uploadStudentQuestion = async (target = 'cloud') => {
     const customKonuInput = document.getElementById('custom-konu-input');
     const customKonu = customKonuInput ? customKonuInput.value.trim() : "";
-    const finalTopic = customKonu || window.secilenKonu || "Genel Konu";
-    const finalDers = window.secilenDers || "Genel Ders";
+    const finalTopic = (customKonu || window.secilenKonu || "").trim();
+    const finalDers = (window.secilenDers || "").trim();
     
     const stdQKitap = document.getElementById('std-q-kitap');
     const qKitap = stdQKitap ? stdQKitap.value.trim() : ""; 
     
-    if(!qKitap) return alert("Komutanım, lütfen Kaynak alanını doldurun!");
+    if(!qKitap || !finalTopic || !finalDers) return alert("Komutanım, lütfen Klasör ve Kaynak alanlarını eksiksiz doldurun!");
     
     const qText = document.getElementById('std-q-text').value.trim(); 
     const qSolText = document.getElementById('std-q-sol-text').value.trim(); 
