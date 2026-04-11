@@ -106,9 +106,6 @@ const ADD_QUESTION_UI_PREFS_STORAGE_KEY = 'gazi_add_question_ui_prefs_v1';
 const USER_CURRICULUM_STORAGE_KEY = 'gazi_user_curriculum_v1';
 const SOFT_DARK_THEME_STORAGE_KEY = 'gazi_soft_dark_theme_v1';
 const DERSLERIM_TOPIC_FILTER_STORAGE_KEY = 'gazi_derslerim_topic_filter_v1';
-// CSS'teki .gpu-transition (0.3s) ile senkronize tutulur.
-const LIBRARY_MODAL_SWAP_DELAY_MS = 300;
-const LIBRARY_MODAL_WILL_CHANGE_CLEANUP_BUFFER_MS = 20;
 const MAX_READY_SOURCES = 30;
 const FLOAT_COMPARISON_EPSILON = 0.001;
 const VALID_STUDENT_PHOTO_SOURCES = ['camera', 'gallery', 'file'];
@@ -295,145 +292,174 @@ window.applySmartAddQuestionFormVisibility = () => {
     selectionArea.style.display = window.smartAddTopicPath ? 'none' : 'block';
 };
 
-function animateLibraryModalSwap(renderFn, direction = 'left') {
-    const content = document.getElementById('library-modal-content');
-    if (!content || typeof renderFn !== 'function') {
-        console.warn('Library modal transition skipped: modal content element missing or render function is not callable.');
-        return;
-    }
-
-    content.style.willChange = 'transform, opacity';
-    content.style.transform = direction === 'left' ? 'translateX(-100%)' : 'translateX(100%)';
-    content.style.opacity = '0.25';
-    setTimeout(() => {
-        renderFn();
-        content.style.transition = 'none';
-        content.style.transform = direction === 'left' ? 'translateX(100%)' : 'translateX(-100%)';
-        content.style.opacity = '0.25';
-        requestAnimationFrame(() => {
-            content.style.transition = '';
-            content.style.transform = 'translateX(0)';
-            content.style.opacity = '1';
-            setTimeout(() => {
-                content.style.willChange = '';
-            }, LIBRARY_MODAL_SWAP_DELAY_MS + LIBRARY_MODAL_WILL_CHANGE_CLEANUP_BUFFER_MS);
-        });
-    }, LIBRARY_MODAL_SWAP_DELAY_MS);
+function getLibraryModalActiveOnlyEnabled() {
+    const toggleEl = document.getElementById('library-modal-active-toggle');
+    if (toggleEl) return !!toggleEl.checked;
+    return normalizeTopicFilterMode(CLIENT_STORE.getItem(DERSLERIM_TOPIC_FILTER_STORAGE_KEY, 'saved')) === 'saved';
 }
 
-function createLibraryCard(label, onClick, options = {}) {
-    const card = document.createElement('button');
-    card.type = 'button';
-    card.className = `library-card ${options.isAdd ? 'add-card' : ''}`;
-    card.innerHTML = `<span>${escapeHtml(label)}</span>`;
-    card.addEventListener('click', onClick);
-    if (options.onDelete) {
-        const delBtn = document.createElement('button');
-        delBtn.type = 'button';
-        delBtn.className = 'library-card-delete';
-        delBtn.textContent = '🗑';
-        delBtn.addEventListener('click', (ev) => {
-            ev.stopPropagation();
-            options.onDelete();
-        });
-        card.appendChild(delBtn);
-    }
-    return card;
+function getLibraryModalTopicFilterMode() {
+    return getLibraryModalActiveOnlyEnabled() ? 'saved' : 'all';
 }
 
-window.renderLibrarySubjectList = () => {
+function setLibraryModalTitleForMode() {
     const title = document.getElementById('library-modal-title');
-    const content = document.getElementById('library-modal-content');
-    if (!content) return;
-    if (title) title.textContent = window.currentLibraryModalMode === 'view' ? '📚 Kütüphanem' : '📁 Kütüphaneye Ekle';
-    content.innerHTML = '';
-    const grid = document.createElement('div');
-    grid.className = 'library-grid';
-    Object.keys(window.userCurriculum || {}).sort((a, b) => a.localeCompare(b, 'tr')).forEach((subject) => {
-        grid.appendChild(createLibraryCard(subject, () => {
-            window.currentLibraryModalSubject = subject;
-            animateLibraryModalSwap(() => window.renderLibraryTopicList(subject), 'left');
-        }, {
-            onDelete: () => window.deleteCurriculumSubject(subject)
-        }));
-    });
-    grid.appendChild(createLibraryCard('➕ Yeni Ders Ekle', () => window.addCurriculumSubject(), { isAdd: true }));
-    content.appendChild(grid);
+    if (!title) return;
+    title.textContent = window.currentLibraryModalMode === 'view'
+        ? '📚 Kayıtlı Kütüphanem'
+        : '📁 Kütüphane Seç';
+}
+
+window.toggleLibraryModalSection = () => {
+    const section = document.getElementById('library-modal-library-section');
+    const titleBtn = document.getElementById('library-modal-title');
+    if (!section) return;
+    section.classList.toggle('collapsed');
+    const expanded = !section.classList.contains('collapsed');
+    if (titleBtn) titleBtn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
 };
 
-window.renderLibraryTopicList = (subject) => {
+window.toggleLibraryModalSubject = (subjectSlug) => {
+    const el = document.getElementById(`library-modal-topics-${subjectSlug}`);
+    const arrowEl = document.getElementById(`library-modal-subj-arrow-${subjectSlug}`);
+    const btn = document.getElementById(`library-modal-subj-btn-${subjectSlug}`);
+    if (!el) return;
+    el.classList.toggle('open');
+    const expanded = el.classList.contains('open');
+    if (arrowEl) arrowEl.textContent = expanded ? '▲' : '▼';
+    if (btn) btn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+};
+
+window.handleLibraryModalTopicSelection = (subject, topic) => {
     const safeSubject = String(subject || '').trim();
-    if (!safeSubject || !window.userCurriculum[safeSubject]) return window.renderLibrarySubjectList();
-    const title = document.getElementById('library-modal-title');
+    const safeTopic = String(topic || '').trim();
+    if (!safeSubject || !safeTopic) return;
+    setSelectedLibraryPath(safeSubject, safeTopic);
+    if (window.currentLibraryModalMode === 'select') {
+        window.closeLibraryModal();
+        return;
+    }
+    const selectedPath = { subject: safeSubject, topic: safeTopic };
+    window.libraryViewingTopicPath = selectedPath;
+    window.pendingLibraryFilter = selectedPath;
+    window.closeLibraryModal();
+    window.openStudentLibrary({ keepTopicContext: true });
+};
+
+window.showLibraryModalActiveTopicsInfo = () => {
+    window.showSoftFeedback('Aktif konular, içerisinde en az bir soru kayıtlı olan konulardır.');
+};
+
+window.handleLibraryModalActiveToggleChange = () => {
+    const mode = getLibraryModalTopicFilterMode();
+    CLIENT_STORE.setItem(DERSLERIM_TOPIC_FILTER_STORAGE_KEY, mode);
+    window.renderLibraryModalTree();
+};
+
+window.renderLibraryModalTree = () => {
     const content = document.getElementById('library-modal-content');
     if (!content) return;
-    const titlePrefix = window.currentLibraryModalMode === 'view' ? '📚' : '📁';
-    if (title) title.textContent = `${titlePrefix} ${safeSubject}`;
+    setLibraryModalTitleForMode();
     content.innerHTML = '';
 
-    const backBtn = document.createElement('button');
-    backBtn.type = 'button';
-    backBtn.className = 'library-back-btn';
-    backBtn.textContent = '⬅️ Geri';
-    backBtn.addEventListener('click', () => {
-        animateLibraryModalSwap(() => window.renderLibrarySubjectList(), 'right');
-    });
-    content.appendChild(backBtn);
+    const sectionWrap = document.createElement('div');
+    sectionWrap.className = 'library-modal-tree-wrap';
 
-    const list = document.createElement('div');
-    list.className = 'library-topic-list';
-    const topics = Array.isArray(window.userCurriculum[safeSubject]) ? window.userCurriculum[safeSubject] : [];
-    topics.forEach((topic) => {
-        const safeTopic = String(topic || '').trim();
-        if (!safeTopic) return;
-        const row = document.createElement('button');
-        row.type = 'button';
-        row.className = 'library-topic-item';
-        row.innerHTML = `<span>${escapeHtml(safeTopic)}</span>`;
-        row.addEventListener('click', () => {
-            setSelectedLibraryPath(safeSubject, safeTopic);
-            if (window.currentLibraryModalMode === 'view') {
-                const selectedPath = { subject: safeSubject, topic: safeTopic };
-                window.libraryViewingTopicPath = selectedPath;
-                window.pendingLibraryFilter = selectedPath;
-                window.closeLibraryModal();
-                window.openStudentLibrary({ keepTopicContext: true });
-                return;
-            }
-            window.closeLibraryModal();
+    const section = document.createElement('div');
+    section.id = 'library-modal-library-section';
+    section.className = 'library-modal-library-section';
+    section.setAttribute('role', 'region');
+    section.setAttribute('aria-label', 'Kütüphane ders ve konu listesi');
+
+    const filterMode = getLibraryModalTopicFilterMode();
+    CLIENT_STORE.setItem(DERSLERIM_TOPIC_FILTER_STORAGE_KEY, filterMode);
+    const savedTopicIndex = buildSavedTopicIndexForDerslerim();
+    const selectedSubjects = getDerslerimSubjectsFromStorage();
+    const subjectList = selectedSubjects.length > 0
+        ? selectedSubjects
+        : Object.keys(window.userCurriculum || {});
+
+    if (!subjectList.length) {
+        const emptyText = document.createElement('small');
+        emptyText.className = 'derslerim-empty-text';
+        emptyText.textContent = 'Önce Derslerim bölümünden ders ekleyin.';
+        section.appendChild(emptyText);
+    } else {
+        let hasRenderableTopic = false;
+        subjectList.forEach((subject) => {
+            const slug = slugifySubjectName(subject);
+            const allTopics = getTopicsForDerslerimSubject(subject);
+            const savedTopicsForSubject = savedTopicIndex.get(subject);
+            const allowedTopics = getAllowedTopicsForMode(allTopics, savedTopicsForSubject, filterMode);
+            if (allowedTopics.length === 0) return;
+            hasRenderableTopic = true;
+
+            const subjectBtn = document.createElement('button');
+            subjectBtn.type = 'button';
+            subjectBtn.className = 'derslerim-library-subject';
+            subjectBtn.id = `library-modal-subj-btn-${slug}`;
+            subjectBtn.setAttribute('aria-expanded', 'false');
+            subjectBtn.setAttribute('aria-controls', `library-modal-topics-${slug}`);
+            subjectBtn.addEventListener('click', () => window.toggleLibraryModalSubject(slug));
+
+            const leftLabel = document.createElement('span');
+            leftLabel.textContent = `📘 ${subject}`;
+            const arrow = document.createElement('span');
+            arrow.id = `library-modal-subj-arrow-${slug}`;
+            arrow.textContent = '▼';
+            subjectBtn.append(leftLabel, arrow);
+
+            const topicsWrap = document.createElement('div');
+            topicsWrap.id = `library-modal-topics-${slug}`;
+            topicsWrap.className = 'derslerim-library-topics';
+            topicsWrap.setAttribute('role', 'group');
+            topicsWrap.setAttribute('aria-label', `${subject} konuları`);
+
+            allowedTopics.forEach((topic) => {
+                const topicBtn = document.createElement('button');
+                topicBtn.type = 'button';
+                topicBtn.className = 'derslerim-topic-btn';
+                topicBtn.setAttribute('aria-label', `${subject} - ${topic} konusunu aç`);
+                topicBtn.textContent = `📄 ${topic}`;
+                topicBtn.addEventListener('click', () => window.handleLibraryModalTopicSelection(subject, topic));
+                topicsWrap.appendChild(topicBtn);
+            });
+
+            section.append(subjectBtn, topicsWrap);
         });
-        const delBtn = document.createElement('button');
-        delBtn.type = 'button';
-        delBtn.className = 'library-card-delete';
-        delBtn.textContent = '🗑';
-        delBtn.addEventListener('click', (ev) => {
-            ev.stopPropagation();
-            window.deleteCurriculumTopic(safeSubject, topic);
-        });
-        row.appendChild(delBtn);
-        list.appendChild(row);
-    });
-    const addTopicBtn = document.createElement('button');
-    addTopicBtn.type = 'button';
-    addTopicBtn.className = 'library-topic-add';
-    addTopicBtn.textContent = '➕ Yeni Konu Ekle';
-    addTopicBtn.addEventListener('click', () => window.addCurriculumTopic(safeSubject));
-    list.appendChild(addTopicBtn);
-    content.appendChild(list);
+
+        if (!hasRenderableTopic) {
+            const emptyText = document.createElement('small');
+            emptyText.className = 'derslerim-empty-text';
+            emptyText.textContent = filterMode === 'saved'
+                ? 'Henüz aktif konu bulunamadı.'
+                : 'Konu bulunamadı.';
+            section.appendChild(emptyText);
+        }
+    }
+
+    sectionWrap.appendChild(section);
+    content.appendChild(sectionWrap);
+    const titleBtn = document.getElementById('library-modal-title');
+    if (titleBtn) titleBtn.setAttribute('aria-expanded', 'true');
 };
 
 window.openLibraryModal = (mode = 'select') => {
     const currentUser = APP_STATE.currentUser || {};
-    if (currentUser.role !== 'student' && currentUser.role !== 'admin') return;
+    if (currentUser.role !== 'student') return;
     const overlay = document.getElementById('library-modal-overlay');
     const content = document.getElementById('library-modal-content');
+    const toggleEl = document.getElementById('library-modal-active-toggle');
     if (!overlay || !content) return;
     window.currentLibraryModalMode = mode === 'view' ? 'view' : 'select';
+    setLibraryModalTitleForMode();
+    if (toggleEl) {
+        const savedMode = normalizeTopicFilterMode(CLIENT_STORE.getItem(DERSLERIM_TOPIC_FILTER_STORAGE_KEY, 'saved'));
+        toggleEl.checked = savedMode === 'saved';
+    }
     overlay.style.display = 'flex';
     requestAnimationFrame(() => overlay.classList.add('open'));
-    content.style.transform = 'translateX(0)';
-    content.style.opacity = '1';
-    window.renderLibrarySubjectList();
+    window.renderLibraryModalTree();
 };
 
 window.closeLibraryModal = (event) => {
@@ -446,52 +472,6 @@ window.closeLibraryModal = (event) => {
         }, 300);
     }
     window.currentLibraryModalSubject = "";
-};
-
-window.addCurriculumSubject = () => {
-    const input = window.prompt('Yeni ders adını girin:');
-    if (input === null) return;
-    const subject = String(input || '').trim();
-    if (!subject) return;
-    if (!window.userCurriculum[subject]) window.userCurriculum[subject] = [];
-    persistUserCurriculum();
-    syncUserCurriculumIfGodMode();
-    window.renderLibrarySubjectList();
-};
-
-window.addCurriculumTopic = (subject) => {
-    const safeSubject = String(subject || '').trim();
-    if (!safeSubject) return;
-    const input = window.prompt(`"${safeSubject}" için yeni konu adı girin:`);
-    if (input === null) return;
-    const topic = String(input || '').trim();
-    if (!topic) return;
-    if (!window.userCurriculum[safeSubject]) window.userCurriculum[safeSubject] = [];
-    if (!window.userCurriculum[safeSubject].includes(topic)) window.userCurriculum[safeSubject].push(topic);
-    persistUserCurriculum();
-    syncUserCurriculumIfGodMode();
-    window.renderLibraryTopicList(safeSubject);
-};
-
-window.deleteCurriculumSubject = (subject) => {
-    const safeSubject = String(subject || '').trim();
-    if (!safeSubject || !window.userCurriculum[safeSubject]) return;
-    if (!window.confirm(`"${safeSubject}" dersini silmek istiyor musun?`)) return;
-    delete window.userCurriculum[safeSubject];
-    persistUserCurriculum();
-    syncUserCurriculumIfGodMode();
-    window.renderLibrarySubjectList();
-};
-
-window.deleteCurriculumTopic = (subject, topic) => {
-    const safeSubject = String(subject || '').trim();
-    const safeTopic = String(topic || '').trim();
-    if (!safeSubject || !safeTopic || !window.userCurriculum[safeSubject]) return;
-    if (!window.confirm(`"${safeTopic}" konusunu silmek istiyor musun?`)) return;
-    window.userCurriculum[safeSubject] = (window.userCurriculum[safeSubject] || []).filter(t => t !== safeTopic);
-    persistUserCurriculum();
-    syncUserCurriculumIfGodMode();
-    window.renderLibraryTopicList(safeSubject);
 };
 
 window.updateStudentPhotoAddButtonLabel = () => {
@@ -808,9 +788,7 @@ function getTopicsForDerslerimSubject(subject) {
 }
 
 function getDerslerimTopicFilterMode() {
-    const el = document.getElementById('derslerim-library-topic-filter');
-    const uiValue = el ? el.value : CLIENT_STORE.getItem(DERSLERIM_TOPIC_FILTER_STORAGE_KEY, 'saved');
-    return normalizeTopicFilterMode(uiValue);
+    return normalizeTopicFilterMode(CLIENT_STORE.getItem(DERSLERIM_TOPIC_FILTER_STORAGE_KEY, 'saved'));
 }
 
 function buildSavedTopicIndexForDerslerim() {
@@ -863,92 +841,8 @@ window.toggleDerslerimLibrarySubject = (subjectSlug) => {
     if (btn) btn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
 };
 
-window.handleDerslerimTopicFilterChange = () => {
-    const mode = getDerslerimTopicFilterMode();
-    CLIENT_STORE.setItem(DERSLERIM_TOPIC_FILTER_STORAGE_KEY, mode);
-    window.renderDerslerimLibraryTree();
-};
-
-window.renderDerslerimLibraryTree = () => {
-    const treeEl = document.getElementById('derslerim-library-tree');
-    if (!treeEl) return;
-    treeEl.innerHTML = '';
-    const filterMode = getDerslerimTopicFilterMode();
-    CLIENT_STORE.setItem(DERSLERIM_TOPIC_FILTER_STORAGE_KEY, filterMode);
-    const savedTopicIndex = buildSavedTopicIndexForDerslerim();
-    const selectedSubjects = getDerslerimSubjectsFromStorage();
-    const subjectList = selectedSubjects.length > 0
-        ? selectedSubjects
-        : Object.keys(window.userCurriculum || {});
-    if (!subjectList.length) {
-        const emptyText = document.createElement('small');
-        emptyText.className = 'derslerim-empty-text';
-        emptyText.textContent = 'Önce Derslerim bölümünden ders ekleyin.';
-        treeEl.appendChild(emptyText);
-        return;
-    }
-    let hasRenderableTopic = false;
-    subjectList.forEach((subject) => {
-        const slug = slugifySubjectName(subject);
-        const allTopics = getTopicsForDerslerimSubject(subject);
-        const savedTopicsForSubject = savedTopicIndex.get(subject);
-        const allowedTopics = getAllowedTopicsForMode(allTopics, savedTopicsForSubject, filterMode);
-        if (allowedTopics.length === 0) return;
-        hasRenderableTopic = true;
-
-        const subjectBtn = document.createElement('button');
-        subjectBtn.type = 'button';
-        subjectBtn.className = 'derslerim-library-subject';
-        subjectBtn.id = `derslerim-subj-btn-${slug}`;
-        subjectBtn.setAttribute('aria-expanded', 'false');
-        subjectBtn.setAttribute('aria-controls', `derslerim-topics-${slug}`);
-        subjectBtn.addEventListener('click', () => window.toggleDerslerimLibrarySubject(slug));
-
-        const leftLabel = document.createElement('span');
-        leftLabel.textContent = `📘 ${subject}`;
-        const arrow = document.createElement('span');
-        arrow.id = `derslerim-subj-arrow-${slug}`;
-        arrow.textContent = '▼';
-        subjectBtn.append(leftLabel, arrow);
-
-        const topicsWrap = document.createElement('div');
-        topicsWrap.id = `derslerim-topics-${slug}`;
-        topicsWrap.className = 'derslerim-library-topics';
-        topicsWrap.setAttribute('role', 'group');
-        topicsWrap.setAttribute('aria-label', `${subject} konuları`);
-
-        allowedTopics.forEach((topic) => {
-            const topicBtn = document.createElement('button');
-            topicBtn.type = 'button';
-            topicBtn.className = 'derslerim-topic-btn';
-            topicBtn.setAttribute('aria-label', `${subject} - ${topic} konusunu aç`);
-            topicBtn.textContent = `📄 ${topic}`;
-            topicBtn.addEventListener('click', () => window.openLibraryTopicFromDerslerim(subject, topic));
-            topicsWrap.appendChild(topicBtn);
-        });
-
-        treeEl.append(subjectBtn, topicsWrap);
-    });
-
-    if (!hasRenderableTopic) {
-        const emptyText = document.createElement('small');
-        emptyText.className = 'derslerim-empty-text';
-        emptyText.textContent = filterMode === 'saved'
-            ? 'Henüz soru kaydedilen konu bulunamadı. “Tümünü Göster” ile tüm konuları görebilirsin.'
-            : 'Konu bulunamadı.';
-        treeEl.appendChild(emptyText);
-        if (filterMode === 'saved') {
-            const actionBtn = document.createElement('button');
-            actionBtn.type = 'button';
-            actionBtn.className = 'outline derslerim-empty-action-btn';
-            actionBtn.textContent = '➕ Önce soru ekle';
-            actionBtn.setAttribute('aria-label', 'Soru ekleme ekranına dön');
-            actionBtn.addEventListener('click', () => showScreen('screen-main'));
-            treeEl.appendChild(actionBtn);
-        }
-        return;
-    }
-};
+window.handleDerslerimTopicFilterChange = window.handleLibraryModalActiveToggleChange;
+window.renderDerslerimLibraryTree = window.renderLibraryModalTree;
 
 window.renderReadySources = () => {
     const listEl = document.getElementById('ready-sources-list');
@@ -1448,14 +1342,6 @@ window.openSettingsPanel = () => {
 
     const savedSubjects = CLIENT_STORE.getJSON('gazi_subjects_v2', []) || [];
     window.renderProfileSubjectsByExam(savedSubjects);
-    const topicFilterEl = document.getElementById('derslerim-library-topic-filter');
-    if (topicFilterEl) {
-        const savedMode = normalizeTopicFilterMode(CLIENT_STORE.getItem(DERSLERIM_TOPIC_FILTER_STORAGE_KEY, 'saved'));
-        topicFilterEl.value = savedMode;
-    }
-    if (document.getElementById('screen-settings')?.classList.contains('derslerim-mode')) {
-        window.renderDerslerimLibraryTree();
-    }
     window.restoreDerslerimTheme();
     showScreen('screen-settings');
 };
@@ -1498,7 +1384,9 @@ window.saveProfileSettings = () => {
 
     CLIENT_STORE.setJSON('gazi_subjects_v2', subjectsData); 
     CLIENT_STORE.setItem('gazi_onboarding_done', 'true');
-    window.renderDerslerimLibraryTree();
+    if (document.getElementById('library-modal-overlay')?.classList.contains('open')) {
+        window.renderLibraryModalTree();
+    }
     
     alert("✅ Çalışma Masası Ayarlarınız Kaydedildi!");
     
@@ -1934,8 +1822,8 @@ if(socket) {
         if (Object.keys(remote).length === 0) return;
         window.userCurriculum = remote;
         persistUserCurriculum();
-        if (document.getElementById('library-modal-overlay')?.style.display === 'flex') {
-            window.renderLibrarySubjectList();
+        if (document.getElementById('library-modal-overlay')?.classList.contains('open')) {
+            window.renderLibraryModalTree();
         }
     });
 }

@@ -185,7 +185,7 @@
 
             <div id="library-content-wrapper" class="">
                 <div style="margin-bottom:15px;">
-                    <button onclick="window.openDerslerimPanel()" class="outline" style="width:100%; font-size:0.85rem; border-color:#e67e22; color:#e67e22; padding:10px;">📚 Derslerim Kütüphane Ekranını Aç <small style="display:block; font-size:0.72rem; color:#f39c12; margin-top:3px;">Hatırlatılacak: <span id="review-btn-count">0</span></small></button>
+                    <button onclick="window.openLibraryModal('view')" class="outline" style="width:100%; font-size:0.85rem; border-color:#e67e22; color:#e67e22; padding:10px;">📚 Kayıtlı Kütüphanemi Aç <small style="display:block; font-size:0.72rem; color:#f39c12; margin-top:3px;">Hatırlatılacak: <span id="review-btn-count">0</span></small></button>
                 </div>
 
                 <div style="border-top:1px solid #e67e22; padding-top:15px; text-align:left;">
@@ -435,26 +435,13 @@
 
                 <div class="derslerim-collapsible-card" style="margin-top:12px;">
                     <small style="display:block; color:#1e3c72; margin-bottom:8px; font-weight:700;">📁 Kütüphaneme Kaydet</small>
-                    <button type="button" id="derslerim-select-folder-btn" class="outline" style="width:100%; border-color:#1e3c72; color:#1e3c72; font-size:0.85rem; padding:10px;" onclick="window.openLibraryModal('view')">📁 Kütüphaneye Ekle</button>
+                    <button type="button" id="derslerim-select-folder-btn" class="outline" style="width:100%; border-color:#1e3c72; color:#1e3c72; font-size:0.85rem; padding:10px;" onclick="window.openLibraryModal('select')">📁 Kütüphane Seç</button>
                     <p id="derslerim-selected-folder-text" style="margin:8px 0 0 0; font-size:0.78rem; color:#1e3c72; font-weight:600;">Seçili Kütüphane: Henüz seçilmedi</p>
                 </div>
 
                 <div class="derslerim-collapsible-card" style="margin-top:15px;">
-                    <button id="derslerim-library-trigger" type="button" class="derslerim-collapse-trigger" aria-expanded="true" aria-controls="derslerim-library-content" onclick="window.toggleDerslerimSection('derslerim-library-content', 'derslerim-library-arrow', 'derslerim-library-trigger')">
-                        <span>📚 Kütüphanem</span>
-                        <span id="derslerim-library-arrow">▼</span>
-                    </button>
-                    <div id="derslerim-library-content" class="derslerim-collapse-content">
-                        <small style="display:block; color:#6b7280; margin-bottom:8px;">Ders > Konu seçerek doğrudan ilgili sorulara geçebilirsiniz.</small>
-                        <div id="derslerim-library-filter-wrap" style="margin-bottom:8px;">
-                            <label for="derslerim-library-topic-filter" style="font-size:0.72rem; font-weight:700; color:#1e3c72;">🔎 Konu Görünümü</label>
-                            <select id="derslerim-library-topic-filter" aria-label="Konu görünümü filtresi" style="margin-top:4px; font-size:0.82rem; padding:8px;" onchange="window.handleDerslerimTopicFilterChange()">
-                                <option value="saved" selected>Sadece Soru Kaydedilen Konular</option>
-                                <option value="all">Tümünü Göster</option>
-                            </select>
-                        </div>
-                        <div id="derslerim-library-tree"></div>
-                    </div>
+                    <small style="display:block; color:#6b7280; margin-bottom:8px;">Kütüphane seçimlerini merkezi alt panelden yönetebilirsiniz.</small>
+                    <button type="button" class="outline" style="width:100%; border-color:#1e3c72; color:#1e3c72; font-size:0.85rem; padding:10px;" onclick="window.openLibraryModal('view')">📚 Kayıtlı Kütüphanemi Aç</button>
                 </div>
             </div>
 
@@ -640,7 +627,15 @@
 <div id="library-modal-overlay" class="library-modal-overlay" style="display:none;" onclick="window.closeLibraryModal(event)">
     <div id="library-modal" class="library-modal" onclick="event.stopPropagation()">
         <div class="library-modal-header">
-            <h3 id="library-modal-title">📁 Kütüphaneye Ekle</h3>
+            <button type="button" id="library-modal-title" class="library-modal-title-btn" aria-controls="library-modal-library-section" aria-expanded="true" onclick="window.toggleLibraryModalSection()">📚 Kayıtlı Kütüphanem</button>
+            <div class="library-modal-controls">
+                <label for="library-modal-active-toggle" class="library-modal-toggle-label">Sadece Aktif Konuları Göster</label>
+                <button type="button" class="library-modal-info-btn" aria-label="Aktif konu açıklaması" title="Aktif konular hakkında bilgi" onclick="window.showLibraryModalActiveTopicsInfo()">i</button>
+                <label class="library-modal-switch" aria-label="Sadece aktif konuları göster">
+                    <input id="library-modal-active-toggle" type="checkbox" checked onchange="window.handleLibraryModalActiveToggleChange()">
+                    <span class="library-modal-slider"></span>
+                </label>
+            </div>
             <button type="button" class="library-modal-close" onclick="window.closeLibraryModal()">✕</button>
         </div>
         <div id="library-modal-content" class="library-modal-content gpu-transition"></div>
