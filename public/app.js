@@ -31,6 +31,7 @@ const APP_STATE = {
     activeListType: ""
 };
 const DEFAULT_ERROR_MESSAGE = "İşlem sırasında bir hata oluştu.";
+const LEGACY_EMPTY_BOOK_LABEL = "kaynak girilmemiş";
 
 // 🚨 YENİ NESİL MÜFREDAT AĞACI VE KAPSÜL (BUTON) SİSTEMİ BAŞLANGICI 🚨
 window.mufredat = {
@@ -1960,7 +1961,7 @@ window.uploadStudentQuestion = async (target = 'cloud') => {
     const memBadge = document.getElementById('mem-badge');
     if (memBadge) memBadge.style.display = "inline-block";
 
-    if (target === 'cloud' && (!socket || socket.connected !== true)) {
+    if (target === 'cloud' && (!socket || !socket.connected)) {
         return alert("Buluta bağlanılamadı, lütfen Cihaza Kaydet seçeneğini kullanın.");
     }
 
@@ -2102,7 +2103,7 @@ function renderStudentLibraryListOnly(data) {
             : '';
         div.innerHTML = data.map((q, i) => {
             const kitapText = typeof q.kitap === 'string' ? q.kitap.trim() : '';
-            const showKitap = !!kitapText && kitapText.toLowerCase() !== 'kaynak girilmemiş';
+            const showKitap = !!kitapText && kitapText.toLowerCase() !== LEGACY_EMPTY_BOOK_LABEL;
             return `
             <div class="list-item" style="border: 2px solid #e67e22; background:#fff; position:relative;">
                 <button onclick="reportQuestionFromLibrary(${i})" title="Hatalı Bildir" style="position:absolute; top:6px; right:6px; width:auto; padding:2px 7px; font-size:0.7rem; background:transparent; border:1px solid #e0e0e0; color:#bbb; border-radius:4px; cursor:pointer; line-height:1.4;">🚨</button>
