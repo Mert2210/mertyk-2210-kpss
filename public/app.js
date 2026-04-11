@@ -2040,7 +2040,7 @@ function renderStudentLibraryHTML(data, title) {
     }
 
     const pendingFilter = window.pendingLibraryFilter;
-    if (pendingFilter && pendingFilter !== null && typeof pendingFilter === 'object') {
+    if (pendingFilter && typeof pendingFilter === 'object') {
         const dersSelect = document.getElementById('filter-ders');
         const konuSelect = document.getElementById('filter-konu');
         const dersOptions = dersSelect ? Array.from(dersSelect.options) : [];
