@@ -220,6 +220,9 @@ function ensureCurriculumPath(subject, topic) {
 window.userCurriculum = buildInitialUserCurriculum();
 window.selectedLibraryPath = { subject: "", topic: "" };
 window.currentLibraryModalSubject = "";
+window.currentLibraryModalMode = "select";
+window.libraryViewingTopicPath = null;
+window.smartAddTopicPath = null;
 window.pendingLibraryFilter = null;
 window.isStudentUploadInProgress = false;
 
@@ -244,6 +247,20 @@ function setSelectedLibraryPath(subject, topic) {
     saveAddQuestionUIPrefs({ folderSubject: safeSubject, folderTopic: safeTopic });
     ensureCurriculumPath(safeSubject, safeTopic);
 }
+
+function normalizeLibraryPath(path) {
+    if (!path || typeof path !== 'object') return null;
+    const subject = String(path.subject || '').trim();
+    const topic = String(path.topic || '').trim();
+    if (!subject || !topic) return null;
+    return { subject, topic };
+}
+
+window.applySmartAddQuestionFormVisibility = () => {
+    const selectionArea = document.getElementById('dynamic-selection-area');
+    if (!selectionArea) return;
+    selectionArea.style.display = window.smartAddTopicPath ? 'none' : '';
+};
 
 function animateLibraryModalSwap(renderFn, direction = 'left') {
     const content = document.getElementById('library-modal-content');
@@ -295,7 +312,7 @@ window.renderLibrarySubjectList = () => {
     const title = document.getElementById('library-modal-title');
     const content = document.getElementById('library-modal-content');
     if (!content) return;
-    if (title) title.textContent = '📁 Kütüphaneye Ekle';
+    if (title) title.textContent = window.currentLibraryModalMode === 'view' ? '📚 Kütüphanem' : '📁 Kütüphaneye Ekle';
     content.innerHTML = '';
     const grid = document.createElement('div');
     grid.className = 'library-grid';
@@ -317,7 +334,8 @@ window.renderLibraryTopicList = (subject) => {
     const title = document.getElementById('library-modal-title');
     const content = document.getElementById('library-modal-content');
     if (!content) return;
-    if (title) title.textContent = `📚 ${safeSubject}`;
+    const titlePrefix = window.currentLibraryModalMode === 'view' ? '📚' : '📁';
+    if (title) title.textContent = `${titlePrefix} ${safeSubject}`;
     content.innerHTML = '';
 
     const backBtn = document.createElement('button');
@@ -333,12 +351,21 @@ window.renderLibraryTopicList = (subject) => {
     list.className = 'library-topic-list';
     const topics = Array.isArray(window.userCurriculum[safeSubject]) ? window.userCurriculum[safeSubject] : [];
     topics.forEach((topic) => {
+        const safeTopic = String(topic || '').trim();
+        if (!safeTopic) return;
         const row = document.createElement('button');
         row.type = 'button';
         row.className = 'library-topic-item';
-        row.innerHTML = `<span>${escapeHtml(topic)}</span>`;
+        row.innerHTML = `<span>${escapeHtml(safeTopic)}</span>`;
         row.addEventListener('click', () => {
-            setSelectedLibraryPath(safeSubject, topic);
+            setSelectedLibraryPath(safeSubject, safeTopic);
+            if (window.currentLibraryModalMode === 'view') {
+                window.libraryViewingTopicPath = { subject: safeSubject, topic: safeTopic };
+                window.pendingLibraryFilter = { subject: safeSubject, topic: safeTopic };
+                window.closeLibraryModal();
+                window.openStudentLibrary({ keepTopicContext: true });
+                return;
+            }
             window.closeLibraryModal();
         });
         const delBtn = document.createElement('button');
@@ -361,11 +388,15 @@ window.renderLibraryTopicList = (subject) => {
     content.appendChild(list);
 };
 
-window.openLibraryModal = () => {
+window.openLibraryModal = (mode = 'select') => {
+    const currentUser = APP_STATE.currentUser || {};
+    if (currentUser.role !== 'student' && currentUser.role !== 'admin') return;
     const overlay = document.getElementById('library-modal-overlay');
     const content = document.getElementById('library-modal-content');
     if (!overlay || !content) return;
+    window.currentLibraryModalMode = mode === 'view' ? 'view' : 'select';
     overlay.style.display = 'flex';
+    requestAnimationFrame(() => overlay.classList.add('open'));
     content.style.transform = 'translateX(0)';
     content.style.opacity = '1';
     window.renderLibrarySubjectList();
@@ -374,7 +405,12 @@ window.openLibraryModal = () => {
 window.closeLibraryModal = (event) => {
     if (event && event.currentTarget && event.target !== event.currentTarget) return;
     const overlay = document.getElementById('library-modal-overlay');
-    if (overlay) overlay.style.display = 'none';
+    if (overlay) {
+        overlay.classList.remove('open');
+        setTimeout(() => {
+            if (!overlay.classList.contains('open')) overlay.style.display = 'none';
+        }, 300);
+    }
     window.currentLibraryModalSubject = "";
 };
 
@@ -490,10 +526,13 @@ window.restoreAddQuestionUISelections = () => {
     window.updateStudentPhotoAddButtonLabel();
     window.updateStudentSolutionAddButtonLabel();
     window.updateStudentSaveTargetLabel();
+    window.applySmartAddQuestionFormVisibility();
 };
 
 window.openFolderSelector = () => {
-    window.openLibraryModal();
+    window.smartAddTopicPath = null;
+    window.applySmartAddQuestionFormVisibility();
+    window.openLibraryModal('select');
 };
 
 window.openStudentPhotoPicker = () => {
@@ -553,9 +592,46 @@ window.selectStudentSaveTarget = (target) => {
     if (dropdown) dropdown.open = false;
 };
 
-window.openStudentLibrary = () => {
+window.openStudentLibrary = (options = {}) => {
+    const keepTopicContext = !!(options && options.keepTopicContext);
+    if (!keepTopicContext) window.libraryViewingTopicPath = null;
     const source = (typeof socket !== 'undefined' && socket !== null) ? 'cloud' : 'local';
     window.fetchStudentLibrary(source, false);
+};
+
+window.openSmartAddForCurrentLibraryTopic = () => {
+    const context = normalizeLibraryPath(window.libraryViewingTopicPath);
+    if (!context) return;
+    window.smartAddTopicPath = { ...context };
+    setSelectedLibraryPath(context.subject, context.topic);
+    window.applySmartAddQuestionFormVisibility();
+    showScreen('screen-main');
+    const panel = document.getElementById('student-library-panel');
+    if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+};
+
+window.renderLibraryTopicAddButton = () => {
+    const context = normalizeLibraryPath(window.libraryViewingTopicPath);
+    const listContent = document.getElementById('list-content');
+    if (!listContent || !listContent.parentElement) return;
+    let container = document.getElementById('library-topic-add-cta');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'library-topic-add-cta';
+        container.style.marginBottom = '10px';
+        listContent.parentElement.insertBefore(container, listContent);
+    }
+    if (!context) {
+        container.style.display = 'none';
+        container.innerHTML = '';
+        return;
+    }
+    container.style.display = 'block';
+    container.innerHTML = `
+        <button type="button" class="green" style="width:100%; margin:0;" onclick="window.openSmartAddForCurrentLibraryTopic()">
+            ➕ Bu Konuya Soru Ekle (${escapeHtml(context.subject)} / ${escapeHtml(context.topic)})
+        </button>
+    `;
 };
 
 window.saveStudentQuestionWithPreference = () => {
@@ -706,8 +782,9 @@ window.openLibraryTopicFromDerslerim = (subject, topic) => {
     const safeSubject = String(subject || '').trim();
     const safeTopic = String(topic || '').trim();
     if (!safeSubject || !safeTopic) return;
+    window.libraryViewingTopicPath = { subject: safeSubject, topic: safeTopic };
     window.pendingLibraryFilter = { subject: safeSubject, topic: safeTopic };
-    window.openStudentLibrary();
+    window.openStudentLibrary({ keepTopicContext: true });
 };
 
 window.toggleDerslerimLibrarySubject = (subjectSlug) => {
@@ -1923,8 +2000,9 @@ window.uploadStudentQuestion = async (target = 'cloud') => {
     }
     const customKonuInput = document.getElementById('custom-konu-input');
     const customKonu = customKonuInput ? customKonuInput.value.trim() : "";
-    const finalTopic = (customKonu || window.secilenKonu || "").trim();
-    const finalDers = (window.secilenDers || "").trim();
+    const smartTopicContext = normalizeLibraryPath(window.smartAddTopicPath);
+    const finalTopic = (smartTopicContext?.topic || customKonu || window.secilenKonu || "").trim();
+    const finalDers = (smartTopicContext?.subject || window.secilenDers || "").trim();
     
     const stdQKitap = document.getElementById('std-q-kitap');
     const qKitap = stdQKitap ? stdQKitap.value.trim() : ""; 
@@ -1942,7 +2020,7 @@ window.uploadStudentQuestion = async (target = 'cloud') => {
 
     if(!stdUploadedImageBase64 && !qText) return alert("Lütfen bir fotoğraf yükleyin veya kendinize bir not yazın!");
 
-    if(customKonu && finalDers !== "Genel Ders") {
+    if(customKonu && !smartTopicContext && finalDers !== "Genel Ders") {
         let customTopics = JSON.parse(localStorage.getItem('gazi_custom_topics')) || {};
         if(!customTopics[finalDers]) customTopics[finalDers] = [];
         if(!customTopics[finalDers].includes(customKonu)) {
@@ -2030,6 +2108,7 @@ window.uploadStudentQuestion = async (target = 'cloud') => {
 };
 
 window.fetchStudentLibrary = (source = 'cloud', onlyReviews = false) => {
+    if (!window.pendingLibraryFilter) window.libraryViewingTopicPath = null;
     if(source === 'cloud') {
         if(!socket) return alert("Sunucu bağlantısı yok."); 
         const studentName = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "").trim() || "Gazi Adayı"; 
@@ -2163,6 +2242,7 @@ function renderStudentLibraryHTML(data, title) {
     }
 
     const pendingFilter = window.pendingLibraryFilter;
+    let resolvedTopicContext = null;
     if (pendingFilter && typeof pendingFilter === 'object') {
         const dersSelect = document.getElementById('filter-ders');
         const konuSelect = document.getElementById('filter-konu');
@@ -2174,10 +2254,15 @@ function renderStudentLibraryHTML(data, title) {
         if (hasKonu) konuSelect.value = pendingFilter.topic;
         if (hasDers || hasKonu) window.applyLibraryFilters();
         else renderStudentLibraryListOnly(data);
+        if (hasDers && hasKonu) {
+            resolvedTopicContext = { subject: pendingFilter.subject, topic: pendingFilter.topic };
+        }
         window.pendingLibraryFilter = null;
     } else {
         renderStudentLibraryListOnly(data);
     }
+    if (resolvedTopicContext) window.libraryViewingTopicPath = resolvedTopicContext;
+    window.renderLibraryTopicAddButton();
 
     const startBtn = document.getElementById('start-library-test-btn');
     if (startBtn) startBtn.style.display = data.length > 0 ? 'block' : 'none';
@@ -2304,6 +2389,7 @@ function formatReminderDate(nextReviewDate) {
 }
 
 window.openReviewLibrary = () => {
+    window.libraryViewingTopicPath = null;
     if (!socket) return alert("Sunucu bağlantısı yok.");
     const studentName = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "").trim() || "Gazi Adayı";
     socket.emit("getStudentLibrary", { studentName: studentName, onlyReviews: true });
