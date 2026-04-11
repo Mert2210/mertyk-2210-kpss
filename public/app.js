@@ -218,10 +218,10 @@ function updateSelectedFolderText(subject, topic) {
     const selectedFolderText = document.getElementById('selected-folder-text');
     if (!selectedFolderText) return;
     if (!subject || !topic) {
-        selectedFolderText.textContent = 'Seçili Klasör: Henüz seçilmedi';
+        selectedFolderText.textContent = 'Seçili Kütüphane: Henüz seçilmedi';
         return;
     }
-    selectedFolderText.textContent = `Seçili Klasör: ${subject} / ${topic}`;
+    selectedFolderText.textContent = `Seçili Kütüphane: ${subject} / ${topic}`;
 }
 
 function setSelectedLibraryPath(subject, topic) {
@@ -286,7 +286,7 @@ window.renderLibrarySubjectList = () => {
     const title = document.getElementById('library-modal-title');
     const content = document.getElementById('library-modal-content');
     if (!content) return;
-    if (title) title.textContent = '📁 Kütüphane Klasörü Seç';
+    if (title) title.textContent = '📁 Kütüphaneye Ekle';
     content.innerHTML = '';
     const grid = document.createElement('div');
     grid.className = 'library-grid';
@@ -320,19 +320,36 @@ window.renderLibraryTopicList = (subject) => {
     });
     content.appendChild(backBtn);
 
-    const grid = document.createElement('div');
-    grid.className = 'library-grid';
+    const list = document.createElement('div');
+    list.className = 'library-topic-list';
     const topics = Array.isArray(window.userCurriculum[safeSubject]) ? window.userCurriculum[safeSubject] : [];
     topics.forEach((topic) => {
-        grid.appendChild(createLibraryCard(topic, () => {
+        const row = document.createElement('button');
+        row.type = 'button';
+        row.className = 'library-topic-item';
+        row.innerHTML = `<span>${escapeHtml(topic)}</span>`;
+        row.addEventListener('click', () => {
             setSelectedLibraryPath(safeSubject, topic);
             window.closeLibraryModal();
-        }, {
-            onDelete: () => window.deleteCurriculumTopic(safeSubject, topic)
-        }));
+        });
+        const delBtn = document.createElement('button');
+        delBtn.type = 'button';
+        delBtn.className = 'library-card-delete';
+        delBtn.textContent = '🗑';
+        delBtn.addEventListener('click', (ev) => {
+            ev.stopPropagation();
+            window.deleteCurriculumTopic(safeSubject, topic);
+        });
+        row.appendChild(delBtn);
+        list.appendChild(row);
     });
-    grid.appendChild(createLibraryCard('➕ Yeni Konu Ekle', () => window.addCurriculumTopic(safeSubject), { isAdd: true }));
-    content.appendChild(grid);
+    const addTopicBtn = document.createElement('button');
+    addTopicBtn.type = 'button';
+    addTopicBtn.className = 'library-topic-add';
+    addTopicBtn.textContent = '➕ Yeni Konu Ekle';
+    addTopicBtn.addEventListener('click', () => window.addCurriculumTopic(safeSubject));
+    list.appendChild(addTopicBtn);
+    content.appendChild(list);
 };
 
 window.openLibraryModal = () => {
@@ -398,13 +415,25 @@ window.deleteCurriculumTopic = (subject, topic) => {
     window.renderLibraryTopicList(safeSubject);
 };
 
+window.updateStudentPhotoAddButtonLabel = () => {
+    const photoSourceSelect = document.getElementById('student-photo-source-select');
+    const labelEl = document.getElementById('student-photo-source-label');
+    if (!photoSourceSelect || !labelEl) return;
+    const labels = {
+        camera: '(Kameradan Ekle)',
+        gallery: '(Fotoğraf Ekle)',
+        file: '(Dosyadan Seç)'
+    };
+    labelEl.textContent = labels[photoSourceSelect.value] || '(Kameradan Ekle)';
+};
+
 window.restoreAddQuestionUISelections = () => {
     const prefs = getAddQuestionUIPrefs();
 
     const photoSourceSelect = document.getElementById('student-photo-source-select');
     const saveTargetSelect = document.getElementById('student-save-target-select');
 
-    if (photoSourceSelect && (prefs.photoSource === 'camera' || prefs.photoSource === 'gallery')) {
+    if (photoSourceSelect && (prefs.photoSource === 'camera' || prefs.photoSource === 'gallery' || prefs.photoSource === 'file')) {
         photoSourceSelect.value = prefs.photoSource;
     }
     if (saveTargetSelect && (prefs.saveTarget === 'cloud' || prefs.saveTarget === 'local')) {
@@ -423,6 +452,7 @@ window.restoreAddQuestionUISelections = () => {
     } else {
         updateSelectedFolderText('', '');
     }
+    window.updateStudentPhotoAddButtonLabel();
 };
 
 window.openFolderSelector = () => {
@@ -436,8 +466,15 @@ window.openStudentPhotoPicker = () => {
 
     const targetInput = selectedSource === 'gallery'
         ? document.getElementById('std-img-upload-file')
-        : document.getElementById('std-img-upload-camera');
+        : selectedSource === 'file'
+            ? document.getElementById('std-img-upload-document')
+            : document.getElementById('std-img-upload-camera');
     if (targetInput) targetInput.click();
+};
+
+window.openMyLibrary = () => {
+    if (socket) return window.fetchStudentLibrary('cloud', false);
+    window.fetchStudentLibrary('local', false);
 };
 
 window.saveStudentQuestionWithPreference = () => {
@@ -705,7 +742,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const photoSourceSelect = document.getElementById('student-photo-source-select');
     if (photoSourceSelect) {
         photoSourceSelect.addEventListener('change', (e) => {
-            saveAddQuestionUIPrefs({ photoSource: e.target.value === 'gallery' ? 'gallery' : 'camera' });
+            const nextValue = ['camera', 'gallery', 'file'].includes(e.target.value) ? e.target.value : 'camera';
+            saveAddQuestionUIPrefs({ photoSource: nextValue });
+            window.updateStudentPhotoAddButtonLabel();
         });
     }
 
@@ -1664,7 +1703,7 @@ window.uploadStudentQuestion = async (target = 'cloud') => {
     const stdQKitap = document.getElementById('std-q-kitap');
     const qKitap = stdQKitap ? stdQKitap.value.trim() : ""; 
     
-    if(!qKitap || !finalTopic || !finalDers) return alert("Komutanım, lütfen Klasör ve Kaynak alanlarını eksiksiz doldurun!");
+    if(!qKitap || !finalTopic || !finalDers) return alert("Komutanım, lütfen Kütüphane ve Kaynak alanlarını eksiksiz doldurun!");
     
     const qText = document.getElementById('std-q-text').value.trim(); 
     const qSolText = document.getElementById('std-q-sol-text').value.trim(); 
