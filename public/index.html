@@ -184,31 +184,36 @@
             </div>
 
             <div id="library-content-wrapper" class="">
-                <div style="display:flex; gap:5px; margin-bottom:15px;">
-                    <button onclick="fetchStudentLibrary('cloud', false)" class="outline" style="flex:1; font-size:0.75rem; border-color:#e67e22; color:#e67e22; padding:8px;">☁️ Arşivi Aç</button>
-                    <button onclick="fetchStudentLibrary('local', false)" class="outline" style="flex:1; font-size:0.75rem; border-color:#3498db; color:#3498db; padding:8px;" id="btn-local-open">💾 Cihazdan Aç</button>
-                    <button onclick="openReviewLibrary()" class="outline" style="flex:1; font-size:0.75rem; border-color:#f39c12; color:#f39c12; padding:8px;">🔔 Hatırlatılacak (<span id="review-btn-count">0</span>)</button>
+                <div style="margin-bottom:15px;">
+                    <button onclick="window.openStudentLibrary()" class="outline" style="width:100%; font-size:0.85rem; border-color:#e67e22; color:#e67e22; padding:10px;">📚 Kütüphanemi Aç <small style="display:block; font-size:0.72rem; color:#f39c12; margin-top:3px;">Hatırlatılacak: <span id="review-btn-count">0</span></small></button>
                 </div>
 
                 <div style="border-top:1px solid #e67e22; padding-top:15px; text-align:left;">
                     <h4 style="font-size:0.9rem; margin-top:0; color:#333;">➕ Yapamadığın Soruyu Ekle</h4>
                     
                     <div style="display:flex; gap:10px; margin-bottom:10px; align-items:center;">
-                        <button type="button" class="outline" style="flex:1; font-size:0.85rem; padding:8px;" onclick="window.openStudentPhotoPicker()">📸 Fotoğraf Ekle</button>
+                        <button type="button" class="outline" style="flex:1; font-size:0.9rem; padding:10px;" onclick="window.openStudentPhotoPicker()">
+                            <span style="display:flex; flex-direction:column; line-height:1.15; text-align:center;">
+                                <span>➕ Soru Ekle</span>
+                                <small id="student-photo-source-label" style="font-size:0.72rem; color:#1e3c72;">(Kameradan Ekle)</small>
+                            </span>
+                        </button>
                         <select id="student-photo-source-select" style="flex:1; font-size:0.85rem; padding:8px; margin:0;">
-                            <option value="camera">Kamera</option>
-                            <option value="gallery">Galeri</option>
+                            <option value="camera">Kameradan Ekle</option>
+                            <option value="gallery">Fotoğraf Ekle</option>
+                            <option value="file">Dosya Seç</option>
                         </select>
                     </div>
                     
                     <input type="file" id="std-img-upload-camera" accept="image/*" capture="environment" multiple style="display:none;" onchange="processStudentImageUpload(event, 'image')">
                     <input type="file" id="std-img-upload-file" accept="image/*" multiple style="display:none;" onchange="processStudentImageUpload(event, 'image')">
+                    <input type="file" id="std-img-upload-file-picker" accept="image/*" multiple style="display:none;" onchange="processStudentImageUpload(event, 'image')">
                     
                     <img id="std-img-preview" src="" style="width:100%; max-height:200px; object-fit:contain; display:none; margin-bottom:10px; border-radius:8px; border: 2px solid #3498db;">
                     <div id="std-img-count" style="text-align:center; color:#3498db; font-weight:bold; font-size:0.85rem; display:none; margin-bottom:10px;"></div>
                     
                     <div id="dynamic-selection-area" style="background: #fdfdfd; padding: 10px; border-radius: 8px; border: 1px solid #ddd; margin-bottom:10px; text-align:left; position:relative;">
-                        <button type="button" id="select-folder-btn" aria-label="Klasör seç" class="outline" style="width:100%; font-size:0.85rem; padding:8px; border-color:#1e3c72; color:#1e3c72;" onclick="window.openFolderSelector()">📁 Klasör Seç</button>
+                        <button type="button" id="select-folder-btn" aria-label="Kütüphaneye ekle" class="outline" style="width:100%; font-size:0.85rem; padding:8px; border-color:#1e3c72; color:#1e3c72;" onclick="window.openFolderSelector()">📁 Kütüphaneye Ekle</button>
                         <p id="selected-folder-text" style="margin:8px 0 0 0; font-size:0.78rem; color:#1e3c72; font-weight:600;"></p>
                     </div>
 
@@ -369,27 +374,49 @@
             </div>
 
             <div class="settings-derslerim-section">
-                <h4 style="color:#1e3c72; border-bottom:2px solid #eee; padding-bottom:8px; margin-top:20px;">🎯 Hedef Sınavınız</h4>
-                <select id="profile-exam-type" style="margin-bottom:15px; font-weight:bold; border-color:#3498db; color:#1e3c72;" onchange="updateGradeDropdown()">
-                    <option value="kpss_lisans">KPSS Lisans</option>
-                    <option value="kpss_onlisans">KPSS Ön Lisans</option>
-                    <option value="kpss_ortaogretim">Ortaöğretim</option>
-                    <option value="kpss_egitim">KPSS Eğitim Bilimleri</option>
-                    <option value="yks_tyt">YKS - TYT</option>
-                    <option value="yks_ayt">YKS - AYT</option>
-                    <option value="lise_okul">Lise (Okul Dersleri)</option>
-                    <option value="ortaokul">Ortaokul (LGS)</option>
-                </select>
-
-                <div id="grade-selection-area" style="display:none; margin-bottom:20px; background:#f9f9f9; padding:10px; border-radius:8px; border:1px solid #eee;">
-                    <label style="font-size:0.75rem; font-weight:bold; color:#c0392b; margin-bottom:5px; display:block;">🏫 BULUNDUĞUNUZ SINIF:</label>
-                    <div id="grade-boxes" style="display:flex; gap:8px; flex-wrap:wrap;"></div>
-                    <input type="hidden" id="profile-grade" value="">
+                <div class="derslerim-collapsible-card">
+                    <button type="button" class="derslerim-collapse-trigger" onclick="window.toggleDerslerimSection('derslerim-exam-content', 'derslerim-exam-arrow')">
+                        <span>🎯 Hedef Sınavınız</span>
+                        <span id="derslerim-exam-arrow">▼</span>
+                    </button>
+                    <div id="derslerim-exam-content" class="derslerim-collapse-content">
+                        <select id="profile-exam-type" style="margin-bottom:15px; font-weight:bold; border-color:#3498db; color:#1e3c72;" onchange="updateGradeDropdown()">
+                            <option value="kpss_lisans">KPSS Lisans</option>
+                            <option value="kpss_onlisans">KPSS Ön Lisans</option>
+                            <option value="kpss_ortaogretim">Ortaöğretim</option>
+                            <option value="kpss_egitim">KPSS Eğitim Bilimleri</option>
+                            <option value="yks_tyt">YKS - TYT</option>
+                            <option value="yks_ayt">YKS - AYT</option>
+                            <option value="lise_okul">Lise (Okul Dersleri)</option>
+                            <option value="ortaokul">Ortaokul (LGS)</option>
+                        </select>
+    
+                        <div id="grade-selection-area" style="display:none; margin-bottom:20px; background:#f9f9f9; padding:10px; border-radius:8px; border:1px solid #eee;">
+                            <label style="font-size:0.75rem; font-weight:bold; color:#c0392b; margin-bottom:5px; display:block;">🏫 BULUNDUĞUNUZ SINIF:</label>
+                            <div id="grade-boxes" style="display:flex; gap:8px; flex-wrap:wrap;"></div>
+                            <input type="hidden" id="profile-grade" value="">
+                        </div>
+                    </div>
                 </div>
 
                 <h4 style="color:#1e3c72; border-bottom:2px solid #eee; padding-bottom:8px; margin-top:20px;">📚 Sorumlu Olduğunuz Dersler</h4>
                 <p style="font-size:0.75rem; color:#666; margin-top:0;">Dersleri seçip yanlarına çalışacağınız alt konuları belirtebilirsiniz.</p>
                 <div id="profile-subjects-area" style="max-height: 250px; overflow-y:auto; background:#fff; padding:8px; border-radius:8px; border:1px solid #ddd;"></div>
+
+                <div class="derslerim-collapsible-card" style="margin-top:15px;">
+                    <button type="button" class="derslerim-collapse-trigger" onclick="window.toggleDerslerimSection('derslerim-library-content', 'derslerim-library-arrow')">
+                        <span>📚 Kütüphanem</span>
+                        <span id="derslerim-library-arrow">▼</span>
+                    </button>
+                    <div id="derslerim-library-content" class="derslerim-collapse-content">
+                        <small style="display:block; color:#6b7280; margin-bottom:8px;">Ders > Konu seçerek doğrudan ilgili sorulara geçebilirsiniz.</small>
+                        <div id="derslerim-library-tree"></div>
+                    </div>
+                </div>
+
+                <button id="derslerim-theme-toggle-btn" type="button" class="outline derslerim-theme-toggle-btn" onclick="window.toggleSoftDerslerimTheme()">
+                    🌙 Yumuşak Gece Modu: Kapalı
+                </button>
             </div>
 
             <button onclick="saveProfileSettings()" class="green" style="margin-top:20px; width:100%; padding:15px; font-size:1.1rem; border-radius:10px;">💾 Masamı ve Ayarlarımı Kaydet</button>
@@ -574,7 +601,7 @@
 <div id="library-modal-overlay" class="library-modal-overlay" style="display:none;" onclick="window.closeLibraryModal(event)">
     <div id="library-modal" class="library-modal" onclick="event.stopPropagation()">
         <div class="library-modal-header">
-            <h3 id="library-modal-title">📁 Kütüphane Klasörü Seç</h3>
+            <h3 id="library-modal-title">📁 Kütüphaneye Ekle</h3>
             <button type="button" class="library-modal-close" onclick="window.closeLibraryModal()">✕</button>
         </div>
         <div id="library-modal-content" class="library-modal-content gpu-transition"></div>
