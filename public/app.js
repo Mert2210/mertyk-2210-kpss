@@ -955,7 +955,7 @@ async function uploadImageDataUrlIfNeeded(dataUrl, folder) {
     const ext = getImageExtensionFromDataUrl(dataUrl);
     const uniqueId = (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function')
         ? crypto.randomUUID()
-        : `${Date.now()}_${Math.random().toString(36).slice(2, 12)}`;
+        : `${Date.now()}_${++storageUploadCounter}_${Math.random().toString(36).slice(2, 12)}_${Math.random().toString(36).slice(2, 12)}`;
     const fileName = `${uniqueId}.${ext}`;
     const fileRef = storageRef(storage, `${folder}/${fileName}`);
     await uploadString(fileRef, dataUrl, 'data_url');
@@ -970,6 +970,7 @@ let roomSolvedIndices = new Set(), roomTotalQuestions = 0;
 let currentQObject = null, currentListType = "", selectedTimerMode = "question";
 let uploadedImageBase64 = null; let uploadedSolutionBase64 = null; 
 let stdUploadedImageBase64 = null; let stdSolutionBase64 = null; let stdSourceImageBase64 = null;
+let storageUploadCounter = 0;
 window.tempStdQuestions = []; window.originalStdQuestions = [];
 
 window.setTimerMode = (mode) => { 
