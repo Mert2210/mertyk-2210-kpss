@@ -433,7 +433,7 @@ window.renderLibraryModalTree = () => {
             const emptyText = document.createElement('small');
             emptyText.className = 'derslerim-empty-text';
             emptyText.textContent = filterMode === 'saved'
-                ? 'Henüz aktif konu bulunamadı. Tüm konuları görmek için anahtarı kapatın.'
+                ? 'Henüz aktif konu bulunamadı. Tüm konuları görmek için “Sadece Aktif Konuları Göster” anahtarını kapatın.'
                 : 'Konu bulunamadı.';
             section.appendChild(emptyText);
         }
