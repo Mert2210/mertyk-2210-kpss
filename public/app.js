@@ -822,10 +822,10 @@ function buildSavedTopicIndexForDerslerim() {
         if (!map.has(safeSubject)) map.set(safeSubject, new Set());
         map.get(safeSubject).add(safeTopic);
     };
-    const localNotebook = CLIENT_STORE.getJSON('gazi_local_notebook', []);
-    if (!Array.isArray(localNotebook)) {
-        console.warn('Derslerim kayıtlı soru listesi beklenen dizide değil. Alınan tip:', typeof localNotebook);
-        return map;
+    const localNotebookRaw = CLIENT_STORE.getJSON('gazi_local_notebook', []);
+    const localNotebook = Array.isArray(localNotebookRaw) ? localNotebookRaw : [];
+    if (!Array.isArray(localNotebookRaw)) {
+        console.warn('Derslerim kayıtlı soru listesi beklenen dizide değil. Alınan tip:', typeof localNotebookRaw);
     }
     localNotebook.forEach((q) => addPair(q?.ders, q?.konu || q?.deneme));
     const activeLibrary = Array.isArray(window.originalStdQuestions) ? window.originalStdQuestions : [];
@@ -1719,9 +1719,9 @@ onAuthStateChanged(auth, user => {
                 : `<option value="Genel">Genel</option>`; 
         }
 
-        const onboardingDone = CLIENT_STORE.getItem('gazi_onboarding_done', null);
+        const onboardingDone = CLIENT_STORE.getItem('gazi_onboarding_done', '');
         if(!isTeacher && !onboardingDone) {
-            const hasSeenIntro = CLIENT_STORE.getItem('gazi_intro_seen', null);
+            const hasSeenIntro = CLIENT_STORE.getItem('gazi_intro_seen', '');
             if(!hasSeenIntro) { 
                 document.getElementById('intro-overlay').style.display = 'flex'; 
             } else { 
@@ -2516,6 +2516,7 @@ window.checkStdAnswer = (btn, selectedIdx, qIndex) => {
     
     const sDiv = document.getElementById('sol-' + boxId); 
     sDiv.style.display = 'block'; 
+    sDiv.classList.remove('solution-revealed');
     sDiv.classList.add('solution-revealed');
     sDiv.innerHTML = `<b>✏️ Çözüm Notu:</b><br>${escapeHtml(q.solutionText || 'Yazılı çözüm notu bulunmuyor.')}<br>${q.solutionImage ? `<img src="${safeImageSrc(q.solutionImage)}" class="list-item-question-image">` : ''}`; 
 };

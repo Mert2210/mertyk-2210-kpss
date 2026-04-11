@@ -13,7 +13,10 @@ export function createSafeClientStore(storage = globalThis?.localStorage, option
 
     const setItem = (key, value) => {
         try {
-            if (value === null || value === undefined) return false;
+            if (value === null || value === undefined) {
+                console.warn(`Depolama işlemi atlandı: ${key} için null/undefined değer verildi.`);
+                return false;
+            }
             storage?.setItem?.(key, String(value));
             return true;
         } catch (error) {
