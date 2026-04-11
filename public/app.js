@@ -31,7 +31,7 @@ const APP_STATE = {
     activeListType: ""
 };
 const DEFAULT_ERROR_MESSAGE = "İşlem sırasında bir hata oluştu.";
-const LEGACY_EMPTY_BOOK_LABEL_NORMALIZED = "kaynak girilmemiş";
+const LEGACY_EMPTY_BOOK_TEXT = "kaynak girilmemiş";
 
 // 🚨 YENİ NESİL MÜFREDAT AĞACI VE KAPSÜL (BUTON) SİSTEMİ BAŞLANGICI 🚨
 window.mufredat = {
@@ -1921,13 +1921,6 @@ window.uploadStudentQuestion = async (target = 'cloud') => {
     if (target === 'cloud' && (!socket || !socket.connected)) {
         return alert("Buluta bağlanılamadı, lütfen Cihaza Kaydet seçeneğini kullanın.");
     }
-    const saveBtn = document.getElementById('student-save-btn');
-    window.isStudentUploadInProgress = true;
-    if (saveBtn) {
-        saveBtn.disabled = true;
-        saveBtn.textContent = '⏳ Kaydediliyor...';
-    }
-    try {
     const customKonuInput = document.getElementById('custom-konu-input');
     const customKonu = customKonuInput ? customKonuInput.value.trim() : "";
     const finalTopic = (customKonu || window.secilenKonu || "").trim();
@@ -1965,6 +1958,13 @@ window.uploadStudentQuestion = async (target = 'cloud') => {
     const memBadge = document.getElementById('mem-badge');
     if (memBadge) memBadge.style.display = "inline-block";
 
+    const saveBtn = document.getElementById('student-save-btn');
+    window.isStudentUploadInProgress = true;
+    if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.textContent = '⏳ Kaydediliyor...';
+    }
+    try {
     let questionImageForSave = stdUploadedImageBase64;
     let solutionImageForSave = stdSolutionBase64;
     let sourceImageForSave = stdSourceImageBase64 || null;
@@ -2103,7 +2103,7 @@ function renderStudentLibraryListOnly(data) {
             : '';
         div.innerHTML = data.map((q, i) => {
             const kitapText = typeof q.kitap === 'string' ? q.kitap.trim() : '';
-            const showKitap = !!kitapText && kitapText.toLowerCase() !== LEGACY_EMPTY_BOOK_LABEL_NORMALIZED;
+            const showKitap = !!kitapText && kitapText.toLowerCase() !== LEGACY_EMPTY_BOOK_TEXT;
             return `
             <div class="list-item" style="border: 2px solid #e67e22; background:#fff; position:relative;">
                 <button onclick="reportQuestionFromLibrary(${i})" title="Hatalı Bildir" style="position:absolute; top:6px; right:6px; width:auto; padding:2px 7px; font-size:0.7rem; background:transparent; border:1px solid #e0e0e0; color:#bbb; border-radius:4px; cursor:pointer; line-height:1.4;">🚨</button>
