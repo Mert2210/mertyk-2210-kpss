@@ -663,8 +663,11 @@ window.restoreDerslerimTheme = () => {
     window.applyDerslerimTheme(saved);
 };
 // Eski global isimler için geriye dönük uyumluluk
+/** @deprecated applyDerslerimTheme kullanın. */
 window.applySoftDerslerimTheme = window.applyDerslerimTheme;
+/** @deprecated toggleDerslerimTheme kullanın. */
 window.toggleSoftDerslerimTheme = window.toggleDerslerimTheme;
+/** @deprecated restoreDerslerimTheme kullanın. */
 window.restoreSoftDerslerimTheme = window.restoreDerslerimTheme;
 
 function getDerslerimSubjectsFromStorage() {
