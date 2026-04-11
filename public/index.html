@@ -398,13 +398,12 @@
                     <input type="password" id="profile-old-pass" placeholder="Mevcut (Eski) Şifreniz" style="margin-bottom:5px; font-size:0.85rem;">
                     <input type="password" id="profile-new-pass" placeholder="Yeni Şifre Belirleyin" style="margin-bottom:0; font-size:0.85rem;">
                 </div>
-            </div>
-
-            <div class="settings-derslerim-section">
                 <button id="derslerim-theme-toggle-btn" type="button" class="outline derslerim-theme-toggle-btn" onclick="window.toggleDerslerimTheme()">
                     🌙 Gece Modu: Kapalı
                 </button>
+            </div>
 
+            <div class="settings-derslerim-section">
                 <div class="derslerim-collapsible-card">
                     <button type="button" class="derslerim-collapse-trigger" onclick="window.toggleDerslerimSection('derslerim-exam-content', 'derslerim-exam-arrow')">
                         <span>🎯 Hedef Sınavınız</span>
@@ -447,12 +446,19 @@
                     </button>
                     <div id="derslerim-library-content" class="derslerim-collapse-content">
                         <small style="display:block; color:#6b7280; margin-bottom:8px;">Ders > Konu seçerek doğrudan ilgili sorulara geçebilirsiniz.</small>
+                        <div id="derslerim-library-filter-wrap" style="margin-bottom:8px;">
+                            <label for="derslerim-library-topic-filter" style="font-size:0.72rem; font-weight:700; color:#1e3c72;">🔎 Konu Görünümü</label>
+                            <select id="derslerim-library-topic-filter" style="margin-top:4px; font-size:0.82rem; padding:8px;" onchange="window.renderDerslerimLibraryTree()">
+                                <option value="saved" selected>Sadece Soru Kaydedilen Konular</option>
+                                <option value="all">Tümünü Göster</option>
+                            </select>
+                        </div>
                         <div id="derslerim-library-tree"></div>
                     </div>
                 </div>
             </div>
 
-            <button onclick="saveProfileSettings()" class="green" style="margin-top:20px; width:100%; padding:15px; font-size:1.1rem; border-radius:10px;">💾 Masamı ve Ayarlarımı Kaydet</button>
+            <button id="profile-save-btn" onclick="saveProfileSettings()" class="green" style="margin-top:20px; width:100%; padding:15px; font-size:1.1rem; border-radius:10px;">💾 Masamı ve Ayarlarımı Kaydet</button>
             <button onclick="openSecureLogoutScreen()" class="outline" style="margin-top:10px; width:100%; padding:12px; border-color:#c0392b; color:#c0392b;">🔐 Güvenli Çıkış Ekranı</button>
         </div>
     </div>

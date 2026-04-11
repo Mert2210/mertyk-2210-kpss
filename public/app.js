@@ -779,6 +779,29 @@ function getTopicsForDerslerimSubject(subject) {
     }
 }
 
+function getDerslerimTopicFilterMode() {
+    const el = document.getElementById('derslerim-library-topic-filter');
+    return el && el.value === 'all' ? 'all' : 'saved';
+}
+
+function buildSavedTopicIndexForDerslerim() {
+    const map = new Map();
+    const addPair = (subject, topic) => {
+        const safeSubject = String(subject || '').trim();
+        const safeTopic = String(topic || '').trim();
+        if (!safeSubject || !safeTopic) return;
+        if (!map.has(safeSubject)) map.set(safeSubject, new Set());
+        map.get(safeSubject).add(safeTopic);
+    };
+    try {
+        const localNotebook = JSON.parse(localStorage.getItem('gazi_local_notebook')) || [];
+        localNotebook.forEach((q) => addPair(q?.ders, q?.konu || q?.deneme));
+    } catch (e) {}
+    const activeLibrary = Array.isArray(window.originalStdQuestions) ? window.originalStdQuestions : [];
+    activeLibrary.forEach((q) => addPair(q?.ders, q?.konu || q?.deneme));
+    return map;
+}
+
 window.openLibraryTopicFromDerslerim = (subject, topic) => {
     const safeSubject = String(subject || '').trim();
     const safeTopic = String(topic || '').trim();
@@ -799,6 +822,8 @@ window.toggleDerslerimLibrarySubject = (subjectSlug) => {
 window.renderDerslerimLibraryTree = () => {
     const treeEl = document.getElementById('derslerim-library-tree');
     if (!treeEl) return;
+    const filterMode = getDerslerimTopicFilterMode();
+    const savedTopicIndex = buildSavedTopicIndexForDerslerim();
     const selectedSubjects = getDerslerimSubjectsFromStorage();
     const subjectList = selectedSubjects.length > 0
         ? selectedSubjects
@@ -807,11 +832,15 @@ window.renderDerslerimLibraryTree = () => {
         treeEl.innerHTML = `<small style="color:#6b7280;">Önce Derslerim bölümünden ders ekleyin.</small>`;
         return;
     }
-    treeEl.innerHTML = subjectList.map((subject) => {
+    const html = subjectList.map((subject) => {
         const slug = slugifySubjectName(subject);
-        const topics = getTopicsForDerslerimSubject(subject);
-        const topicHtml = topics.length > 0
-            ? topics.map((topic) => `<button type="button" class="derslerim-topic-btn" onclick="window.openLibraryTopicFromDerslerim(${JSON.stringify(subject)}, ${JSON.stringify(topic)})">📄 ${escapeHtml(topic)}</button>`).join('')
+        const allTopics = getTopicsForDerslerimSubject(subject);
+        const allowedTopics = filterMode === 'saved'
+            ? allTopics.filter((topic) => savedTopicIndex.has(subject) && savedTopicIndex.get(subject).has(topic))
+            : allTopics;
+        if (allowedTopics.length === 0) return '';
+        const topicHtml = allowedTopics.length > 0
+            ? allowedTopics.map((topic) => `<button type="button" class="derslerim-topic-btn" onclick="window.openLibraryTopicFromDerslerim(${JSON.stringify(subject)}, ${JSON.stringify(topic)})">📄 ${escapeHtml(topic)}</button>`).join('')
             : `<small style="color:#7f8c8d;">Konu bulunamadı.</small>`;
         return `
             <button type="button" class="derslerim-library-subject" onclick="window.toggleDerslerimLibrarySubject('${slug}')">
@@ -821,6 +850,13 @@ window.renderDerslerimLibraryTree = () => {
             <div id="derslerim-topics-${slug}" class="derslerim-library-topics">${topicHtml}</div>
         `;
     }).join('');
+    if (!html) {
+        treeEl.innerHTML = filterMode === 'saved'
+            ? `<small style="color:#6b7280;">Henüz soru kaydedilen konu bulunamadı. “Tümünü Göster” ile tüm konuları görebilirsin.</small>`
+            : `<small style="color:#6b7280;">Konu bulunamadı.</small>`;
+        return;
+    }
+    treeEl.innerHTML = html;
 };
 
 window.renderReadySources = () => {
