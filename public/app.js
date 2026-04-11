@@ -404,7 +404,12 @@ window.restoreAddQuestionUISelections = () => {
 
     const folderSubject = (prefs.folderSubject || window.secilenDers || '').trim();
     const folderTopic = (prefs.folderTopic || window.secilenKonu || '').trim();
-    if (folderSubject && folderTopic) {
+    const hasStoredPath =
+        !!folderSubject &&
+        !!folderTopic &&
+        Array.isArray(window.userCurriculum?.[folderSubject]) &&
+        window.userCurriculum[folderSubject].includes(folderTopic);
+    if (hasStoredPath) {
         setSelectedLibraryPath(folderSubject, folderTopic);
     } else {
         updateSelectedFolderText('', '');

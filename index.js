@@ -211,7 +211,7 @@ io.on("connection", (socket) => {
     socket.on("getUserCurriculum", async () => {
         if (!ensureAdmin(socket)) return;
         if (!db) {
-            socket.emit("errorMsg", "Veritabanı bağlantısı yok. Kütüphane yüklenemedi.");
+            socket.emit("errorMsg", "Veritabanı bağlantısı yok. Kullanıcı müfredatı yüklenemedi.");
             return socket.emit("userCurriculumData", {});
         }
         try {
@@ -226,7 +226,7 @@ io.on("connection", (socket) => {
 
     socket.on("upsertUserCurriculum", async (curriculumPayload) => {
         if (!ensureAdmin(socket)) return;
-        if (!db) return socket.emit("errorMsg", "Veritabanı bağlantısı yok. Lütfen tekrar deneyin veya yöneticinizle iletişime geçin.");
+        if (!db) return socket.emit("errorMsg", "Veritabanı bağlantısı yok. Kullanıcı müfredatı senkronize edilemedi.");
         const safeCurriculum = sanitizeCurriculumMap(curriculumPayload);
         try {
             await db.collection("app_config").doc("user_curriculum").set({
@@ -236,7 +236,7 @@ io.on("connection", (socket) => {
             }, { merge: true });
             socket.emit("userCurriculumData", safeCurriculum);
         } catch (error) {
-            socket.emit("errorMsg", "Kütüphane verisi veritabanına kaydedilemedi.");
+            socket.emit("errorMsg", "Kullanıcı müfredatı veritabanına kaydedilemedi.");
         }
     });
 
