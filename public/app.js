@@ -95,6 +95,7 @@ const DEFAULT_PROFILE_SUBJECTS = ['Tarih', 'Coğrafya', 'Vatandaşlık', 'Matema
 const READY_SOURCES_STORAGE_KEY = 'gazi_ready_sources_v1';
 const ADD_QUESTION_UI_PREFS_STORAGE_KEY = 'gazi_add_question_ui_prefs_v1';
 const USER_CURRICULUM_STORAGE_KEY = 'gazi_user_curriculum_v1';
+const LIBRARY_MODAL_SWAP_DELAY_MS = 140;
 const MAX_READY_SOURCES = 30;
 const FLOAT_COMPARISON_EPSILON = 0.001;
 const IMAGE_OPTIMIZATION_CONFIG = Object.freeze({
@@ -249,7 +250,7 @@ function animateLibraryModalSwap(renderFn, direction = 'left') {
             content.style.transform = 'translateX(0)';
             content.style.opacity = '1';
         });
-    }, 140);
+    }, LIBRARY_MODAL_SWAP_DELAY_MS);
 }
 
 function createLibraryCard(label, onClick, options = {}) {

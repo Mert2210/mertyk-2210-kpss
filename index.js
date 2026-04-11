@@ -223,7 +223,7 @@ io.on("connection", (socket) => {
 
     socket.on("upsertUserCurriculum", async (curriculumPayload) => {
         if (!ensureAdmin(socket)) return;
-        if (!db) return;
+        if (!db) return socket.emit("errorMsg", "Veritabanı bağlantısı yok. Kütüphane senkronize edilemedi.");
         const safeCurriculum = sanitizeCurriculumMap(curriculumPayload);
         try {
             await db.collection("app_config").doc("user_curriculum").set({
