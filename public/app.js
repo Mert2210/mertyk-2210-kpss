@@ -124,6 +124,10 @@ function normalizeText(v) {
     return String(v || '').trim().toLocaleLowerCase('tr');
 }
 
+function normalizeStudentPhotoSource(value) {
+    return VALID_STUDENT_PHOTO_SOURCES.includes(value) ? value : 'camera';
+}
+
 function slugifySubjectName(v) {
     return String(v || '')
         .toLocaleLowerCase('tr')
@@ -436,11 +440,7 @@ window.restoreAddQuestionUISelections = () => {
     const saveTargetSelect = document.getElementById('student-save-target-select');
 
     if (photoSourceSelect) {
-        if (VALID_STUDENT_PHOTO_SOURCES.includes(prefs.photoSource)) {
-            photoSourceSelect.value = prefs.photoSource;
-        } else {
-            photoSourceSelect.value = 'camera';
-        }
+        photoSourceSelect.value = normalizeStudentPhotoSource(prefs.photoSource);
     }
     if (saveTargetSelect && (prefs.saveTarget === 'cloud' || prefs.saveTarget === 'local')) {
         saveTargetSelect.value = prefs.saveTarget;
@@ -601,7 +601,7 @@ window.openLibraryTopicFromDerslerim = (subject, topic) => {
     const safeSubject = String(subject || '').trim();
     const safeTopic = String(topic || '').trim();
     if (!safeSubject || !safeTopic) return;
-    window.pendingLibraryFilter = { ders: safeSubject, konu: safeTopic };
+    window.pendingLibraryFilter = { subject: safeSubject, topic: safeTopic };
     window.openStudentLibrary();
 };
 
@@ -624,8 +624,8 @@ window.renderDerslerimLibraryTree = () => {
         treeEl.innerHTML = `<small style="color:#6b7280;">Önce Derslerim bölümünden ders ekleyin.</small>`;
         return;
     }
-    treeEl.innerHTML = subjectList.map((subject, index) => {
-        const slug = `${slugifySubjectName(subject)}-${index}`;
+    treeEl.innerHTML = subjectList.map((subject) => {
+        const slug = slugifySubjectName(subject);
         const topics = getTopicsForDerslerimSubject(subject);
         const topicHtml = topics.length > 0
             ? topics.map((topic) => `<button type="button" class="derslerim-topic-btn" onclick="window.openLibraryTopicFromDerslerim(${JSON.stringify(subject)}, ${JSON.stringify(topic)})">📄 ${escapeHtml(topic)}</button>`).join('')
@@ -829,7 +829,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const photoSourceSelect = document.getElementById('student-photo-source-select');
     if (photoSourceSelect) {
         photoSourceSelect.addEventListener('change', (e) => {
-            const nextValue = VALID_STUDENT_PHOTO_SOURCES.includes(e.target.value) ? e.target.value : 'camera';
+            const nextValue = normalizeStudentPhotoSource(e.target.value);
             saveAddQuestionUIPrefs({ photoSource: nextValue });
             window.updateStudentPhotoAddButtonLabel();
         });
@@ -2015,13 +2015,15 @@ function renderStudentLibraryHTML(data, title) {
     }
 
     const pendingFilter = window.pendingLibraryFilter;
-    if (pendingFilter && typeof pendingFilter === 'object') {
+    if (pendingFilter && pendingFilter !== null && typeof pendingFilter === 'object') {
         const dersSelect = document.getElementById('filter-ders');
         const konuSelect = document.getElementById('filter-konu');
-        const hasDers = !!dersSelect && Array.from(dersSelect.options).some(o => o.value === pendingFilter.ders);
-        const hasKonu = !!konuSelect && Array.from(konuSelect.options).some(o => o.value === pendingFilter.konu);
-        if (hasDers) dersSelect.value = pendingFilter.ders;
-        if (hasKonu) konuSelect.value = pendingFilter.konu;
+        const dersOptions = dersSelect ? Array.from(dersSelect.options) : [];
+        const konuOptions = konuSelect ? Array.from(konuSelect.options) : [];
+        const hasDers = dersOptions.some(o => o.value === pendingFilter.subject);
+        const hasKonu = konuOptions.some(o => o.value === pendingFilter.topic);
+        if (hasDers) dersSelect.value = pendingFilter.subject;
+        if (hasKonu) konuSelect.value = pendingFilter.topic;
         if (hasDers || hasKonu) window.applyLibraryFilters();
         else renderStudentLibraryListOnly(data);
         window.pendingLibraryFilter = null;
