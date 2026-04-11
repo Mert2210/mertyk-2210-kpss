@@ -948,14 +948,19 @@ function getImageExtensionFromDataUrl(dataUrl) {
     return match[1];
 }
 
+function generateUniqueId(prefix = '') {
+    const baseId = (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function')
+        ? crypto.randomUUID()
+        : `${Date.now()}_${Math.random().toString(36).slice(2, 12)}_${Math.random().toString(36).slice(2, 12)}`;
+    return prefix ? `${prefix}_${baseId}` : baseId;
+}
+
 async function uploadImageDataUrlIfNeeded(dataUrl, folder) {
     if (!dataUrl || typeof dataUrl !== 'string') return null;
     if (/^https?:\/\//.test(dataUrl)) return dataUrl;
     if (!/^data:image\/(jpeg|png|gif|webp);base64,/.test(dataUrl)) return null;
     const ext = getImageExtensionFromDataUrl(dataUrl);
-    const uniqueId = (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function')
-        ? crypto.randomUUID()
-        : `${Date.now()}_${++storageUploadCounter}_${Math.random().toString(36).slice(2, 12)}_${Math.random().toString(36).slice(2, 12)}`;
+    const uniqueId = generateUniqueId();
     const fileName = `${uniqueId}.${ext}`;
     const fileRef = storageRef(storage, `${folder}/${fileName}`);
     await uploadString(fileRef, dataUrl, 'data_url');
@@ -970,7 +975,6 @@ let roomSolvedIndices = new Set(), roomTotalQuestions = 0;
 let currentQObject = null, currentListType = "", selectedTimerMode = "question";
 let uploadedImageBase64 = null; let uploadedSolutionBase64 = null; 
 let stdUploadedImageBase64 = null; let stdSolutionBase64 = null; let stdSourceImageBase64 = null;
-let storageUploadCounter = 0;
 window.tempStdQuestions = []; window.originalStdQuestions = [];
 
 window.setTimerMode = (mode) => { 
@@ -1269,7 +1273,7 @@ window.uploadStudentQuestion = async (target = 'cloud') => {
     }
 
     const q = { 
-        ...(target === 'cloud' ? {} : { id: 'local_' + Date.now() }),
+        ...(target === 'cloud' ? {} : { id: generateUniqueId('local') }),
         studentName: studentName, 
         ders: finalDers, 
         kitap: qKitap, 
