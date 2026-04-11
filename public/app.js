@@ -206,8 +206,9 @@ window.openStudentPhotoPicker = () => {
 window.saveStudentQuestionWithPreference = () => {
     const saveTargetSelect = document.getElementById('student-save-target-select');
     const saveTarget = saveTargetSelect ? saveTargetSelect.value : 'cloud';
-    saveAddQuestionUIPrefs({ saveTarget: saveTarget === 'local' ? 'local' : 'cloud' });
-    window.uploadStudentQuestion(saveTarget === 'local' ? 'local' : 'cloud');
+    const normalizedSaveTarget = saveTarget === 'local' ? 'local' : 'cloud';
+    saveAddQuestionUIPrefs({ saveTarget: normalizedSaveTarget });
+    window.uploadStudentQuestion(normalizedSaveTarget);
 };
 
 function getReadySources() {
