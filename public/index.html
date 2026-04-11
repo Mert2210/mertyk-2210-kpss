@@ -185,7 +185,7 @@
 
             <div id="library-content-wrapper" class="">
                 <div style="margin-bottom:15px;">
-                    <button onclick="window.openMyLibrary()" class="outline" style="width:100%; font-size:0.85rem; border-color:#e67e22; color:#e67e22; padding:10px;">📚 Kütüphanemi Aç <small style="display:block; font-size:0.72rem; color:#f39c12; margin-top:3px;">Hatırlatılacak: <span id="review-btn-count">0</span></small></button>
+                    <button onclick="window.openStudentLibrary()" class="outline" style="width:100%; font-size:0.85rem; border-color:#e67e22; color:#e67e22; padding:10px;">📚 Kütüphanemi Aç <small style="display:block; font-size:0.72rem; color:#f39c12; margin-top:3px;">Hatırlatılacak: <span id="review-btn-count">0</span></small></button>
                 </div>
 
                 <div style="border-top:1px solid #e67e22; padding-top:15px; text-align:left;">
@@ -201,13 +201,13 @@
                         <select id="student-photo-source-select" style="flex:1; font-size:0.85rem; padding:8px; margin:0;">
                             <option value="camera">Kameradan Ekle</option>
                             <option value="gallery">Fotoğraf Ekle</option>
-                            <option value="file">Dosyadan Seç</option>
+                            <option value="file">Dosya Seç</option>
                         </select>
                     </div>
                     
                     <input type="file" id="std-img-upload-camera" accept="image/*" capture="environment" multiple style="display:none;" onchange="processStudentImageUpload(event, 'image')">
                     <input type="file" id="std-img-upload-file" accept="image/*" multiple style="display:none;" onchange="processStudentImageUpload(event, 'image')">
-                    <input type="file" id="std-img-upload-document" accept="image/*" multiple style="display:none;" onchange="processStudentImageUpload(event, 'image')">
+                    <input type="file" id="std-img-upload-file-picker" accept="image/*" multiple style="display:none;" onchange="processStudentImageUpload(event, 'image')">
                     
                     <img id="std-img-preview" src="" style="width:100%; max-height:200px; object-fit:contain; display:none; margin-bottom:10px; border-radius:8px; border: 2px solid #3498db;">
                     <div id="std-img-count" style="text-align:center; color:#3498db; font-weight:bold; font-size:0.85rem; display:none; margin-bottom:10px;"></div>

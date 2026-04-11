@@ -100,6 +100,7 @@ const LIBRARY_MODAL_SWAP_DELAY_MS = 300;
 const LIBRARY_MODAL_WILL_CHANGE_CLEANUP_BUFFER_MS = 20;
 const MAX_READY_SOURCES = 30;
 const FLOAT_COMPARISON_EPSILON = 0.001;
+const VALID_STUDENT_PHOTO_SOURCES = ['camera', 'gallery', 'file'];
 const IMAGE_OPTIMIZATION_CONFIG = Object.freeze({
     maxWidth: 1280,
     minWidth: 720,
@@ -422,7 +423,7 @@ window.updateStudentPhotoAddButtonLabel = () => {
     const labels = {
         camera: '(Kameradan Ekle)',
         gallery: '(Fotoğraf Ekle)',
-        file: '(Dosyadan Seç)'
+        file: '(Dosya Seç)'
     };
     labelEl.textContent = labels[photoSourceSelect.value] || '(Kameradan Ekle)';
 };
@@ -433,8 +434,12 @@ window.restoreAddQuestionUISelections = () => {
     const photoSourceSelect = document.getElementById('student-photo-source-select');
     const saveTargetSelect = document.getElementById('student-save-target-select');
 
-    if (photoSourceSelect && (prefs.photoSource === 'camera' || prefs.photoSource === 'gallery' || prefs.photoSource === 'file')) {
-        photoSourceSelect.value = prefs.photoSource;
+    if (photoSourceSelect) {
+        if (VALID_STUDENT_PHOTO_SOURCES.includes(prefs.photoSource)) {
+            photoSourceSelect.value = prefs.photoSource;
+        } else {
+            photoSourceSelect.value = 'camera';
+        }
     }
     if (saveTargetSelect && (prefs.saveTarget === 'cloud' || prefs.saveTarget === 'local')) {
         saveTargetSelect.value = prefs.saveTarget;
@@ -467,14 +472,14 @@ window.openStudentPhotoPicker = () => {
     const targetInput = selectedSource === 'gallery'
         ? document.getElementById('std-img-upload-file')
         : selectedSource === 'file'
-            ? document.getElementById('std-img-upload-document')
+            ? document.getElementById('std-img-upload-file-picker')
             : document.getElementById('std-img-upload-camera');
     if (targetInput) targetInput.click();
 };
 
-window.openMyLibrary = () => {
-    if (socket) return window.fetchStudentLibrary('cloud', false);
-    window.fetchStudentLibrary('local', false);
+window.openStudentLibrary = () => {
+    const source = (typeof socket !== 'undefined' && socket !== null) ? 'cloud' : 'local';
+    window.fetchStudentLibrary(source, false);
 };
 
 window.saveStudentQuestionWithPreference = () => {
@@ -742,7 +747,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const photoSourceSelect = document.getElementById('student-photo-source-select');
     if (photoSourceSelect) {
         photoSourceSelect.addEventListener('change', (e) => {
-            const nextValue = ['camera', 'gallery', 'file'].includes(e.target.value) ? e.target.value : 'camera';
+            const nextValue = VALID_STUDENT_PHOTO_SOURCES.includes(e.target.value) ? e.target.value : 'camera';
             saveAddQuestionUIPrefs({ photoSource: nextValue });
             window.updateStudentPhotoAddButtonLabel();
         });
