@@ -230,37 +230,30 @@ function ensureCurriculumPath(subject, topic) {
 window.userCurriculum = buildInitialUserCurriculum();
 Object.defineProperties(window, {
     selectedLibraryPath: {
-        configurable: false,
         get() { return DERSLERIM_STATE.selectedLibraryPath; },
         set(value) { DERSLERIM_STATE.selectedLibraryPath = value; }
     },
     currentLibraryModalSubject: {
-        configurable: false,
         get() { return DERSLERIM_STATE.currentLibraryModalSubject; },
         set(value) { DERSLERIM_STATE.currentLibraryModalSubject = value; }
     },
     currentLibraryModalMode: {
-        configurable: false,
         get() { return DERSLERIM_STATE.currentLibraryModalMode; },
         set(value) { DERSLERIM_STATE.currentLibraryModalMode = value; }
     },
     libraryViewingTopicPath: {
-        configurable: false,
         get() { return DERSLERIM_STATE.libraryViewingTopicPath; },
         set(value) { DERSLERIM_STATE.libraryViewingTopicPath = value; }
     },
     smartAddTopicPath: {
-        configurable: false,
         get() { return DERSLERIM_STATE.smartAddTopicPath; },
         set(value) { DERSLERIM_STATE.smartAddTopicPath = value; }
     },
     pendingLibraryFilter: {
-        configurable: false,
         get() { return DERSLERIM_STATE.pendingLibraryFilter; },
         set(value) { DERSLERIM_STATE.pendingLibraryFilter = value; }
     },
     isStudentUploadInProgress: {
-        configurable: false,
         get() { return DERSLERIM_STATE.isStudentUploadInProgress; },
         set(value) { DERSLERIM_STATE.isStudentUploadInProgress = !!value; }
     }
@@ -831,7 +824,7 @@ function buildSavedTopicIndexForDerslerim() {
     };
     const localNotebook = CLIENT_STORE.getJSON('gazi_local_notebook', []);
     if (!Array.isArray(localNotebook)) {
-        console.warn('Derslerim kayıtlı soru listesi beklenen dizide değil.');
+        console.warn('Derslerim kayıtlı soru listesi beklenen dizide değil. Alınan tip:', typeof localNotebook);
         return map;
     }
     localNotebook.forEach((q) => addPair(q?.ders, q?.konu || q?.deneme));
@@ -847,7 +840,7 @@ window.openLibraryTopicFromDerslerimEncoded = (encodedSubject, encodedTopic) => 
         window.openLibraryTopicFromDerslerim(subject, topic);
     } catch (e) {
         console.warn('Derslerim konu bağlantısı çözümlenemedi:', e);
-        window.showSoftFeedback('Konu bağlantısı açılamadı.');
+        window.showSoftFeedback('Konu bağlantısı çözümlenemedi.');
     }
 };
 
@@ -989,7 +982,7 @@ window.selectReadySource = (encodedName) => {
         name = decodeURIComponent(encodedName || '');
     } catch (e) {
         console.warn('Kaynak adı çözümlenemedi:', e);
-        window.showSoftFeedback('Kaynak seçimi okunamadı.');
+        window.showSoftFeedback('Kaynak adı çözümlenemedi.');
         return;
     }
     name = String(name || '').trim();
@@ -2523,7 +2516,7 @@ window.checkStdAnswer = (btn, selectedIdx, qIndex) => {
     
     const sDiv = document.getElementById('sol-' + boxId); 
     sDiv.style.display = 'block'; 
-    sDiv.classList.add('solution-visible');
+    sDiv.classList.add('solution-revealed');
     sDiv.innerHTML = `<b>✏️ Çözüm Notu:</b><br>${escapeHtml(q.solutionText || 'Yazılı çözüm notu bulunmuyor.')}<br>${q.solutionImage ? `<img src="${safeImageSrc(q.solutionImage)}" class="list-item-question-image">` : ''}`; 
 };
 
@@ -3180,7 +3173,7 @@ function renderTrialQuestion() {
     if (trialAnswers[currentQIndex] !== null && (currentQObject.solutionText || currentQObject.solutionImage)) {
         solArea.style.display = 'block'; 
         solArea.innerHTML = `
-        <div class="solution-visible" style="margin-top:15px; padding:15px; background:#e8f4f8; border-radius:8px; border: 1px solid #3498db; text-align:left; color:#1e3c72; font-size:0.9rem;">
+        <div class="solution-revealed" style="margin-top:15px; padding:15px; background:#e8f4f8; border-radius:8px; border: 1px solid #3498db; text-align:left; color:#1e3c72; font-size:0.9rem;">
             <b>👨‍🏫 Çözüm Notu:</b><br>${escapeHtml(currentQObject.solutionText || 'Yazılı açıklama eklenmemiş.')}<br>
             ${currentQObject.solutionImage ? `<img src="${safeImageSrc(currentQObject.solutionImage)}" style="width:100%; border-radius:5px; margin-top:10px;">` : ''}
         </div>`;

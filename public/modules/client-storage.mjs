@@ -13,6 +13,7 @@ export function createSafeClientStore(storage = globalThis?.localStorage, option
 
     const setItem = (key, value) => {
         try {
+            if (value === null || value === undefined) return false;
             storage?.setItem?.(key, String(value));
             return true;
         } catch (error) {
