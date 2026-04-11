@@ -230,30 +230,37 @@ function ensureCurriculumPath(subject, topic) {
 window.userCurriculum = buildInitialUserCurriculum();
 Object.defineProperties(window, {
     selectedLibraryPath: {
+        configurable: false,
         get() { return DERSLERIM_STATE.selectedLibraryPath; },
         set(value) { DERSLERIM_STATE.selectedLibraryPath = value; }
     },
     currentLibraryModalSubject: {
+        configurable: false,
         get() { return DERSLERIM_STATE.currentLibraryModalSubject; },
         set(value) { DERSLERIM_STATE.currentLibraryModalSubject = value; }
     },
     currentLibraryModalMode: {
+        configurable: false,
         get() { return DERSLERIM_STATE.currentLibraryModalMode; },
         set(value) { DERSLERIM_STATE.currentLibraryModalMode = value; }
     },
     libraryViewingTopicPath: {
+        configurable: false,
         get() { return DERSLERIM_STATE.libraryViewingTopicPath; },
         set(value) { DERSLERIM_STATE.libraryViewingTopicPath = value; }
     },
     smartAddTopicPath: {
+        configurable: false,
         get() { return DERSLERIM_STATE.smartAddTopicPath; },
         set(value) { DERSLERIM_STATE.smartAddTopicPath = value; }
     },
     pendingLibraryFilter: {
+        configurable: false,
         get() { return DERSLERIM_STATE.pendingLibraryFilter; },
         set(value) { DERSLERIM_STATE.pendingLibraryFilter = value; }
     },
     isStudentUploadInProgress: {
+        configurable: false,
         get() { return DERSLERIM_STATE.isStudentUploadInProgress; },
         set(value) { DERSLERIM_STATE.isStudentUploadInProgress = !!value; }
     }
@@ -825,9 +832,9 @@ function buildSavedTopicIndexForDerslerim() {
     const localNotebook = CLIENT_STORE.getJSON('gazi_local_notebook', []);
     if (!Array.isArray(localNotebook)) {
         console.warn('Derslerim kayıtlı soru listesi beklenen dizide değil.');
-    } else {
-        localNotebook.forEach((q) => addPair(q?.ders, q?.konu || q?.deneme));
+        return map;
     }
+    localNotebook.forEach((q) => addPair(q?.ders, q?.konu || q?.deneme));
     const activeLibrary = Array.isArray(window.originalStdQuestions) ? window.originalStdQuestions : [];
     activeLibrary.forEach((q) => addPair(q?.ders, q?.konu || q?.deneme));
     return map;
@@ -1009,7 +1016,7 @@ window.selectReadySource = (encodedName) => {
 };
 
 window.initEtiketleme = () => {
-    const mem = JSON.parse(localStorage.getItem('gazi_sticky_memory')) || {};
+    const mem = CLIENT_STORE.getJSON('gazi_sticky_memory', {}) || {};
     if(mem.exam) window.secilenSinav = mem.exam;
     if(mem.group) window.secilenGrup = mem.group;
     if(mem.subject) window.secilenDers = mem.subject;
@@ -1122,7 +1129,7 @@ window.renderTopics = (fromMemory = false) => {
     if(!window.secilenDers) { area.style.display = 'none'; return; }
     
     let topics = window.mufredat[window.secilenSinav][window.secilenGrup][window.secilenDers] || [];
-    const customTopics = JSON.parse(localStorage.getItem('gazi_custom_topics')) || {};
+    const customTopics = CLIENT_STORE.getJSON('gazi_custom_topics', {}) || {};
     if(customTopics[window.secilenDers]) topics = [...topics, ...customTopics[window.secilenDers]];
 
     area.style.display = 'block';
@@ -2164,17 +2171,17 @@ window.uploadStudentQuestion = async (target = 'cloud') => {
     if(!stdUploadedImageBase64 && !qText) return alert("Lütfen bir fotoğraf yükleyin veya kendinize bir not yazın!");
 
     if(customKonu && !smartTopicContext && finalDers !== "Genel Ders") {
-        let customTopics = JSON.parse(localStorage.getItem('gazi_custom_topics')) || {};
+        let customTopics = CLIENT_STORE.getJSON('gazi_custom_topics', {}) || {};
         if(!customTopics[finalDers]) customTopics[finalDers] = [];
         if(!customTopics[finalDers].includes(customKonu)) {
             customTopics[finalDers].push(customKonu);
-            localStorage.setItem('gazi_custom_topics', JSON.stringify(customTopics));
+            CLIENT_STORE.setJSON('gazi_custom_topics', customTopics);
         }
     }
 
-    localStorage.setItem('gazi_sticky_memory', JSON.stringify({
+    CLIENT_STORE.setJSON('gazi_sticky_memory', {
         exam: window.secilenSinav, group: window.secilenGrup, subject: finalDers, topic: finalTopic, book: finalBook, sourceImage: stdSourceImageBase64 || null
-    }));
+    });
     
     const memBadge = document.getElementById('mem-badge');
     if (memBadge) memBadge.style.display = "inline-block";
@@ -2225,9 +2232,9 @@ window.uploadStudentQuestion = async (target = 'cloud') => {
         socket.emit("addStudentQuestion", q);
         alert(`✅ Soru BULUT Hata Defterinize eklendi!`);
     } else {
-        let localNotebook = JSON.parse(localStorage.getItem('gazi_local_notebook')) || []; 
+        let localNotebook = CLIENT_STORE.getJSON('gazi_local_notebook', []) || []; 
         localNotebook.push(q); 
-        localStorage.setItem('gazi_local_notebook', JSON.stringify(localNotebook));
+        CLIENT_STORE.setJSON('gazi_local_notebook', localNotebook);
         alert(`💾 Soru CİHAZINIZA başarıyla kaydedildi!\nİnternetsiz de çözebilirsiniz.`);
     }
     
@@ -2516,7 +2523,7 @@ window.checkStdAnswer = (btn, selectedIdx, qIndex) => {
     
     const sDiv = document.getElementById('sol-' + boxId); 
     sDiv.style.display = 'block'; 
-    sDiv.classList.add('solution-loaded');
+    sDiv.classList.add('solution-visible');
     sDiv.innerHTML = `<b>✏️ Çözüm Notu:</b><br>${escapeHtml(q.solutionText || 'Yazılı çözüm notu bulunmuyor.')}<br>${q.solutionImage ? `<img src="${safeImageSrc(q.solutionImage)}" class="list-item-question-image">` : ''}`; 
 };
 
@@ -3173,7 +3180,7 @@ function renderTrialQuestion() {
     if (trialAnswers[currentQIndex] !== null && (currentQObject.solutionText || currentQObject.solutionImage)) {
         solArea.style.display = 'block'; 
         solArea.innerHTML = `
-        <div class="solution-loaded" style="margin-top:15px; padding:15px; background:#e8f4f8; border-radius:8px; border: 1px solid #3498db; text-align:left; color:#1e3c72; font-size:0.9rem;">
+        <div class="solution-visible" style="margin-top:15px; padding:15px; background:#e8f4f8; border-radius:8px; border: 1px solid #3498db; text-align:left; color:#1e3c72; font-size:0.9rem;">
             <b>👨‍🏫 Çözüm Notu:</b><br>${escapeHtml(currentQObject.solutionText || 'Yazılı açıklama eklenmemiş.')}<br>
             ${currentQObject.solutionImage ? `<img src="${safeImageSrc(currentQObject.solutionImage)}" style="width:100%; border-radius:5px; margin-top:10px;">` : ''}
         </div>`;
