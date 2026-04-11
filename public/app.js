@@ -95,6 +95,7 @@ const DEFAULT_PROFILE_SUBJECTS = ['Tarih', 'Coğrafya', 'Vatandaşlık', 'Matema
 const READY_SOURCES_STORAGE_KEY = 'gazi_ready_sources_v1';
 const ADD_QUESTION_UI_PREFS_STORAGE_KEY = 'gazi_add_question_ui_prefs_v1';
 const USER_CURRICULUM_STORAGE_KEY = 'gazi_user_curriculum_v1';
+const SOFT_DARK_THEME_STORAGE_KEY = 'gazi_soft_dark_theme_v1';
 // CSS'teki .gpu-transition (0.3s) ile senkronize tutulur.
 const LIBRARY_MODAL_SWAP_DELAY_MS = 300;
 const LIBRARY_MODAL_WILL_CHANGE_CLEANUP_BUFFER_MS = 20;
@@ -567,6 +568,28 @@ window.toggleDerslerimSection = (contentId, arrowId) => {
     if (arrow) arrow.textContent = content.classList.contains('collapsed') ? '▶' : '▼';
 };
 
+window.applySoftDerslerimTheme = (enabled) => {
+    const isEnabled = !!enabled;
+    document.body.classList.toggle('soft-dark-theme', isEnabled);
+    localStorage.setItem(SOFT_DARK_THEME_STORAGE_KEY, isEnabled ? '1' : '0');
+    const btn = document.getElementById('derslerim-theme-toggle-btn');
+    if (btn) {
+        btn.textContent = isEnabled
+            ? '🌙 Yumuşak Gece Modu: Açık'
+            : '🌙 Yumuşak Gece Modu: Kapalı';
+    }
+};
+
+window.toggleSoftDerslerimTheme = () => {
+    const nextValue = !document.body.classList.contains('soft-dark-theme');
+    window.applySoftDerslerimTheme(nextValue);
+};
+
+window.restoreSoftDerslerimTheme = () => {
+    const saved = localStorage.getItem(SOFT_DARK_THEME_STORAGE_KEY) === '1';
+    window.applySoftDerslerimTheme(saved);
+};
+
 function getDerslerimSubjectsFromStorage() {
     try {
         const saved = JSON.parse(localStorage.getItem('gazi_subjects_v2')) || [];
@@ -843,6 +866,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     setTimeout(() => { window.initEtiketleme(); }, 500);
+    window.restoreSoftDerslerimTheme();
 });
 // 🚨 YENİ NESİL MÜFREDAT AĞACI BİTİŞ 🚨
 
@@ -1118,6 +1142,7 @@ window.openSettingsPanel = () => {
     if (document.getElementById('screen-settings')?.classList.contains('derslerim-mode')) {
         window.renderDerslerimLibraryTree();
     }
+    window.restoreSoftDerslerimTheme();
     showScreen('screen-settings');
 };
 
