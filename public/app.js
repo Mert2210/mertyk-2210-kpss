@@ -295,7 +295,8 @@ window.applySmartAddQuestionFormVisibility = () => {
 function getLibraryModalActiveOnlyEnabled() {
     const toggleEl = document.getElementById('library-modal-active-toggle');
     if (toggleEl) return !!toggleEl.checked;
-    return normalizeTopicFilterMode(CLIENT_STORE.getItem(DERSLERIM_TOPIC_FILTER_STORAGE_KEY, 'saved')) === 'saved';
+    const savedMode = normalizeTopicFilterMode(CLIENT_STORE.getItem(DERSLERIM_TOPIC_FILTER_STORAGE_KEY, 'saved'));
+    return savedMode === 'saved';
 }
 
 function getLibraryModalTopicFilterMode() {
@@ -432,7 +433,7 @@ window.renderLibraryModalTree = () => {
             const emptyText = document.createElement('small');
             emptyText.className = 'derslerim-empty-text';
             emptyText.textContent = filterMode === 'saved'
-                ? 'Sadece aktif konuları göster açıkken listelenecek konu bulunamadı.'
+                ? 'Henüz aktif konu bulunamadı. Tüm konuları görmek için anahtarı kapatın.'
                 : 'Konu bulunamadı.';
             section.appendChild(emptyText);
         }
