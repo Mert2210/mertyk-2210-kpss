@@ -643,7 +643,7 @@ window.toggleDerslerimSection = (contentId, arrowId) => {
 window.applySoftDerslerimTheme = (enabled) => {
     const isEnabled = !!enabled;
     document.body.classList.toggle('full-dark-theme', isEnabled);
-    document.body.classList.toggle('soft-dark-theme', false);
+    document.body.classList.remove('soft-dark-theme');
     localStorage.setItem(SOFT_DARK_THEME_STORAGE_KEY, isEnabled ? '1' : '0');
     const btn = document.getElementById('derslerim-theme-toggle-btn');
     if (btn) {
@@ -1913,7 +1913,7 @@ window.uploadStudentQuestion = async (target = 'cloud') => {
     
     const stdQKitap = document.getElementById('std-q-kitap');
     const qKitap = stdQKitap ? stdQKitap.value.trim() : ""; 
-    const finalBook = qKitap || "Kaynak Girilmedi";
+    const finalBook = qKitap || "Kaynak Girilmemiş";
     
     if(!finalTopic || !finalDers) return alert("Komutanım, lütfen önce Kütüphane/Ders seçimini tamamlayın!");
     
