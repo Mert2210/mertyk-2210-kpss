@@ -259,7 +259,7 @@ function normalizeLibraryPath(path) {
 window.applySmartAddQuestionFormVisibility = () => {
     const selectionArea = document.getElementById('dynamic-selection-area');
     if (!selectionArea) return;
-    selectionArea.style.display = window.smartAddTopicPath ? 'none' : '';
+    selectionArea.style.display = window.smartAddTopicPath ? 'none' : 'block';
 };
 
 function animateLibraryModalSwap(renderFn, direction = 'left') {
@@ -360,8 +360,9 @@ window.renderLibraryTopicList = (subject) => {
         row.addEventListener('click', () => {
             setSelectedLibraryPath(safeSubject, safeTopic);
             if (window.currentLibraryModalMode === 'view') {
-                window.libraryViewingTopicPath = { subject: safeSubject, topic: safeTopic };
-                window.pendingLibraryFilter = { subject: safeSubject, topic: safeTopic };
+                const selectedPath = { subject: safeSubject, topic: safeTopic };
+                window.libraryViewingTopicPath = selectedPath;
+                window.pendingLibraryFilter = selectedPath;
                 window.closeLibraryModal();
                 window.openStudentLibrary({ keepTopicContext: true });
                 return;
@@ -602,7 +603,7 @@ window.openStudentLibrary = (options = {}) => {
 window.openSmartAddForCurrentLibraryTopic = () => {
     const context = normalizeLibraryPath(window.libraryViewingTopicPath);
     if (!context) return;
-    window.smartAddTopicPath = { ...context };
+    window.smartAddTopicPath = context;
     setSelectedLibraryPath(context.subject, context.topic);
     window.applySmartAddQuestionFormVisibility();
     showScreen('screen-main');
