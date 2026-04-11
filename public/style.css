@@ -82,6 +82,46 @@ button:hover { opacity: 0.9; } button.green { background: #27ae60; } button.oran
 .dropdown-content { display: none; position: absolute; top: 100%; left: 0; z-index: 1000; background-color: #ffffff; width: 100%; border: 2px solid #1e3c72; border-radius: 8px; max-height: 200px; overflow-y: auto; margin-top: 5px; box-sizing: border-box; box-shadow: 0 5px 15px rgba(0,0,0,0.1); } 
 .dropdown-content.show { display: block; }
 
+.action-picker {
+    margin-bottom: 8px;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #dbe4f0;
+    background: #fff;
+}
+.action-picker summary {
+    list-style: none;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    padding: 12px;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+.action-picker summary::-webkit-details-marker { display: none; }
+.action-picker[open] summary span:last-child { transform: rotate(180deg); }
+.action-picker summary span:last-child { transition: transform 0.2s ease; }
+.action-picker-options {
+    border-top: 1px solid rgba(255,255,255,0.25);
+    display: grid;
+    gap: 6px;
+    padding: 8px;
+    background: rgba(0,0,0,0.04);
+}
+.action-picker-options button {
+    margin: 0;
+    font-size: 0.84rem;
+    padding: 10px;
+    border-radius: 8px;
+    justify-content: flex-start;
+}
+.action-picker-green summary { background: #27ae60; color: #fff; }
+.action-picker-green .action-picker-options button { background: #1f8b4d; color: #fff; }
+.action-picker-blue summary { background: #3498db; color: #fff; }
+.action-picker-blue .action-picker-options button { background: #2c80b9; color: #fff; }
+
 input[type="checkbox"] { width: auto !important; margin: 0 10px 0 0 !important; transform: scale(1.3); cursor: pointer; }
 .checkbox-item { display: flex; align-items: center; justify-content: flex-start; padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; } 
 .checkbox-item label { color: #1e3c72; font-weight: 600; flex: 1; text-align: left; margin:0; cursor: pointer; }
@@ -469,18 +509,23 @@ body.nav-visible .container {
 }
 
 .derslerim-theme-toggle-btn {
-    margin-top: 8px;
+    margin: 0 0 10px 0;
     border-color: #7f8fa6 !important;
     color: #34495e !important;
     background: #f4f7fb !important;
 }
 
+body.full-dark-theme #screen-settings.derslerim-mode .content-card,
 body.soft-dark-theme #screen-settings.derslerim-mode .content-card {
     background: #1d2633 !important;
     border-color: #2b3748 !important;
     box-shadow: 0 10px 28px rgba(0,0,0,0.35) !important;
 }
 
+body.full-dark-theme #screen-settings.derslerim-mode h4,
+body.full-dark-theme #screen-settings.derslerim-mode p,
+body.full-dark-theme #screen-settings.derslerim-mode label,
+body.full-dark-theme #screen-settings.derslerim-mode small,
 body.soft-dark-theme #screen-settings.derslerim-mode h4,
 body.soft-dark-theme #screen-settings.derslerim-mode p,
 body.soft-dark-theme #screen-settings.derslerim-mode label,
@@ -488,43 +533,106 @@ body.soft-dark-theme #screen-settings.derslerim-mode small {
     color: #dbe7ff !important;
 }
 
+body.full-dark-theme #screen-settings.derslerim-mode #profile-subjects-area,
 body.soft-dark-theme #screen-settings.derslerim-mode #profile-subjects-area {
     background: #263244 !important;
     border-color: #3a4b63 !important;
 }
 
+body.full-dark-theme #screen-settings.derslerim-mode .derslerim-collapsible-card,
 body.soft-dark-theme #screen-settings.derslerim-mode .derslerim-collapsible-card {
     background: #233044;
     border-color: #36465f;
 }
 
+body.full-dark-theme #screen-settings.derslerim-mode .derslerim-collapse-trigger,
 body.soft-dark-theme #screen-settings.derslerim-mode .derslerim-collapse-trigger {
     background: #2b3b52;
     color: #e5efff;
     border-color: #445975;
 }
 
+body.full-dark-theme #screen-settings.derslerim-mode .derslerim-library-subject,
 body.soft-dark-theme #screen-settings.derslerim-mode .derslerim-library-subject {
     background: #2f3f36;
     color: #d6f5de;
     border-color: #4e6b59;
 }
 
+body.full-dark-theme #screen-settings.derslerim-mode .derslerim-library-topics,
 body.soft-dark-theme #screen-settings.derslerim-mode .derslerim-library-topics {
     background: #293548;
     border-color: #4a5e7d;
 }
 
+body.full-dark-theme #screen-settings.derslerim-mode .derslerim-topic-btn,
 body.soft-dark-theme #screen-settings.derslerim-mode .derslerim-topic-btn {
     background: #312f46;
     color: #eadfff;
     border-color: #5f5a86;
 }
 
+body.full-dark-theme #screen-settings.derslerim-mode .derslerim-theme-toggle-btn,
 body.soft-dark-theme #screen-settings.derslerim-mode .derslerim-theme-toggle-btn {
     background: #2a3446 !important;
     color: #d7e6ff !important;
     border-color: #62799a !important;
+}
+
+body.full-dark-theme {
+    background: #070b12 !important;
+    color: #e5ebf5;
+}
+body.full-dark-theme .container {
+    background: #121925 !important;
+    color: #e5ebf5 !important;
+    box-shadow: 0 12px 34px rgba(0,0,0,0.62);
+}
+body.full-dark-theme h1,
+body.full-dark-theme h2,
+body.full-dark-theme h3,
+body.full-dark-theme h4,
+body.full-dark-theme p,
+body.full-dark-theme label,
+body.full-dark-theme small,
+body.full-dark-theme .nav-label {
+    color: #dbe7ff !important;
+}
+body.full-dark-theme input,
+body.full-dark-theme select,
+body.full-dark-theme textarea {
+    background: #1a2433 !important;
+    color: #e8efff !important;
+    border-color: #33445d !important;
+}
+body.full-dark-theme .content-card,
+body.full-dark-theme .list-item,
+body.full-dark-theme .filter-section,
+body.full-dark-theme #lobby-settings,
+body.full-dark-theme #student-class-area,
+body.full-dark-theme #student-library-panel,
+body.full-dark-theme #lobby-players-area {
+    background: #1b2535 !important;
+    color: #e8efff !important;
+    border-color: #3a4d69 !important;
+}
+body.full-dark-theme .library-modal {
+    background: #111926;
+}
+body.full-dark-theme .library-modal-header {
+    background: #1a2433;
+    border-color: #32455f;
+}
+body.full-dark-theme .library-card,
+body.full-dark-theme .library-topic-item {
+    background: #1e2a3d;
+    color: #dbe7ff;
+    border-color: #3b4f6c;
+}
+body.full-dark-theme .library-topic-add {
+    background: #223248;
+    border-color: #4d89c4;
+    color: #82bef8;
 }
 
 /* ===== RESPONSIVE TASARIM ===== */

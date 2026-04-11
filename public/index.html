@@ -185,24 +185,29 @@
 
             <div id="library-content-wrapper" class="">
                 <div style="margin-bottom:15px;">
-                    <button onclick="window.openStudentLibrary()" class="outline" style="width:100%; font-size:0.85rem; border-color:#e67e22; color:#e67e22; padding:10px;">📚 Kütüphanemi Aç <small style="display:block; font-size:0.72rem; color:#f39c12; margin-top:3px;">Hatırlatılacak: <span id="review-btn-count">0</span></small></button>
+                    <button onclick="window.openDerslerimPanel()" class="outline" style="width:100%; font-size:0.85rem; border-color:#e67e22; color:#e67e22; padding:10px;">📚 Derslerim Kütüphane Ekranını Aç <small style="display:block; font-size:0.72rem; color:#f39c12; margin-top:3px;">Hatırlatılacak: <span id="review-btn-count">0</span></small></button>
                 </div>
 
                 <div style="border-top:1px solid #e67e22; padding-top:15px; text-align:left;">
                     <h4 style="font-size:0.9rem; margin-top:0; color:#333;">➕ Yapamadığın Soruyu Ekle</h4>
                     
-                    <div style="display:flex; gap:10px; margin-bottom:10px; align-items:center;">
-                        <button type="button" class="outline" style="flex:1; font-size:0.9rem; padding:10px;" onclick="window.openStudentPhotoPicker()">
-                            <span style="display:flex; flex-direction:column; line-height:1.15; text-align:center;">
-                                <span>➕ Soru Ekle</span>
-                                <small id="student-photo-source-label" style="font-size:0.72rem; color:#1e3c72;">(Kameradan Ekle)</small>
-                            </span>
-                        </button>
-                        <select id="student-photo-source-select" style="flex:1; font-size:0.85rem; padding:8px; margin:0;">
+                    <div style="margin-bottom:10px;">
+                        <select id="student-photo-source-select" style="display:none;">
                             <option value="camera">Kameradan Ekle</option>
                             <option value="gallery">Fotoğraf Ekle</option>
                             <option value="file">Dosya Seç</option>
                         </select>
+                        <details id="student-photo-picker" class="action-picker action-picker-green">
+                            <summary>
+                                <span id="student-photo-add-btn-label">➕ Soru Ekle (Kameradan Ekle)</span>
+                                <span>▼</span>
+                            </summary>
+                            <div class="action-picker-options">
+                                <button type="button" onclick="window.selectStudentPhotoSource('camera')">📷 Kameradan Ekle</button>
+                                <button type="button" onclick="window.selectStudentPhotoSource('gallery')">🖼️ Fotoğraf Ekle</button>
+                                <button type="button" onclick="window.selectStudentPhotoSource('file')">📂 Dosya Seç</button>
+                            </div>
+                        </details>
                     </div>
                     
                     <input type="file" id="std-img-upload-camera" accept="image/*" capture="environment" multiple style="display:none;" onchange="processStudentImageUpload(event, 'image')">
@@ -217,18 +222,30 @@
                         <p id="selected-folder-text" style="margin:8px 0 0 0; font-size:0.78rem; color:#1e3c72; font-weight:600;"></p>
                     </div>
 
-                    <button type="button" class="outline" style="font-size:0.8rem; padding:8px; margin-bottom:8px; border-color:#8e44ad; color:#8e44ad;" onclick="window.toggleReadySourcesPanel()">🗂️ Kayıtlı Hazır Kaynakçalarım</button>
-                    <div id="ready-sources-panel" class="hidden-panel" style="background:#faf7ff; border:1px solid #d7c5f5; border-radius:8px; padding:8px; margin-bottom:10px;">
-                        <div id="ready-sources-list" class="ready-source-list"></div>
-                    </div>
-
-                    <input type="text" id="std-q-kitap" placeholder="Kitap / Kaynak / Test No (Örn: Yargı TG-1)">
                     <textarea id="std-q-text" placeholder="Soru metni veya kendine notun..."></textarea>
                     
                     <div style="background: #e8f4f8; padding: 12px; border-radius: 8px; margin-bottom:10px; border: 1px dashed #3498db;">
                         <label style="font-size:0.75rem; font-weight:bold; color:#1e3c72; margin-bottom:5px; display:block;">✏️ ÇÖZÜM EKLE (İsteğe Bağlı)</label>
-                        <button type="button" class="outline" style="width:100%; font-size:0.8rem; padding:8px; margin-bottom:8px; border-color:#27ae60; color:#27ae60;" onclick="document.getElementById('std-solution-file').click()">📸 Çözüm Fotoğrafı Ekle</button>
-                        <input type="file" id="std-solution-file" accept="image/*" multiple style="display:none;" onchange="processStudentImageUpload(event, 'solution')">
+                        <select id="student-solution-source-select" style="display:none;">
+                            <option value="camera">Kameradan Ekle</option>
+                            <option value="gallery">Fotoğraf Ekle</option>
+                            <option value="file">Dosya Seç</option>
+                        </select>
+                        <details id="student-solution-picker" class="action-picker action-picker-blue">
+                            <summary>
+                                <span id="student-solution-add-btn-label">🧩 Çözüm Ekle (Kameradan Ekle)</span>
+                                <span>▼</span>
+                            </summary>
+                            <div class="action-picker-options">
+                                <button type="button" onclick="window.selectStudentSolutionSource('camera')">📷 Kameradan Ekle</button>
+                                <button type="button" onclick="window.selectStudentSolutionSource('gallery')">🖼️ Fotoğraf Ekle</button>
+                                <button type="button" onclick="window.selectStudentSolutionSource('file')">📂 Dosya Seç</button>
+                            </div>
+                        </details>
+                        <input type="file" id="std-solution-upload-camera" accept="image/*" capture="environment" multiple style="display:none;" onchange="processStudentImageUpload(event, 'solution')">
+                        <input type="file" id="std-solution-upload-file" accept="image/*" multiple style="display:none;" onchange="processStudentImageUpload(event, 'solution')">
+                        <input type="file" id="std-solution-upload-file-picker" accept="image/*" multiple style="display:none;" onchange="processStudentImageUpload(event, 'solution')">
+                        <img id="std-solution-preview" src="" style="width:100%; max-height:200px; object-fit:contain; display:none; margin-bottom:10px; border-radius:8px; border:2px solid #3498db;">
                         <textarea id="std-q-sol-text" placeholder="Varsa yazılı çözüm notunuz..."></textarea>
                         
                         <label style="font-size:0.75rem; font-weight:bold; color:#1e3c72; margin-top:5px; display:block;">✅ DOĞRU ŞIK HANGİSİ?</label>
@@ -248,13 +265,23 @@
                         </select>
                     </div>
 
-                    <div style="display:flex; gap:5px; align-items:center;">
-                        <button onclick="window.saveStudentQuestionWithPreference()" class="blue" style="flex:1; padding:15px; font-size:0.9rem;">💾 Kaydet</button>
-                        <select id="student-save-target-select" style="flex:1; font-size:0.85rem; padding:10px; margin:0;">
+                    <div style="margin-bottom:8px;">
+                        <select id="student-save-target-select" style="display:none;">
                             <option value="cloud">Bulut</option>
                             <option value="local">Cihaz</option>
                         </select>
+                        <details id="student-save-picker" class="action-picker action-picker-blue">
+                            <summary>
+                                <span id="student-save-target-label">💾 Kayıt Hedefi: Bulut</span>
+                                <span>▼</span>
+                            </summary>
+                            <div class="action-picker-options">
+                                <button type="button" onclick="window.selectStudentSaveTarget('cloud')">☁️ Bulut</button>
+                                <button type="button" onclick="window.selectStudentSaveTarget('local')">💾 Cihaz</button>
+                            </div>
+                        </details>
                     </div>
+                    <button id="student-save-btn" onclick="window.saveStudentQuestionWithPreference()" class="blue" style="width:100%; padding:15px; font-size:0.92rem;">☁️ Buluta Kaydet</button>
                 </div>
             </div>
         </div>
@@ -374,6 +401,10 @@
             </div>
 
             <div class="settings-derslerim-section">
+                <button id="derslerim-theme-toggle-btn" type="button" class="outline derslerim-theme-toggle-btn" onclick="window.toggleDerslerimTheme()">
+                    🌙 Gece Modu: Kapalı
+                </button>
+
                 <div class="derslerim-collapsible-card">
                     <button type="button" class="derslerim-collapse-trigger" onclick="window.toggleDerslerimSection('derslerim-exam-content', 'derslerim-exam-arrow')">
                         <span>🎯 Hedef Sınavınız</span>
@@ -403,6 +434,12 @@
                 <p style="font-size:0.75rem; color:#666; margin-top:0;">Dersleri seçip yanlarına çalışacağınız alt konuları belirtebilirsiniz.</p>
                 <div id="profile-subjects-area" style="max-height: 250px; overflow-y:auto; background:#fff; padding:8px; border-radius:8px; border:1px solid #ddd;"></div>
 
+                <div class="derslerim-collapsible-card" style="margin-top:12px;">
+                    <small style="display:block; color:#1e3c72; margin-bottom:8px; font-weight:700;">📁 Kütüphaneme Kaydet</small>
+                    <button type="button" id="derslerim-select-folder-btn" class="outline" style="width:100%; border-color:#1e3c72; color:#1e3c72; font-size:0.85rem; padding:10px;" onclick="window.openLibraryModal()">📁 Kütüphaneye Ekle</button>
+                    <p id="derslerim-selected-folder-text" style="margin:8px 0 0 0; font-size:0.78rem; color:#1e3c72; font-weight:600;">Seçili Kütüphane: Henüz seçilmedi</p>
+                </div>
+
                 <div class="derslerim-collapsible-card" style="margin-top:15px;">
                     <button type="button" class="derslerim-collapse-trigger" onclick="window.toggleDerslerimSection('derslerim-library-content', 'derslerim-library-arrow')">
                         <span>📚 Kütüphanem</span>
@@ -413,10 +450,6 @@
                         <div id="derslerim-library-tree"></div>
                     </div>
                 </div>
-
-                <button id="derslerim-theme-toggle-btn" type="button" class="outline derslerim-theme-toggle-btn" onclick="window.toggleSoftDerslerimTheme()">
-                    🌙 Yumuşak Gece Modu: Kapalı
-                </button>
             </div>
 
             <button onclick="saveProfileSettings()" class="green" style="margin-top:20px; width:100%; padding:15px; font-size:1.1rem; border-radius:10px;">💾 Masamı ve Ayarlarımı Kaydet</button>

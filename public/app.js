@@ -31,6 +31,7 @@ const APP_STATE = {
     activeListType: ""
 };
 const DEFAULT_ERROR_MESSAGE = "İşlem sırasında bir hata oluştu.";
+const LEGACY_EMPTY_BOOK_TEXT = "kaynak girilmemiş";
 
 // 🚨 YENİ NESİL MÜFREDAT AĞACI VE KAPSÜL (BUTON) SİSTEMİ BAŞLANGICI 🚨
 window.mufredat = {
@@ -220,15 +221,16 @@ window.userCurriculum = buildInitialUserCurriculum();
 window.selectedLibraryPath = { subject: "", topic: "" };
 window.currentLibraryModalSubject = "";
 window.pendingLibraryFilter = null;
+window.isStudentUploadInProgress = false;
 
 function updateSelectedFolderText(subject, topic) {
-    const selectedFolderText = document.getElementById('selected-folder-text');
-    if (!selectedFolderText) return;
-    if (!subject || !topic) {
-        selectedFolderText.textContent = 'Seçili Kütüphane: Henüz seçilmedi';
-        return;
-    }
-    selectedFolderText.textContent = `Seçili Kütüphane: ${subject} / ${topic}`;
+    const text = (!subject || !topic)
+        ? 'Seçili Kütüphane: Henüz seçilmedi'
+        : `Seçili Kütüphane: ${subject} / ${topic}`;
+    ['selected-folder-text', 'derslerim-selected-folder-text'].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = text;
+    });
 }
 
 function setSelectedLibraryPath(subject, topic) {
@@ -424,24 +426,50 @@ window.deleteCurriculumTopic = (subject, topic) => {
 
 window.updateStudentPhotoAddButtonLabel = () => {
     const photoSourceSelect = document.getElementById('student-photo-source-select');
-    const labelEl = document.getElementById('student-photo-source-label');
+    const labelEl = document.getElementById('student-photo-add-btn-label');
     if (!photoSourceSelect || !labelEl) return;
     const labels = {
-        camera: '(Kameradan Ekle)',
-        gallery: '(Fotoğraf Ekle)',
-        file: '(Dosya Seç)'
+        camera: '➕ Soru Ekle (Kameradan Ekle)',
+        gallery: '➕ Soru Ekle (Fotoğraf Ekle)',
+        file: '➕ Soru Ekle (Dosya Seç)'
     };
-    labelEl.textContent = labels[photoSourceSelect.value] || '(Kameradan Ekle)';
+    labelEl.textContent = labels[photoSourceSelect.value] || labels.camera;
+};
+
+window.updateStudentSolutionAddButtonLabel = () => {
+    const solutionSourceSelect = document.getElementById('student-solution-source-select');
+    const labelEl = document.getElementById('student-solution-add-btn-label');
+    if (!solutionSourceSelect || !labelEl) return;
+    const labels = {
+        camera: '🧩 Çözüm Ekle (Kameradan Ekle)',
+        gallery: '🧩 Çözüm Ekle (Fotoğraf Ekle)',
+        file: '🧩 Çözüm Ekle (Dosya Seç)'
+    };
+    labelEl.textContent = labels[solutionSourceSelect.value] || labels.camera;
+};
+
+window.updateStudentSaveTargetLabel = () => {
+    const saveTargetSelect = document.getElementById('student-save-target-select');
+    const labelEl = document.getElementById('student-save-target-label');
+    const saveBtn = document.getElementById('student-save-btn');
+    if (!saveTargetSelect) return;
+    const isLocal = saveTargetSelect.value === 'local';
+    if (labelEl) labelEl.textContent = isLocal ? '💾 Kayıt Hedefi: Cihaz' : '💾 Kayıt Hedefi: Bulut';
+    if (saveBtn) saveBtn.textContent = isLocal ? '💾 Cihaza Kaydet' : '☁️ Buluta Kaydet';
 };
 
 window.restoreAddQuestionUISelections = () => {
     const prefs = getAddQuestionUIPrefs();
 
     const photoSourceSelect = document.getElementById('student-photo-source-select');
+    const solutionSourceSelect = document.getElementById('student-solution-source-select');
     const saveTargetSelect = document.getElementById('student-save-target-select');
 
     if (photoSourceSelect) {
         photoSourceSelect.value = normalizeStudentPhotoSource(prefs.photoSource);
+    }
+    if (solutionSourceSelect) {
+        solutionSourceSelect.value = normalizeStudentPhotoSource(prefs.solutionSource);
     }
     if (saveTargetSelect && (prefs.saveTarget === 'cloud' || prefs.saveTarget === 'local')) {
         saveTargetSelect.value = prefs.saveTarget;
@@ -460,6 +488,8 @@ window.restoreAddQuestionUISelections = () => {
         updateSelectedFolderText('', '');
     }
     window.updateStudentPhotoAddButtonLabel();
+    window.updateStudentSolutionAddButtonLabel();
+    window.updateStudentSaveTargetLabel();
 };
 
 window.openFolderSelector = () => {
@@ -477,6 +507,50 @@ window.openStudentPhotoPicker = () => {
             ? document.getElementById('std-img-upload-file-picker')
             : document.getElementById('std-img-upload-camera');
     if (targetInput) targetInput.click();
+};
+
+window.openStudentSolutionPicker = () => {
+    const solutionSourceSelect = document.getElementById('student-solution-source-select');
+    const selectedSource = solutionSourceSelect ? solutionSourceSelect.value : 'camera';
+    saveAddQuestionUIPrefs({ solutionSource: selectedSource });
+    const targetInput = selectedSource === 'gallery'
+        ? document.getElementById('std-solution-upload-file')
+        : selectedSource === 'file'
+            ? document.getElementById('std-solution-upload-file-picker')
+            : document.getElementById('std-solution-upload-camera');
+    if (targetInput) targetInput.click();
+};
+
+window.selectStudentPhotoSource = (source) => {
+    const safeSource = normalizeStudentPhotoSource(source);
+    const select = document.getElementById('student-photo-source-select');
+    if (select) select.value = safeSource;
+    saveAddQuestionUIPrefs({ photoSource: safeSource });
+    window.updateStudentPhotoAddButtonLabel();
+    const dropdown = document.getElementById('student-photo-picker');
+    if (dropdown) dropdown.open = false;
+    window.openStudentPhotoPicker();
+};
+
+window.selectStudentSolutionSource = (source) => {
+    const safeSource = normalizeStudentPhotoSource(source);
+    const select = document.getElementById('student-solution-source-select');
+    if (select) select.value = safeSource;
+    saveAddQuestionUIPrefs({ solutionSource: safeSource });
+    window.updateStudentSolutionAddButtonLabel();
+    const dropdown = document.getElementById('student-solution-picker');
+    if (dropdown) dropdown.open = false;
+    window.openStudentSolutionPicker();
+};
+
+window.selectStudentSaveTarget = (target) => {
+    const safeTarget = target === 'local' ? 'local' : 'cloud';
+    const select = document.getElementById('student-save-target-select');
+    if (select) select.value = safeTarget;
+    saveAddQuestionUIPrefs({ saveTarget: safeTarget });
+    window.updateStudentSaveTargetLabel();
+    const dropdown = document.getElementById('student-save-picker');
+    if (dropdown) dropdown.open = false;
 };
 
 window.openStudentLibrary = () => {
@@ -568,27 +642,35 @@ window.toggleDerslerimSection = (contentId, arrowId) => {
     if (arrow) arrow.textContent = content.classList.contains('collapsed') ? '▶' : '▼';
 };
 
-window.applySoftDerslerimTheme = (enabled) => {
+window.applyDerslerimTheme = (enabled) => {
     const isEnabled = !!enabled;
-    document.body.classList.toggle('soft-dark-theme', isEnabled);
+    document.body.classList.toggle('full-dark-theme', isEnabled);
+    document.body.classList.remove('soft-dark-theme');
     localStorage.setItem(SOFT_DARK_THEME_STORAGE_KEY, isEnabled ? '1' : '0');
     const btn = document.getElementById('derslerim-theme-toggle-btn');
     if (btn) {
         btn.textContent = isEnabled
-            ? '🌙 Yumuşak Gece Modu: Açık'
-            : '🌙 Yumuşak Gece Modu: Kapalı';
+            ? '🌙 Gece Modu: Açık'
+            : '🌙 Gece Modu: Kapalı';
     }
 };
 
-window.toggleSoftDerslerimTheme = () => {
-    const nextValue = !document.body.classList.contains('soft-dark-theme');
-    window.applySoftDerslerimTheme(nextValue);
+window.toggleDerslerimTheme = () => {
+    const nextValue = !document.body.classList.contains('full-dark-theme');
+    window.applyDerslerimTheme(nextValue);
 };
 
-window.restoreSoftDerslerimTheme = () => {
+window.restoreDerslerimTheme = () => {
     const saved = localStorage.getItem(SOFT_DARK_THEME_STORAGE_KEY) === '1';
-    window.applySoftDerslerimTheme(saved);
+    window.applyDerslerimTheme(saved);
 };
+// Eski global isimler için geriye dönük uyumluluk
+/** @deprecated applyDerslerimTheme kullanın. */
+window.applySoftDerslerimTheme = window.applyDerslerimTheme;
+/** @deprecated toggleDerslerimTheme kullanın. */
+window.toggleSoftDerslerimTheme = window.toggleDerslerimTheme;
+/** @deprecated restoreDerslerimTheme kullanın. */
+window.restoreSoftDerslerimTheme = window.restoreDerslerimTheme;
 
 function getDerslerimSubjectsFromStorage() {
     try {
@@ -858,15 +940,25 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    const solutionSourceSelect = document.getElementById('student-solution-source-select');
+    if (solutionSourceSelect) {
+        solutionSourceSelect.addEventListener('change', (e) => {
+            const nextValue = normalizeStudentPhotoSource(e.target.value);
+            saveAddQuestionUIPrefs({ solutionSource: nextValue });
+            window.updateStudentSolutionAddButtonLabel();
+        });
+    }
+
     const saveTargetSelect = document.getElementById('student-save-target-select');
     if (saveTargetSelect) {
         saveTargetSelect.addEventListener('change', (e) => {
             saveAddQuestionUIPrefs({ saveTarget: e.target.value === 'local' ? 'local' : 'cloud' });
+            window.updateStudentSaveTargetLabel();
         });
     }
 
     setTimeout(() => { window.initEtiketleme(); }, 500);
-    window.restoreSoftDerslerimTheme();
+    window.restoreDerslerimTheme();
 });
 // 🚨 YENİ NESİL MÜFREDAT AĞACI BİTİŞ 🚨
 
@@ -1142,7 +1234,7 @@ window.openSettingsPanel = () => {
     if (document.getElementById('screen-settings')?.classList.contains('derslerim-mode')) {
         window.renderDerslerimLibraryTree();
     }
-    window.restoreSoftDerslerimTheme();
+    window.restoreDerslerimTheme();
     showScreen('screen-settings');
 };
 
@@ -1710,6 +1802,12 @@ window.processStudentImageUpload = async (e, type = 'image') => {
     if(type === 'image') { 
         document.getElementById('std-img-preview').style.display = 'block'; 
         document.getElementById('std-img-preview').src = "https://i.gifer.com/ZKZg.gif"; 
+    } else if (type === 'solution') {
+        const solutionPreview = document.getElementById('std-solution-preview');
+        if (solutionPreview) {
+            solutionPreview.style.display = 'block';
+            solutionPreview.src = "https://i.gifer.com/ZKZg.gif";
+        }
     } else if (type === 'source') {
         const sourcePreview = document.getElementById('std-source-image-preview');
         if (sourcePreview) {
@@ -1727,7 +1825,11 @@ window.processStudentImageUpload = async (e, type = 'image') => {
             document.getElementById('std-img-preview').src = stdUploadedImageBase64; 
         } else if (type === 'solution') { 
             stdSolutionBase64 = optimizedDataUrl; 
-            alert("✅ Çözüm fotoğrafı başarıyla eklendi!"); 
+            const solutionPreview = document.getElementById('std-solution-preview');
+            if (solutionPreview) {
+                solutionPreview.src = stdSolutionBase64;
+                solutionPreview.style.display = 'block';
+            }
         } else if (type === 'source') {
             stdSourceImageBase64 = optimizedDataUrl;
             const sourcePreview = document.getElementById('std-source-image-preview');
@@ -1751,6 +1853,8 @@ window.processStudentImageUpload = async (e, type = 'image') => {
             if (sourcePreview) sourcePreview.style.display = 'none';
         } else if (type === 'solution') {
             stdSolutionBase64 = null;
+            const solutionPreview = document.getElementById('std-solution-preview');
+            if (solutionPreview) solutionPreview.style.display = 'none';
         }
         alert("⚠️ Görsel optimize edilemedi. Lütfen farklı bir görsel deneyin.");
     }
@@ -1811,6 +1915,12 @@ window.uploadQuestion = async () => {
 
 // 🚨 YENİ GÜNCELLENMİŞ ÖĞRENCİ SORU YÜKLEME KODU (HAFIZALI) 🚨
 window.uploadStudentQuestion = async (target = 'cloud') => {
+    if (window.isStudentUploadInProgress) {
+        return alert("Kaydetme işlemi devam ediyor, lütfen bekleyin.");
+    }
+    if (target === 'cloud' && (!socket || !socket.connected)) {
+        return alert("Buluta bağlanılamadı, lütfen Cihaza Kaydet seçeneğini kullanın.");
+    }
     const customKonuInput = document.getElementById('custom-konu-input');
     const customKonu = customKonuInput ? customKonuInput.value.trim() : "";
     const finalTopic = (customKonu || window.secilenKonu || "").trim();
@@ -1818,8 +1928,9 @@ window.uploadStudentQuestion = async (target = 'cloud') => {
     
     const stdQKitap = document.getElementById('std-q-kitap');
     const qKitap = stdQKitap ? stdQKitap.value.trim() : ""; 
+    const finalBook = qKitap;
     
-    if(!qKitap || !finalTopic || !finalDers) return alert("Komutanım, lütfen Kütüphane ve Kaynak alanlarını eksiksiz doldurun!");
+    if(!finalTopic || !finalDers) return alert("Komutanım, lütfen önce Kütüphane/Ders seçimini tamamlayın!");
     
     const qText = document.getElementById('std-q-text').value.trim(); 
     const qSolText = document.getElementById('std-q-sol-text').value.trim(); 
@@ -1841,18 +1952,19 @@ window.uploadStudentQuestion = async (target = 'cloud') => {
     }
 
     localStorage.setItem('gazi_sticky_memory', JSON.stringify({
-        exam: window.secilenSinav, group: window.secilenGrup, subject: finalDers, topic: finalTopic, book: qKitap, sourceImage: stdSourceImageBase64 || null
+        exam: window.secilenSinav, group: window.secilenGrup, subject: finalDers, topic: finalTopic, book: finalBook, sourceImage: stdSourceImageBase64 || null
     }));
-    saveReadySource(qKitap, stdSourceImageBase64);
-    window.renderReadySources();
     
     const memBadge = document.getElementById('mem-badge');
     if (memBadge) memBadge.style.display = "inline-block";
 
-    if (target === 'cloud' && !socket) {
-        return alert("Buluta bağlanılamadı, lütfen Cihaza Kaydet seçeneğini kullanın.");
+    const saveBtn = document.getElementById('student-save-btn');
+    window.isStudentUploadInProgress = true;
+    if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.textContent = '⏳ Kaydediliyor...';
     }
-
+    try {
     let questionImageForSave = stdUploadedImageBase64;
     let solutionImageForSave = stdSolutionBase64;
     let sourceImageForSave = stdSourceImageBase64 || null;
@@ -1874,7 +1986,7 @@ window.uploadStudentQuestion = async (target = 'cloud') => {
     const q = { 
         studentName: studentName, 
         ders: finalDers, 
-        kitap: qKitap, 
+        kitap: finalBook, 
         konu: finalTopic, 
         not: qText, 
         sourceImage: sourceImageForSave || null,
@@ -1902,10 +2014,19 @@ window.uploadStudentQuestion = async (target = 'cloud') => {
     document.getElementById('std-q-sol-text').value = ""; 
     const stdImgPreview = document.getElementById('std-img-preview');
     if (stdImgPreview) stdImgPreview.style.display = "none"; 
+    const stdSolutionPreview = document.getElementById('std-solution-preview');
+    if (stdSolutionPreview) stdSolutionPreview.style.display = "none";
     stdUploadedImageBase64 = null; 
     stdSolutionBase64 = null;
     if (customKonuInput) customKonuInput.value = "";
     window.updateLocalListCounts();
+    } finally {
+        window.isStudentUploadInProgress = false;
+        if (saveBtn) {
+            saveBtn.disabled = false;
+            window.updateStudentSaveTargetLabel();
+        }
+    }
 };
 
 window.fetchStudentLibrary = (source = 'cloud', onlyReviews = false) => {
@@ -1981,6 +2102,8 @@ function renderStudentLibraryListOnly(data) {
             ? `<span class="cloud-badge" title="Bu soru buluta kaydetilmiştir, internet bağlantısı gerektirir">☁️ ℹ️</span>`
             : '';
         div.innerHTML = data.map((q, i) => {
+            const kitapText = typeof q.kitap === 'string' ? q.kitap.trim() : '';
+            const showKitap = !!kitapText && kitapText.toLowerCase() !== LEGACY_EMPTY_BOOK_TEXT;
             return `
             <div class="list-item" style="border: 2px solid #e67e22; background:#fff; position:relative;">
                 <button onclick="reportQuestionFromLibrary(${i})" title="Hatalı Bildir" style="position:absolute; top:6px; right:6px; width:auto; padding:2px 7px; font-size:0.7rem; background:transparent; border:1px solid #e0e0e0; color:#bbb; border-radius:4px; cursor:pointer; line-height:1.4;">🚨</button>
@@ -1991,7 +2114,7 @@ function renderStudentLibraryListOnly(data) {
                     </div>
                     <div>${formatReminderDate(q.nextReviewDate)}</div>
                 </div>
-                <small style="color:#666;"><b>Kaynak:</b> ${escapeHtml(q.kitap)}</small><br>
+                ${showKitap ? `<small style="color:#666;"><b>Kaynak:</b> ${escapeHtml(kitapText)}</small><br>` : ''}
                 ${q.not ? `<small><b>Soru Notu:</b> ${escapeHtml(q.not)}</small><br>` : ''}
                 ${q.image ? `<img src="${safeImageSrc(q.image)}" style="width:100%; border-radius:5px; margin-top:5px;">` : ''}
                 <div class="abcde-grid" id="std-qbox-${i}">
