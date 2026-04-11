@@ -398,15 +398,14 @@
                     <input type="password" id="profile-old-pass" placeholder="Mevcut (Eski) Şifreniz" style="margin-bottom:5px; font-size:0.85rem;">
                     <input type="password" id="profile-new-pass" placeholder="Yeni Şifre Belirleyin" style="margin-bottom:0; font-size:0.85rem;">
                 </div>
+                <button id="derslerim-theme-toggle-btn" type="button" class="outline derslerim-theme-toggle-btn" aria-label="Gece modunu aç veya kapat" onclick="window.toggleDerslerimTheme()">
+                    🌙 Gece Modu: Kapalı
+                </button>
             </div>
 
             <div class="settings-derslerim-section">
-                <button id="derslerim-theme-toggle-btn" type="button" class="outline derslerim-theme-toggle-btn" onclick="window.toggleDerslerimTheme()">
-                    🌙 Gece Modu: Kapalı
-                </button>
-
                 <div class="derslerim-collapsible-card">
-                    <button type="button" class="derslerim-collapse-trigger" onclick="window.toggleDerslerimSection('derslerim-exam-content', 'derslerim-exam-arrow')">
+                    <button id="derslerim-exam-trigger" type="button" class="derslerim-collapse-trigger" aria-expanded="true" aria-controls="derslerim-exam-content" onclick="window.toggleDerslerimSection('derslerim-exam-content', 'derslerim-exam-arrow', 'derslerim-exam-trigger')">
                         <span>🎯 Hedef Sınavınız</span>
                         <span id="derslerim-exam-arrow">▼</span>
                     </button>
@@ -436,23 +435,30 @@
 
                 <div class="derslerim-collapsible-card" style="margin-top:12px;">
                     <small style="display:block; color:#1e3c72; margin-bottom:8px; font-weight:700;">📁 Kütüphaneme Kaydet</small>
-                    <button type="button" id="derslerim-select-folder-btn" class="outline" style="width:100%; border-color:#1e3c72; color:#1e3c72; font-size:0.85rem; padding:10px;" onclick="window.openLibraryModal()">📁 Kütüphaneye Ekle</button>
+                    <button type="button" id="derslerim-select-folder-btn" class="outline" style="width:100%; border-color:#1e3c72; color:#1e3c72; font-size:0.85rem; padding:10px;" onclick="window.openLibraryModal('view')">📁 Kütüphaneye Ekle</button>
                     <p id="derslerim-selected-folder-text" style="margin:8px 0 0 0; font-size:0.78rem; color:#1e3c72; font-weight:600;">Seçili Kütüphane: Henüz seçilmedi</p>
                 </div>
 
                 <div class="derslerim-collapsible-card" style="margin-top:15px;">
-                    <button type="button" class="derslerim-collapse-trigger" onclick="window.toggleDerslerimSection('derslerim-library-content', 'derslerim-library-arrow')">
+                    <button id="derslerim-library-trigger" type="button" class="derslerim-collapse-trigger" aria-expanded="true" aria-controls="derslerim-library-content" onclick="window.toggleDerslerimSection('derslerim-library-content', 'derslerim-library-arrow', 'derslerim-library-trigger')">
                         <span>📚 Kütüphanem</span>
                         <span id="derslerim-library-arrow">▼</span>
                     </button>
                     <div id="derslerim-library-content" class="derslerim-collapse-content">
                         <small style="display:block; color:#6b7280; margin-bottom:8px;">Ders > Konu seçerek doğrudan ilgili sorulara geçebilirsiniz.</small>
+                        <div id="derslerim-library-filter-wrap" style="margin-bottom:8px;">
+                            <label for="derslerim-library-topic-filter" style="font-size:0.72rem; font-weight:700; color:#1e3c72;">🔎 Konu Görünümü</label>
+                            <select id="derslerim-library-topic-filter" aria-label="Konu görünümü filtresi" style="margin-top:4px; font-size:0.82rem; padding:8px;" onchange="window.handleDerslerimTopicFilterChange()">
+                                <option value="saved" selected>Sadece Soru Kaydedilen Konular</option>
+                                <option value="all">Tümünü Göster</option>
+                            </select>
+                        </div>
                         <div id="derslerim-library-tree"></div>
                     </div>
                 </div>
             </div>
 
-            <button onclick="saveProfileSettings()" class="green" style="margin-top:20px; width:100%; padding:15px; font-size:1.1rem; border-radius:10px;">💾 Masamı ve Ayarlarımı Kaydet</button>
+            <button id="profile-save-btn" onclick="saveProfileSettings()" class="green" style="margin-top:20px; width:100%; padding:15px; font-size:1.1rem; border-radius:10px;">💾 Masamı ve Ayarlarımı Kaydet</button>
             <button onclick="openSecureLogoutScreen()" class="outline" style="margin-top:10px; width:100%; padding:12px; border-color:#c0392b; color:#c0392b;">🔐 Güvenli Çıkış Ekranı</button>
         </div>
     </div>
@@ -511,9 +517,9 @@
         <div id="review-section-header" style="display:none; margin-bottom:10px;"></div>
         <div id="library-filter-area" class="filter-section" style="display:none;">
             <label style="font-size:0.75rem; font-weight:bold; color:#1e3c72; display:block;">🔍 SORULARI FİLTRELE</label>
-            <select id="filter-ders" onchange="applyLibraryFilters()"><option value="ALL">Tüm Dersler</option></select>
-            <select id="filter-konu" onchange="applyLibraryFilters()"><option value="ALL">Tüm Konular</option></select>
-            <select id="filter-kitap" onchange="applyLibraryFilters()"><option value="ALL">Tüm Kaynaklar/Kitaplar</option></select>
+            <select id="filter-ders" aria-label="Ders filtresi" onchange="applyLibraryFilters()"><option value="ALL">Tüm Dersler</option></select>
+            <select id="filter-konu" aria-label="Konu filtresi" onchange="applyLibraryFilters()"><option value="ALL">Tüm Konular</option></select>
+            <select id="filter-kitap" aria-label="Kaynak filtresi" onchange="applyLibraryFilters()"><option value="ALL">Tüm Kaynaklar/Kitaplar</option></select>
         </div>
         <div id="list-content" style="max-height: 400px; overflow-y: auto; text-align:left; color:#333; padding-bottom:20px;"></div>
         <button id="start-library-test-btn" onclick="startLibraryTest()" class="green" style="display:none; width:100%; margin-top:10px; padding:12px; font-size:1rem;">▶ Hepsini Test Olarak Çöz</button>
