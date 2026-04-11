@@ -94,6 +94,7 @@ window.secilenKonu = "";
 const DEFAULT_PROFILE_SUBJECTS = ['Tarih', 'Coğrafya', 'Vatandaşlık', 'Matematik', 'Türkçe', 'Eğitim Bilimleri', 'Fizik', 'Kimya', 'Biyoloji', 'Fen Bilimleri'];
 const READY_SOURCES_STORAGE_KEY = 'gazi_ready_sources_v1';
 const ADD_QUESTION_UI_PREFS_STORAGE_KEY = 'gazi_add_question_ui_prefs_v1';
+const USER_CURRICULUM_STORAGE_KEY = 'gazi_user_curriculum_v1';
 const MAX_READY_SOURCES = 30;
 const FLOAT_COMPARISON_EPSILON = 0.001;
 const IMAGE_OPTIMIZATION_CONFIG = Object.freeze({
@@ -146,6 +147,70 @@ function saveAddQuestionUIPrefs(nextPrefs = {}) {
     localStorage.setItem(ADD_QUESTION_UI_PREFS_STORAGE_KEY, JSON.stringify({ ...current, ...nextPrefs }));
 }
 
+function normalizeCurriculumData(input) {
+    const out = {};
+    if (!input || typeof input !== 'object') return out;
+    Object.keys(input).forEach((rawSubject) => {
+        const subject = String(rawSubject || '').trim();
+        if (!subject) return;
+        const topicsRaw = Array.isArray(input[rawSubject]) ? input[rawSubject] : [];
+        const topics = Array.from(new Set(topicsRaw.map(t => String(t || '').trim()).filter(Boolean)));
+        out[subject] = topics;
+    });
+    return out;
+}
+
+function buildInitialUserCurriculum() {
+    try {
+        const parsed = JSON.parse(localStorage.getItem(USER_CURRICULUM_STORAGE_KEY));
+        const normalized = normalizeCurriculumData(parsed);
+        if (Object.keys(normalized).length > 0) return normalized;
+    } catch (e) {}
+
+    const built = {};
+    try {
+        const savedSubjects = JSON.parse(localStorage.getItem('gazi_subjects_v2')) || [];
+        savedSubjects.forEach((row) => {
+            const subjectName = String(row?.name || '').trim();
+            if (!subjectName) return;
+            const topics = String(row?.topics || '')
+                .split(',')
+                .map(t => t.trim())
+                .filter(Boolean);
+            built[subjectName] = Array.from(new Set(topics));
+        });
+    } catch (e) {}
+
+    if (Object.keys(built).length > 0) return built;
+    return { "Genel Ders": ["Genel Konu"] };
+}
+
+function persistUserCurriculum() {
+    localStorage.setItem(USER_CURRICULUM_STORAGE_KEY, JSON.stringify(window.userCurriculum || {}));
+}
+
+function isGodModeUser() {
+    return (String(APP_STATE.currentUser?.email || '').trim().toLowerCase() === ROOT_ADMIN_EMAIL);
+}
+
+function syncUserCurriculumIfGodMode() {
+    if (!isGodModeUser() || !socket) return;
+    socket.emit("upsertUserCurriculum", window.userCurriculum || {});
+}
+
+function ensureCurriculumPath(subject, topic) {
+    const safeSubject = String(subject || '').trim();
+    const safeTopic = String(topic || '').trim();
+    if (!safeSubject || !safeTopic) return;
+    if (!window.userCurriculum[safeSubject]) window.userCurriculum[safeSubject] = [];
+    if (!window.userCurriculum[safeSubject].includes(safeTopic)) window.userCurriculum[safeSubject].push(safeTopic);
+    persistUserCurriculum();
+}
+
+window.userCurriculum = buildInitialUserCurriculum();
+window.selectedLibraryPath = { subject: "", topic: "" };
+window.currentLibraryModalSubject = "";
+
 function updateSelectedFolderText(subject, topic) {
     const selectedFolderText = document.getElementById('selected-folder-text');
     if (!selectedFolderText) return;
@@ -155,6 +220,173 @@ function updateSelectedFolderText(subject, topic) {
     }
     selectedFolderText.textContent = `Seçili Klasör: ${subject} / ${topic}`;
 }
+
+function setSelectedLibraryPath(subject, topic) {
+    const safeSubject = String(subject || '').trim();
+    const safeTopic = String(topic || '').trim();
+    if (!safeSubject || !safeTopic) return;
+    window.selectedLibraryPath = { subject: safeSubject, topic: safeTopic };
+    window.secilenDers = safeSubject;
+    window.secilenKonu = safeTopic;
+    updateSelectedFolderText(safeSubject, safeTopic);
+    saveAddQuestionUIPrefs({ folderSubject: safeSubject, folderTopic: safeTopic });
+    ensureCurriculumPath(safeSubject, safeTopic);
+}
+
+function animateLibraryModalSwap(renderFn, direction = 'left') {
+    const content = document.getElementById('library-modal-content');
+    if (!content || typeof renderFn !== 'function') return;
+
+    content.style.transform = direction === 'left' ? 'translateX(-100%)' : 'translateX(100%)';
+    content.style.opacity = '0.25';
+    setTimeout(() => {
+        renderFn();
+        content.style.transition = 'none';
+        content.style.transform = direction === 'left' ? 'translateX(100%)' : 'translateX(-100%)';
+        content.style.opacity = '0.25';
+        requestAnimationFrame(() => {
+            content.style.transition = '';
+            content.style.transform = 'translateX(0)';
+            content.style.opacity = '1';
+        });
+    }, 140);
+}
+
+function createLibraryCard(label, onClick, options = {}) {
+    const card = document.createElement('button');
+    card.type = 'button';
+    card.className = `library-card ${options.isAdd ? 'add-card' : ''}`;
+    card.innerHTML = `<span>${escapeHtml(label)}</span>`;
+    card.addEventListener('click', onClick);
+    if (options.onDelete) {
+        const delBtn = document.createElement('button');
+        delBtn.type = 'button';
+        delBtn.className = 'library-card-delete';
+        delBtn.textContent = '🗑';
+        delBtn.addEventListener('click', (ev) => {
+            ev.stopPropagation();
+            options.onDelete();
+        });
+        card.appendChild(delBtn);
+    }
+    return card;
+}
+
+window.renderLibrarySubjectList = () => {
+    const title = document.getElementById('library-modal-title');
+    const content = document.getElementById('library-modal-content');
+    if (!content) return;
+    if (title) title.textContent = '📁 Kütüphane Klasörü Seç';
+    content.innerHTML = '';
+    const grid = document.createElement('div');
+    grid.className = 'library-grid';
+    Object.keys(window.userCurriculum || {}).sort((a, b) => a.localeCompare(b, 'tr')).forEach((subject) => {
+        grid.appendChild(createLibraryCard(subject, () => {
+            window.currentLibraryModalSubject = subject;
+            animateLibraryModalSwap(() => window.renderLibraryTopicList(subject), 'left');
+        }, {
+            onDelete: () => window.deleteCurriculumSubject(subject)
+        }));
+    });
+    grid.appendChild(createLibraryCard('➕ Yeni Ders Ekle', () => window.addCurriculumSubject(), { isAdd: true }));
+    content.appendChild(grid);
+};
+
+window.renderLibraryTopicList = (subject) => {
+    const safeSubject = String(subject || '').trim();
+    if (!safeSubject || !window.userCurriculum[safeSubject]) return window.renderLibrarySubjectList();
+    const title = document.getElementById('library-modal-title');
+    const content = document.getElementById('library-modal-content');
+    if (!content) return;
+    if (title) title.textContent = `📚 ${safeSubject}`;
+    content.innerHTML = '';
+
+    const backBtn = document.createElement('button');
+    backBtn.type = 'button';
+    backBtn.className = 'library-back-btn';
+    backBtn.textContent = '⬅️ Geri';
+    backBtn.addEventListener('click', () => {
+        animateLibraryModalSwap(() => window.renderLibrarySubjectList(), 'right');
+    });
+    content.appendChild(backBtn);
+
+    const grid = document.createElement('div');
+    grid.className = 'library-grid';
+    const topics = Array.isArray(window.userCurriculum[safeSubject]) ? window.userCurriculum[safeSubject] : [];
+    topics.forEach((topic) => {
+        grid.appendChild(createLibraryCard(topic, () => {
+            setSelectedLibraryPath(safeSubject, topic);
+            window.closeLibraryModal();
+        }, {
+            onDelete: () => window.deleteCurriculumTopic(safeSubject, topic)
+        }));
+    });
+    grid.appendChild(createLibraryCard('➕ Yeni Konu Ekle', () => window.addCurriculumTopic(safeSubject), { isAdd: true }));
+    content.appendChild(grid);
+};
+
+window.openLibraryModal = () => {
+    const overlay = document.getElementById('library-modal-overlay');
+    const content = document.getElementById('library-modal-content');
+    if (!overlay || !content) return;
+    overlay.style.display = 'flex';
+    content.style.transform = 'translateX(0)';
+    content.style.opacity = '1';
+    window.renderLibrarySubjectList();
+};
+
+window.closeLibraryModal = (event) => {
+    if (event && event.currentTarget && event.target !== event.currentTarget) return;
+    const overlay = document.getElementById('library-modal-overlay');
+    if (overlay) overlay.style.display = 'none';
+    window.currentLibraryModalSubject = "";
+};
+
+window.addCurriculumSubject = () => {
+    const input = window.prompt('Yeni ders adını girin:');
+    if (input === null) return;
+    const subject = String(input || '').trim();
+    if (!subject) return;
+    if (!window.userCurriculum[subject]) window.userCurriculum[subject] = [];
+    persistUserCurriculum();
+    syncUserCurriculumIfGodMode();
+    window.renderLibrarySubjectList();
+};
+
+window.addCurriculumTopic = (subject) => {
+    const safeSubject = String(subject || '').trim();
+    if (!safeSubject) return;
+    const input = window.prompt(`"${safeSubject}" için yeni konu adı girin:`);
+    if (input === null) return;
+    const topic = String(input || '').trim();
+    if (!topic) return;
+    if (!window.userCurriculum[safeSubject]) window.userCurriculum[safeSubject] = [];
+    if (!window.userCurriculum[safeSubject].includes(topic)) window.userCurriculum[safeSubject].push(topic);
+    persistUserCurriculum();
+    syncUserCurriculumIfGodMode();
+    window.renderLibraryTopicList(safeSubject);
+};
+
+window.deleteCurriculumSubject = (subject) => {
+    const safeSubject = String(subject || '').trim();
+    if (!safeSubject || !window.userCurriculum[safeSubject]) return;
+    if (!window.confirm(`"${safeSubject}" dersini silmek istiyor musun?`)) return;
+    delete window.userCurriculum[safeSubject];
+    persistUserCurriculum();
+    syncUserCurriculumIfGodMode();
+    window.renderLibrarySubjectList();
+};
+
+window.deleteCurriculumTopic = (subject, topic) => {
+    const safeSubject = String(subject || '').trim();
+    const safeTopic = String(topic || '').trim();
+    if (!safeSubject || !safeTopic || !window.userCurriculum[safeSubject]) return;
+    if (!window.confirm(`"${safeTopic}" konusunu silmek istiyor musun?`)) return;
+    window.userCurriculum[safeSubject] = (window.userCurriculum[safeSubject] || []).filter(t => t !== safeTopic);
+    persistUserCurriculum();
+    syncUserCurriculumIfGodMode();
+    window.renderLibraryTopicList(safeSubject);
+};
 
 window.restoreAddQuestionUISelections = () => {
     const prefs = getAddQuestionUIPrefs();
@@ -171,33 +403,15 @@ window.restoreAddQuestionUISelections = () => {
 
     const folderSubject = (prefs.folderSubject || window.secilenDers || '').trim();
     const folderTopic = (prefs.folderTopic || window.secilenKonu || '').trim();
-    window.secilenDers = folderSubject;
-    window.secilenKonu = folderTopic;
-    updateSelectedFolderText(folderSubject, folderTopic);
+    if (folderSubject && folderTopic) {
+        setSelectedLibraryPath(folderSubject, folderTopic);
+    } else {
+        updateSelectedFolderText('', '');
+    }
 };
 
 window.openFolderSelector = () => {
-    const currentSubject = (window.secilenDers || '').trim();
-    const currentTopic = (window.secilenKonu || '').trim();
-    const currentValue = currentSubject && currentTopic ? `${currentSubject} / ${currentTopic}` : '';
-    const selected = window.prompt('Klasör seçimi için "Ders / Konu" formatında giriş yapın:', currentValue);
-    if (selected === null) return;
-
-    const normalized = String(selected).trim();
-    if (!normalized) return;
-
-    const [subjectRaw, ...topicParts] = normalized.split('/');
-    const nextSubject = (subjectRaw || '').trim();
-    const nextTopic = topicParts.join('/').trim();
-    if (!nextSubject || !nextTopic) {
-        alert('Lütfen "Ders / Konu" formatında geçerli bir klasör seçimi girin.');
-        return;
-    }
-
-    window.secilenDers = nextSubject;
-    window.secilenKonu = nextTopic;
-    updateSelectedFolderText(nextSubject, nextTopic);
-    saveAddQuestionUIPrefs({ folderSubject: nextSubject, folderTopic: nextTopic });
+    window.openLibraryModal();
 };
 
 window.openStudentPhotoPicker = () => {
@@ -1001,6 +1215,7 @@ onAuthStateChanged(auth, user => {
             if (isTeacher) socket.emit("getTeacherClass", user.email);
             socket.emit("getFilters", window.myClassCode || "");
             if (!isTeacher) socket.emit("checkNotebookReviews", realName);
+            if (isAdmin) socket.emit("getUserCurriculum");
         }
 
         if (isTeacher) {
@@ -1231,6 +1446,15 @@ if(socket) {
     socket.on("errorMsg", (msg) => {
         const safeMsg = typeof msg === "string" && msg.trim() ? msg : DEFAULT_ERROR_MESSAGE;
         alert(`⚠️ ${safeMsg}`);
+    });
+    socket.on("userCurriculumData", (payload) => {
+        const remote = normalizeCurriculumData(payload);
+        if (Object.keys(remote).length === 0) return;
+        window.userCurriculum = remote;
+        persistUserCurriculum();
+        if (document.getElementById('library-modal-overlay')?.style.display === 'flex') {
+            window.renderLibrarySubjectList();
+        }
     });
 }
 

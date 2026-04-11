@@ -111,6 +111,115 @@ input[type="checkbox"] { width: auto !important; margin: 0 10px 0 0 !important; 
     will-change: transform, opacity;
 }
 
+.library-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    z-index: 12000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+}
+
+.library-modal {
+    width: min(520px, 96vw);
+    max-height: 84vh;
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 14px 36px rgba(0,0,0,0.35);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.library-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 14px;
+    border-bottom: 1px solid #e8ebf0;
+    background: #f8fbff;
+}
+
+.library-modal-header h3 {
+    margin: 0;
+    font-size: 0.95rem;
+    color: #1e3c72;
+}
+
+.library-modal-close {
+    width: auto;
+    padding: 6px 10px;
+    border-radius: 8px;
+    background: #ecf0f1;
+    color: #2c3e50;
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.library-modal-content {
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 12px;
+    min-height: 140px;
+}
+
+.library-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 8px;
+}
+
+.library-card {
+    border: 1px solid #d8deea;
+    background: #fff;
+    color: #1e3c72;
+    border-radius: 10px;
+    padding: 10px;
+    text-align: left;
+    font-weight: 700;
+    cursor: pointer;
+    min-height: 54px;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+}
+
+.library-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.09);
+}
+
+.library-card.add-card {
+    border: 1px dashed #3498db;
+    color: #3498db;
+    justify-content: center;
+    text-align: center;
+}
+
+.library-card-delete {
+    width: auto;
+    margin: 0;
+    padding: 3px 7px;
+    font-size: 0.8rem;
+    border-radius: 7px;
+    background: #f8d7da;
+    color: #a52834;
+}
+
+.library-back-btn {
+    width: auto;
+    margin: 0 0 10px 0;
+    padding: 8px 10px;
+    font-size: 0.85rem;
+    background: #ecf0f1;
+    color: #2c3e50;
+}
+
 @keyframes solutionFadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 .solution-loaded { animation: solutionFadeIn 0.45s ease forwards; }
 

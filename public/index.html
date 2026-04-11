@@ -571,6 +571,16 @@
 
 </div>
 
+<div id="library-modal-overlay" class="library-modal-overlay" style="display:none;" onclick="window.closeLibraryModal(event)">
+    <div id="library-modal" class="library-modal" onclick="event.stopPropagation()">
+        <div class="library-modal-header">
+            <h3 id="library-modal-title">📁 Kütüphane Klasörü Seç</h3>
+            <button type="button" class="library-modal-close" onclick="window.closeLibraryModal()">✕</button>
+        </div>
+        <div id="library-modal-content" class="library-modal-content gpu-transition"></div>
+    </div>
+</div>
+
 <nav id="bottom-nav" style="display:none;">
     <div class="nav-item" id="nav-arkadaslar" onclick="openFriendsPanel()">
         <span class="nav-icon">👥</span>

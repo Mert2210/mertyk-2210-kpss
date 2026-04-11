@@ -168,6 +168,23 @@ function ensureAdmin(socket) {
     return true;
 }
 
+function sanitizeCurriculumMap(payload) {
+    const out = {};
+    if (!payload || typeof payload !== "object") return out;
+    Object.entries(payload).forEach(([subjectRaw, topicsRaw]) => {
+        const subject = sanitizeString(subjectRaw, 80);
+        if (!subject) return;
+        const topicsInput = Array.isArray(topicsRaw) ? topicsRaw : [];
+        const topics = Array.from(new Set(
+            topicsInput
+                .map((topic) => sanitizeString(topic, 120))
+                .filter(Boolean)
+        ));
+        out[subject] = topics;
+    });
+    return out;
+}
+
 // 🚨 BİLDİRİM (PUSH) GÖNDERME FONKSİYONU 🚨
 async function sendPushNotification(topic, title, body) {
     if (admin.apps.length) {
@@ -189,6 +206,35 @@ io.on("connection", (socket) => {
 
     socket.on("getFilters", () => {
         socket.emit('updateFilters', getFiltersData(tumSorular));
+    });
+
+    socket.on("getUserCurriculum", async () => {
+        if (!ensureAdmin(socket)) return;
+        if (!db) return socket.emit("userCurriculumData", {});
+        try {
+            const doc = await db.collection("app_config").doc("user_curriculum").get();
+            if (!doc.exists) return socket.emit("userCurriculumData", {});
+            const data = doc.data() || {};
+            socket.emit("userCurriculumData", sanitizeCurriculumMap(data.curriculum || {}));
+        } catch (error) {
+            socket.emit("userCurriculumData", {});
+        }
+    });
+
+    socket.on("upsertUserCurriculum", async (curriculumPayload) => {
+        if (!ensureAdmin(socket)) return;
+        if (!db) return;
+        const safeCurriculum = sanitizeCurriculumMap(curriculumPayload);
+        try {
+            await db.collection("app_config").doc("user_curriculum").set({
+                curriculum: safeCurriculum,
+                updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+                updatedBy: sanitizeString(currentUser(socket).email, 200)
+            }, { merge: true });
+            socket.emit("userCurriculumData", safeCurriculum);
+        } catch (error) {
+            socket.emit("errorMsg", "Kütüphane verisi veritabanına kaydedilemedi.");
+        }
     });
 
     socket.on("setUserContext", async ({ idToken, fallbackName }) => {

@@ -1,6 +1,8 @@
 const clientToServerEvents = [
     "setUserContext",
     "getFilters",
+    "getUserCurriculum",
+    "upsertUserCurriculum",
     "askGemini",
     "parseImageWithGemini",
     "createNamedClass",
@@ -35,6 +37,7 @@ const clientToServerEvents = [
 
 const serverToClientEvents = [
     "updateFilters",
+    "userCurriculumData",
     "geminiResponse",
     "geminiParsedData",
     "errorMsg",
