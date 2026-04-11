@@ -524,6 +524,10 @@ body.nav-visible .container {
     font-weight: 600;
 }
 
+.derslerim-empty-text {
+    color: #6b7280;
+}
+
 .derslerim-theme-toggle-btn {
     margin: 0 0 10px 0;
     border-color: #7f8fa6 !important;
