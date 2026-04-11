@@ -1268,7 +1268,7 @@ window.uploadStudentQuestion = async (target = 'cloud') => {
     }
 
     const q = { 
-        id: 'local_' + Date.now(), 
+        ...(target === 'cloud' ? {} : { id: 'local_' + Date.now() }),
         studentName: studentName, 
         ders: finalDers, 
         kitap: qKitap, 
@@ -1285,7 +1285,6 @@ window.uploadStudentQuestion = async (target = 'cloud') => {
     };
     
     if (target === 'cloud') {
-        delete q.id; 
         socket.emit("addStudentQuestion", q);
         alert(`✅ Soru BULUT Hata Defterinize eklendi!`);
     } else {
