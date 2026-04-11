@@ -210,7 +210,10 @@ io.on("connection", (socket) => {
 
     socket.on("getUserCurriculum", async () => {
         if (!ensureAdmin(socket)) return;
-        if (!db) return socket.emit("userCurriculumData", {});
+        if (!db) {
+            console.warn("getUserCurriculum skipped: db connection is unavailable.");
+            return socket.emit("userCurriculumData", {});
+        }
         try {
             const doc = await db.collection("app_config").doc("user_curriculum").get();
             if (!doc.exists) return socket.emit("userCurriculumData", {});
