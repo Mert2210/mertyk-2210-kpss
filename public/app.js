@@ -1,6 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, updateProfile, updatePassword, EmailAuthProvider, reauthenticateWithCredential, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInAnonymously, signOut, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, sendEmailVerification, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-messaging.js";
+import { getStorage, ref as storageRef, uploadString, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
 
 const fallbackFirebaseConfig = { 
     apiKey: "AIzaSyDkZI-LxCOaog4kyb4YSquEK6ZpLNH2pqs", 
@@ -21,6 +22,7 @@ const firebaseConfig = runtimeFirebase.apiKey
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const messaging = getMessaging(app);
+const storage = getStorage(app);
 const ROOT_ADMIN_EMAIL = "kayamert319@gmail.com";
 const APP_STATE = {
     currentUser: { name: "", role: "guest", email: "" },
@@ -92,6 +94,23 @@ window.secilenKonu = "";
 const DEFAULT_PROFILE_SUBJECTS = ['Tarih', 'Coğrafya', 'Vatandaşlık', 'Matematik', 'Türkçe', 'Eğitim Bilimleri', 'Fizik', 'Kimya', 'Biyoloji', 'Fen Bilimleri'];
 const READY_SOURCES_STORAGE_KEY = 'gazi_ready_sources_v1';
 const MAX_READY_SOURCES = 30;
+const FLOAT_COMPARISON_EPSILON = 0.001;
+const IMAGE_OPTIMIZATION_CONFIG = Object.freeze({
+    maxWidth: 1280,
+    minWidth: 720,
+    // 1GB toplam bulut kota için soru/çözüm görsellerinde ortalama dosya boyutunu düşük tutar.
+    targetBytes: 220 * 1024,
+    initialQuality: 0.82,
+    minQuality: 0.68,
+    qualityStep: 0.04,
+    scaleStep: 0.9,
+    maxAttempts: 14
+});
+// Kaynakça görselleri genelde metin ağırlıklı olduğu için daha düşük hedef boyut kullanılır.
+const SOURCE_IMAGE_OPTIMIZATION_OVERRIDES = Object.freeze({
+    targetBytes: 170 * 1024,
+    maxWidth: 1100
+});
 // 1x1 şeffaf GIF placeholder (kaynak görseli olmayan kartlar için)
 const PLACEHOLDER_IMAGE_SRC = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
 
@@ -939,6 +958,119 @@ function safeImageSrc(src) {
     return '';
 }
 
+function getImageExtensionFromDataUrl(dataUrl) {
+    const match = /^data:image\/(jpeg|png|gif|webp);base64,/.exec(dataUrl || '');
+    if (!match) return 'jpg';
+    if (match[1] === 'jpeg') return 'jpg';
+    return match[1];
+}
+
+function estimateDataUrlBytes(dataUrl) {
+    if (typeof dataUrl !== 'string') return 0;
+    const commaIndex = dataUrl.indexOf(',');
+    if (commaIndex < 0) return 0;
+    const base64 = dataUrl.slice(commaIndex + 1);
+    const paddingMatch = base64.match(/=*$/);
+    const padding = paddingMatch ? paddingMatch[0].length : 0;
+    return Math.max(0, Math.floor((base64.length * 3) / 4) - padding);
+}
+
+function encodeCanvasToDataUrl(canvas, mimeType, quality) {
+    try {
+        const dataUrl = canvas.toDataURL(mimeType, quality);
+        return dataUrl.startsWith(`data:${mimeType}`) ? dataUrl : null;
+    } catch (e) {
+        return null;
+    }
+}
+
+async function optimizeImageFileForUpload(file, options = {}) {
+    if (!file) return null;
+    const config = { ...IMAGE_OPTIMIZATION_CONFIG, ...(options || {}) };
+    const originalDataUrl = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+    const image = await new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = originalDataUrl;
+    });
+
+    const baseWidth = Math.max(1, Math.round(Math.min(image.width, config.maxWidth)));
+    let width = baseWidth;
+    let height = Math.max(1, Math.round((image.height * width) / Math.max(1, image.width)));
+    let quality = config.initialQuality;
+
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return originalDataUrl;
+    const redraw = () => {
+        canvas.width = width;
+        canvas.height = height;
+        ctx.drawImage(image, 0, 0, width, height);
+    };
+    redraw();
+
+    const mimeCandidates = ['image/webp', 'image/jpeg'];
+    let bestDataUrl = null;
+    let bestBytes = Number.POSITIVE_INFINITY;
+
+    for (let attempt = 0; attempt < config.maxAttempts; attempt++) {
+        let currentDataUrl = null;
+        for (const mimeType of mimeCandidates) {
+            const encoded = encodeCanvasToDataUrl(canvas, mimeType, quality);
+            if (encoded) {
+                currentDataUrl = encoded;
+                break;
+            }
+        }
+        if (!currentDataUrl) break;
+
+        const bytes = estimateDataUrlBytes(currentDataUrl);
+        if (bytes > 0 && bytes < bestBytes) {
+            bestBytes = bytes;
+            bestDataUrl = currentDataUrl;
+        }
+        if (bytes > 0 && bytes <= config.targetBytes) break;
+
+        if (quality > config.minQuality + FLOAT_COMPARISON_EPSILON) {
+            quality = Math.max(config.minQuality, quality - config.qualityStep);
+            continue;
+        }
+
+        if (width <= config.minWidth) break;
+        width = Math.max(config.minWidth, Math.round(width * config.scaleStep));
+        height = Math.max(1, Math.round((image.height * width) / Math.max(1, image.width)));
+        quality = config.initialQuality;
+        redraw();
+    }
+
+    return bestDataUrl || originalDataUrl;
+}
+
+function generateUniqueId(prefix = '') {
+    const baseId = (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function')
+        ? crypto.randomUUID()
+        : `${Date.now()}_${Math.random().toString(36).slice(2, 12)}_${Math.random().toString(36).slice(2, 12)}`;
+    return prefix ? `${prefix}_${baseId}` : baseId;
+}
+
+async function uploadImageDataUrlIfNeeded(dataUrl, folder) {
+    if (!dataUrl || typeof dataUrl !== 'string') return null;
+    if (/^https?:\/\//.test(dataUrl)) return dataUrl;
+    if (!/^data:image\/(jpeg|png|gif|webp);base64,/.test(dataUrl)) return null;
+    const ext = getImageExtensionFromDataUrl(dataUrl);
+    const uniqueId = generateUniqueId();
+    const fileName = `${uniqueId}.${ext}`;
+    const fileRef = storageRef(storage, `${folder}/${fileName}`);
+    await uploadString(fileRef, dataUrl, 'data_url');
+    return getDownloadURL(fileRef);
+}
+
 let socket; 
 try { socket = io(); } catch(e) { console.warn("Socket sunucusu yok."); }
 
@@ -1046,40 +1178,35 @@ if(socket) {
     });
 }
 
-window.processImageUpload = (e, type = 'question') => {
+window.processImageUpload = async (e, type = 'question') => {
     const file = e.target.files[0]; 
     if(!file) return; 
     
     const previewId = type === 'question' ? 'img-preview' : 'img-preview-solution';
     document.getElementById(previewId).style.display = 'block'; 
     document.getElementById(previewId).src = "https://i.gifer.com/ZKZg.gif"; 
-    
-    const reader = new FileReader();
-    reader.onload = (event) => {
-        const img = new Image(); 
-        img.onload = () => {
-            const canvas = document.createElement('canvas'); 
-            const MAX_WIDTH = 800; 
-            const scale = img.width > MAX_WIDTH ? MAX_WIDTH / img.width : 1;
-            canvas.width = img.width * scale; 
-            canvas.height = img.height * scale; 
-            const ctx = canvas.getContext('2d'); 
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            
-            if (type === 'question') { 
-                uploadedImageBase64 = canvas.toDataURL('image/jpeg', 0.7); 
-                document.getElementById(previewId).src = uploadedImageBase64; 
-            } else { 
-                uploadedSolutionBase64 = canvas.toDataURL('image/jpeg', 0.7); 
-                document.getElementById(previewId).src = uploadedSolutionBase64; 
-            }
-        }; 
-        img.src = event.target.result;
-    }; 
-    reader.readAsDataURL(file);
+
+    try {
+        const optimizedDataUrl = await optimizeImageFileForUpload(file);
+        if (!optimizedDataUrl) throw new Error('Görsel verisi üretilemedi.');
+
+        if (type === 'question') {
+            uploadedImageBase64 = optimizedDataUrl;
+            document.getElementById(previewId).src = uploadedImageBase64;
+        } else {
+            uploadedSolutionBase64 = optimizedDataUrl;
+            document.getElementById(previewId).src = uploadedSolutionBase64;
+        }
+    } catch (err) {
+        console.error("Görsel işlenemedi:", err);
+        document.getElementById(previewId).style.display = 'none';
+        if (type === 'question') uploadedImageBase64 = null;
+        else uploadedSolutionBase64 = null;
+        alert("⚠️ Görsel optimize edilemedi. Lütfen farklı bir görsel deneyin.");
+    }
 };
 
-window.processStudentImageUpload = (e, type = 'image') => {
+window.processStudentImageUpload = async (e, type = 'image') => {
     const file = e.target.files[0]; 
     if(!file) return;
     
@@ -1094,42 +1221,45 @@ window.processStudentImageUpload = (e, type = 'image') => {
         }
     }
     
-    const reader = new FileReader();
-    reader.onload = (event) => {
-        const img = new Image(); 
-        img.onload = () => {
-            const canvas = document.createElement('canvas'); 
-            const MAX_WIDTH = 800; 
-            const scale = img.width > MAX_WIDTH ? MAX_WIDTH / img.width : 1;
-            canvas.width = img.width * scale; 
-            canvas.height = img.height * scale; 
-            const ctx = canvas.getContext('2d'); 
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            
-            if(type === 'image') { 
-                stdUploadedImageBase64 = canvas.toDataURL('image/jpeg', 0.7); 
-                document.getElementById('std-img-preview').src = stdUploadedImageBase64; 
-            } else if (type === 'solution') { 
-                stdSolutionBase64 = canvas.toDataURL('image/jpeg', 0.7); 
-                alert("✅ Çözüm fotoğrafı başarıyla eklendi!"); 
-            } else if (type === 'source') {
-                stdSourceImageBase64 = canvas.toDataURL('image/jpeg', 0.7);
-                const sourcePreview = document.getElementById('std-source-image-preview');
-                if (sourcePreview) {
-                    sourcePreview.src = stdSourceImageBase64;
-                    sourcePreview.style.display = 'block';
-                }
-                alert("✅ Kaynakça resmi eklendi.");
-            } else {
-                return;
+    try {
+        const optimizedDataUrl = await optimizeImageFileForUpload(file, type === 'source' ? SOURCE_IMAGE_OPTIMIZATION_OVERRIDES : {});
+        if (!optimizedDataUrl) throw new Error('Görsel verisi üretilemedi.');
+
+        if(type === 'image') { 
+            stdUploadedImageBase64 = optimizedDataUrl; 
+            document.getElementById('std-img-preview').src = stdUploadedImageBase64; 
+        } else if (type === 'solution') { 
+            stdSolutionBase64 = optimizedDataUrl; 
+            alert("✅ Çözüm fotoğrafı başarıyla eklendi!"); 
+        } else if (type === 'source') {
+            stdSourceImageBase64 = optimizedDataUrl;
+            const sourcePreview = document.getElementById('std-source-image-preview');
+            if (sourcePreview) {
+                sourcePreview.src = stdSourceImageBase64;
+                sourcePreview.style.display = 'block';
             }
-        }; 
-        img.src = event.target.result;
-    }; 
-    reader.readAsDataURL(file);
+            alert("✅ Kaynakça resmi eklendi.");
+        } else {
+            return;
+        }
+    } catch (err) {
+        console.error("Öğrenci görseli işlenemedi:", err);
+        if (type === 'image') {
+            stdUploadedImageBase64 = null;
+            const stdPreview = document.getElementById('std-img-preview');
+            if (stdPreview) stdPreview.style.display = 'none';
+        } else if (type === 'source') {
+            stdSourceImageBase64 = null;
+            const sourcePreview = document.getElementById('std-source-image-preview');
+            if (sourcePreview) sourcePreview.style.display = 'none';
+        } else if (type === 'solution') {
+            stdSolutionBase64 = null;
+        }
+        alert("⚠️ Görsel optimize edilemedi. Lütfen farklı bir görsel deneyin.");
+    }
 };
 
-window.uploadQuestion = () => {
+window.uploadQuestion = async () => {
     if(!socket) return alert("Sunucuya bağlanılamadı!");
     
     const qDers = document.getElementById('new-q-ders').value.trim(); 
@@ -1142,16 +1272,29 @@ window.uploadQuestion = () => {
     if(!qDers || !qKonu) return alert("Lütfen Ders ve Konu alanlarını doldurun!"); 
     if(!window.myClassCode) return alert("⚠️ Lütfen önce bir sınıf seçin veya oluşturun!");
     
+    let questionImageUrl = null;
+    let solutionImageUrl = null;
+    try {
+        [questionImageUrl, solutionImageUrl] = await Promise.all([
+            uploadImageDataUrlIfNeeded(uploadedImageBase64, 'questions'),
+            uploadImageDataUrlIfNeeded(uploadedSolutionBase64, 'solutions')
+        ]);
+    } catch (err) {
+        console.error("Soru/çözüm görselleri Storage'a yüklenemedi:", err);
+        const errDetail = err && err.message ? ` (${err.message})` : '';
+        return alert(`⚠️ Soru veya çözüm görseli yüklenemedi${errDetail}. Lütfen tekrar deneyin.`);
+    }
+
     const q = { 
         soru: qSoru, 
         siklar: qSiklar, 
         dogru: qDogru, 
         ders: qDers.toUpperCase(), 
         deneme: qKonu, 
-        image: uploadedImageBase64, 
+        image: questionImageUrl, 
         classCode: window.myClassCode, 
         solutionText: qSolText, 
-        solutionImage: uploadedSolutionBase64 
+        solutionImage: solutionImageUrl 
     };
     
     socket.emit("addNewQuestion", q);
@@ -1170,7 +1313,7 @@ window.uploadQuestion = () => {
 };
 
 // 🚨 YENİ GÜNCELLENMİŞ ÖĞRENCİ SORU YÜKLEME KODU (HAFIZALI) 🚨
-window.uploadStudentQuestion = (target = 'cloud') => {
+window.uploadStudentQuestion = async (target = 'cloud') => {
     const customKonuInput = document.getElementById('custom-konu-input');
     const customKonu = customKonuInput ? customKonuInput.value.trim() : "";
     const finalTopic = customKonu || window.secilenKonu || "Genel Konu";
@@ -1209,26 +1352,46 @@ window.uploadStudentQuestion = (target = 'cloud') => {
     const memBadge = document.getElementById('mem-badge');
     if (memBadge) memBadge.style.display = "inline-block";
 
+    if (target === 'cloud' && !socket) {
+        return alert("Buluta bağlanılamadı, lütfen Cihaza Kaydet seçeneğini kullanın.");
+    }
+
+    let questionImageForSave = stdUploadedImageBase64;
+    let solutionImageForSave = stdSolutionBase64;
+    let sourceImageForSave = stdSourceImageBase64 || null;
+
+    if (target === 'cloud') {
+        try {
+            [questionImageForSave, solutionImageForSave, sourceImageForSave] = await Promise.all([
+                uploadImageDataUrlIfNeeded(stdUploadedImageBase64, 'questions'),
+                uploadImageDataUrlIfNeeded(stdSolutionBase64, 'solutions'),
+                uploadImageDataUrlIfNeeded(stdSourceImageBase64, 'sources')
+            ]);
+        } catch (err) {
+            console.error("Öğrenci soru/çözüm/kaynak görselleri Storage'a yüklenemedi:", err);
+            const errDetail = err && err.message ? ` (${err.message})` : '';
+            return alert(`⚠️ Soru, çözüm veya kaynak görseli buluta yüklenemedi${errDetail}. Lütfen tekrar deneyin.`);
+        }
+    }
+
     const q = { 
-        id: 'local_' + Date.now(), 
         studentName: studentName, 
         ders: finalDers, 
         kitap: qKitap, 
         konu: finalTopic, 
         not: qText, 
-        sourceImage: stdSourceImageBase64 || null,
-        image: stdUploadedImageBase64, 
+        sourceImage: sourceImageForSave || null,
+        image: questionImageForSave, 
         nextReviewDate: nextReviewDate, 
-        solutionImage: stdSolutionBase64, 
+        solutionImage: solutionImageForSave, 
         solutionText: qSolText, 
         dogru: correctIdx, 
         soru: qText || "Görseli inceleyiniz.", 
         siklar: ["A", "B", "C", "D", "E"] 
     };
+    if (target !== 'cloud') q.id = generateUniqueId('local');
     
     if (target === 'cloud') {
-        if(!socket) return alert("Buluta bağlanılamadı, lütfen Cihaza Kaydet seçeneğini kullanın."); 
-        delete q.id; 
         socket.emit("addStudentQuestion", q);
         alert(`✅ Soru BULUT Hata Defterinize eklendi!`);
     } else {
