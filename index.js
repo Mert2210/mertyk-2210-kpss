@@ -185,6 +185,16 @@ function sanitizeCurriculumMap(payload) {
     return out;
 }
 
+function generateQuestionId() {
+    return `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 10)}`;
+}
+
+function normalizeQuestionForClient(question, fallbackId = "") {
+    const safeQuestion = question && typeof question === "object" ? question : {};
+    const id = sanitizeString(safeQuestion.id, 120) || sanitizeString(fallbackId, 120) || generateQuestionId();
+    return { ...safeQuestion, id };
+}
+
 // 🚨 BİLDİRİM (PUSH) GÖNDERME FONKSİYONU 🚨
 async function sendPushNotification(topic, title, body) {
     if (admin.apps.length) {
@@ -240,9 +250,10 @@ io.on("connection", (socket) => {
         }
     });
 
-    socket.on("setUserContext", async ({ idToken, fallbackName }) => {
+    socket.on("setUserContext", async ({ idToken, fallbackName, fallbackRole }) => {
         const safeName = sanitizeString(fallbackName, 120) || "Kullanıcı";
-        socket.data.user = { name: safeName, role: "student", isVerified: false, isAdmin: false, email: "" };
+        const safeFallbackRole = String(fallbackRole || "").trim() === "teacher" ? "teacher" : "student";
+        socket.data.user = { name: safeName, role: safeFallbackRole, isVerified: false, isAdmin: false, email: "" };
 
         if (!idToken || !admin.apps.length) return;
         try {
@@ -433,6 +444,7 @@ io.on("connection", (socket) => {
         }
         const safeQ = {
             ...newQ,
+            id: sanitizeString(newQ.id, 120) || generateQuestionId(),
             soru: safeQuestionText,
             classCode: safeClassCode,
             ders: sanitizeString(newQ.ders || "GENEL", 60).toLocaleUpperCase("tr"),
@@ -458,10 +470,13 @@ io.on("connection", (socket) => {
         if(db && classCode) {
             try {
                 const snap = await db.collection("kpss_sorular").where("classCode", "==", classCode).get();
-                socket.emit("teacherLibraryData", snap.docs.map(doc => doc.data()));
+                socket.emit("teacherLibraryData", snap.docs.map((doc) => normalizeQuestionForClient(doc.data(), doc.id)));
             } catch(e) { socket.emit("teacherLibraryData", []); }
         } else {
-            socket.emit("teacherLibraryData", tumSorular.filter(q => q.classCode === classCode));
+            const list = tumSorular
+                .filter(q => q.classCode === classCode)
+                .map((q, index) => normalizeQuestionForClient(q, `${classCode}-${index}`));
+            socket.emit("teacherLibraryData", list);
         }
     });
 
@@ -469,11 +484,51 @@ io.on("connection", (socket) => {
         if(db && classCode) {
             try {
                 const snap = await db.collection("kpss_sorular").where("classCode", "==", classCode).get();
-                socket.emit("classQuestionsData", snap.docs.map(doc => doc.data()));
+                socket.emit("classQuestionsData", snap.docs.map((doc) => normalizeQuestionForClient(doc.data(), doc.id)));
             } catch(e) { socket.emit("classQuestionsData", []); }
         } else {
-            socket.emit("classQuestionsData", tumSorular.filter(q => q.classCode === classCode));
+            const list = tumSorular
+                .filter(q => q.classCode === classCode)
+                .map((q, index) => normalizeQuestionForClient(q, `${classCode}-${index}`));
+            socket.emit("classQuestionsData", list);
         }
+    });
+
+    socket.on("deleteTeacherQuestion", async ({ classCode, questionId, questionText }) => {
+        if (!ensureTeacher(socket)) return;
+        const safeClassCode = sanitizeString(classCode, 20).toUpperCase();
+        const safeQuestionId = sanitizeString(questionId, 120);
+        const safeQuestionText = sanitizeString(questionText, 10000);
+        const classes = readClasses();
+        const teacherEmail = sanitizeString(currentUser(socket).email, 200);
+        if (!safeClassCode || !classes[safeClassCode] || classes[safeClassCode].teacher !== teacherEmail) {
+            return socket.emit("teacherQuestionDeleted", { success: false, message: "Bu sınıf için silme yetkiniz yok." });
+        }
+
+        const beforeCount = tumSorular.length;
+        tumSorular = tumSorular.filter((q) => {
+            if (String(q?.classCode || "").toUpperCase() !== safeClassCode) return true;
+            if (safeQuestionId && sanitizeString(q?.id, 120) === safeQuestionId) return false;
+            if (!safeQuestionId && safeQuestionText && sanitizeString(q?.soru, 10000) === safeQuestionText) return false;
+            return true;
+        });
+        if (tumSorular.length !== beforeCount) writeJsonFile(QUESTIONS_FILE, tumSorular);
+
+        if (db && safeClassCode) {
+            try {
+                const snap = await db.collection("kpss_sorular").where("classCode", "==", safeClassCode).get();
+                const targetDoc = snap.docs.find((doc) => {
+                    const row = doc.data() || {};
+                    if (safeQuestionId && sanitizeString(row.id, 120) === safeQuestionId) return true;
+                    if (!safeQuestionId && safeQuestionText && sanitizeString(row.soru, 10000) === safeQuestionText) return true;
+                    return false;
+                });
+                if (targetDoc) await targetDoc.ref.delete();
+            } catch (e) {}
+        }
+
+        socket.emit("teacherQuestionDeleted", { success: true });
+        listeleriHerkesinEkranindaGuncelle();
     });
 
     socket.on("addStudentQuestion", async (q) => {

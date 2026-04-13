@@ -132,6 +132,7 @@ const USER_CURRICULUM_STORAGE_KEY = 'gazi_user_curriculum_v1';
 const SOFT_DARK_THEME_STORAGE_KEY = 'gazi_soft_dark_theme_v1';
 const DERSLERIM_TOPIC_FILTER_STORAGE_KEY = 'gazi_derslerim_topic_filter_v1';
 const DERSLERIM_COURSE_SEARCH_STORAGE_KEY = 'gazi_derslerim_course_search_v1';
+const STUDENT_SAVED_MATERIALS_STORAGE_KEY = 'gazi_student_saved_teacher_materials_v1';
 const CUSTOM_EXAM_TYPES_STORAGE_KEY = 'gazi_custom_exam_types_v1';
 const CUSTOM_CURRICULUM_STORAGE_KEY = 'gazi_custom_curriculum_v1';
 const CUSTOM_EXAM_PREFIX = 'custom_';
@@ -452,12 +453,11 @@ window.applySmartAddQuestionFormVisibility = () => {
 function getLibraryModalActiveOnlyEnabled() {
     const toggleEl = document.getElementById('library-modal-active-toggle');
     if (toggleEl) return !!toggleEl.checked;
-    const savedMode = normalizeTopicFilterMode(CLIENT_STORE.getItem(DERSLERIM_TOPIC_FILTER_STORAGE_KEY, 'saved'));
+    const savedMode = normalizeTopicFilterMode(CLIENT_STORE.getItem(DERSLERIM_TOPIC_FILTER_STORAGE_KEY, 'all'));
     return savedMode === 'saved';
 }
 
 function getLibraryModalTopicFilterMode() {
-    if (window.currentLibraryModalMode === 'view') return 'saved';
     return getLibraryModalActiveOnlyEnabled() ? 'saved' : 'all';
 }
 
@@ -672,11 +672,11 @@ window.openLibraryModal = (mode = 'select', options = {}) => {
     window.libraryModalFocusedSubject = requestedFocusedSubject;
     setLibraryModalTitleForMode();
     if (toggleEl) {
-        const savedMode = normalizeTopicFilterMode(CLIENT_STORE.getItem(DERSLERIM_TOPIC_FILTER_STORAGE_KEY, 'saved'));
-        toggleEl.checked = window.currentLibraryModalMode === 'view' ? true : (savedMode === 'saved');
-        toggleEl.disabled = window.currentLibraryModalMode === 'view';
+        const savedMode = normalizeTopicFilterMode(CLIENT_STORE.getItem(DERSLERIM_TOPIC_FILTER_STORAGE_KEY, 'all'));
+        toggleEl.checked = savedMode === 'saved';
+        toggleEl.disabled = false;
     }
-    if (controls) controls.style.display = window.currentLibraryModalMode === 'view' ? 'none' : 'flex';
+    if (controls) controls.style.display = 'flex';
     overlay.classList.toggle('library-modal-overlay-fullscreen', window.currentLibraryModalMode === 'view');
     overlay.style.display = 'flex';
     requestAnimationFrame(() => overlay.classList.add('open'));
@@ -1240,12 +1240,27 @@ window.renderSavedLibraryCoursesPanel = () => {
         return;
     }
     let totalDueCount = 0;
+    const filterMode = getDerslerimTopicFilterMode();
+    const savedTopicIndex = buildSavedTopicIndexForDerslerim();
     wrap.innerHTML = courseNames
-        .map((name) => {
+        .map((name, index) => {
             const dueCount = dueReminderCounts[name] || 0;
             totalDueCount += dueCount;
             const encodedName = encodeURIComponent(name);
-            return `<button type="button" class="saved-library-course-item saved-library-course-btn" data-subject-name="${encodedName}">📘 ${escapeHtml(name)}${dueCount > 0 ? `<span class="saved-library-red-dot" title="Hatırlatma zamanı gelen soru: ${dueCount}">🔴 ${dueCount}</span>` : ''}</button>`;
+            const topics = getAllowedTopicsForMode(
+                getTopicsForDerslerimSubject(name),
+                savedTopicIndex.get(name),
+                filterMode
+            );
+            const topicsHtml = topics.length > 0
+                ? `<div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;">
+                    ${topics.map((topic) => `<button type="button" class="outline" style="width:auto; padding:4px 7px; font-size:0.72rem; border-color:#8eb4ff; color:#dce7ff;" onclick="window.openLibraryTopicFromDerslerimEncoded('${encodeURIComponent(name)}','${encodeURIComponent(topic)}')">${escapeHtml(topic)}</button>`).join('')}
+                   </div>`
+                : `<small style="display:block; margin-top:8px; color:#b7c7e6;">${filterMode === 'saved' ? 'Aktif konu yok. Anahtarı kapatıp tüm konuları görebilirsiniz.' : 'Bu derste konu bulunamadı.'}</small>`;
+            return `<div class="saved-library-course-item" data-subject-name="${encodedName}" style="display:block;">
+                <button type="button" class="saved-library-course-btn" data-subject-name="${encodedName}" style="display:flex; justify-content:space-between; align-items:center;">📘 ${escapeHtml(name)}${dueCount > 0 ? `<span class="saved-library-red-dot" title="Hatırlatma zamanı gelen soru: ${dueCount}">🔴 ${dueCount}</span>` : ''}</button>
+                ${topicsHtml}
+            </div>`;
         })
         .join('');
     wrap.querySelectorAll('.saved-library-course-btn').forEach((btn) => {
@@ -1330,7 +1345,7 @@ function getTopicsForDerslerimSubject(subject) {
 }
 
 function getDerslerimTopicFilterMode() {
-    return normalizeTopicFilterMode(CLIENT_STORE.getItem(DERSLERIM_TOPIC_FILTER_STORAGE_KEY, 'saved'));
+    return normalizeTopicFilterMode(CLIENT_STORE.getItem(DERSLERIM_TOPIC_FILTER_STORAGE_KEY, 'all'));
 }
 
 function buildSavedTopicIndexForDerslerim() {
@@ -2155,6 +2170,7 @@ onAuthStateChanged(auth, user => {
         if (!isTeacher) {
             window.updateLocalListCounts();
             window.renderSavedLibraryCoursesPanel();
+            window.renderStudentSavedTeacherMaterials();
         }
 
     } else { 
@@ -2352,6 +2368,11 @@ if(socket) {
     });
     socket.on("errorMsg", (msg) => {
         const safeMsg = typeof msg === "string" && msg.trim() ? msg : DEFAULT_ERROR_MESSAGE;
+        const role = String(APP_STATE.currentUser?.role || '').trim();
+        if (safeMsg.includes("öğretmen yetkisi gerekir") && (role === "teacher" || role === "admin")) {
+            window.showSoftFeedback(`⚠️ ${safeMsg}`);
+            return;
+        }
         alert(`⚠️ ${safeMsg}`);
     });
     socket.on("userCurriculumData", (payload) => {
@@ -2983,6 +3004,82 @@ window.showInstallInstructions = () => {
     }
 };
 
+function getStudentSavedTeacherMaterials() {
+    const raw = CLIENT_STORE.getJSON(STUDENT_SAVED_MATERIALS_STORAGE_KEY, []);
+    return Array.isArray(raw) ? raw : [];
+}
+
+function setStudentSavedTeacherMaterials(list) {
+    CLIENT_STORE.setJSON(STUDENT_SAVED_MATERIALS_STORAGE_KEY, Array.isArray(list) ? list : []);
+}
+
+window.renderStudentSavedTeacherMaterials = () => {
+    const listEl = document.getElementById('student-saved-materials-list');
+    if (!listEl) return;
+    const list = getStudentSavedTeacherMaterials();
+    if (list.length === 0) {
+        listEl.innerHTML = 'Henüz kayıtlı gönderi yok.';
+        return;
+    }
+    listEl.innerHTML = list
+        .map((item, index) => `
+            <div style="padding:6px; border:1px solid #e8edf3; border-radius:6px; margin-bottom:6px; background:#f9fcff;">
+                <div style="display:flex; justify-content:space-between; gap:6px; align-items:center;">
+                    <strong style="color:#1e3c72; font-size:0.78rem;">${escapeHtml(item.title || `Sınıf ${item.classCode || '-'}`)}</strong>
+                    <small style="color:#6b7280;">${escapeHtml(item.savedAtText || '-')}</small>
+                </div>
+                <small style="display:block; color:#4b5563; margin-top:2px;">${escapeHtml(String(item.questionCount || 0))} soru</small>
+                <div style="display:flex; gap:5px; margin-top:6px;">
+                    <button type="button" class="outline" style="flex:1; font-size:0.72rem; padding:5px;" onclick="window.openSavedTeacherMaterials(${index})">🧠 Çöz</button>
+                    <button type="button" class="outline" style="width:auto; font-size:0.72rem; padding:5px 8px; border-color:#c0392b; color:#c0392b;" onclick="window.deleteSavedTeacherMaterials(${index})">Sil</button>
+                </div>
+            </div>
+        `)
+        .join('');
+};
+
+window.saveLatestTeacherClassMaterials = () => {
+    const latestQuestions = Array.isArray(window.latestFetchedClassQuestions) ? window.latestFetchedClassQuestions : [];
+    const classCode = String(window.latestFetchedClassCode || document.getElementById('class-code-input')?.value || '').trim().toUpperCase();
+    if (!classCode || latestQuestions.length === 0) {
+        return window.showSoftFeedback('Önce öğretmenin sorularını açın.');
+    }
+    const list = getStudentSavedTeacherMaterials();
+    const title = `Sınıf ${classCode}`;
+    const now = new Date();
+    const payload = {
+        classCode,
+        title,
+        questionCount: latestQuestions.length,
+        savedAt: now.getTime(),
+        savedAtText: now.toLocaleString('tr-TR'),
+        questions: latestQuestions
+    };
+    const existingIndex = list.findIndex((item) => String(item?.classCode || '').toUpperCase() === classCode);
+    if (existingIndex >= 0) list[existingIndex] = payload;
+    else list.unshift(payload);
+    setStudentSavedTeacherMaterials(list.slice(0, 25));
+    window.renderStudentSavedTeacherMaterials();
+    window.showSoftFeedback('Öğretmen gönderileri kaydedildi.');
+};
+
+window.openSavedTeacherMaterials = (index) => {
+    const list = getStudentSavedTeacherMaterials();
+    const item = list[Number(index)];
+    if (!item || !Array.isArray(item.questions) || item.questions.length === 0) return;
+    window.tempStdQuestions = item.questions;
+    startLibraryTest();
+};
+
+window.deleteSavedTeacherMaterials = (index) => {
+    const list = getStudentSavedTeacherMaterials();
+    const safeIndex = Number(index);
+    if (!Number.isInteger(safeIndex) || safeIndex < 0 || safeIndex >= list.length) return;
+    list.splice(safeIndex, 1);
+    setStudentSavedTeacherMaterials(list);
+    window.renderStudentSavedTeacherMaterials();
+};
+
 window.fetchClassQuestions = () => { 
     const code = document.getElementById('class-code-input').value.trim().toUpperCase(); 
     if(!code) return alert("Lütfen önce sınıf kodunu girin!"); 
@@ -2993,6 +3090,8 @@ if(socket) {
     socket.on("studentLibraryData", (data) => renderStudentLibraryHTML(data, "☁️ Bulut Hata Defterim"));
     socket.on("classQuestionsData", (data) => { 
         if(data.length === 0) return alert("Bu sınıfa henüz öğretmen tarafından soru eklenmemiş."); 
+        window.latestFetchedClassCode = String(document.getElementById('class-code-input')?.value || '').trim().toUpperCase();
+        window.latestFetchedClassQuestions = data;
         window.tempStdQuestions = data; 
         startLibraryTest(); 
     });
@@ -3054,8 +3153,20 @@ if(socket) {
                 ${q.image ? `<img src="${safeImageSrc(q.image)}" style="width:100%; border-radius:5px; margin-top:10px;">` : ''} 
                 ${q.solutionText || q.solutionImage ? `<div style="background:#e8f4f8; padding:8px; border-radius:5px; margin-top:5px; font-size:0.8rem; color:#1e3c72;"><b>👨‍🏫 Çözüm:</b> ${escapeHtml(q.solutionText || '')} ${q.solutionImage ? '<br><span style="color:#27ae60;">[Görsel Ekli]</span>' : ''}</div>` : ''} 
                 <button onclick="reportQuestionFromLibrary(${i})" class="outline" style="margin-top:10px; font-size:0.75rem; border-color:#c0392b; color:#c0392b;">🚨 Hatalı Bildir</button>
+                <div style="display:flex; gap:6px; margin-top:8px;">
+                    <button onclick="window.reaskTeacherLibraryQuestion(${i})" class="outline" style="flex:1; font-size:0.75rem; border-color:#27ae60; color:#27ae60;">🔁 Tekrar Sor</button>
+                    <button onclick="window.deleteTeacherLibraryQuestion(${i})" class="outline" style="flex:1; font-size:0.75rem; border-color:#c0392b; color:#c0392b;">🗑️ Sil</button>
+                </div>
             </div>`).join(''); 
         showScreen('screen-list'); 
+    });
+    socket.on("teacherQuestionDeleted", ({ success, message }) => {
+        if (success) {
+            window.showSoftFeedback('Soru silindi.');
+            window.fetchMyLibrary();
+            return;
+        }
+        if (message) alert(`⚠️ ${message}`);
     });
 
     socket.on("notebookReviewsCount", (count) => { 
@@ -3090,6 +3201,36 @@ window.refreshTeacherClasses = () => {
         const div = document.getElementById('teacher-classes-list'); 
         if(div.innerHTML === "Yükleniyor...") div.innerHTML = "Sınıf bulunamadı veya bağlantı kurulamadı."; 
     }, 3000);
+};
+
+window.reaskTeacherLibraryQuestion = (index) => {
+    const q = Array.isArray(window.tempStdQuestions) ? window.tempStdQuestions[Number(index)] : null;
+    if (!q || !socket) return;
+    const classCode = String(q.classCode || window.myClassCode || '').trim().toUpperCase();
+    if (!classCode) return alert("Bu soru için sınıf bilgisi bulunamadı.");
+    socket.emit("addNewQuestion", {
+        soru: String(q.soru || ''),
+        ders: String(q.ders || 'GENEL'),
+        deneme: String(q.deneme || ''),
+        dogru: Number.isInteger(q.dogru) ? q.dogru : 0,
+        siklar: Array.isArray(q.siklar) ? q.siklar : [],
+        image: q.image || '',
+        solutionText: q.solutionText || '',
+        solutionImage: q.solutionImage || '',
+        classCode
+    });
+    window.showSoftFeedback('Soru tekrar öğrencilere gönderildi.');
+};
+
+window.deleteTeacherLibraryQuestion = (index) => {
+    const q = Array.isArray(window.tempStdQuestions) ? window.tempStdQuestions[Number(index)] : null;
+    if (!q || !socket) return;
+    if (!confirm("Bu soruyu silmek istediğinize emin misiniz?")) return;
+    socket.emit("deleteTeacherQuestion", {
+        classCode: String(q.classCode || window.myClassCode || '').trim().toUpperCase(),
+        questionId: String(q.id || ''),
+        questionText: String(q.soru || '')
+    });
 };
 
 window.fetchTeacherReports = () => { 
@@ -3163,11 +3304,13 @@ if(socket) {
 function renderTeacherClasses(classes) {
     const listDiv = document.getElementById('teacher-classes-list'); 
     const select = document.getElementById('target-class-select');
+    const instructorClassesDiv = document.getElementById('instructor-my-classes-list');
     
     if(!listDiv || !select) return;
 
     if(classes.length === 0) { 
         listDiv.innerHTML = "Henüz sınıf oluşturulmadı."; 
+        if (instructorClassesDiv) instructorClassesDiv.innerHTML = "Henüz sınıf oluşturulmadı.";
         select.innerHTML = '<option value="">Önce Sınıf Oluşturun</option>'; 
         return; 
     }
@@ -3182,6 +3325,14 @@ function renderTeacherClasses(classes) {
     
     const reportSelect = document.getElementById('report-class-select');
     if(reportSelect) reportSelect.innerHTML = '<option value="">--- Sınıf Seçin ---</option>' + classes.map(c => `<option value="${escapeHtml(c.code)}">${escapeHtml(c.name)}</option>`).join('');
+    if (instructorClassesDiv) {
+        instructorClassesDiv.innerHTML = classes.map((c) => `
+            <div style="padding:6px; margin-bottom:6px; background:rgba(255,255,255,0.08); border-radius:6px;">
+                <strong>${escapeHtml(c.name)}</strong><br>
+                <small>Kod: ${escapeHtml(c.code)}</small>
+            </div>
+        `).join('');
+    }
 }
 
 window.copyToClipboard = (text) => { 
