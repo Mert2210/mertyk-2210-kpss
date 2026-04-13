@@ -2,13 +2,15 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Gazililer Yanlış Soru Kumbaram</title>
-    <link rel="manifest" href="/manifest.json">
+    <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1e3c72">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     
-    <link rel="apple-touch-icon" href="/icon-192.png">
-    <link rel="icon" type="image/png" href="/icon-192.png">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="icon" type="image/png" href="icon-192.png">
     <meta name="apple-mobile-web-app-status-bar-style" content="#1e3c72">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: blob: https:; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://www.gstatic.com https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; worker-src 'self' blob:; connect-src 'self' https://* wss://* ws://*; frame-src 'self' https://accounts.google.com https://*.firebaseapp.com; object-src 'none'; base-uri 'self'; upgrade-insecure-requests">
     
@@ -16,7 +18,7 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <script src="/socket.io/socket.io.js"></script>
+    <script src="socket.io/socket.io.js"></script>
 </head>
 <body>
 
@@ -760,7 +762,7 @@
 </nav>
 <script>
 window.__APP_CONFIG__ = {};
-fetch('/app-config')
+fetch('app-config')
     .then((r) => r.ok ? r.json() : {})
     .then((data) => { window.__APP_CONFIG__ = data || {}; })
     .catch(() => { window.__APP_CONFIG__ = {}; });

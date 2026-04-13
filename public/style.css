@@ -19,6 +19,7 @@ body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, 
 h1, h2, h3, h4 { margin-top: 0; color: #1e3c72; }
 input, select, button, textarea { width: 100%; padding: 12px; margin-bottom: 8px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; font-size: 1rem; font-family: inherit; }
 button { background: #1e3c72; color: white; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; }
+button, .chip, .role-btn, .grade-btn, .nav-item, .auth-switch { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
 button:hover { opacity: 0.9; } button.green { background: #27ae60; } button.orange { background: #e67e22; } button.red { background: #c0392b; } button.outline { background: transparent; border: 2px solid #1e3c72; color: #1e3c72; } button.gold { background: #f1c40f; color:#333; } button.blue { background: #3498db; }
 
 #intro-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #1e3c72; z-index: 99999; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; padding: 20px; box-sizing: border-box; text-align: center; transition: opacity 0.5s; }

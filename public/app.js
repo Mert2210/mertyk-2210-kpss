@@ -6,6 +6,7 @@ import { createSafeClientStore } from "./modules/client-storage.mjs";
 import { SETTINGS_MODES, applySettingsMode, getDefaultSettingsModeByRole } from "./modules/settings-mode.mjs";
 import { normalizeTopicFilterMode, getAllowedTopicsForMode, buildDerslerimTopicNavigation, canStartLibraryTest, evaluateStdAnswer, filterCourseNamesByQuery, getSavedLibraryCourseNames, buildDueReminderCountsBySubject, mergeSavedSubjectsWithDrafts, buildTopicListFromSources } from "./modules/ui-flow.mjs";
 import { resolveCurrentExamType, getCustomCurriculumGroupsByExamType as getCustomCurriculumGroupsByExamTypeFromMap, getCustomCurriculumSubjectsByExamType as getCustomCurriculumSubjectsByExamTypeFromMap, getCustomCurriculumTopicsByExamTypeAndSubject as getCustomCurriculumTopicsByExamTypeAndSubjectFromMap, getCustomTopicsBySubject as getCustomTopicsBySubjectFromMap, addCustomTopicsForSubject as addCustomTopicsForSubjectInMap } from "./modules/custom-data.mjs";
+import { buildRelativeResourceUrl, getShareableAppLink, shouldRegisterServiceWorker } from "./modules/app-shell.mjs";
 
 const fallbackFirebaseConfig = { 
     apiKey: "AIzaSyDkZI-LxCOaog4kyb4YSquEK6ZpLNH2pqs", 
@@ -1659,7 +1660,7 @@ window.closePWAPrompt = (os) => {
 };
 
 window.copyLinkAndAlert = () => {
-    navigator.clipboard.writeText("https://gazililer.com.tr").then(() => {
+    navigator.clipboard.writeText(getShareableAppLink(window.location)).then(() => {
         alert("✅ Link kopyalandı! Şimdi iPhone'unuzdan Safari uygulamasını açıp linki yapıştırın.");
     });
 };
@@ -1697,8 +1698,8 @@ window.installPWA = () => {
     } 
 };
 
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js').then(() => console.log("PWA Aktif."));
+if ('serviceWorker' in navigator && shouldRegisterServiceWorker(window.location.protocol)) {
+    navigator.serviceWorker.register(buildRelativeResourceUrl('sw.js')).then(() => console.log("PWA Aktif."));
 }
 
 const ROLE_STUDENT = 'student';
@@ -3607,7 +3608,7 @@ window.startGame = () => {
     if (currentMode === 'trial' && socket) {
         socket.emit('startTrial', s);
     } else if (currentMode === 'trial') {
-        fetch('/questions.json')
+        fetch(buildRelativeResourceUrl('questions.json'))
             .then(r => r.json())
             .then(allQuestions => {
                 const filterSubject = s.subject !== "HEPSI" && Array.isArray(s.subject) && s.subject.length > 0;
