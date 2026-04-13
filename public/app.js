@@ -531,7 +531,7 @@ window.renderLibraryModalTree = () => {
     if (titleBtn) titleBtn.setAttribute('aria-expanded', 'true');
 };
 
-window.openLibraryModal = (mode = 'select') => {
+window.openLibraryModal = (mode = 'select', options = {}) => {
     const currentUser = APP_STATE.currentUser || {};
     if (currentUser.role !== 'student') return;
     const overlay = document.getElementById('library-modal-overlay');
@@ -539,13 +539,9 @@ window.openLibraryModal = (mode = 'select') => {
     const toggleEl = document.getElementById('library-modal-active-toggle');
     const controls = document.querySelector('.library-modal-controls');
     if (!overlay || !content) return;
-    window.currentLibraryModalMode = mode === 'view' ? 'view' : 'select';
-    if (mode && typeof mode === 'object') {
-        window.currentLibraryModalMode = mode.mode === 'view' ? 'view' : 'select';
-    }
-    const requestedFocusedSubject = typeof mode === 'object'
-        ? String(mode.focusedSubject || '').trim()
-        : '';
+    const normalizedMode = mode === 'view' ? 'view' : 'select';
+    const requestedFocusedSubject = String(options.focusedSubject || '').trim();
+    window.currentLibraryModalMode = normalizedMode;
     window.libraryModalFocusedSubject = requestedFocusedSubject;
     setLibraryModalTitleForMode();
     if (toggleEl) {
@@ -992,17 +988,27 @@ window.renderSavedLibraryCoursesPanel = () => {
             const dueCount = dueReminderCounts[name] || 0;
             totalDueCount += dueCount;
             const encodedName = encodeURIComponent(name);
-            return `<button type="button" class="saved-library-course-item saved-library-course-btn" onclick="window.openSavedLibraryLesson('${encodedName}')">📘 ${escapeHtml(name)}${dueCount > 0 ? `<span class="saved-library-red-dot" title="Hatırlatma zamanı gelen soru: ${dueCount}">🔴 ${dueCount}</span>` : ''}</button>`;
+            return `<button type="button" class="saved-library-course-item saved-library-course-btn" data-subject-name="${encodedName}">📘 ${escapeHtml(name)}${dueCount > 0 ? `<span class="saved-library-red-dot" title="Hatırlatma zamanı gelen soru: ${dueCount}">🔴 ${dueCount}</span>` : ''}</button>`;
         })
         .join('');
+    wrap.querySelectorAll('.saved-library-course-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            window.openSavedLibraryLesson(btn.dataset.subjectName || '');
+        });
+    });
     const navDot = document.getElementById('nav-derslerim-reminder-dot');
     if (navDot) navDot.style.display = totalDueCount > 0 ? 'inline-flex' : 'none';
 };
 
 window.openSavedLibraryLesson = (encodedName) => {
-    const subjectName = decodeURIComponent(String(encodedName || ''));
-    if (!subjectName) return;
-    window.openLibraryModal({ mode: 'view', focusedSubject: subjectName });
+    try {
+        const subjectName = decodeURIComponent(String(encodedName || ''));
+        if (!subjectName) return;
+        window.openLibraryModal('view', { focusedSubject: subjectName });
+    } catch (e) {
+        console.warn('Kayıtlı kütüphane dersi açılamadı:', e);
+        window.showSoftFeedback('Ders bağlantısı çözümlenemedi.');
+    }
 };
 
 window.toggleDerslerimSection = (contentId, arrowId, triggerId = null) => {
