@@ -154,3 +154,20 @@ export function buildDueReminderCountsBySubject(questions = [], now = Date.now()
     });
     return out;
 }
+
+export function normalizeReminderIntervals(intervals = [], fallback = [7 * 24 * 60]) {
+    const safeIntervals = Array.isArray(intervals) ? intervals : [];
+    const normalized = Array.from(new Set(
+        safeIntervals
+            .map((value) => Number(value))
+            .filter((value) => Number.isFinite(value) && value > 0)
+            .map((value) => Math.round(value))
+    )).sort((a, b) => a - b);
+    if (normalized.length > 0) return normalized;
+    const safeFallback = Array.isArray(fallback) ? fallback : [7 * 24 * 60];
+    const normalizedFallback = safeFallback
+        .map((value) => Number(value))
+        .filter((value) => Number.isFinite(value) && value > 0)
+        .map((value) => Math.round(value));
+    return normalizedFallback.length > 0 ? normalizedFallback : [7 * 24 * 60];
+}
