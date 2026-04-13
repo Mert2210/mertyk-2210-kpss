@@ -169,3 +169,16 @@ test('Profil modu görünürlük kuralları: profilde kaydet görünür, dersler
     assert.equal(getDefaultSettingsModeByRole(true), SETTINGS_MODES.PROFILE);
     assert.equal(getDefaultSettingsModeByRole(false), SETTINGS_MODES.DERSLERIM);
 });
+
+test('Hatırlatma aralıkları: geçerli değerler dakika bazında tekilleştirilir ve sıralanır', async () => {
+    const { normalizeReminderIntervals } = await importUiFlow();
+
+    assert.deepStrictEqual(
+        normalizeReminderIntervals([1440, '60', 60, -10, 'x', 10080]),
+        [60, 1440, 10080]
+    );
+    assert.deepStrictEqual(
+        normalizeReminderIntervals([], [30]),
+        [30]
+    );
+});

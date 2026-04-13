@@ -206,6 +206,12 @@ input[type="checkbox"] { width: auto !important; margin: 0 10px 0 0 !important; 
     font-size: 0.72rem;
     font-weight: 700;
 }
+.subject-open-btn {
+    width: auto !important;
+    padding: 5px 9px !important;
+    font-size: 0.72rem !important;
+    margin-bottom: 8px;
+}
 
 .list-item { background: #f9f9f9; border: 1px solid #eee; padding: 10px; margin-bottom: 8px; border-radius: 8px; position: relative; }
 .list-item b { color: #1e3c72; }
@@ -702,6 +708,17 @@ input[type="checkbox"] { width: auto !important; margin: 0 10px 0 0 !important; 
 /* Giriş yapıldığında container alt boşluk */
 body.nav-visible .container {
     margin-bottom: calc(70px + env(safe-area-inset-bottom));
+}
+body.question-fullscreen .container {
+    width: 100%;
+    max-width: 100%;
+    min-height: 100vh;
+    border-radius: 0;
+    margin: 0;
+    padding: 14px;
+}
+body.question-fullscreen #screen-game {
+    padding-bottom: calc(70px + env(safe-area-inset-bottom));
 }
 
 /* Derslerim / Profil mod desteği */
