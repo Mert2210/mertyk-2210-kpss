@@ -65,3 +65,15 @@ export function getSavedLibraryCourseNames(savedSubjects = []) {
         .map((row) => String(row.name || '').trim());
     return Array.from(new Set(selectedCourses));
 }
+
+export function buildDueReminderCountsBySubject(questions = [], now = Date.now()) {
+    const safeQuestions = Array.isArray(questions) ? questions : [];
+    const out = {};
+    safeQuestions.forEach((question) => {
+        const subject = String(question?.ders || '').trim();
+        const nextReviewDate = Number(question?.nextReviewDate);
+        if (!subject || !Number.isFinite(nextReviewDate) || nextReviewDate > now) return;
+        out[subject] = (out[subject] || 0) + 1;
+    });
+    return out;
+}

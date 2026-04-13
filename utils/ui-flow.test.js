@@ -76,6 +76,24 @@ test('Kayıtlı kütüphane dersleri: seçili/tikli dersler tekilleştirilir', a
     assert.deepStrictEqual(getSavedLibraryCourseNames(input), ['Tarih', 'Coğrafya']);
 });
 
+test('Hatırlatma rozetleri: zamanı gelen sorular ders bazında sayılır', async () => {
+    const { buildDueReminderCountsBySubject } = await importUiFlow();
+    const now = 1_700_000_000_000;
+    const questions = [
+        { ders: 'Tarih', nextReviewDate: now - 1000 },
+        { ders: 'Tarih', nextReviewDate: now - 1 },
+        { ders: 'Coğrafya', nextReviewDate: now + 1000 },
+        { ders: 'Coğrafya', nextReviewDate: now - 5000 },
+        { ders: '', nextReviewDate: now - 2000 },
+        { ders: 'Vatandaşlık', nextReviewDate: 'invalid' }
+    ];
+
+    assert.deepStrictEqual(buildDueReminderCountsBySubject(questions, now), {
+        Tarih: 2,
+        Coğrafya: 1
+    });
+});
+
 test('Profil modu görünürlük kuralları: profilde kaydet görünür, derslerimde gizli', async () => {
     const { SETTINGS_MODES, getSettingsVisibility, getDefaultSettingsModeByRole } = await importSettingsMode();
 

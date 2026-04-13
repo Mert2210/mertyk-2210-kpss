@@ -44,6 +44,26 @@
     </div>
 </div>
 
+<div id="first-run-onboarding" class="first-run-onboarding" style="display:none;">
+    <div class="first-run-onboarding-card">
+        <h3 style="margin:0 0 8px 0; color:#1e3c72;">🎯 Ders/Sınav Seçimi</h3>
+        <p style="margin:0 0 12px 0; font-size:0.88rem; color:#4b5563;">Uygulamaya başlamadan önce hedef sınavını ve derslerini seç.</p>
+        <select id="onboarding-exam-type" onchange="window.handleOnboardingExamTypeChange()" style="font-weight:bold; border-color:#3498db; color:#1e3c72; margin-bottom:10px;">
+            <option value="kpss_a">KPSS A Grubu</option>
+            <option value="kpss_lisans">KPSS B Grubu (Lisans)</option>
+            <option value="kpss_onlisans">KPSS B Grubu (Önlisans)</option>
+            <option value="kpss_ortaogretim">KPSS B Grubu (Ortaöğretim)</option>
+            <option value="kpss_egitim">KPSS Eğitim Bilimleri</option>
+            <option value="yks_tyt">TYT</option>
+            <option value="yks_ayt">AYT</option>
+            <option value="ortaokul">LGS</option>
+            <option value="ags">AGS (Akademi Giriş Sınavı)</option>
+        </select>
+        <div id="onboarding-subjects" class="onboarding-subject-list"></div>
+        <button onclick="window.completeFirstRunOnboarding()" class="green" style="margin-top:12px;">🚀 Seçimimi Kaydet ve Başla</button>
+    </div>
+</div>
+
 <div id="ios-chrome-prompt" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(30,60,114,0.95); z-index:99999; flex-direction:column; justify-content:center; align-items:center; color:white; padding:20px; text-align:center;">
     <h2 style="color:#e67e22; margin-bottom:10px;">⚠️ Safari Tarayıcısı Gerekli</h2>
     <p style="font-size:1.1rem; max-width:400px; line-height:1.5;">iPhone'da bildirim alabilmek ve uygulamayı indirebilmek için bu siteyi <b>Safari</b> üzerinden açmalısınız.</p>
@@ -112,14 +132,16 @@
             <div id="reg-student-options" style="background:#f9f9f9; padding:10px; border-radius:8px; margin-top:10px; border:1px solid #ddd;">
                 <label style="font-size:0.75rem; font-weight:bold; color:#1e3c72; display:block; margin-bottom:5px;">Hedef Sınavınız:</label>
                 <select id="reg-exam-type" style="margin-bottom:10px; font-weight:bold; border-color:#3498db;" onchange="updateRegGradeDropdown()">
-                    <option value="kpss_lisans">KPSS Lisans</option>
-                    <option value="kpss_onlisans">KPSS Ön Lisans</option>
-                    <option value="kpss_ortaogretim">Ortaöğretim</option>
+                    <option value="kpss_a">KPSS A Grubu</option>
+                    <option value="kpss_lisans">KPSS B Grubu (Lisans)</option>
+                    <option value="kpss_onlisans">KPSS B Grubu (Önlisans)</option>
+                    <option value="kpss_ortaogretim">KPSS B Grubu (Ortaöğretim)</option>
                     <option value="kpss_egitim">KPSS Eğitim Bilimleri</option>
-                    <option value="yks_tyt">YKS - TYT</option>
-                    <option value="yks_ayt">YKS - AYT</option>
+                    <option value="yks_tyt">TYT</option>
+                    <option value="yks_ayt">AYT</option>
                     <option value="lise_okul">Lise (Okul Dersleri)</option>
-                    <option value="ortaokul">Ortaokul (LGS)</option>
+                    <option value="ortaokul">LGS</option>
+                    <option value="ags">AGS (Akademi Giriş Sınavı)</option>
                 </select>
                 <div id="reg-grade-area" style="display:none;">
                     <label style="font-size:0.75rem; font-weight:bold; color:#c0392b; margin-bottom:5px; display:block;">Sınıfınız:</label>
@@ -130,14 +152,16 @@
             <div id="reg-teacher-options" style="display:none; background:#f9f9f9; padding:10px; border-radius:8px; margin-top:10px; border:1px solid #ddd;">
                 <label style="font-size:0.75rem; font-weight:bold; color:#1e3c72; display:block; margin-bottom:10px;">Ders Verdiğiniz Sınavlar (Çoklu Seçim):</label>
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px; font-size:0.85rem;">
-                    <label class="checkbox-item" style="padding:5px; border:none;"><input type="checkbox" class="t-exam-cb" value="kpss_lisans"> KPSS Lisans</label>
-                    <label class="checkbox-item" style="padding:5px; border:none;"><input type="checkbox" class="t-exam-cb" value="kpss_onlisans"> Ön Lisans</label>
-                    <label class="checkbox-item" style="padding:5px; border:none;"><input type="checkbox" class="t-exam-cb" value="kpss_ortaogretim"> Ortaöğretim</label>
+                    <label class="checkbox-item" style="padding:5px; border:none;"><input type="checkbox" class="t-exam-cb" value="kpss_a"> KPSS A Grubu</label>
+                    <label class="checkbox-item" style="padding:5px; border:none;"><input type="checkbox" class="t-exam-cb" value="kpss_lisans"> B Grubu Lisans</label>
+                    <label class="checkbox-item" style="padding:5px; border:none;"><input type="checkbox" class="t-exam-cb" value="kpss_onlisans"> B Grubu Önlisans</label>
+                    <label class="checkbox-item" style="padding:5px; border:none;"><input type="checkbox" class="t-exam-cb" value="kpss_ortaogretim"> B Grubu Ortaöğretim</label>
                     <label class="checkbox-item" style="padding:5px; border:none;"><input type="checkbox" class="t-exam-cb" value="kpss_egitim"> Eğitim Bil.</label>
-                    <label class="checkbox-item" style="padding:5px; border:none;"><input type="checkbox" class="t-exam-cb" value="yks_tyt"> YKS - TYT</label>
-                    <label class="checkbox-item" style="padding:5px; border:none;"><input type="checkbox" class="t-exam-cb" value="yks_ayt"> YKS - AYT</label>
+                    <label class="checkbox-item" style="padding:5px; border:none;"><input type="checkbox" class="t-exam-cb" value="yks_tyt"> TYT</label>
+                    <label class="checkbox-item" style="padding:5px; border:none;"><input type="checkbox" class="t-exam-cb" value="yks_ayt"> AYT</label>
                     <label class="checkbox-item" style="padding:5px; border:none;"><input type="checkbox" class="t-exam-cb" value="lise_okul"> Lise Okul</label>
                     <label class="checkbox-item" style="padding:5px; border:none;"><input type="checkbox" class="t-exam-cb" value="ortaokul"> LGS</label>
+                    <label class="checkbox-item" style="padding:5px; border:none;"><input type="checkbox" class="t-exam-cb" value="ags"> AGS</label>
                 </div>
             </div>
 
@@ -418,14 +442,16 @@
                     </button>
                     <div id="derslerim-exam-content" class="derslerim-collapse-content">
                         <select id="profile-exam-type" style="margin-bottom:15px; font-weight:bold; border-color:#3498db; color:#1e3c72;" onchange="updateGradeDropdown()">
-                            <option value="kpss_lisans">KPSS Lisans</option>
-                            <option value="kpss_onlisans">KPSS Ön Lisans</option>
-                            <option value="kpss_ortaogretim">Ortaöğretim</option>
+                            <option value="kpss_a">KPSS A Grubu</option>
+                            <option value="kpss_lisans">KPSS B Grubu (Lisans)</option>
+                            <option value="kpss_onlisans">KPSS B Grubu (Önlisans)</option>
+                            <option value="kpss_ortaogretim">KPSS B Grubu (Ortaöğretim)</option>
                             <option value="kpss_egitim">KPSS Eğitim Bilimleri</option>
-                            <option value="yks_tyt">YKS - TYT</option>
-                            <option value="yks_ayt">YKS - AYT</option>
+                            <option value="yks_tyt">TYT</option>
+                            <option value="yks_ayt">AYT</option>
                             <option value="lise_okul">Lise (Okul Dersleri)</option>
-                            <option value="ortaokul">Ortaokul (LGS)</option>
+                            <option value="ortaokul">LGS</option>
+                            <option value="ags">AGS (Akademi Giriş Sınavı)</option>
                         </select>
     
                         <div id="grade-selection-area" style="display:none; margin-bottom:20px; background:#f9f9f9; padding:10px; border-radius:8px; border:1px solid #eee;">
@@ -657,6 +683,7 @@
     <div class="nav-item student-only" id="nav-derslerim" onclick="openDerslerimPanel()">
         <span class="nav-icon">📚</span>
         <span class="nav-label">Derslerim</span>
+        <span id="nav-derslerim-reminder-dot" class="nav-reminder-dot" style="display:none;">!</span>
     </div>
     <div class="nav-item teacher-only" id="nav-ogretmen" style="display:none;" onclick="openTeacherPanel()">
         <span class="nav-icon">👨‍🏫</span>
