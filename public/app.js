@@ -3485,7 +3485,8 @@ window.downloadPDF = () => {
     const keys = { 'wrong': 'kpss_wrongs', 'fav': 'kpss_favs', 'blank': 'kpss_blanks', 'report': 'kpss_reports' }; 
     const list = JSON.parse(localStorage.getItem(keys[currentListType])) || []; 
     if(list.length === 0) return alert("Liste boş!"); 
-    const win = window.open('', '', 'height=600,width=800'); 
+    const win = window.open('', '', 'height=600,width=800');
+    if (!win) { alert("Tarayıcınız açılır pencereyi engelledi. Lütfen açılır pencerelere izin verip tekrar deneyin."); return; }
     win.document.write('<html><body style="font-family:sans-serif;"><h2>Gazililer Yanlış Soru Kumbaram</h2><hr>'); 
     list.forEach((q, i) => win.document.write(`<p><b>Soru ${i+1}:</b> ${escapeHtml(q.soru)}<br><span style="color:green;">Cevap: ${escapeHtml(q.siklar[q.dogru])}</span></p>`)); 
     win.document.write('</body></html>'); 
