@@ -33,6 +33,29 @@ test('Konu seçince listeleme: sadece kayıtlı modunda yalnızca kayıtlı konu
     assert.deepStrictEqual(getAllowedTopicsForMode(topics, saved, 'all'), topics);
 });
 
+test('Kütüphane modal bağlamı: ekleme modunda filtre devre dışıdır, görüntüleme modunda boş aktif filtre tüm konulara düşer', async () => {
+    const { getAllowedTopicsForModalContext } = await importUiFlow();
+    const topics = ['Cümlede Anlam', 'Dil Bilgisi'];
+    const saved = new Set();
+
+    assert.deepStrictEqual(
+        getAllowedTopicsForModalContext(topics, saved, 'saved', 'select'),
+        { topics, effectiveMode: 'all', usedFallback: false }
+    );
+    assert.deepStrictEqual(
+        getAllowedTopicsForModalContext(topics, saved, 'saved', 'view'),
+        { topics, effectiveMode: 'all', usedFallback: true }
+    );
+});
+
+test('Storage hata algısı: retry-limit-exceeded durumları doğru yakalanır', async () => {
+    const { isStorageRetryLimitExceededError } = await importUiFlow();
+
+    assert.equal(isStorageRetryLimitExceededError({ code: 'storage/retry-limit-exceeded' }), true);
+    assert.equal(isStorageRetryLimitExceededError({ message: 'Firebase Storage: Max retry time for operation exceeded, please try again.' }), true);
+    assert.equal(isStorageRetryLimitExceededError({ code: 'storage/unauthorized', message: 'Unauthorized' }), false);
+});
+
 test('Hepsini çöz: soru havuzu boşsa test başlatılamaz, doluysa başlatılır', async () => {
     const { canStartLibraryTest } = await importUiFlow();
 

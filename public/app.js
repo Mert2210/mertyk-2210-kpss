@@ -4,7 +4,7 @@ import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/fireb
 import { getStorage, ref as storageRef, uploadString, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
 import { createSafeClientStore } from "./modules/client-storage.mjs";
 import { SETTINGS_MODES, applySettingsMode, getDefaultSettingsModeByRole } from "./modules/settings-mode.mjs";
-import { normalizeTopicFilterMode, getAllowedTopicsForMode, buildDerslerimTopicNavigation, canStartLibraryTest, evaluateStdAnswer, filterCourseNamesByQuery, getSavedLibraryCourseNames, buildDueReminderCountsBySubject, mergeSavedSubjectsWithDrafts, buildTopicListFromSources } from "./modules/ui-flow.mjs";
+import { normalizeTopicFilterMode, getAllowedTopicsForMode, getAllowedTopicsForModalContext, isStorageRetryLimitExceededError, buildDerslerimTopicNavigation, canStartLibraryTest, evaluateStdAnswer, filterCourseNamesByQuery, getSavedLibraryCourseNames, buildDueReminderCountsBySubject, mergeSavedSubjectsWithDrafts, buildTopicListFromSources } from "./modules/ui-flow.mjs";
 import { resolveCurrentExamType, getCustomCurriculumGroupsByExamType as getCustomCurriculumGroupsByExamTypeFromMap, getCustomCurriculumSubjectsByExamType as getCustomCurriculumSubjectsByExamTypeFromMap, getCustomCurriculumTopicsByExamTypeAndSubject as getCustomCurriculumTopicsByExamTypeAndSubjectFromMap, getCustomTopicsBySubject as getCustomTopicsBySubjectFromMap, addCustomTopicsForSubject as addCustomTopicsForSubjectInMap } from "./modules/custom-data.mjs";
 import { buildRelativeResourceUrl, getShareableAppLink, shouldRegisterServiceWorker } from "./modules/app-shell.mjs";
 
@@ -38,6 +38,8 @@ const APP_STATE = {
 };
 const DEFAULT_ERROR_MESSAGE = "İşlem sırasında bir hata oluştu.";
 const LEGACY_EMPTY_BOOK_TEXT = "kaynak girilmemiş";
+const STORAGE_UPLOAD_TIMEOUT_REASON = "Görsel yükleme zaman aşımına uğradı (bağlantı yavaşlığı veya görsel boyutu nedeniyle).";
+const STORAGE_UPLOAD_CONTINUE_WITHOUT_IMAGE_PROMPT = `⚠️ ${STORAGE_UPLOAD_TIMEOUT_REASON} Soruyu görselsiz kaydetmek ister misiniz?`;
 const CLIENT_STORE = createSafeClientStore(window.localStorage, {
     onError: (error, key, op) => {
         console.warn(`İstemci depolama hatası (${op}:${key}):`, error);
@@ -538,7 +540,8 @@ window.renderLibraryModalTree = () => {
     section.setAttribute('aria-label', 'Kütüphane ders ve konu listesi');
 
     const filterMode = getLibraryModalTopicFilterMode();
-    CLIENT_STORE.setItem(DERSLERIM_TOPIC_FILTER_STORAGE_KEY, filterMode);
+    const isViewMode = window.currentLibraryModalMode === 'view';
+    CLIENT_STORE.setItem(DERSLERIM_TOPIC_FILTER_STORAGE_KEY, isViewMode ? filterMode : 'all');
     const savedTopicIndex = buildSavedTopicIndexForDerslerim();
     const selectedSubjects = getDerslerimSubjectsFromStorage();
     const subjectList = selectedSubjects.length > 0
@@ -555,10 +558,15 @@ window.renderLibraryModalTree = () => {
         section.appendChild(emptyText);
     } else {
         let hasRenderableTopic = false;
+        let usedSavedFilterFallback = false;
+        let effectiveFilterMode = filterMode;
         if (focusedSubject) {
             const allTopics = getTopicsForDerslerimSubject(focusedSubject);
             const savedTopicsForSubject = savedTopicIndex.get(focusedSubject);
-            const allowedTopics = getAllowedTopicsForMode(allTopics, savedTopicsForSubject, filterMode);
+            const topicResult = getAllowedTopicsForModalContext(allTopics, savedTopicsForSubject, filterMode, window.currentLibraryModalMode);
+            const allowedTopics = topicResult.topics;
+            effectiveFilterMode = topicResult.effectiveMode;
+            usedSavedFilterFallback = topicResult.usedFallback;
             const backBtn = document.createElement('button');
             backBtn.type = 'button';
             backBtn.className = 'library-back-btn';
@@ -597,7 +605,10 @@ window.renderLibraryModalTree = () => {
             const slug = slugifySubjectName(subject);
             const allTopics = getTopicsForDerslerimSubject(subject);
             const savedTopicsForSubject = savedTopicIndex.get(subject);
-            const allowedTopics = getAllowedTopicsForMode(allTopics, savedTopicsForSubject, filterMode);
+            const topicResult = getAllowedTopicsForModalContext(allTopics, savedTopicsForSubject, filterMode, window.currentLibraryModalMode);
+            const allowedTopics = topicResult.topics;
+            if (topicResult.usedFallback) usedSavedFilterFallback = true;
+            if (topicResult.effectiveMode === 'all') effectiveFilterMode = 'all';
             if (allowedTopics.length === 0) return;
             hasRenderableTopic = true;
 
@@ -647,10 +658,15 @@ window.renderLibraryModalTree = () => {
         if (!hasRenderableTopic) {
             const emptyText = document.createElement('small');
             emptyText.className = 'derslerim-empty-text';
-            emptyText.textContent = filterMode === 'saved'
+            emptyText.textContent = effectiveFilterMode === 'saved'
                 ? 'Henüz aktif konu bulunamadı. Tüm konuları görmek için “Sadece Aktif Konuları Göster” anahtarını kapatın.'
                 : 'Konu bulunamadı.';
             section.appendChild(emptyText);
+        }
+        if (usedSavedFilterFallback && isViewMode) {
+            CLIENT_STORE.setItem(DERSLERIM_TOPIC_FILTER_STORAGE_KEY, 'all');
+            const toggleEl = document.getElementById('library-modal-active-toggle');
+            if (toggleEl) toggleEl.checked = false;
         }
     }
 
@@ -675,10 +691,15 @@ window.openLibraryModal = (mode = 'select', options = {}) => {
     setLibraryModalTitleForMode();
     if (toggleEl) {
         const savedMode = normalizeTopicFilterMode(CLIENT_STORE.getItem(DERSLERIM_TOPIC_FILTER_STORAGE_KEY, 'all'));
-        toggleEl.checked = savedMode === 'saved';
-        toggleEl.disabled = false;
+        if (normalizedMode === 'view') {
+            toggleEl.checked = savedMode === 'saved';
+        } else {
+            toggleEl.checked = false;
+            CLIENT_STORE.setItem(DERSLERIM_TOPIC_FILTER_STORAGE_KEY, 'all');
+        }
+        toggleEl.disabled = normalizedMode !== 'view';
     }
-    if (controls) controls.style.display = 'flex';
+    if (controls) controls.style.display = normalizedMode === 'view' ? 'flex' : 'none';
     overlay.classList.toggle('library-modal-overlay-fullscreen', window.currentLibraryModalMode === 'view');
     overlay.style.display = 'flex';
     requestAnimationFrame(() => overlay.classList.add('open'));
@@ -2715,8 +2736,15 @@ window.uploadQuestion = async () => {
         ]);
     } catch (err) {
         console.error("Soru/çözüm görselleri Storage'a yüklenemedi:", err);
-        const errDetail = err && err.message ? ` (${err.message})` : '';
-        return alert(`⚠️ Soru veya çözüm görseli yüklenemedi${errDetail}. Lütfen tekrar deneyin.`);
+        if (isStorageRetryLimitExceededError(err)) {
+            const continueWithoutImages = confirm(STORAGE_UPLOAD_CONTINUE_WITHOUT_IMAGE_PROMPT);
+            if (!continueWithoutImages) return;
+            questionImageUrl = null;
+            solutionImageUrl = null;
+        } else {
+            const errDetail = err && err.message ? ` (${err.message})` : '';
+            return alert(`⚠️ Soru veya çözüm görseli yüklenemedi${errDetail}. Lütfen tekrar deneyin.`);
+        }
     }
 
     const q = { 
@@ -2802,6 +2830,7 @@ window.uploadStudentQuestion = async (target = 'cloud') => {
     let questionImageForSave = stdUploadedImageBase64;
     let solutionImageForSave = stdSolutionBase64;
     let sourceImageForSave = stdSourceImageBase64 || null;
+    const hasTextContent = !!qText;
 
     if (target === 'cloud') {
         try {
@@ -2812,8 +2841,18 @@ window.uploadStudentQuestion = async (target = 'cloud') => {
             ]);
         } catch (err) {
             console.error("Öğrenci soru/çözüm/kaynak görselleri Storage'a yüklenemedi:", err);
-            const errDetail = err && err.message ? ` (${err.message})` : '';
-            return alert(`⚠️ Soru, çözüm veya kaynak görseli buluta yüklenemedi${errDetail}. Lütfen tekrar deneyin.`);
+            if (isStorageRetryLimitExceededError(err) && hasTextContent) {
+                const continueWithoutImages = confirm(STORAGE_UPLOAD_CONTINUE_WITHOUT_IMAGE_PROMPT);
+                if (!continueWithoutImages) return;
+                questionImageForSave = null;
+                solutionImageForSave = null;
+                sourceImageForSave = null;
+            } else if (isStorageRetryLimitExceededError(err)) {
+                return alert(`⚠️ ${STORAGE_UPLOAD_TIMEOUT_REASON} Lütfen tekrar deneyin veya Cihaza Kaydet seçeneğini kullanın.`);
+            } else {
+                const errDetail = err && err.message ? ` (${err.message})` : '';
+                return alert(`⚠️ Soru, çözüm veya kaynak görseli buluta yüklenemedi${errDetail}. Lütfen tekrar deneyin.`);
+            }
         }
     }
 
