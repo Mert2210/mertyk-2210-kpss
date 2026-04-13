@@ -38,7 +38,6 @@ export function isStorageRetryLimitExceededError(error) {
     const code = String(error?.code || '').trim().toLowerCase();
     const message = String(error?.message || '').trim().toLowerCase();
     return code === 'storage/retry-limit-exceeded'
-        || message.includes('storage/retry-limit-exceeded')
         || message.includes('max retry time for operation exceeded');
 }
 

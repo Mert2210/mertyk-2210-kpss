@@ -38,6 +38,8 @@ const APP_STATE = {
 };
 const DEFAULT_ERROR_MESSAGE = "İşlem sırasında bir hata oluştu.";
 const LEGACY_EMPTY_BOOK_TEXT = "kaynak girilmemiş";
+const STORAGE_UPLOAD_TIMEOUT_REASON = "Görsel yükleme zaman aşımına uğradı (bağlantı yavaşlığı veya görsel boyutu nedeniyle).";
+const STORAGE_UPLOAD_CONTINUE_WITHOUT_IMAGE_PROMPT = `⚠️ ${STORAGE_UPLOAD_TIMEOUT_REASON} Soruyu görselsiz kaydetmek ister misiniz?`;
 const CLIENT_STORE = createSafeClientStore(window.localStorage, {
     onError: (error, key, op) => {
         console.warn(`İstemci depolama hatası (${op}:${key}):`, error);
@@ -2735,7 +2737,7 @@ window.uploadQuestion = async () => {
     } catch (err) {
         console.error("Soru/çözüm görselleri Storage'a yüklenemedi:", err);
         if (isStorageRetryLimitExceededError(err)) {
-            const continueWithoutImages = confirm("⚠️ Görsel yükleme zaman aşımına uğradı. Soruyu görselsiz kaydetmek ister misiniz?");
+            const continueWithoutImages = confirm(STORAGE_UPLOAD_CONTINUE_WITHOUT_IMAGE_PROMPT);
             if (!continueWithoutImages) return;
             questionImageUrl = null;
             solutionImageUrl = null;
@@ -2828,6 +2830,7 @@ window.uploadStudentQuestion = async (target = 'cloud') => {
     let questionImageForSave = stdUploadedImageBase64;
     let solutionImageForSave = stdSolutionBase64;
     let sourceImageForSave = stdSourceImageBase64 || null;
+    const hasTextContent = !!qText;
 
     if (target === 'cloud') {
         try {
@@ -2838,14 +2841,14 @@ window.uploadStudentQuestion = async (target = 'cloud') => {
             ]);
         } catch (err) {
             console.error("Öğrenci soru/çözüm/kaynak görselleri Storage'a yüklenemedi:", err);
-            if (isStorageRetryLimitExceededError(err) && qText) {
-                const continueWithoutImages = confirm("⚠️ Görsel yükleme zaman aşımına uğradı. Soruyu görselsiz kaydetmek ister misiniz?");
+            if (isStorageRetryLimitExceededError(err) && hasTextContent) {
+                const continueWithoutImages = confirm(STORAGE_UPLOAD_CONTINUE_WITHOUT_IMAGE_PROMPT);
                 if (!continueWithoutImages) return;
                 questionImageForSave = null;
                 solutionImageForSave = null;
                 sourceImageForSave = null;
             } else if (isStorageRetryLimitExceededError(err)) {
-                return alert("⚠️ Görsel yükleme zaman aşımına uğradı. Lütfen tekrar deneyin veya Cihaza Kaydet seçeneğini kullanın.");
+                return alert(`⚠️ ${STORAGE_UPLOAD_TIMEOUT_REASON} Lütfen tekrar deneyin veya Cihaza Kaydet seçeneğini kullanın.`);
             } else {
                 const errDetail = err && err.message ? ` (${err.message})` : '';
                 return alert(`⚠️ Soru, çözüm veya kaynak görseli buluta yüklenemedi${errDetail}. Lütfen tekrar deneyin.`);
