@@ -4,7 +4,7 @@ import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/fireb
 import { getStorage, ref as storageRef, uploadString, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
 import { createSafeClientStore } from "./modules/client-storage.mjs";
 import { SETTINGS_MODES, applySettingsMode, getDefaultSettingsModeByRole } from "./modules/settings-mode.mjs";
-import { normalizeTopicFilterMode, getAllowedTopicsForMode, buildDerslerimTopicNavigation, canStartLibraryTest, evaluateStdAnswer, filterCourseNamesByQuery, buildSemesterSections, getSavedLibraryCourseNames } from "./modules/ui-flow.mjs";
+import { normalizeTopicFilterMode, getAllowedTopicsForMode, buildDerslerimTopicNavigation, canStartLibraryTest, evaluateStdAnswer, filterCourseNamesByQuery, buildSemesterSections, getSavedLibraryCourseNames, mergeVisibleCourseSelections } from "./modules/ui-flow.mjs";
 
 const fallbackFirebaseConfig = { 
     apiKey: "AIzaSyDkZI-LxCOaog4kyb4YSquEK6ZpLNH2pqs", 
@@ -714,8 +714,7 @@ window.renderProfileSubjectsByExam = (savedSubjectsInput = null) => {
         const normalizedName = normalizeText(item?.name);
         if (!normalizedName) return;
         savedMap.set(normalizedName, {
-            topics: String(item?.topics || '').trim(),
-            selected: item?.selected !== false
+            selected: item?.selected !== false || !!item?.checked
         });
     });
     const queryInput = document.getElementById('derslerim-course-search');
@@ -733,17 +732,14 @@ window.renderProfileSubjectsByExam = (savedSubjectsInput = null) => {
             const key = slugifySubjectName(subject);
             const uniqueId = `${sectionIndex}-${subjectIndex}`;
             const checkboxId = `subj-dyn-${key}-${uniqueId}`;
-            const topicId = `topic-dyn-${key}-${uniqueId}`;
             const saved = savedMap.get(normalizeText(subject));
             const checked = saved?.selected ? 'checked' : '';
-            const savedTopic = saved?.topics || '';
             return `
                 <div class="subject-row" data-subject-name="${escapeHtml(subject)}" data-semester="${escapeHtml(section.title)}">
                     <label class="subject-row-main" for="${checkboxId}">
                         <input type="checkbox" id="${checkboxId}" value="${escapeHtml(subject)}" ${checked} onchange="window.handleDerslerimCourseToggle()">
                         <span class="subject-row-name">${escapeHtml(subject)}</span>
                     </label>
-                    <input type="text" id="${topicId}" value="${escapeHtml(savedTopic)}" placeholder="Alt Konu (opsiyonel)">
                 </div>
             `;
         }).join('');
@@ -762,11 +758,9 @@ function getDerslerimSubjectDraftsFromUI() {
     const out = [];
     rows.forEach((row) => {
         const cb = row.querySelector('input[type="checkbox"]');
-        const txt = row.querySelector('input[type="text"]');
         if (!cb) return;
         out.push({
             name: cb.value,
-            topics: (txt ? txt.value : '').trim(),
             selected: !!cb.checked
         });
     });
@@ -774,19 +768,17 @@ function getDerslerimSubjectDraftsFromUI() {
 }
 
 function collectSelectedSubjectsFromUI() {
-    const subjectsData = [];
+    const visibleSelections = [];
     document.querySelectorAll('#profile-subjects-area .subject-row').forEach((row) => {
         const cb = row.querySelector('input[type="checkbox"]');
-        const txt = row.querySelector('input[type="text"]');
-        if (cb && cb.checked) {
-            subjectsData.push({
-                name: cb.value,
-                topics: (txt ? txt.value : '').trim(),
-                selected: true
-            });
-        }
+        if (!cb) return;
+        visibleSelections.push({
+            name: cb.value,
+            selected: !!cb.checked
+        });
     });
-    return subjectsData;
+    const existingSavedSubjects = CLIENT_STORE.getJSON('gazi_subjects_v2', []) || [];
+    return mergeVisibleCourseSelections(existingSavedSubjects, visibleSelections);
 }
 
 function syncSelectedSubjectsToStorage(subjectsData = []) {

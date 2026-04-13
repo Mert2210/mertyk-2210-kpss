@@ -76,6 +76,23 @@ test('Kayıtlı kütüphane dersleri: seçili/tikli dersler tekilleştirilir', a
     assert.deepStrictEqual(getSavedLibraryCourseNames(input), ['Tarih', 'Coğrafya']);
 });
 
+test('Ders seçimi birleştirme: filtreli görünümde eski seçimler korunur, görünürdeki değişiklikler uygulanır', async () => {
+    const { mergeVisibleCourseSelections } = await importUiFlow();
+    const existing = [
+        { name: 'Tarih', selected: true },
+        { name: 'Coğrafya', selected: true }
+    ];
+    const visible = [
+        { name: 'Coğrafya', selected: false },
+        { name: 'Matematik', selected: true }
+    ];
+
+    assert.deepStrictEqual(mergeVisibleCourseSelections(existing, visible), [
+        { name: 'Tarih', selected: true },
+        { name: 'Matematik', selected: true }
+    ]);
+});
+
 test('Profil modu görünürlük kuralları: profilde kaydet görünür, derslerimde gizli', async () => {
     const { SETTINGS_MODES, getSettingsVisibility, getDefaultSettingsModeByRole } = await importSettingsMode();
 

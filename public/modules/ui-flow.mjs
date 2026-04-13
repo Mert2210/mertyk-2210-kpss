@@ -65,3 +65,17 @@ export function getSavedLibraryCourseNames(savedSubjects = []) {
         .map((row) => String(row.name || '').trim());
     return Array.from(new Set(selectedCourses));
 }
+
+export function mergeVisibleCourseSelections(existingSavedSubjects = [], visibleSelections = []) {
+    const selectedNames = new Set(getSavedLibraryCourseNames(existingSavedSubjects));
+    const safeVisibleSelections = Array.isArray(visibleSelections) ? visibleSelections : [];
+
+    safeVisibleSelections.forEach((row) => {
+        const name = String(row?.name || '').trim();
+        if (!name) return;
+        selectedNames.delete(name);
+        if (row?.selected) selectedNames.add(name);
+    });
+
+    return Array.from(selectedNames).map((name) => ({ name, selected: true }));
+}
