@@ -126,24 +126,50 @@ input[type="checkbox"] { width: auto !important; margin: 0 10px 0 0 !important; 
 .checkbox-item { display: flex; align-items: center; justify-content: flex-start; padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; } 
 .checkbox-item label { color: #1e3c72; font-weight: 600; flex: 1; text-align: left; margin:0; cursor: pointer; }
 
-.derslerim-semester-section { margin-bottom: 12px; }
-.derslerim-semester-title { margin: 0 0 8px 0; color: #1e3c72; font-size: 0.88rem; text-transform: uppercase; letter-spacing: 0.03em; }
-.subject-row { background: #f9fbff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 10px; margin-bottom: 8px; }
-.subject-row-main { display: flex; align-items: center; cursor: pointer; margin-bottom: 8px; color: #1e3c72; font-weight: 700; text-align: left; }
+.subject-row { background: linear-gradient(180deg, #ffffff 0%, #f6faff 100%); border: 1px solid #d9e4f5; border-radius: 14px; padding: 11px; margin-bottom: 10px; box-shadow: 0 6px 16px rgba(30, 60, 114, 0.06); }
+.subject-row-main { display: flex; align-items: center; cursor: pointer; margin-bottom: 10px; color: #1e3c72; font-weight: 700; text-align: left; }
 .subject-row-name { line-height: 1.3; }
 .subject-row input[type="text"] { margin: 0; background: #fff; border-color: #d9e2ef; font-size: 0.85rem; }
+.subject-row-topics { display: flex; flex-wrap: wrap; gap: 6px; padding-left: 2px; }
+.subject-topic-chip {
+    display: inline-flex;
+    align-items: center;
+    background: #eaf2ff;
+    color: #1e3c72;
+    border: 1px solid #c9d9f3;
+    border-radius: 999px;
+    padding: 3px 9px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    line-height: 1.2;
+}
+.subject-row-empty-topic { margin: 0; font-size: 0.75rem; color: #73829b; }
 
 .saved-library-panel {
-    background: #0f1b2d;
+    background: linear-gradient(165deg, #10203a 0%, #1d3763 100%);
     color: #e5edff;
-    border: 1px solid #223854;
-    border-radius: 14px;
-    padding: 12px;
-    margin-bottom: 12px;
+    border: 1px solid #294a78;
+    border-radius: 16px;
+    padding: 14px;
+    margin-top: 16px;
+    margin-bottom: 0;
     text-align: left;
+    box-shadow: 0 12px 26px rgba(17, 34, 61, 0.28);
 }
 .saved-library-panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 8px; }
 .saved-library-panel h4 { color: #eaf2ff; }
+.saved-library-panel-description { margin: 0 0 12px 0; color: #c5d7f7; font-size: 0.8rem; line-height: 1.4; }
+.saved-library-link-btn {
+    width: auto;
+    padding: 6px 10px;
+    font-size: 0.78rem;
+    border-radius: 8px;
+    border: 1px solid #8eb4ff;
+    background: rgba(255,255,255,0.08);
+    color: #eef4ff;
+    font-weight: 700;
+    cursor: pointer;
+}
 .saved-library-course-item {
     background: #1b2b44;
     border: 1px solid #2f4668;
@@ -854,12 +880,22 @@ body.full-dark-theme #screen-settings.derslerim-mode .subject-row,
 body.soft-dark-theme #screen-settings.derslerim-mode .subject-row {
     background: #2a3750;
     border-color: #435a7f;
+    box-shadow: none;
 }
 body.full-dark-theme #screen-settings.derslerim-mode .subject-row-main,
-body.full-dark-theme #screen-settings.derslerim-mode .derslerim-semester-title,
 body.soft-dark-theme #screen-settings.derslerim-mode .subject-row-main,
-body.soft-dark-theme #screen-settings.derslerim-mode .derslerim-semester-title {
+body.soft-dark-theme #screen-settings.derslerim-mode .subject-row-name {
     color: #deebff;
+}
+body.full-dark-theme #screen-settings.derslerim-mode .subject-topic-chip,
+body.soft-dark-theme #screen-settings.derslerim-mode .subject-topic-chip {
+    background: #334869;
+    border-color: #506d99;
+    color: #deebff;
+}
+body.full-dark-theme #screen-settings.derslerim-mode .subject-row-empty-topic,
+body.soft-dark-theme #screen-settings.derslerim-mode .subject-row-empty-topic {
+    color: #afc1df;
 }
 body.full-dark-theme #screen-settings.derslerim-mode .subject-row input[type="text"],
 body.soft-dark-theme #screen-settings.derslerim-mode .subject-row input[type="text"] {

@@ -182,14 +182,6 @@
         </div>
 
         <h2 id="display-user" style="color:#e67e22; margin-top:0;">Hoş Geldin!</h2>
-        <section id="saved-library-panel" class="content-card saved-library-panel">
-            <div class="saved-library-panel-header">
-                <h4 style="margin:0;">📚 Kayıtlı Kütüphanem</h4>
-                <button onclick="openDerslerimPanel()" class="outline" style="width:auto; padding:6px 10px; font-size:0.78rem;">Derslerim</button>
-            </div>
-            <div id="saved-library-course-list"></div>
-        </section>
-        
         <div id="notification-center" style="display:flex; gap:10px; margin-bottom:15px;">
             <div id="new-q-alert-box" style="flex:1; display:none; background:#e74c3c; color:white; padding:12px; border-radius:10px; cursor:pointer; box-shadow: 0 4px 10px rgba(231,76,60,0.3);" onclick="startLibraryTest('new')">
                 <b style="font-size:1.1rem;">🔴 Yeni Sorular</b><br><small><span id="new-q-count">0</span> soru çözülmeyi bekliyor.</small>
@@ -471,6 +463,15 @@
                     <small style="display:block; color:#1e3c72; margin-bottom:8px; font-weight:700;">✅ Tiklenen dersler doğrudan Kayıtlı Kütüphanem'e eklenir</small>
                     <p style="margin:0; font-size:0.78rem; color:#4b5563;">Ek bir “kütüphaneden ekle” adımı gerekmez.</p>
                 </div>
+
+                <section id="saved-library-panel" class="content-card saved-library-panel">
+                    <div class="saved-library-panel-header">
+                        <h4 style="margin:0;">📚 Kayıtlı Kütüphanem</h4>
+                        <button onclick="window.openLibraryModal('view')" class="saved-library-link-btn" type="button">Kütüphaneyi Aç</button>
+                    </div>
+                    <p class="saved-library-panel-description">Seçtiğiniz dersler burada görünür. Bir derse dokunarak ilgili kütüphane listesini açabilirsiniz.</p>
+                    <div id="saved-library-course-list"></div>
+                </section>
 
             </div>
 

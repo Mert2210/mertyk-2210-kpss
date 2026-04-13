@@ -90,6 +90,22 @@ test('Kayıtlı kütüphane dersleri: seçili/tikli dersler tekilleştirilir', a
     assert.deepStrictEqual(getSavedLibraryCourseNames(input), ['Tarih', 'Coğrafya']);
 });
 
+test('Ders konu birleştirme: müfredat, kullanıcı ve kayıtlı konu listesi tekilleştirilir', async () => {
+    const { buildTopicListFromSources } = await importUiFlow();
+    const topics = buildTopicListFromSources(
+        ['Osmanlı Devleti', 'Kurtuluş Savaşı'],
+        ['Kurtuluş Savaşı', 'Atatürk İlke ve İnkılapları'],
+        '  Atatürk İlke ve İnkılapları, Çağdaş Türk ve Dünya , '
+    );
+
+    assert.deepStrictEqual(topics, [
+        'Osmanlı Devleti',
+        'Kurtuluş Savaşı',
+        'Atatürk İlke ve İnkılapları',
+        'Çağdaş Türk ve Dünya'
+    ]);
+});
+
 test('Hatırlatma rozetleri: zamanı gelen sorular ders bazında sayılır', async () => {
     const { buildDueReminderCountsBySubject } = await importUiFlow();
     const now = 1_700_000_000_000;
