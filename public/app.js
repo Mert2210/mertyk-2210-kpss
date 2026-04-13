@@ -124,6 +124,7 @@ window.secilenDers = "";
 window.secilenKonu = "";
 
 const DEFAULT_PROFILE_SUBJECTS = ['Tarih', 'Coğrafya', 'Vatandaşlık', 'Matematik', 'Türkçe', 'Eğitim Bilimleri', 'Fizik', 'Kimya', 'Biyoloji', 'Fen Bilimleri'];
+const DEFAULT_EXAM_TYPE = 'kpss_lisans';
 const READY_SOURCES_STORAGE_KEY = 'gazi_ready_sources_v1';
 const ADD_QUESTION_UI_PREFS_STORAGE_KEY = 'gazi_add_question_ui_prefs_v1';
 const USER_CURRICULUM_STORAGE_KEY = 'gazi_user_curriculum_v1';
@@ -822,9 +823,24 @@ function syncSelectedSubjectsToStorage(subjectsData = []) {
     }
     const dersSelect = document.getElementById('std-q-ders');
     if (dersSelect) {
-        dersSelect.innerHTML = subjectsData.length > 0
-            ? subjectsData.map(s => `<option value="${s.name}">${s.name}</option>`).join('')
-            : `<option value="Genel">Genel</option>`;
+        dersSelect.innerHTML = '';
+        const safeSubjects = Array.isArray(subjectsData) ? subjectsData : [];
+        if (safeSubjects.length > 0) {
+            safeSubjects.forEach((subject) => {
+                const safeName = String(subject?.name || '').trim();
+                if (!safeName) return;
+                const option = document.createElement('option');
+                option.value = safeName;
+                option.textContent = safeName;
+                dersSelect.appendChild(option);
+            });
+        }
+        if (dersSelect.options.length === 0) {
+            const option = document.createElement('option');
+            option.value = 'Genel';
+            option.textContent = 'Genel';
+            dersSelect.appendChild(option);
+        }
     }
     window.renderSavedLibraryCoursesPanel();
 }
@@ -834,21 +850,32 @@ function renderFirstRunOnboardingSubjects() {
     const examTypeEl = document.getElementById('onboarding-exam-type');
     if (!container || !examTypeEl) return;
     const subjects = getSubjectsByExamType(examTypeEl.value);
-    container.innerHTML = subjects
-        .map((subject, idx) => `
-            <label class="onboarding-subject-item" for="onboarding-subject-${idx}">
-                <input id="onboarding-subject-${idx}" type="checkbox" value="${escapeHtml(subject)}" checked>
-                <span>${escapeHtml(subject)}</span>
-            </label>
-        `)
-        .join('');
+    container.innerHTML = '';
+    subjects.forEach((subject, idx) => {
+        const safeSubject = String(subject || '').trim();
+        if (!safeSubject) return;
+        const label = document.createElement('label');
+        label.className = 'onboarding-subject-item';
+        label.htmlFor = `onboarding-subject-${idx}`;
+        const checkbox = document.createElement('input');
+        checkbox.id = `onboarding-subject-${idx}`;
+        checkbox.type = 'checkbox';
+        checkbox.value = safeSubject;
+        checkbox.checked = true;
+        const text = document.createElement('span');
+        text.textContent = safeSubject;
+        label.appendChild(checkbox);
+        label.appendChild(text);
+        container.appendChild(label);
+    });
 }
 
 window.openFirstRunOnboarding = () => {
+    if (CLIENT_STORE.getItem('gazi_onboarding_done', '')) return;
     const overlay = document.getElementById('first-run-onboarding');
     const examTypeEl = document.getElementById('onboarding-exam-type');
     if (!overlay || !examTypeEl) return;
-    examTypeEl.value = CLIENT_STORE.getItem('gazi_exam_type', 'kpss_lisans');
+    examTypeEl.value = CLIENT_STORE.getItem('gazi_exam_type', DEFAULT_EXAM_TYPE);
     renderFirstRunOnboardingSubjects();
     overlay.style.display = 'flex';
 };
@@ -867,6 +894,7 @@ window.completeFirstRunOnboarding = () => {
         return;
     }
     CLIENT_STORE.setItem('gazi_exam_type', examTypeEl.value);
+    CLIENT_STORE.setItem('gazi_onboarding_done', 'true');
     syncSelectedSubjectsToStorage(selectedSubjects.map((name) => ({ name, topics: '', selected: true })));
     const overlay = document.getElementById('first-run-onboarding');
     if (overlay) overlay.style.display = 'none';
@@ -1516,7 +1544,7 @@ window.openSettingsPanel = () => {
         document.getElementById('password-update-area').style.display = 'block'; 
     }
     
-    document.getElementById('profile-exam-type').value = CLIENT_STORE.getItem('gazi_exam_type', 'kpss_lisans'); 
+    document.getElementById('profile-exam-type').value = CLIENT_STORE.getItem('gazi_exam_type', DEFAULT_EXAM_TYPE); 
     window.updateGradeDropdown();
     
     const savedGrade = CLIENT_STORE.getItem('gazi_grade', '');

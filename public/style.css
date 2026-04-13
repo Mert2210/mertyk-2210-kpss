@@ -577,6 +577,7 @@ input[type="checkbox"] { width: auto !important; margin: 0 10px 0 0 !important; 
     position: absolute;
     top: 2px;
     right: 10px;
+    display: inline-flex;
     width: 16px;
     height: 16px;
     border-radius: 50%;
