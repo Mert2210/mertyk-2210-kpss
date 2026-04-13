@@ -41,6 +41,34 @@ export function filterCourseNamesByQuery(courseNames = [], query = '') {
     return safeNames.filter((name) => String(name || '').toLocaleLowerCase('tr').includes(normalizedQuery));
 }
 
+export function mergeSavedSubjectsWithDrafts(savedSubjects = [], drafts = []) {
+    const savedList = Array.isArray(savedSubjects) ? savedSubjects : [];
+    const draftList = Array.isArray(drafts) ? drafts : [];
+    const merged = new Map();
+
+    savedList.forEach((row) => {
+        const name = String(row?.name || '').trim();
+        if (!name) return;
+        merged.set(name, {
+            name,
+            topics: String(row?.topics || '').trim(),
+            selected: row?.selected !== false
+        });
+    });
+
+    draftList.forEach((row) => {
+        const name = String(row?.name || '').trim();
+        if (!name) return;
+        merged.set(name, {
+            name,
+            topics: String(row?.topics || '').trim(),
+            selected: !!row?.selected
+        });
+    });
+
+    return Array.from(merged.values());
+}
+
 export function buildSemesterSections(courseNames = []) {
     const safeNames = Array.from(new Set((Array.isArray(courseNames) ? courseNames : [])
         .map((name) => String(name || '').trim())
