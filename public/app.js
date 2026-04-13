@@ -203,7 +203,7 @@ function parseTopicsFromText(text) {
 function getCurrentExamType() {
     return resolveCurrentExamType(
         document.getElementById('profile-exam-type')?.value,
-        CLIENT_STORE.getItem('gazi_exam_type', DEFAULT_EXAM_TYPE),
+        CLIENT_STORE.getItem('gazi_exam_type'),
         DEFAULT_EXAM_TYPE
     );
 }
