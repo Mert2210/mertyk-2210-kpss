@@ -4,7 +4,7 @@ import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/fireb
 import { getStorage, ref as storageRef, uploadString, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
 import { createSafeClientStore } from "./modules/client-storage.mjs";
 import { SETTINGS_MODES, applySettingsMode, getDefaultSettingsModeByRole } from "./modules/settings-mode.mjs";
-import { normalizeTopicFilterMode, getAllowedTopicsForMode, buildDerslerimTopicNavigation, canStartLibraryTest, evaluateStdAnswer, filterCourseNamesByQuery, buildSemesterSections, getSavedLibraryCourseNames, buildDueReminderCountsBySubject } from "./modules/ui-flow.mjs";
+import { normalizeTopicFilterMode, getAllowedTopicsForMode, buildDerslerimTopicNavigation, canStartLibraryTest, evaluateStdAnswer, filterCourseNamesByQuery, buildSemesterSections, getSavedLibraryCourseNames, buildDueReminderCountsBySubject, mergeSavedSubjectsWithDrafts } from "./modules/ui-flow.mjs";
 
 const fallbackFirebaseConfig = { 
     apiKey: "AIzaSyDkZI-LxCOaog4kyb4YSquEK6ZpLNH2pqs", 
@@ -156,6 +156,7 @@ const DERSLERIM_STATE = {
     selectedLibraryPath: { subject: "", topic: "" },
     currentLibraryModalSubject: "",
     currentLibraryModalMode: "select",
+    libraryModalFocusedSubject: "",
     libraryViewingTopicPath: null,
     smartAddTopicPath: null,
     pendingLibraryFilter: null,
@@ -263,6 +264,10 @@ Object.defineProperties(window, {
         get() { return DERSLERIM_STATE.currentLibraryModalMode; },
         set(value) { DERSLERIM_STATE.currentLibraryModalMode = value; }
     },
+    libraryModalFocusedSubject: {
+        get() { return DERSLERIM_STATE.libraryModalFocusedSubject; },
+        set(value) { DERSLERIM_STATE.libraryModalFocusedSubject = String(value || '').trim(); }
+    },
     libraryViewingTopicPath: {
         get() { return DERSLERIM_STATE.libraryViewingTopicPath; },
         set(value) { DERSLERIM_STATE.libraryViewingTopicPath = value; }
@@ -325,6 +330,7 @@ function getLibraryModalActiveOnlyEnabled() {
 }
 
 function getLibraryModalTopicFilterMode() {
+    if (window.currentLibraryModalMode === 'view') return 'saved';
     return getLibraryModalActiveOnlyEnabled() ? 'saved' : 'all';
 }
 
@@ -346,6 +352,11 @@ window.toggleLibraryModalSection = () => {
 };
 
 window.toggleLibraryModalSubject = (subjectSlug) => {
+    if (window.currentLibraryModalMode === 'view') {
+        window.libraryModalFocusedSubject = String(subjectSlug || '').trim();
+        window.renderLibraryModalTree();
+        return;
+    }
     const el = document.getElementById(`library-modal-topics-${subjectSlug}`);
     const arrowEl = document.getElementById(`library-modal-subj-arrow-${subjectSlug}`);
     const btn = document.getElementById(`library-modal-subj-btn-${subjectSlug}`);
@@ -403,7 +414,10 @@ window.renderLibraryModalTree = () => {
     const selectedSubjects = getDerslerimSubjectsFromStorage();
     const subjectList = selectedSubjects.length > 0
         ? selectedSubjects
-        : Object.keys(window.userCurriculum || {});
+        : (window.currentLibraryModalMode === 'view' ? [] : Object.keys(window.userCurriculum || {}));
+    const focusedSubject = window.currentLibraryModalMode === 'view'
+        ? String(window.libraryModalFocusedSubject || '').trim()
+        : '';
 
     if (!subjectList.length) {
         const emptyText = document.createElement('small');
@@ -412,6 +426,44 @@ window.renderLibraryModalTree = () => {
         section.appendChild(emptyText);
     } else {
         let hasRenderableTopic = false;
+        if (focusedSubject) {
+            const allTopics = getTopicsForDerslerimSubject(focusedSubject);
+            const savedTopicsForSubject = savedTopicIndex.get(focusedSubject);
+            const allowedTopics = getAllowedTopicsForMode(allTopics, savedTopicsForSubject, filterMode);
+            const backBtn = document.createElement('button');
+            backBtn.type = 'button';
+            backBtn.className = 'library-back-btn';
+            backBtn.textContent = '⬅️ Derslere Dön';
+            backBtn.addEventListener('click', () => {
+                window.libraryModalFocusedSubject = '';
+                window.renderLibraryModalTree();
+            });
+            section.appendChild(backBtn);
+
+            const subjectTitle = document.createElement('h4');
+            subjectTitle.style.margin = '0 0 8px 0';
+            subjectTitle.style.color = '#1e3c72';
+            subjectTitle.textContent = `📘 ${focusedSubject}`;
+            section.appendChild(subjectTitle);
+
+            if (allowedTopics.length === 0) {
+                const emptyText = document.createElement('small');
+                emptyText.className = 'derslerim-empty-text';
+                emptyText.textContent = 'Bu derste kayıtlı konu bulunamadı.';
+                section.appendChild(emptyText);
+            } else {
+                allowedTopics.forEach((topic) => {
+                    const topicBtn = document.createElement('button');
+                    topicBtn.type = 'button';
+                    topicBtn.className = 'derslerim-topic-btn';
+                    topicBtn.setAttribute('aria-label', `${focusedSubject} - ${topic} konusunu aç`);
+                    topicBtn.textContent = `📄 ${topic}`;
+                    topicBtn.addEventListener('click', () => window.handleLibraryModalTopicSelection(focusedSubject, topic));
+                    section.appendChild(topicBtn);
+                });
+            }
+            hasRenderableTopic = true;
+        } else {
         subjectList.forEach((subject) => {
             const slug = slugifySubjectName(subject);
             const allTopics = getTopicsForDerslerimSubject(subject);
@@ -426,7 +478,11 @@ window.renderLibraryModalTree = () => {
             subjectBtn.id = `library-modal-subj-btn-${slug}`;
             subjectBtn.setAttribute('aria-expanded', 'false');
             subjectBtn.setAttribute('aria-controls', `library-modal-topics-${slug}`);
-            subjectBtn.addEventListener('click', () => window.toggleLibraryModalSubject(slug));
+            if (window.currentLibraryModalMode === 'view') {
+                subjectBtn.addEventListener('click', () => window.toggleLibraryModalSubject(subject));
+            } else {
+                subjectBtn.addEventListener('click', () => window.toggleLibraryModalSubject(slug));
+            }
 
             const leftLabel = document.createElement('span');
             leftLabel.textContent = `📘 ${subject}`;
@@ -435,24 +491,29 @@ window.renderLibraryModalTree = () => {
             arrow.textContent = '▼';
             subjectBtn.append(leftLabel, arrow);
 
-            const topicsWrap = document.createElement('div');
-            topicsWrap.id = `library-modal-topics-${slug}`;
-            topicsWrap.className = 'derslerim-library-topics';
-            topicsWrap.setAttribute('role', 'group');
-            topicsWrap.setAttribute('aria-label', `${subject} konuları`);
+            if (window.currentLibraryModalMode === 'view') {
+                section.append(subjectBtn);
+            } else {
+                const topicsWrap = document.createElement('div');
+                topicsWrap.id = `library-modal-topics-${slug}`;
+                topicsWrap.className = 'derslerim-library-topics';
+                topicsWrap.setAttribute('role', 'group');
+                topicsWrap.setAttribute('aria-label', `${subject} konuları`);
 
-            allowedTopics.forEach((topic) => {
-                const topicBtn = document.createElement('button');
-                topicBtn.type = 'button';
-                topicBtn.className = 'derslerim-topic-btn';
-                topicBtn.setAttribute('aria-label', `${subject} - ${topic} konusunu aç`);
-                topicBtn.textContent = `📄 ${topic}`;
-                topicBtn.addEventListener('click', () => window.handleLibraryModalTopicSelection(subject, topic));
-                topicsWrap.appendChild(topicBtn);
-            });
+                allowedTopics.forEach((topic) => {
+                    const topicBtn = document.createElement('button');
+                    topicBtn.type = 'button';
+                    topicBtn.className = 'derslerim-topic-btn';
+                    topicBtn.setAttribute('aria-label', `${subject} - ${topic} konusunu aç`);
+                    topicBtn.textContent = `📄 ${topic}`;
+                    topicBtn.addEventListener('click', () => window.handleLibraryModalTopicSelection(subject, topic));
+                    topicsWrap.appendChild(topicBtn);
+                });
 
-            section.append(subjectBtn, topicsWrap);
+                section.append(subjectBtn, topicsWrap);
+            }
         });
+        }
 
         if (!hasRenderableTopic) {
             const emptyText = document.createElement('small');
@@ -470,19 +531,26 @@ window.renderLibraryModalTree = () => {
     if (titleBtn) titleBtn.setAttribute('aria-expanded', 'true');
 };
 
-window.openLibraryModal = (mode = 'select') => {
+window.openLibraryModal = (mode = 'select', options = {}) => {
     const currentUser = APP_STATE.currentUser || {};
     if (currentUser.role !== 'student') return;
     const overlay = document.getElementById('library-modal-overlay');
     const content = document.getElementById('library-modal-content');
     const toggleEl = document.getElementById('library-modal-active-toggle');
+    const controls = document.querySelector('.library-modal-controls');
     if (!overlay || !content) return;
-    window.currentLibraryModalMode = mode === 'view' ? 'view' : 'select';
+    const normalizedMode = mode === 'view' ? 'view' : 'select';
+    const requestedFocusedSubject = String(options.focusedSubject || '').trim();
+    window.currentLibraryModalMode = normalizedMode;
+    window.libraryModalFocusedSubject = requestedFocusedSubject;
     setLibraryModalTitleForMode();
     if (toggleEl) {
         const savedMode = normalizeTopicFilterMode(CLIENT_STORE.getItem(DERSLERIM_TOPIC_FILTER_STORAGE_KEY, 'saved'));
-        toggleEl.checked = savedMode === 'saved';
+        toggleEl.checked = window.currentLibraryModalMode === 'view' ? true : (savedMode === 'saved');
+        toggleEl.disabled = window.currentLibraryModalMode === 'view';
     }
+    if (controls) controls.style.display = window.currentLibraryModalMode === 'view' ? 'none' : 'flex';
+    overlay.classList.toggle('library-modal-overlay-fullscreen', window.currentLibraryModalMode === 'view');
     overlay.style.display = 'flex';
     requestAnimationFrame(() => overlay.classList.add('open'));
     window.renderLibraryModalTree();
@@ -498,6 +566,7 @@ window.closeLibraryModal = (event) => {
         }, 300);
     }
     window.currentLibraryModalSubject = "";
+    window.libraryModalFocusedSubject = "";
 };
 
 window.updateStudentPhotoAddButtonLabel = () => {
@@ -652,26 +721,15 @@ window.openSmartAddForCurrentLibraryTopic = () => {
 
 window.renderLibraryTopicAddButton = () => {
     const context = normalizeLibraryPath(window.libraryViewingTopicPath);
-    const listContent = document.getElementById('list-content');
-    if (!listContent || !listContent.parentElement) return;
-    let container = document.getElementById('library-topic-add-cta');
-    if (!container) {
-        container = document.createElement('div');
-        container.id = 'library-topic-add-cta';
-        container.style.marginBottom = '10px';
-        listContent.parentElement.insertBefore(container, listContent);
-    }
+    const btn = document.getElementById('library-topic-add-fab');
+    if (!btn) return;
     if (!context) {
-        container.style.display = 'none';
-        container.innerHTML = '';
+        btn.style.display = 'none';
+        btn.title = '';
         return;
     }
-    container.style.display = 'block';
-    container.innerHTML = `
-        <button type="button" class="green" style="width:100%; margin:0;" onclick="window.openSmartAddForCurrentLibraryTopic()">
-            ➕ Bu Konuya Soru Ekle (${escapeHtml(context.subject)} / ${escapeHtml(context.topic)})
-        </button>
-    `;
+    btn.style.display = 'inline-flex';
+    btn.title = `Bu konuya soru ekle: ${context.subject} / ${context.topic}`;
 };
 
 window.saveStudentQuestionWithPreference = () => {
@@ -759,17 +817,14 @@ window.renderProfileSubjectsByExam = (savedSubjectsInput = null) => {
             const key = slugifySubjectName(subject);
             const uniqueId = `${sectionIndex}-${subjectIndex}`;
             const checkboxId = `subj-dyn-${key}-${uniqueId}`;
-            const topicId = `topic-dyn-${key}-${uniqueId}`;
             const saved = savedMap.get(normalizeText(subject));
             const checked = saved?.selected ? 'checked' : '';
-            const savedTopic = saved?.topics || '';
             return `
                 <div class="subject-row" data-subject-name="${escapeHtml(subject)}" data-semester="${escapeHtml(section.title)}">
                     <label class="subject-row-main" for="${checkboxId}">
                         <input type="checkbox" id="${checkboxId}" value="${escapeHtml(subject)}" ${checked} onchange="window.handleDerslerimCourseToggle()">
                         <span class="subject-row-name">${escapeHtml(subject)}</span>
                     </label>
-                    <input type="text" id="${topicId}" value="${escapeHtml(savedTopic)}" placeholder="Alt Konu (opsiyonel)">
                 </div>
             `;
         }).join('');
@@ -788,11 +843,10 @@ function getDerslerimSubjectDraftsFromUI() {
     const out = [];
     rows.forEach((row) => {
         const cb = row.querySelector('input[type="checkbox"]');
-        const txt = row.querySelector('input[type="text"]');
         if (!cb) return;
         out.push({
             name: cb.value,
-            topics: (txt ? txt.value : '').trim(),
+            topics: '',
             selected: !!cb.checked
         });
     });
@@ -803,11 +857,10 @@ function collectSelectedSubjectsFromUI() {
     const subjectsData = [];
     document.querySelectorAll('#profile-subjects-area .subject-row').forEach((row) => {
         const cb = row.querySelector('input[type="checkbox"]');
-        const txt = row.querySelector('input[type="text"]');
         if (cb && cb.checked) {
             subjectsData.push({
                 name: cb.value,
-                topics: (txt ? txt.value : '').trim(),
+                topics: '',
                 selected: true
             });
         }
@@ -911,7 +964,9 @@ window.handleDerslerimCourseSearch = () => {
     const queryInput = document.getElementById('derslerim-course-search');
     const query = String(queryInput?.value || '');
     CLIENT_STORE.setItem(DERSLERIM_COURSE_SEARCH_STORAGE_KEY, query);
-    window.renderProfileSubjectsByExam(drafts);
+    const saved = CLIENT_STORE.getJSON('gazi_subjects_v2', []);
+    const merged = mergeSavedSubjectsWithDrafts(saved, drafts);
+    window.renderProfileSubjectsByExam(merged);
 };
 
 window.renderSavedLibraryCoursesPanel = () => {
@@ -932,11 +987,28 @@ window.renderSavedLibraryCoursesPanel = () => {
         .map((name) => {
             const dueCount = dueReminderCounts[name] || 0;
             totalDueCount += dueCount;
-            return `<div class="saved-library-course-item">📘 ${escapeHtml(name)}${dueCount > 0 ? `<span class="saved-library-red-dot" title="Hatırlatma zamanı gelen soru: ${dueCount}">🔴 ${dueCount}</span>` : ''}</div>`;
+            const encodedName = encodeURIComponent(name);
+            return `<button type="button" class="saved-library-course-item saved-library-course-btn" data-subject-name="${encodedName}">📘 ${escapeHtml(name)}${dueCount > 0 ? `<span class="saved-library-red-dot" title="Hatırlatma zamanı gelen soru: ${dueCount}">🔴 ${dueCount}</span>` : ''}</button>`;
         })
         .join('');
+    wrap.querySelectorAll('.saved-library-course-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            window.openSavedLibraryLesson(btn.dataset.subjectName || '');
+        });
+    });
     const navDot = document.getElementById('nav-derslerim-reminder-dot');
     if (navDot) navDot.style.display = totalDueCount > 0 ? 'inline-flex' : 'none';
+};
+
+window.openSavedLibraryLesson = (encodedName) => {
+    try {
+        const subjectName = decodeURIComponent(String(encodedName || ''));
+        if (!subjectName) return;
+        window.openLibraryModal('view', { focusedSubject: subjectName });
+    } catch (e) {
+        console.warn('Kayıtlı kütüphane dersi açılamadı:', e);
+        window.showSoftFeedback('Ders bağlantısı çözümlenemedi.');
+    }
 };
 
 window.toggleDerslerimSection = (contentId, arrowId, triggerId = null) => {
