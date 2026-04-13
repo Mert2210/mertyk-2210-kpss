@@ -4,7 +4,8 @@ import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/fireb
 import { getStorage, ref as storageRef, uploadString, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
 import { createSafeClientStore } from "./modules/client-storage.mjs";
 import { SETTINGS_MODES, applySettingsMode, getDefaultSettingsModeByRole } from "./modules/settings-mode.mjs";
-import { normalizeTopicFilterMode, getAllowedTopicsForMode, buildDerslerimTopicNavigation, canStartLibraryTest, evaluateStdAnswer, filterCourseNamesByQuery, buildSemesterSections, getSavedLibraryCourseNames, buildDueReminderCountsBySubject, mergeSavedSubjectsWithDrafts } from "./modules/ui-flow.mjs";
+import { normalizeTopicFilterMode, getAllowedTopicsForMode, buildDerslerimTopicNavigation, canStartLibraryTest, evaluateStdAnswer, filterCourseNamesByQuery, getSavedLibraryCourseNames, buildDueReminderCountsBySubject, mergeSavedSubjectsWithDrafts, buildTopicListFromSources } from "./modules/ui-flow.mjs";
+import { resolveCurrentExamType, getCustomCurriculumGroupsByExamType as getCustomCurriculumGroupsByExamTypeFromMap, getCustomCurriculumSubjectsByExamType as getCustomCurriculumSubjectsByExamTypeFromMap, getCustomCurriculumTopicsByExamTypeAndSubject as getCustomCurriculumTopicsByExamTypeAndSubjectFromMap, getCustomTopicsBySubject as getCustomTopicsBySubjectFromMap, addCustomTopicsForSubject as addCustomTopicsForSubjectInMap } from "./modules/custom-data.mjs";
 
 const fallbackFirebaseConfig = { 
     apiKey: "AIzaSyDkZI-LxCOaog4kyb4YSquEK6ZpLNH2pqs", 
@@ -131,6 +132,10 @@ const USER_CURRICULUM_STORAGE_KEY = 'gazi_user_curriculum_v1';
 const SOFT_DARK_THEME_STORAGE_KEY = 'gazi_soft_dark_theme_v1';
 const DERSLERIM_TOPIC_FILTER_STORAGE_KEY = 'gazi_derslerim_topic_filter_v1';
 const DERSLERIM_COURSE_SEARCH_STORAGE_KEY = 'gazi_derslerim_course_search_v1';
+const CUSTOM_EXAM_TYPES_STORAGE_KEY = 'gazi_custom_exam_types_v1';
+const CUSTOM_CURRICULUM_STORAGE_KEY = 'gazi_custom_curriculum_v1';
+const CUSTOM_EXAM_PREFIX = 'custom_';
+const DEFAULT_CUSTOM_GROUP_NAME = 'Genel';
 const MAX_READY_SOURCES = 30;
 const FLOAT_COMPARISON_EPSILON = 0.001;
 const VALID_STUDENT_PHOTO_SOURCES = ['camera', 'gallery', 'file'];
@@ -180,8 +185,130 @@ function slugifySubjectName(v) {
         .replace(/^-+|-+$/g, '') || 'ders';
 }
 
+function generateCustomExamTypeValue(label) {
+    return `${CUSTOM_EXAM_PREFIX}${slugifySubjectName(label)}`;
+}
+
 function uniqueSubjects(list) {
     return Array.from(new Set((Array.isArray(list) ? list : []).filter(Boolean).map(s => String(s).trim()).filter(Boolean)));
+}
+
+function parseTopicsFromText(text) {
+    return uniqueSubjects(String(text || '')
+        .split(/[\n,;]+/g)
+        .map((topic) => topic.trim())
+        .filter(Boolean));
+}
+
+function getCurrentExamType() {
+    return resolveCurrentExamType(
+        document.getElementById('profile-exam-type')?.value,
+        CLIENT_STORE.getItem('gazi_exam_type'),
+        DEFAULT_EXAM_TYPE
+    );
+}
+
+function getCustomExamTypes() {
+    const raw = CLIENT_STORE.getJSON(CUSTOM_EXAM_TYPES_STORAGE_KEY, []);
+    if (!Array.isArray(raw)) return [];
+    return raw
+        .map((row) => ({
+            value: String(row?.value || '').trim(),
+            label: String(row?.label || '').trim()
+        }))
+        .filter((row) => row.value && row.label);
+}
+
+function saveCustomExamTypes(list = []) {
+    const safeList = Array.isArray(list) ? list : [];
+    CLIENT_STORE.setJSON(CUSTOM_EXAM_TYPES_STORAGE_KEY, safeList.map((row) => ({
+        value: String(row?.value || '').trim(),
+        label: String(row?.label || '').trim()
+    })).filter((row) => row.value && row.label));
+}
+
+function getCustomCurriculumMap() {
+    const raw = CLIENT_STORE.getJSON(CUSTOM_CURRICULUM_STORAGE_KEY, {});
+    return raw && typeof raw === 'object' ? raw : {};
+}
+
+function saveCustomCurriculumMap(nextMap = {}) {
+    CLIENT_STORE.setJSON(CUSTOM_CURRICULUM_STORAGE_KEY, nextMap && typeof nextMap === 'object' ? nextMap : {});
+}
+
+function getCustomCurriculumGroupsByExamType(examType) {
+    return getCustomCurriculumGroupsByExamTypeFromMap(getCustomCurriculumMap(), examType);
+}
+
+function getCustomCurriculumSubjectsByExamType(examType) {
+    return getCustomCurriculumSubjectsByExamTypeFromMap(getCustomCurriculumMap(), examType);
+}
+
+function getCustomCurriculumTopicsByExamTypeAndSubject(examType, subject) {
+    return getCustomCurriculumTopicsByExamTypeAndSubjectFromMap(getCustomCurriculumMap(), examType, subject);
+}
+
+function getCustomTopicMap() {
+    const raw = CLIENT_STORE.getJSON('gazi_custom_topics', {});
+    return raw && typeof raw === 'object' ? raw : {};
+}
+
+function getCustomTopicsBySubject(subject) {
+    return getCustomTopicsBySubjectFromMap(getCustomTopicMap(), subject);
+}
+
+function addCustomTopicsForSubject(subject, topics = []) {
+    const safeSubject = String(subject || '').trim();
+    if (!safeSubject) return;
+    const nextMap = addCustomTopicsForSubjectInMap(getCustomTopicMap(), safeSubject, topics);
+    CLIENT_STORE.setJSON('gazi_custom_topics', nextMap);
+}
+
+function ensureProfileExamTypeOptions(selectedValue = '') {
+    const select = document.getElementById('profile-exam-type');
+    if (!select) return;
+    const existingValues = new Set(Array.from(select.options).map((opt) => String(opt.value || '').trim()));
+    getCustomExamTypes().forEach(({ value, label }) => {
+        if (existingValues.has(value)) return;
+        const opt = document.createElement('option');
+        opt.value = value;
+        opt.textContent = `${label} (Özel)`;
+        select.appendChild(opt);
+        existingValues.add(value);
+    });
+    const safeSelected = String(selectedValue || '').trim();
+    if (safeSelected && !existingValues.has(safeSelected)) {
+        const fallback = getCustomExamTypes().find((row) => row.value === safeSelected);
+        const opt = document.createElement('option');
+        opt.value = safeSelected;
+        opt.textContent = fallback?.label ? `${fallback.label} (Özel)` : `${safeSelected} (Özel)`;
+        select.appendChild(opt);
+    }
+}
+
+function ensureDerslerimAddExamOptions(selectedValue = '') {
+    const select = document.getElementById('derslerim-add-exam-type');
+    if (!select) return;
+    const customOpt = select.querySelector('option[value="__custom__"]');
+    const existingValues = new Set(Array.from(select.options).map((opt) => String(opt.value || '').trim()));
+    getCustomExamTypes().forEach(({ value, label }) => {
+        if (existingValues.has(value) || value === '__custom__') return;
+        const opt = document.createElement('option');
+        opt.value = value;
+        opt.textContent = `${label} (Özel)`;
+        if (customOpt) select.insertBefore(opt, customOpt);
+        else select.appendChild(opt);
+        existingValues.add(value);
+    });
+    const safeSelected = String(selectedValue || '').trim();
+    if (safeSelected && !existingValues.has(safeSelected) && safeSelected !== '__custom__') {
+        const fallback = getCustomExamTypes().find((row) => row.value === safeSelected);
+        const opt = document.createElement('option');
+        opt.value = safeSelected;
+        opt.textContent = fallback?.label ? `${fallback.label} (Özel)` : `${safeSelected} (Özel)`;
+        if (customOpt) select.insertBefore(opt, customOpt);
+        else select.appendChild(opt);
+    }
 }
 
 function getAddQuestionUIPrefs() {
@@ -763,28 +890,52 @@ function saveReadySource(name, image = null) {
     localStorage.setItem(READY_SOURCES_STORAGE_KEY, JSON.stringify(sorted));
 }
 
+const EXAM_TYPE_SUBJECT_MAP = {
+    kpss_a: ['KPSS', ['A Grubu']],
+    kpss_lisans: ['KPSS', ['B Grubu (Lisans)']],
+    kpss_onlisans: ['KPSS', ['B Grubu (Önlisans)']],
+    kpss_ortaogretim: ['KPSS', ['B Grubu (Ortaöğretim)']],
+    kpss_egitim: ['KPSS', ['Eğitim Bilimleri']],
+    yks_tyt: ['YKS', ['TYT']],
+    yks_ayt: ['YKS', ['AYT']],
+    lise_okul: ['YKS', ['TYT', 'AYT']],
+    ortaokul: ['LGS', ['Sayısal', 'Sözel']],
+    ags: ['AGS (Akademi Giriş Sınavı)', ['Genel Yetenek ve Genel Kültür']]
+};
+
 function getSubjectsByExamType(examType) {
-    const mapByType = {
-        kpss_a: ['KPSS', ['A Grubu']],
-        kpss_lisans: ['KPSS', ['B Grubu (Lisans)']],
-        kpss_onlisans: ['KPSS', ['B Grubu (Önlisans)']],
-        kpss_ortaogretim: ['KPSS', ['B Grubu (Ortaöğretim)']],
-        kpss_egitim: ['KPSS', ['Eğitim Bilimleri']],
-        yks_tyt: ['YKS', ['TYT']],
-        yks_ayt: ['YKS', ['AYT']],
-        lise_okul: ['YKS', ['TYT', 'AYT']],
-        ortaokul: ['LGS', ['Sayısal', 'Sözel']],
-        ags: ['AGS (Akademi Giriş Sınavı)', ['Genel Yetenek ve Genel Kültür']]
-    };
-    const conf = mapByType[examType];
-    if (!conf || !window.mufredat[conf[0]]) return DEFAULT_PROFILE_SUBJECTS;
+    const conf = EXAM_TYPE_SUBJECT_MAP[examType];
+    if (!conf || !window.mufredat[conf[0]]) {
+        const fallbackCustomSubjects = getCustomCurriculumSubjectsByExamType(examType);
+        const savedSubjects = getDerslerimSubjectsFromStorage();
+        return uniqueSubjects([...DEFAULT_PROFILE_SUBJECTS, ...fallbackCustomSubjects, ...savedSubjects]);
+    }
     const [examKey, groups] = conf;
     const subjectNames = [];
     groups.forEach(group => {
         const groupData = window.mufredat[examKey][group];
         if (groupData) subjectNames.push(...Object.keys(groupData));
     });
-    return uniqueSubjects(subjectNames.length > 0 ? subjectNames : DEFAULT_PROFILE_SUBJECTS);
+    const customSubjects = getCustomCurriculumSubjectsByExamType(examType);
+    const savedSubjects = getDerslerimSubjectsFromStorage();
+    return uniqueSubjects([...(subjectNames.length > 0 ? subjectNames : DEFAULT_PROFILE_SUBJECTS), ...customSubjects, ...savedSubjects]);
+}
+
+function getCurriculumTopicsByExamTypeAndSubject(examType, subject) {
+    const safeSubject = String(subject || '').trim();
+    if (!safeSubject) return [];
+    const conf = EXAM_TYPE_SUBJECT_MAP[examType];
+    if (!conf || !window.mufredat[conf[0]]) {
+        return getCustomCurriculumTopicsByExamTypeAndSubject(examType, safeSubject);
+    }
+    const [examKey, groups] = conf;
+    const topics = [];
+    groups.forEach((group) => {
+        const subjectTopics = window.mufredat?.[examKey]?.[group]?.[safeSubject];
+        if (Array.isArray(subjectTopics)) topics.push(...subjectTopics);
+    });
+    const customTopics = getCustomCurriculumTopicsByExamTypeAndSubject(examType, safeSubject);
+    return uniqueSubjects([...topics, ...customTopics]);
 }
 
 window.renderProfileSubjectsByExam = (savedSubjectsInput = null) => {
@@ -805,35 +956,33 @@ window.renderProfileSubjectsByExam = (savedSubjectsInput = null) => {
     const queryInput = document.getElementById('derslerim-course-search');
     const query = String(queryInput?.value || '').trim();
     const filteredSubjects = filterCourseNamesByQuery(allSubjects, query);
-    const sections = buildSemesterSections(filteredSubjects);
-
-    if (sections.length === 0) {
+    if (filteredSubjects.length === 0) {
         container.innerHTML = `<p class="derslerim-empty-text">Aramaya uygun ders bulunamadı.</p>`;
         return;
     }
 
-    container.innerHTML = sections.map((section, sectionIndex) => {
-        const rowsHTML = section.courses.map((subject, subjectIndex) => {
+    container.innerHTML = filteredSubjects.map((subject, subjectIndex) => {
             const key = slugifySubjectName(subject);
-            const uniqueId = `${sectionIndex}-${subjectIndex}`;
+            const uniqueId = `${subjectIndex}`;
             const checkboxId = `subj-dyn-${key}-${uniqueId}`;
             const saved = savedMap.get(normalizeText(subject));
             const checked = saved?.selected ? 'checked' : '';
+            const userTopics = Array.isArray(window.userCurriculum?.[subject]) ? window.userCurriculum[subject] : [];
+            const curriculumTopics = getCurriculumTopicsByExamTypeAndSubject(examTypeEl.value, subject);
+            const customTopics = getCustomTopicsBySubject(subject);
+            const topicList = buildTopicListFromSources(curriculumTopics, userTopics, saved?.topics || '', customTopics);
+            const topicsHTML = topicList.length > 0
+                ? `<div class="subject-row-topics">${topicList.map((topic) => `<span class="subject-topic-chip">${escapeHtml(topic)}</span>`).join('')}</div>`
+                : `<p class="subject-row-empty-topic">Konu başlığı bulunamadı.</p>`;
             return `
-                <div class="subject-row" data-subject-name="${escapeHtml(subject)}" data-semester="${escapeHtml(section.title)}">
+                <div class="subject-row" data-subject-name="${escapeHtml(subject)}">
                     <label class="subject-row-main" for="${checkboxId}">
                         <input type="checkbox" id="${checkboxId}" value="${escapeHtml(subject)}" ${checked} onchange="window.handleDerslerimCourseToggle()">
                         <span class="subject-row-name">${escapeHtml(subject)}</span>
                     </label>
+                    ${topicsHTML}
                 </div>
             `;
-        }).join('');
-        return `
-            <section class="derslerim-semester-section">
-                <h5 class="derslerim-semester-title">${escapeHtml(section.title)}</h5>
-                ${rowsHTML}
-            </section>
-        `;
     }).join('');
 };
 
@@ -890,8 +1039,8 @@ function syncSelectedSubjectsToStorage(subjectsData = []) {
         }
         if (dersSelect.options.length === 0) {
             const option = document.createElement('option');
-            option.value = 'Genel';
-            option.textContent = 'Genel';
+            option.value = DEFAULT_CUSTOM_GROUP_NAME;
+            option.textContent = DEFAULT_CUSTOM_GROUP_NAME;
             dersSelect.appendChild(option);
         }
     }
@@ -967,6 +1116,114 @@ window.handleDerslerimCourseSearch = () => {
     const saved = CLIENT_STORE.getJSON('gazi_subjects_v2', []);
     const merged = mergeSavedSubjectsWithDrafts(saved, drafts);
     window.renderProfileSubjectsByExam(merged);
+};
+
+window.openDerslerimAddModal = () => {
+    const modal = document.getElementById('derslerim-add-modal');
+    if (!modal) return;
+    const examTypeSelect = document.getElementById('derslerim-add-exam-type');
+    const currentExamType = getCurrentExamType();
+    ensureDerslerimAddExamOptions(currentExamType);
+    if (examTypeSelect) {
+        examTypeSelect.value = currentExamType;
+    }
+    const customExamInput = document.getElementById('derslerim-add-custom-exam');
+    if (customExamInput) customExamInput.value = '';
+    const groupInput = document.getElementById('derslerim-add-group');
+    if (groupInput) groupInput.value = '';
+    const subjectInput = document.getElementById('derslerim-add-subject');
+    if (subjectInput) subjectInput.value = '';
+    const topicsInput = document.getElementById('derslerim-add-topics');
+    if (topicsInput) topicsInput.value = '';
+    window.toggleDerslerimAddCustomExamInput();
+    modal.style.display = 'flex';
+};
+
+window.closeDerslerimAddModal = () => {
+    const modal = document.getElementById('derslerim-add-modal');
+    if (modal) modal.style.display = 'none';
+};
+
+window.toggleDerslerimAddCustomExamInput = () => {
+    const examTypeSelect = document.getElementById('derslerim-add-exam-type');
+    const customExamWrap = document.getElementById('derslerim-add-custom-exam-wrap');
+    if (!examTypeSelect || !customExamWrap) return;
+    customExamWrap.style.display = examTypeSelect.value === '__custom__' ? 'block' : 'none';
+};
+
+window.saveDerslerimCustomCourse = () => {
+    const examTypeSelect = document.getElementById('derslerim-add-exam-type');
+    const customExamInput = document.getElementById('derslerim-add-custom-exam');
+    const groupInput = document.getElementById('derslerim-add-group');
+    const subjectInput = document.getElementById('derslerim-add-subject');
+    const topicsInput = document.getElementById('derslerim-add-topics');
+    if (!examTypeSelect || !groupInput || !subjectInput || !topicsInput) return;
+
+    let examTypeValue = String(examTypeSelect.value || '').trim();
+    if (!examTypeValue) {
+        alert('Lütfen sınav tipini seçin.');
+        return;
+    }
+    if (examTypeValue === '__custom__') {
+        const customExamLabel = String(customExamInput?.value || '').trim();
+        if (!customExamLabel) {
+            alert('Lütfen özel sınav tipi adını girin.');
+            return;
+        }
+        examTypeValue = generateCustomExamTypeValue(customExamLabel);
+        const customExams = getCustomExamTypes();
+        if (!customExams.some((row) => row.value === examTypeValue)) {
+            customExams.push({ value: examTypeValue, label: customExamLabel });
+            saveCustomExamTypes(customExams);
+        }
+    }
+
+    const groupName = String(groupInput.value || '').trim() || DEFAULT_CUSTOM_GROUP_NAME;
+    const subjectName = String(subjectInput.value || '').trim();
+    if (!subjectName) {
+        alert('Lütfen ders adını girin.');
+        return;
+    }
+    const topics = parseTopicsFromText(topicsInput.value);
+
+    const savedSubjects = CLIENT_STORE.getJSON('gazi_subjects_v2', []) || [];
+    const subjectIdx = savedSubjects.findIndex((item) => normalizeText(item?.name) === normalizeText(subjectName));
+    if (subjectIdx >= 0) {
+        savedSubjects[subjectIdx] = {
+            ...savedSubjects[subjectIdx],
+            name: subjectName,
+            selected: true
+        };
+    } else {
+        savedSubjects.push({ name: subjectName, topics: '', selected: true });
+    }
+    CLIENT_STORE.setJSON('gazi_subjects_v2', savedSubjects);
+
+    if (topics.length > 0) {
+        addCustomTopicsForSubject(subjectName, topics);
+
+        if (!Array.isArray(window.userCurriculum?.[subjectName])) window.userCurriculum[subjectName] = [];
+        window.userCurriculum[subjectName] = uniqueSubjects([...window.userCurriculum[subjectName], ...topics]);
+        persistUserCurriculum();
+        syncUserCurriculumIfGodMode();
+    }
+
+    const customCurriculum = getCustomCurriculumMap();
+    if (!customCurriculum[examTypeValue]) customCurriculum[examTypeValue] = {};
+    if (!customCurriculum[examTypeValue][groupName]) customCurriculum[examTypeValue][groupName] = {};
+    const existingCurriculumTopics = Array.isArray(customCurriculum[examTypeValue][groupName][subjectName]) ? customCurriculum[examTypeValue][groupName][subjectName] : [];
+    customCurriculum[examTypeValue][groupName][subjectName] = uniqueSubjects([...existingCurriculumTopics, ...topics]);
+    saveCustomCurriculumMap(customCurriculum);
+
+    ensureProfileExamTypeOptions(examTypeValue);
+    ensureDerslerimAddExamOptions(examTypeValue);
+    const profileExamType = document.getElementById('profile-exam-type');
+    if (profileExamType) profileExamType.value = examTypeValue;
+    CLIENT_STORE.setItem('gazi_exam_type', examTypeValue);
+    window.updateGradeDropdown();
+    window.renderSavedLibraryCoursesPanel();
+    window.closeDerslerimAddModal();
+    window.showSoftFeedback('Ders/Konu başarıyla eklendi.');
 };
 
 window.renderSavedLibraryCoursesPanel = () => {
@@ -1063,15 +1320,13 @@ function getDerslerimSubjectsFromStorage() {
 function getTopicsForDerslerimSubject(subject) {
     const safeSubject = String(subject || '').trim();
     if (!safeSubject) return [];
-    const fromCurriculum = Array.isArray(window.userCurriculum?.[safeSubject]) ? window.userCurriculum[safeSubject] : [];
-    if (fromCurriculum.length > 0) return uniqueSubjects(fromCurriculum);
+    const fromUserCurriculum = Array.isArray(window.userCurriculum?.[safeSubject]) ? window.userCurriculum[safeSubject] : [];
+    const fromCustomTopics = getCustomTopicsBySubject(safeSubject);
+    const activeExamType = getCurrentExamType();
+    const fromBaseCurriculum = getCurriculumTopicsByExamTypeAndSubject(activeExamType, safeSubject);
     const saved = CLIENT_STORE.getJSON('gazi_subjects_v2', []) || [];
     const row = saved.find(item => String(item?.name || '').trim() === safeSubject);
-    const parsedTopics = String(row?.topics || '')
-        .split(',')
-        .map(t => t.trim())
-        .filter(Boolean);
-    return uniqueSubjects(parsedTopics);
+    return buildTopicListFromSources(fromBaseCurriculum, fromUserCurriculum, row?.topics || '', fromCustomTopics);
 }
 
 function getDerslerimTopicFilterMode() {
@@ -1616,7 +1871,9 @@ window.openSettingsPanel = () => {
         document.getElementById('password-update-area').style.display = 'block'; 
     }
     
-    document.getElementById('profile-exam-type').value = CLIENT_STORE.getItem('gazi_exam_type', DEFAULT_EXAM_TYPE); 
+    const savedExamType = CLIENT_STORE.getItem('gazi_exam_type', DEFAULT_EXAM_TYPE);
+    ensureProfileExamTypeOptions(savedExamType);
+    document.getElementById('profile-exam-type').value = savedExamType; 
     window.updateGradeDropdown();
     
     const savedGrade = CLIENT_STORE.getItem('gazi_grade', '');
@@ -1880,7 +2137,7 @@ onAuthStateChanged(auth, user => {
         if(dersSelect) { 
             dersSelect.innerHTML = savedSubjects.length > 0 
                 ? savedSubjects.map(s => `<option value="${s.name}">${s.name}</option>`).join('') 
-                : `<option value="Genel">Genel</option>`; 
+                : `<option value="${DEFAULT_CUSTOM_GROUP_NAME}">${DEFAULT_CUSTOM_GROUP_NAME}</option>`; 
         }
 
         const onboardingDone = CLIENT_STORE.getItem('gazi_onboarding_done', '');
@@ -2332,12 +2589,7 @@ window.uploadStudentQuestion = async (target = 'cloud') => {
     if(!stdUploadedImageBase64 && !qText) return alert("Lütfen bir fotoğraf yükleyin veya kendinize bir not yazın!");
 
     if(customKonu && !smartTopicContext && finalDers !== "Genel Ders") {
-        let customTopics = CLIENT_STORE.getJSON('gazi_custom_topics', {}) || {};
-        if(!customTopics[finalDers]) customTopics[finalDers] = [];
-        if(!customTopics[finalDers].includes(customKonu)) {
-            customTopics[finalDers].push(customKonu);
-            CLIENT_STORE.setJSON('gazi_custom_topics', customTopics);
-        }
+        addCustomTopicsForSubject(finalDers, [customKonu]);
     }
 
     CLIENT_STORE.setJSON('gazi_sticky_memory', {
