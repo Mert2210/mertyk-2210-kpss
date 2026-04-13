@@ -133,6 +133,8 @@ const DERSLERIM_TOPIC_FILTER_STORAGE_KEY = 'gazi_derslerim_topic_filter_v1';
 const DERSLERIM_COURSE_SEARCH_STORAGE_KEY = 'gazi_derslerim_course_search_v1';
 const CUSTOM_EXAM_TYPES_STORAGE_KEY = 'gazi_custom_exam_types_v1';
 const CUSTOM_CURRICULUM_STORAGE_KEY = 'gazi_custom_curriculum_v1';
+const CUSTOM_EXAM_PREFIX = 'custom_';
+const DEFAULT_CUSTOM_GROUP_NAME = 'Genel';
 const MAX_READY_SOURCES = 30;
 const FLOAT_COMPARISON_EPSILON = 0.001;
 const VALID_STUDENT_PHOTO_SOURCES = ['camera', 'gallery', 'file'];
@@ -180,6 +182,10 @@ function slugifySubjectName(v) {
         .replace(/[\u0300-\u036f]/g, '')
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/^-+|-+$/g, '') || 'ders';
+}
+
+function generateCustomExamTypeValue(label) {
+    return `${CUSTOM_EXAM_PREFIX}${slugifySubjectName(label)}`;
 }
 
 function uniqueSubjects(list) {
@@ -1139,7 +1145,7 @@ window.saveDerslerimCustomCourse = () => {
             alert('Lütfen özel sınav tipi adını girin.');
             return;
         }
-        examTypeValue = `custom_${slugifySubjectName(customExamLabel)}`;
+        examTypeValue = generateCustomExamTypeValue(customExamLabel);
         const customExams = getCustomExamTypes();
         if (!customExams.some((row) => row.value === examTypeValue)) {
             customExams.push({ value: examTypeValue, label: customExamLabel });
@@ -1147,7 +1153,7 @@ window.saveDerslerimCustomCourse = () => {
         }
     }
 
-    const groupName = String(groupInput.value || '').trim() || 'Genel';
+    const groupName = String(groupInput.value || '').trim() || DEFAULT_CUSTOM_GROUP_NAME;
     const subjectName = String(subjectInput.value || '').trim();
     if (!subjectName) {
         alert('Lütfen ders adını girin.');
@@ -1175,7 +1181,7 @@ window.saveDerslerimCustomCourse = () => {
         CLIENT_STORE.setJSON('gazi_custom_topics', customTopicMap);
 
         if (!Array.isArray(window.userCurriculum?.[subjectName])) window.userCurriculum[subjectName] = [];
-        window.userCurriculum[subjectName] = uniqueSubjects([...(window.userCurriculum[subjectName] || []), ...topics]);
+        window.userCurriculum[subjectName] = uniqueSubjects([...window.userCurriculum[subjectName], ...topics]);
         persistUserCurriculum();
         syncUserCurriculumIfGodMode();
     }
