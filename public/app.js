@@ -708,14 +708,14 @@ window.renderProfileSubjectsByExam = (savedSubjectsInput = null) => {
     const examTypeEl = document.getElementById('profile-exam-type');
     if (!container || !examTypeEl) return;
     const allSubjects = getSubjectsByExamType(examTypeEl.value);
-    const savedSubjects = Array.isArray(savedSubjectsInput) ? savedSubjectsInput : (CLIENT_STORE.getJSON('gazi_subjects_v2', []) || []);
+    const savedSubjects = Array.isArray(savedSubjectsInput) ? savedSubjectsInput : CLIENT_STORE.getJSON('gazi_subjects_v2', []);
     const savedMap = new Map();
     savedSubjects.forEach((item) => {
         const normalizedName = normalizeText(item?.name);
         if (!normalizedName) return;
         savedMap.set(normalizedName, {
             topics: String(item?.topics || '').trim(),
-            selected: item?.selected === false ? false : true
+            selected: item?.selected !== false
         });
     });
     const queryInput = document.getElementById('derslerim-course-search');
@@ -767,8 +767,7 @@ function getDerslerimSubjectDraftsFromUI() {
         out.push({
             name: cb.value,
             topics: (txt ? txt.value : '').trim(),
-            selected: !!cb.checked,
-            checked: !!cb.checked
+            selected: !!cb.checked
         });
     });
     return out;
@@ -783,8 +782,7 @@ function collectSelectedSubjectsFromUI() {
             subjectsData.push({
                 name: cb.value,
                 topics: (txt ? txt.value : '').trim(),
-                selected: true,
-                checked: true
+                selected: true
             });
         }
     });
@@ -812,7 +810,8 @@ window.handleDerslerimCourseToggle = () => {
 
 window.handleDerslerimCourseSearch = () => {
     const drafts = getDerslerimSubjectDraftsFromUI();
-    const query = String(document.getElementById('derslerim-course-search')?.value || '');
+    const queryInput = document.getElementById('derslerim-course-search');
+    const query = String(queryInput?.value || '');
     CLIENT_STORE.setItem(DERSLERIM_COURSE_SEARCH_STORAGE_KEY, query);
     window.renderProfileSubjectsByExam(drafts);
 };
@@ -820,7 +819,7 @@ window.handleDerslerimCourseSearch = () => {
 window.renderSavedLibraryCoursesPanel = () => {
     const wrap = document.getElementById('saved-library-course-list');
     if (!wrap) return;
-    const savedSubjects = CLIENT_STORE.getJSON('gazi_subjects_v2', []) || [];
+    const savedSubjects = CLIENT_STORE.getJSON('gazi_subjects_v2', []);
     const courseNames = getSavedLibraryCourseNames(savedSubjects);
     if (courseNames.length === 0) {
         wrap.innerHTML = `<p class="saved-library-empty">Henüz ders seçmediniz. Derslerim ekranında tiklenen dersler burada görünür.</p>`;

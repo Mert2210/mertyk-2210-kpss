@@ -60,10 +60,8 @@ export function getSavedLibraryCourseNames(savedSubjects = []) {
     const selectedCourses = safeList
         .filter((row) => {
             const hasName = String(row?.name || '').trim() !== '';
-            return hasName && (row?.selected === true || row?.checked === true || row?.favorite === true);
+            return hasName && (row?.selected || row?.checked);
         })
         .map((row) => String(row.name || '').trim());
     return Array.from(new Set(selectedCourses));
 }
-
-export const getFavoriteCourseNames = getSavedLibraryCourseNames;
