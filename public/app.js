@@ -1810,24 +1810,80 @@ window.showSoftFeedback = (message) => {
 window.toggleDropdown = (id) => document.getElementById(id).classList.toggle('show');
 window.myClassCode = localStorage.getItem("gazi_class_code") || "";
 const NOTIFICATION_SUBSCRIPTION_CLASS_KEY = "gazi_notification_class_code";
+const NOTIFICATION_ENABLED_KEY = "gazi_notifications_enabled";
+const NOTIFICATION_PROMPT_SEEN_KEY = "gazi_notification_prompt_seen";
+const NOTIFICATION_TOKEN_KEY = "gazi_notification_token";
 let selectedRole = 'student';
 
-async function subscribeToClassPushNotifications(classCodeRaw) {
+function areNotificationsEnabled() {
+    return CLIENT_STORE.getItem(NOTIFICATION_ENABLED_KEY, '1') !== '0';
+}
+
+function setNotificationsEnabled(enabled) {
+    CLIENT_STORE.setItem(NOTIFICATION_ENABLED_KEY, enabled ? '1' : '0');
+}
+
+function getPreferredNotificationClassCode() {
+    return String(window.myClassCode || localStorage.getItem("gazi_class_code") || "").trim().toUpperCase();
+}
+
+function updateNotificationToggleUI() {
+    const toggle = document.getElementById('profile-notification-toggle');
+    const status = document.getElementById('profile-notification-status');
+    const enabled = areNotificationsEnabled();
+    if (toggle) toggle.checked = enabled;
+    if (!status) return;
+    if (!enabled) {
+        status.textContent = "Bildirimler kapalı.";
+        return;
+    }
+    if (typeof Notification === "undefined") {
+        status.textContent = "Bu cihazda bildirim desteği yok.";
+        return;
+    }
+    if (Notification.permission === "granted") {
+        status.textContent = "Bildirimler açık.";
+        return;
+    }
+    if (Notification.permission === "denied") {
+        status.textContent = "Tarayıcı bildirimi engelliyor. Tarayıcı ayarından açabilirsiniz.";
+        return;
+    }
+    status.textContent = "Bildirim izni bekleniyor.";
+}
+
+async function getCurrentFcmToken() {
+    if (typeof Notification === "undefined" || !("serviceWorker" in navigator)) return "";
+    if (!firebaseVapidKey) return "";
+    const serviceWorkerRegistration = await navigator.serviceWorker.ready;
+    const token = await getToken(messaging, {
+        vapidKey: firebaseVapidKey,
+        serviceWorkerRegistration
+    });
+    if (token) localStorage.setItem(NOTIFICATION_TOKEN_KEY, token);
+    return String(token || "");
+}
+
+async function clearClassPushSubscription(classCodeRaw) {
+    const classCode = String(classCodeRaw || "").trim().toUpperCase();
+    if (!classCode || !socket) return;
+    const token = String(localStorage.getItem(NOTIFICATION_TOKEN_KEY) || "").trim();
+    if (!token) return;
+    socket.emit("clearClassNotificationToken", { token, classCode });
+}
+
+async function subscribeToClassPushNotifications(classCodeRaw, { forcePrompt = false } = {}) {
     const classCode = String(classCodeRaw || "").trim().toUpperCase();
     if (!classCode || !socket) return;
     if (typeof Notification === "undefined" || !("serviceWorker" in navigator)) return;
-    if (!firebaseVapidKey) return;
+    if (!firebaseVapidKey || !areNotificationsEnabled()) return;
     try {
         let permission = Notification.permission;
-        if (permission === "default") {
+        if (permission === "default" && forcePrompt) {
             permission = await Notification.requestPermission();
         }
         if (permission !== "granted") return;
-        const serviceWorkerRegistration = await navigator.serviceWorker.ready;
-        const token = await getToken(messaging, {
-            vapidKey: firebaseVapidKey,
-            serviceWorkerRegistration
-        });
+        const token = await getCurrentFcmToken();
         if (!token) return;
         const previousClassCode = localStorage.getItem(NOTIFICATION_SUBSCRIPTION_CLASS_KEY) || "";
         socket.emit("setClassNotificationToken", {
@@ -1838,8 +1894,40 @@ async function subscribeToClassPushNotifications(classCodeRaw) {
         localStorage.setItem(NOTIFICATION_SUBSCRIPTION_CLASS_KEY, classCode);
     } catch (error) {
         console.warn("Bildirim aboneliği kurulamadı:", error);
+    } finally {
+        updateNotificationToggleUI();
     }
 }
+
+async function promptNotificationsOnFirstLaunch() {
+    if (CLIENT_STORE.getItem(NOTIFICATION_PROMPT_SEEN_KEY, '')) return;
+    CLIENT_STORE.setItem(NOTIFICATION_PROMPT_SEEN_KEY, '1');
+    if (!areNotificationsEnabled()) return;
+    if (typeof Notification === "undefined") return;
+    try {
+        if (Notification.permission === "default") await Notification.requestPermission();
+        if (Notification.permission === "granted") {
+            await subscribeToClassPushNotifications(getPreferredNotificationClassCode(), { forcePrompt: false });
+        }
+    } catch (error) {
+        console.warn("İlk açılış bildirim izni alınamadı:", error);
+    } finally {
+        updateNotificationToggleUI();
+    }
+}
+
+window.handleNotificationToggleChange = async () => {
+    const toggle = document.getElementById('profile-notification-toggle');
+    const isEnabled = !!toggle?.checked;
+    setNotificationsEnabled(isEnabled);
+    if (isEnabled) {
+        await subscribeToClassPushNotifications(getPreferredNotificationClassCode(), { forcePrompt: true });
+    } else {
+        await clearClassPushSubscription(localStorage.getItem(NOTIFICATION_SUBSCRIPTION_CLASS_KEY) || getPreferredNotificationClassCode());
+        localStorage.removeItem(NOTIFICATION_SUBSCRIPTION_CLASS_KEY);
+    }
+    updateNotificationToggleUI();
+};
 
 window.setMainRole = (role) => {
     selectedRole = role;
@@ -1950,6 +2038,7 @@ window.openSettingsPanel = () => {
     }
     window.renderProfileSubjectsByExam(savedSubjects);
     window.restoreDerslerimTheme();
+    updateNotificationToggleUI();
     showScreen('screen-settings');
 };
 
@@ -2208,6 +2297,10 @@ onAuthStateChanged(auth, user => {
             }
         } else { 
             window.showScreen('screen-main'); 
+        }
+
+        if (!isTeacher) {
+            promptNotificationsOnFirstLaunch();
         }
 
         if (!isTeacher) {
@@ -3420,7 +3513,7 @@ if(socket) socket.on("classJoined", (res) => {
         window.myClassCode = res.code; 
         localStorage.setItem("gazi_class_code", res.code); 
         socket.emit("getFilters", window.myClassCode); 
-        subscribeToClassPushNotifications(res.code);
+        subscribeToClassPushNotifications(res.code, { forcePrompt: true });
         alert("✅ Sınıfa katıldın!"); 
         document.getElementById('btn-class-questions').style.display = 'block'; 
     } else {

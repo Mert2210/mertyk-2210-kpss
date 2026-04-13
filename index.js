@@ -423,6 +423,20 @@ io.on("connection", (socket) => {
         }
     });
 
+    socket.on("clearClassNotificationToken", async ({ token, classCode }) => {
+        if (!admin.apps.length) return;
+        const safeToken = sanitizeString(token, 4096);
+        const safeClassCode = sanitizeString(classCode, 20).toUpperCase();
+        if (!isLikelyFcmToken(safeToken) || !isValidTopicName(safeClassCode)) return;
+        try {
+            await admin.messaging().unsubscribeFromTopic([safeToken], safeClassCode);
+            socket.emit("notificationSubscriptionCleared", { success: true, classCode: safeClassCode });
+        } catch (error) {
+            console.error("⚠️ Bildirim abonelik kaldırma hatası:", error);
+            socket.emit("errorMsg", "Bildirim aboneliği kapatılamadı.");
+        }
+    });
+
     socket.on("saveStudentResult", async (data) => {
         if(db) { try { await db.collection("kpss_results").add({ ...data, date: new Date().toLocaleString('tr-TR'), serverTime: admin.firestore.FieldValue.serverTimestamp() }); } catch(e){} }
     });
