@@ -245,6 +245,49 @@ input[type="checkbox"] { width: auto !important; margin: 0 10px 0 0 !important; 
 
 .opt-btn { background: #fff; color: #333; border: 2px solid #ddd; margin-bottom: 8px; text-align: left; }
 .opt-btn.selected { background: #e67e22 !important; color: #fff !important; border-color: #e67e22; }
+.opt-btn.correct { background: #27ae60 !important; color: #fff !important; border-color: #27ae60 !important; }
+.opt-btn.wrong { background: #c0392b !important; color: #fff !important; border-color: #c0392b !important; }
+
+#screen-game.trial-list-mode {
+    text-align: left;
+}
+#screen-game.trial-list-mode #opts-area {
+    margin-top: 0;
+    display: grid;
+    gap: 12px;
+}
+.trial-list-card {
+    background: #fff;
+    border: 1px solid #e6ebf3;
+    border-radius: 10px;
+    padding: 10px;
+}
+.trial-list-title {
+    margin: 0 0 8px 0;
+    color: #1e3c72;
+    font-size: 0.95rem;
+    line-height: 1.45;
+}
+.trial-list-options {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 6px;
+}
+.trial-list-image {
+    width: 100%;
+    border-radius: 8px;
+    margin-top: 8px;
+}
+.trial-list-solution {
+    margin-top: 10px;
+    padding: 10px;
+    background: #e8f4f8;
+    border-radius: 8px;
+    border: 1px solid #3498db;
+    text-align: left;
+    color: #1e3c72;
+    font-size: 0.88rem;
+}
 
 .gpu-transition {
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;

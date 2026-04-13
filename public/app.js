@@ -139,6 +139,8 @@ const DERSLERIM_COURSE_SEARCH_STORAGE_KEY = 'gazi_derslerim_course_search_v1';
 const STUDENT_SAVED_MATERIALS_STORAGE_KEY = 'gazi_student_saved_teacher_materials_v1';
 const CUSTOM_EXAM_TYPES_STORAGE_KEY = 'gazi_custom_exam_types_v1';
 const CUSTOM_CURRICULUM_STORAGE_KEY = 'gazi_custom_curriculum_v1';
+const LOCAL_NOTEBOOK_STORAGE_KEY = 'gazi_local_notebook';
+const REMINDER_INTERVALS_STORAGE_KEY = 'gazi_reminder_intervals_v1';
 const CUSTOM_EXAM_PREFIX = 'custom_';
 const DEFAULT_CUSTOM_GROUP_NAME = 'Genel';
 const MAX_READY_SOURCES = 30;
@@ -203,6 +205,138 @@ function parseTopicsFromText(text) {
         .split(/[\n,;]+/g)
         .map((topic) => topic.trim())
         .filter(Boolean));
+}
+
+function normalizeReminderIntervals(list = []) {
+    const safeList = Array.isArray(list) ? list : [];
+    const unique = Array.from(new Set(
+        safeList
+            .map((value) => Number(value))
+            .filter((value) => Number.isFinite(value) && value > 0)
+            .map((value) => Number(value.toFixed(2)))
+    ));
+    unique.sort((a, b) => a - b);
+    return unique;
+}
+
+function getReminderIntervals() {
+    const stored = CLIENT_STORE.getJSON(REMINDER_INTERVALS_STORAGE_KEY, []);
+    const normalized = normalizeReminderIntervals(stored);
+    if (normalized.length > 0) return normalized;
+    const fallback = [7];
+    CLIENT_STORE.setJSON(REMINDER_INTERVALS_STORAGE_KEY, fallback);
+    return fallback;
+}
+
+function setReminderIntervals(intervals = []) {
+    CLIENT_STORE.setJSON(REMINDER_INTERVALS_STORAGE_KEY, normalizeReminderIntervals(intervals));
+}
+
+function buildReminderOptionLabel(daysValue) {
+    const safeValue = Number(daysValue);
+    if (!Number.isFinite(safeValue) || safeValue <= 0) return '';
+    const text = Number.isInteger(safeValue) ? String(safeValue) : String(safeValue).replace('.', ',');
+    return `${text} gün`;
+}
+
+window.renderReminderIntervalSelect = () => {
+    const select = document.getElementById('std-q-reminder');
+    if (!select) return;
+    const intervals = getReminderIntervals();
+    const currentValue = String(select.value || CLIENT_STORE.getItem('gazi_last_reminder_days', '') || '');
+    select.innerHTML = intervals
+        .map((days) => `<option value="${days}">${escapeHtml(buildReminderOptionLabel(days))}</option>`)
+        .join('');
+    const hasCurrent = intervals.some((days) => String(days) === currentValue);
+    if (hasCurrent) select.value = currentValue;
+    else if (intervals.length > 0) select.value = String(intervals[0]);
+};
+
+window.renderReminderOptionsScreen = () => {
+    const listEl = document.getElementById('reminder-options-list');
+    if (!listEl) return;
+    const intervals = getReminderIntervals();
+    listEl.innerHTML = intervals.map((days, index) => `
+        <div class="list-item" style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+            <strong style="color:#1e3c72;">${escapeHtml(buildReminderOptionLabel(days))}</strong>
+            <div style="display:flex; gap:6px;">
+                <button type="button" class="outline" style="width:auto; padding:6px 10px; font-size:0.74rem;" onclick="window.editReminderInterval(${index})">Düzenle</button>
+                <button type="button" class="outline" style="width:auto; padding:6px 10px; font-size:0.74rem; border-color:#c0392b; color:#c0392b;" onclick="window.deleteReminderInterval(${index})">Sil</button>
+            </div>
+        </div>
+    `).join('');
+};
+
+window.openReminderOptionsScreen = () => {
+    window.renderReminderOptionsScreen();
+    showScreen('screen-reminder-options');
+};
+
+window.addReminderInterval = () => {
+    const input = document.getElementById('reminder-interval-input');
+    const value = Number(String(input?.value || '').replace(',', '.'));
+    if (!Number.isFinite(value) || value <= 0) return alert('Lütfen 0’dan büyük bir gün değeri girin.');
+    const next = normalizeReminderIntervals([...getReminderIntervals(), value]);
+    setReminderIntervals(next);
+    if (input) input.value = '';
+    window.renderReminderIntervalSelect();
+    window.renderReminderOptionsScreen();
+};
+
+window.editReminderInterval = (index) => {
+    const list = getReminderIntervals();
+    const current = list[Number(index)];
+    if (!Number.isFinite(current)) return;
+    const value = prompt('Yeni gün değerini girin:', String(current));
+    if (value === null) return;
+    const nextValue = Number(String(value).replace(',', '.'));
+    if (!Number.isFinite(nextValue) || nextValue <= 0) return alert('Geçerli bir gün değeri girin.');
+    list[Number(index)] = nextValue;
+    setReminderIntervals(list);
+    window.renderReminderIntervalSelect();
+    window.renderReminderOptionsScreen();
+};
+
+window.deleteReminderInterval = (index) => {
+    const list = getReminderIntervals();
+    const safeIndex = Number(index);
+    if (!Number.isInteger(safeIndex) || safeIndex < 0 || safeIndex >= list.length) return;
+    if (list.length === 1) return alert('En az bir hatırlatma aralığı kalmalıdır. Sorulara hatırlatma tarihi atamak için en az bir seçenek gereklidir.');
+    list.splice(safeIndex, 1);
+    setReminderIntervals(list);
+    window.renderReminderIntervalSelect();
+    window.renderReminderOptionsScreen();
+};
+
+function getLocalNotebookQuestions() {
+    const raw = CLIENT_STORE.getJSON(LOCAL_NOTEBOOK_STORAGE_KEY, []);
+    const safeRaw = Array.isArray(raw) ? raw : [];
+    const normalized = safeRaw
+        .map((row) => {
+            if (!row || typeof row !== 'object') return null;
+            const question = { ...row };
+            const textSeed = String(question.soru || question.not || question.konu || question.ders || '').trim();
+            if (!String(question.id || '').trim()) {
+                question.id = generateUniqueId(`local-${textSeed.slice(0, 12) || 'q'}`);
+            }
+            if (!question.soru && question.not) {
+                question.soru = String(question.not).trim() || "Görseli inceleyiniz.";
+            }
+            if (!question.siklar || !Array.isArray(question.siklar) || question.siklar.length === 0) {
+                question.siklar = ["A", "B", "C", "D", "E"];
+            }
+            return question;
+        })
+        .filter(Boolean);
+    if (JSON.stringify(normalized) !== JSON.stringify(safeRaw)) {
+        CLIENT_STORE.setJSON(LOCAL_NOTEBOOK_STORAGE_KEY, normalized);
+    }
+    return normalized;
+}
+
+function setLocalNotebookQuestions(list = []) {
+    const safeList = Array.isArray(list) ? list : [];
+    CLIENT_STORE.setJSON(LOCAL_NOTEBOOK_STORAGE_KEY, safeList);
 }
 
 function getCurrentExamType() {
@@ -990,23 +1124,105 @@ window.renderProfileSubjectsByExam = (savedSubjectsInput = null) => {
             const checkboxId = `subj-dyn-${key}-${uniqueId}`;
             const saved = savedMap.get(normalizeText(subject));
             const checked = saved?.selected ? 'checked' : '';
+            const savedTopicsText = String(saved?.topics || '').trim();
+            const selectedTopics = parseTopicsFromText(savedTopicsText);
             const userTopics = Array.isArray(window.userCurriculum?.[subject]) ? window.userCurriculum[subject] : [];
             const curriculumTopics = getCurriculumTopicsByExamTypeAndSubject(examTypeEl.value, subject);
             const customTopics = getCustomTopicsBySubject(subject);
-            const topicList = buildTopicListFromSources(curriculumTopics, userTopics, saved?.topics || '', customTopics);
+            const topicList = buildTopicListFromSources(curriculumTopics, userTopics, savedTopicsText, customTopics);
             const topicsHTML = topicList.length > 0
                 ? `<div class="subject-row-topics">${topicList.map((topic) => `<span class="subject-topic-chip">${escapeHtml(topic)}</span>`).join('')}</div>`
                 : `<p class="subject-row-empty-topic">Konu başlığı bulunamadı.</p>`;
             return `
-                <div class="subject-row" data-subject-name="${escapeHtml(subject)}">
+                <div class="subject-row" data-subject-name="${escapeHtml(subject)}" data-topics-text="${escapeHtml(savedTopicsText)}">
                     <label class="subject-row-main" for="${checkboxId}">
                         <input type="checkbox" id="${checkboxId}" value="${escapeHtml(subject)}" ${checked} onchange="window.handleDerslerimCourseToggle()">
                         <span class="subject-row-name">${escapeHtml(subject)}</span>
                     </label>
+                    <button type="button" class="outline" style="width:auto; padding:6px 10px; font-size:0.74rem; border-color:#3498db; color:#3498db;" onclick="window.openCourseTopicsScreen(${JSON.stringify(subject)})">Konuları Seç (${selectedTopics.length})</button>
                     ${topicsHTML}
                 </div>
             `;
     }).join('');
+};
+
+window.currentCourseTopicsSubject = '';
+window.currentCourseTopicsSelected = [];
+window.currentCourseTopicsAll = [];
+window.courseTopicsBackScreen = 'screen-settings';
+
+window.openCourseTopicsScreen = (subjectName = '', backScreen = 'screen-settings') => {
+    const safeSubject = String(subjectName || '').trim();
+    if (!safeSubject) return;
+    const savedSubjects = CLIENT_STORE.getJSON('gazi_subjects_v2', []) || [];
+    const savedRow = savedSubjects.find((row) => normalizeText(row?.name) === normalizeText(safeSubject));
+    const currentExamType = document.getElementById('profile-exam-type')?.value || getCurrentExamType();
+    const allTopics = buildTopicListFromSources(
+        getCurriculumTopicsByExamTypeAndSubject(currentExamType, safeSubject),
+        Array.isArray(window.userCurriculum?.[safeSubject]) ? window.userCurriculum[safeSubject] : [],
+        String(savedRow?.topics || ''),
+        getCustomTopicsBySubject(safeSubject)
+    );
+    window.currentCourseTopicsSubject = safeSubject;
+    window.currentCourseTopicsAll = allTopics;
+    window.currentCourseTopicsSelected = parseTopicsFromText(String(savedRow?.topics || ''));
+    window.courseTopicsBackScreen = String(backScreen || 'screen-settings');
+    window.renderCourseTopicsScreen();
+    showScreen('screen-course-topics');
+};
+
+window.goBackFromCourseTopics = () => {
+    showScreen(window.courseTopicsBackScreen || 'screen-settings');
+};
+
+window.renderCourseTopicsScreen = () => {
+    const subjectEl = document.getElementById('course-topics-subject-title');
+    const listEl = document.getElementById('course-topics-list');
+    if (!subjectEl || !listEl) return;
+    const subject = String(window.currentCourseTopicsSubject || '').trim();
+    const allTopics = Array.isArray(window.currentCourseTopicsAll) ? window.currentCourseTopicsAll : [];
+    const selectedSet = new Set(Array.isArray(window.currentCourseTopicsSelected) ? window.currentCourseTopicsSelected : []);
+    subjectEl.textContent = subject ? `📘 ${subject}` : '📘 Ders';
+    if (allTopics.length === 0) {
+        listEl.innerHTML = '<p class="derslerim-empty-text">Bu derse ait konu bulunamadı.</p>';
+        return;
+    }
+    listEl.innerHTML = allTopics.map((topic, index) => `
+        <label class="checkbox-item" style="padding:10px; border:1px solid #e5ecf6; border-radius:8px; margin-bottom:6px;">
+            <input type="checkbox" value="${escapeHtml(topic)}" ${selectedSet.has(topic) ? 'checked' : ''} onchange="window.toggleCourseTopicSelection(${index}, this.checked)">
+            <span style="color:#1e3c72; font-weight:600; text-align:left;">${escapeHtml(topic)}</span>
+        </label>
+    `).join('');
+};
+
+window.toggleCourseTopicSelection = (topicIndex, checked) => {
+    const allTopics = Array.isArray(window.currentCourseTopicsAll) ? window.currentCourseTopicsAll : [];
+    const topic = String(allTopics[Number(topicIndex)] || '').trim();
+    if (!topic) return;
+    const selected = new Set(Array.isArray(window.currentCourseTopicsSelected) ? window.currentCourseTopicsSelected : []);
+    if (checked) selected.add(topic);
+    else selected.delete(topic);
+    window.currentCourseTopicsSelected = Array.from(selected);
+};
+
+window.saveCourseTopicsSelection = () => {
+    const subject = String(window.currentCourseTopicsSubject || '').trim();
+    if (!subject) return;
+    const selectedTopics = uniqueSubjects(Array.isArray(window.currentCourseTopicsSelected) ? window.currentCourseTopicsSelected : []);
+    const savedSubjects = CLIENT_STORE.getJSON('gazi_subjects_v2', []) || [];
+    const rowIndex = savedSubjects.findIndex((row) => normalizeText(row?.name) === normalizeText(subject));
+    const payload = {
+        name: subject,
+        topics: selectedTopics.join(', '),
+        selected: true
+    };
+    if (rowIndex >= 0) savedSubjects[rowIndex] = { ...savedSubjects[rowIndex], ...payload };
+    else savedSubjects.push(payload);
+    syncSelectedSubjectsToStorage(savedSubjects);
+    window.renderProfileSubjectsByExam(savedSubjects);
+    window.renderLibraryLessonsScreen();
+    window.showSoftFeedback('Konu seçimi kaydedildi.');
+    showScreen('screen-settings');
 };
 
 function getDerslerimSubjectDraftsFromUI() {
@@ -1018,7 +1234,7 @@ function getDerslerimSubjectDraftsFromUI() {
         if (!cb) return;
         out.push({
             name: cb.value,
-            topics: '',
+            topics: String(row.getAttribute('data-topics-text') || '').trim(),
             selected: !!cb.checked
         });
     });
@@ -1032,7 +1248,7 @@ function collectSelectedSubjectsFromUI() {
         if (cb && cb.checked) {
             subjectsData.push({
                 name: cb.value,
-                topics: '',
+                topics: String(row.getAttribute('data-topics-text') || '').trim(),
                 selected: true
             });
         }
@@ -1068,6 +1284,7 @@ function syncSelectedSubjectsToStorage(subjectsData = []) {
         }
     }
     window.renderSavedLibraryCoursesPanel();
+    window.renderLibraryLessonsScreen();
 }
 
 function renderFirstRunOnboardingSubjects() {
@@ -1253,8 +1470,12 @@ window.renderSavedLibraryCoursesPanel = () => {
     const wrap = document.getElementById('saved-library-course-list');
     if (!wrap) return;
     const savedSubjects = CLIENT_STORE.getJSON('gazi_subjects_v2', []);
+    const savedSubjectMap = new Map(
+        (Array.isArray(savedSubjects) ? savedSubjects : [])
+            .map((row) => [normalizeText(row?.name), String(row?.topics || '').trim()])
+    );
     const courseNames = getSavedLibraryCourseNames(savedSubjects);
-    const localNotebook = CLIENT_STORE.getJSON('gazi_local_notebook', []);
+    const localNotebook = getLocalNotebookQuestions();
     const dueReminderCounts = buildDueReminderCountsBySubject(localNotebook, Date.now());
     if (courseNames.length === 0) {
         wrap.innerHTML = `<p class="saved-library-empty">Henüz ders seçmediniz. Derslerim ekranında tiklenen dersler burada görünür.</p>`;
@@ -1263,23 +1484,18 @@ window.renderSavedLibraryCoursesPanel = () => {
         return;
     }
     let totalDueCount = 0;
-    const filterMode = getDerslerimTopicFilterMode();
-    const savedTopicIndex = buildSavedTopicIndexForDerslerim();
     wrap.innerHTML = courseNames
         .map((name, index) => {
             const dueCount = dueReminderCounts[name] || 0;
             totalDueCount += dueCount;
             const encodedName = encodeURIComponent(name);
-            const topics = getAllowedTopicsForMode(
-                getTopicsForDerslerimSubject(name),
-                savedTopicIndex.get(name),
-                filterMode
-            );
+            const selectedTopics = parseTopicsFromText(savedSubjectMap.get(normalizeText(name)) || '');
+            const topics = selectedTopics.length > 0 ? selectedTopics : getTopicsForDerslerimSubject(name);
             const topicsHtml = topics.length > 0
                 ? `<div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;">
                     ${topics.map((topic) => `<button type="button" class="outline" style="width:auto; padding:4px 7px; font-size:0.72rem; border-color:#8eb4ff; color:#dce7ff;" onclick="window.openLibraryTopicFromDerslerimEncoded('${encodeURIComponent(name)}','${encodeURIComponent(topic)}')">${escapeHtml(topic)}</button>`).join('')}
                    </div>`
-                : `<small style="display:block; margin-top:8px; color:#b7c7e6;">${filterMode === 'saved' ? 'Aktif konu yok. Anahtarı kapatıp tüm konuları görebilirsiniz.' : 'Bu derste konu bulunamadı.'}</small>`;
+                : `<small style="display:block; margin-top:8px; color:#b7c7e6;">Bu derste konu bulunamadı.</small>`;
             return `<div class="saved-library-course-item" data-subject-name="${encodedName}" style="display:block;">
                 <button type="button" class="saved-library-course-btn" data-subject-name="${encodedName}" style="display:flex; justify-content:space-between; align-items:center;">📘 ${escapeHtml(name)}${dueCount > 0 ? `<span class="saved-library-red-dot" title="Hatırlatma zamanı gelen soru: ${dueCount}">🔴 ${dueCount}</span>` : ''}</button>
                 ${topicsHtml}
@@ -1299,11 +1515,46 @@ window.openSavedLibraryLesson = (encodedName) => {
     try {
         const subjectName = decodeURIComponent(String(encodedName || ''));
         if (!subjectName) return;
-        window.openLibraryModal('view', { focusedSubject: subjectName });
+        window.openLibraryLessonsScreen(subjectName);
     } catch (e) {
         console.warn('Kayıtlı kütüphane dersi açılamadı:', e);
         window.showSoftFeedback('Ders bağlantısı çözümlenemedi.');
     }
+};
+
+window.renderLibraryLessonsScreen = (focusedSubject = '') => {
+    const listEl = document.getElementById('library-lessons-list');
+    if (!listEl) return;
+    const savedSubjects = CLIENT_STORE.getJSON('gazi_subjects_v2', []) || [];
+    const selectedSubjects = getSavedLibraryCourseNames(savedSubjects);
+    const savedMap = new Map(
+        (Array.isArray(savedSubjects) ? savedSubjects : [])
+            .map((row) => [normalizeText(row?.name), String(row?.topics || '').trim()])
+    );
+    const normalizedFocus = String(focusedSubject || '').trim();
+    const subjectsToRender = normalizedFocus ? selectedSubjects.filter((name) => name === normalizedFocus) : selectedSubjects;
+    if (subjectsToRender.length === 0) {
+        listEl.innerHTML = '<p class="derslerim-empty-text">Henüz kütüphanede ders bulunmuyor.</p>';
+        return;
+    }
+    listEl.innerHTML = subjectsToRender.map((subject) => {
+        const selectedTopics = parseTopicsFromText(savedMap.get(normalizeText(subject)) || '');
+        const topics = selectedTopics.length > 0 ? selectedTopics : getTopicsForDerslerimSubject(subject);
+        const topicButtons = topics.length > 0
+            ? topics.map((topic) => `<button type="button" class="derslerim-topic-btn" onclick="window.openLibraryTopicFromDerslerim(${JSON.stringify(subject)}, ${JSON.stringify(topic)})">${escapeHtml(topic)}</button>`).join('')
+            : `<small class="derslerim-empty-text">Bu derste konu bulunamadı.</small>`;
+        return `
+            <section style="margin-bottom:14px; border:1px solid #e5ecf6; border-radius:10px; padding:10px; background:#fff;">
+                <h4 style="margin:0 0 8px 0; color:#1e3c72;">📘 ${escapeHtml(subject)}</h4>
+                <div style="display:grid; gap:6px;">${topicButtons}</div>
+            </section>
+        `;
+    }).join('');
+};
+
+window.openLibraryLessonsScreen = (focusedSubject = '') => {
+    window.renderLibraryLessonsScreen(focusedSubject);
+    showScreen('screen-library-lessons');
 };
 
 window.toggleDerslerimSection = (contentId, arrowId, triggerId = null) => {
@@ -1380,11 +1631,7 @@ function buildSavedTopicIndexForDerslerim() {
         if (!map.has(safeSubject)) map.set(safeSubject, new Set());
         map.get(safeSubject).add(safeTopic);
     };
-    const localNotebookRaw = CLIENT_STORE.getJSON('gazi_local_notebook', []);
-    const localNotebook = Array.isArray(localNotebookRaw) ? localNotebookRaw : [];
-    if (!Array.isArray(localNotebookRaw)) {
-        console.warn('Derslerim kayıtlı soru listesi beklenen dizide değil. Alınan tip:', typeof localNotebookRaw, 'Lütfen uygulamayı yeniden yükleyin veya destek ile iletişime geçin.');
-    }
+    const localNotebook = getLocalNotebookQuestions();
     localNotebook.forEach((q) => addPair(q?.ders, q?.konu || q?.deneme));
     const activeLibrary = Array.isArray(window.originalStdQuestions) ? window.originalStdQuestions : [];
     activeLibrary.forEach((q) => addPair(q?.ders, q?.konu || q?.deneme));
@@ -1646,6 +1893,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // 🚨 TEMEL ARAYÜZ VE PWA FONKSİYONLARI 🚨
 window.onload = () => { 
     window.updateRegGradeDropdown(); 
+    window.renderReminderIntervalSelect();
     checkPWAPrompts();
 };
 
@@ -1744,6 +1992,9 @@ const NAV_ITEM_MAP = {
     'screen-friends': 'nav-arkadaslar',
     'screen-stats': 'nav-gelisim',
     'screen-list': 'nav-gelisim',
+    'screen-library-lessons': 'nav-derslerim',
+    'screen-course-topics': 'nav-derslerim',
+    'screen-reminder-options': 'nav-profil',
     'screen-teacher': 'nav-ogretmen',
 };
 let activeNavRole = localStorage.getItem('gazi_nav_role') === ROLE_TEACHER ? ROLE_TEACHER : ROLE_STUDENT;
@@ -1898,7 +2149,7 @@ function updateNotificationToggleUI() {
         status.textContent = "Tarayıcı bildirimi engelliyor. Tarayıcı ayarından açabilirsiniz.";
         return;
     }
-    status.textContent = "Bildirim izni bekleniyor.";
+    status.textContent = "Bildirimler açık.";
 }
 
 async function getCurrentFcmToken() {
@@ -1969,9 +2220,11 @@ async function promptNotificationsOnFirstLaunch() {
 
 window.handleNotificationToggleChange = async () => {
     const toggle = document.getElementById('profile-notification-toggle');
+    const status = document.getElementById('profile-notification-status');
     const isEnabled = !!toggle?.checked;
     setNotificationsEnabled(isEnabled);
     if (isEnabled) {
+        if (status) status.textContent = "Bildirimler açık.";
         await subscribeToClassPushNotifications(getPreferredNotificationClassCode(), { forcePrompt: true });
     } else {
         await clearClassPushSubscription(localStorage.getItem(NOTIFICATION_SUBSCRIPTION_CLASS_KEY) || getPreferredNotificationClassCode());
@@ -2090,6 +2343,7 @@ window.openSettingsPanel = () => {
     }
     window.renderProfileSubjectsByExam(savedSubjects);
     window.restoreDerslerimTheme();
+    window.renderReminderIntervalSelect();
     updateNotificationToggleUI();
     showScreen('screen-settings');
 };
@@ -2800,6 +3054,7 @@ window.uploadStudentQuestion = async (target = 'cloud') => {
     const studentName = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "").trim() || "Gazi Adayı";
     
     const reminderDays = parseFloat(document.getElementById('std-q-reminder').value) || 1;
+    CLIENT_STORE.setItem('gazi_last_reminder_days', String(reminderDays));
     const nextReviewDate = Date.now() + (reminderDays * 24 * 60 * 60 * 1000); 
 
     if(!stdUploadedImageBase64 && !qText) return alert("Lütfen bir fotoğraf yükleyin veya kendinize bir not yazın!");
@@ -2877,9 +3132,9 @@ window.uploadStudentQuestion = async (target = 'cloud') => {
         socket.emit("addStudentQuestion", q);
         alert(`✅ Soru BULUT Hata Defterinize eklendi!`);
     } else {
-        let localNotebook = CLIENT_STORE.getJSON('gazi_local_notebook', []) || []; 
+        let localNotebook = getLocalNotebookQuestions(); 
         localNotebook.push(q); 
-        CLIENT_STORE.setJSON('gazi_local_notebook', localNotebook);
+        setLocalNotebookQuestions(localNotebook);
         alert(`💾 Soru CİHAZINIZA başarıyla kaydedildi!\nİnternetsiz de çözebilirsiniz.`);
     }
     
@@ -2909,12 +3164,12 @@ window.fetchStudentLibrary = (source = 'cloud', onlyReviews = false) => {
         const studentName = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "").trim() || "Gazi Adayı"; 
         socket.emit("getStudentLibrary", { studentName: studentName, onlyReviews: onlyReviews });
     } else {
-        let localData = JSON.parse(localStorage.getItem('gazi_local_notebook')) || [];
+        let localData = getLocalNotebookQuestions();
         if(onlyReviews) { 
             const now = Date.now(); 
             localData = localData.filter(q => q.nextReviewDate && q.nextReviewDate <= now); 
         } else { 
-            localData.reverse(); 
+            localData = [...localData].reverse(); 
         }
         renderStudentLibraryHTML(localData, "💾 Cihaz Hata Defterim");
     }
@@ -2927,46 +3182,25 @@ window.applyReviewFilter = () => {
 };
 
 window.applyLibraryFilters = () => {
-    const secilenDers = document.getElementById('filter-ders').value; 
-    const secilenKonu = document.getElementById('filter-konu').value; 
-    const secilenKitap = document.getElementById('filter-kitap').value;
-    
-    let filteredData = window.originalStdQuestions.filter(q => {
-        let dersMatch = (secilenDers === "ALL" || (q.ders && q.ders === secilenDers)); 
-        let konuMatch = (secilenKonu === "ALL" || (q.konu && q.konu === secilenKonu)); 
-        let kitapMatch = (secilenKitap === "ALL" || (q.kitap && q.kitap === secilenKitap));
-        return dersMatch && konuMatch && kitapMatch;
-    });
-    
-    renderStudentLibraryListOnly(filteredData);
+    renderStudentLibraryListOnly(window.originalStdQuestions);
 };
 
 function populateLibraryFilters(data) {
-    const dersler = new Set(); 
-    const konular = new Set(); 
-    const kitaplar = new Set();
-    
-    data.forEach(q => { 
-        if (q.ders) dersler.add(q.ders); 
-        if (q.konu) konular.add(q.konu); 
-        if (q.kitap) kitaplar.add(q.kitap); 
-    });
-    
-    document.getElementById('filter-ders').innerHTML = '<option value="ALL">Tüm Dersler</option>' + Array.from(dersler).map(d => `<option value="${escapeHtml(d)}">${escapeHtml(d)}</option>`).join('');
-    document.getElementById('filter-konu').innerHTML = '<option value="ALL">Tüm Konular</option>' + Array.from(konular).map(k => `<option value="${escapeHtml(k)}">${escapeHtml(k)}</option>`).join('');
-    document.getElementById('filter-kitap').innerHTML = '<option value="ALL">Tüm Kaynaklar/Kitaplar</option>' + Array.from(kitaplar).map(k => `<option value="${escapeHtml(k)}">${escapeHtml(k)}</option>`).join('');
+    return data;
 }
 
 function getSavedReviewDelayDays() {
-    const saved = localStorage.getItem('gazi_review_delay_days');
-    const allowed = ['1', '3', '7', '14', '30'];
-    return allowed.includes(saved) ? saved : '7';
+    const saved = CLIENT_STORE.getItem('gazi_review_delay_days', '');
+    const allowed = getReminderIntervals().map((value) => String(value));
+    if (allowed.includes(saved)) return saved;
+    return allowed[0] || '7';
 }
 
 function renderStudentLibraryListOnly(data) {
     window.tempStdQuestions = data; 
     const div = document.getElementById('list-content');
     const savedReviewDelayDays = getSavedReviewDelayDays();
+    const reminderIntervals = getReminderIntervals();
     
     if(data.length === 0) { 
         div.innerHTML = "<p class='list-empty-message'>Bu filtreye uygun soru bulunamadı.</p>"; 
@@ -2998,11 +3232,7 @@ function renderStudentLibraryListOnly(data) {
                 ${q.id ? `<div class="list-item-review-wrap">
                     <label class="list-item-review-label">🔁 Erteleme Süresi</label>
                     <select id="std-review-delay-${i}" class="list-item-review-select">
-                        <option value="1" ${savedReviewDelayDays === '1' ? 'selected' : ''}>1 gün</option>
-                        <option value="3" ${savedReviewDelayDays === '3' ? 'selected' : ''}>3 gün</option>
-                        <option value="7" ${savedReviewDelayDays === '7' ? 'selected' : ''}>7 gün</option>
-                        <option value="14" ${savedReviewDelayDays === '14' ? 'selected' : ''}>14 gün</option>
-                        <option value="30" ${savedReviewDelayDays === '30' ? 'selected' : ''}>30 gün</option>
+                        ${reminderIntervals.map((days) => `<option value="${days}" ${savedReviewDelayDays === String(days) ? 'selected' : ''}>${escapeHtml(buildReminderOptionLabel(days))}</option>`).join('')}
                     </select>
                 </div>` : ''}
                 <div class="list-item-action-row">
@@ -3018,8 +3248,8 @@ function renderStudentLibraryHTML(data, title) {
     window.originalStdQuestions = data; 
     currentListType = "student_library"; 
     document.getElementById('list-title').innerText = `${title} (${data.length})`; 
-    document.getElementById('library-filter-area').style.display = 'block'; 
-    populateLibraryFilters(data);
+    const filterArea = document.getElementById('library-filter-area');
+    if (filterArea) filterArea.style.display = 'none';
 
     const now = Date.now();
     const dueQuestions = data.filter(q => q.nextReviewDate && q.nextReviewDate <= now);
@@ -3039,18 +3269,16 @@ function renderStudentLibraryHTML(data, title) {
     const pendingFilter = window.pendingLibraryFilter;
     let resolvedTopicContext = null;
     if (pendingFilter && typeof pendingFilter === 'object') {
-        const dersSelect = document.getElementById('filter-ders');
-        const konuSelect = document.getElementById('filter-konu');
-        const dersOptions = dersSelect ? Array.from(dersSelect.options) : [];
-        const konuOptions = konuSelect ? Array.from(konuSelect.options) : [];
-        const hasDers = dersOptions.some(o => o.value === pendingFilter.subject);
-        const hasKonu = konuOptions.some(o => o.value === pendingFilter.topic);
-        if (hasDers) dersSelect.value = pendingFilter.subject;
-        if (hasKonu) konuSelect.value = pendingFilter.topic;
-        if (hasDers || hasKonu) window.applyLibraryFilters();
-        else renderStudentLibraryListOnly(data);
-        if (hasDers && hasKonu) {
+        const filtered = data.filter((q) => {
+            const sameSubject = String(q?.ders || '').trim() === String(pendingFilter.subject || '').trim();
+            const sameTopic = String(q?.konu || q?.deneme || '').trim() === String(pendingFilter.topic || '').trim();
+            return sameSubject && sameTopic;
+        });
+        if (filtered.length > 0) {
+            renderStudentLibraryListOnly(filtered);
             resolvedTopicContext = { subject: pendingFilter.subject, topic: pendingFilter.topic };
+        } else {
+            renderStudentLibraryListOnly(data);
         }
         window.pendingLibraryFilter = null;
     } else {
@@ -3076,16 +3304,16 @@ window.updateReviewDateByIndex = (questionIndex, isLocal = false) => {
 window.updateReviewDate = (questionId, isLocal = false, selectedDays = null) => {
     const days = parseFloat(selectedDays || getSavedReviewDelayDays());
     if(days && days > 0) {
-        localStorage.setItem('gazi_review_delay_days', String(days));
+        CLIENT_STORE.setItem('gazi_review_delay_days', String(days));
         const newDate = Date.now() + (days * 24 * 60 * 60 * 1000);
         if(!isLocal) { 
             socket.emit("updateReviewDate", { questionId: questionId, additionalDays: days }); 
         } else { 
-            let localData = JSON.parse(localStorage.getItem('gazi_local_notebook')) || []; 
+            let localData = getLocalNotebookQuestions(); 
             const idx = localData.findIndex(x => x.id === questionId); 
             if(idx !== -1) { 
                 localData[idx].nextReviewDate = newDate; 
-                localStorage.setItem('gazi_local_notebook', JSON.stringify(localData)); 
+                setLocalNotebookQuestions(localData); 
             } 
         }
         alert(`✅ Tamamdır! Bu soru sistem takvimine işlendi.`);
@@ -3109,9 +3337,9 @@ window.deleteStudentQuestion = (questionId, isLocal) => {
             socket.emit("deleteStudentQuestion", { questionId: questionId, studentName: studentName });
         }
     } else {
-        let localData = JSON.parse(localStorage.getItem('gazi_local_notebook')) || [];
+        let localData = getLocalNotebookQuestions();
         localData = localData.filter(x => x.id !== questionId);
-        localStorage.setItem('gazi_local_notebook', JSON.stringify(localData));
+        setLocalNotebookQuestions(localData);
         window.updateLocalListCounts();
     }
     window.originalStdQuestions = window.originalStdQuestions.filter(q => q.id !== questionId);
@@ -3121,6 +3349,85 @@ window.deleteStudentQuestion = (questionId, isLocal) => {
     if (titleEl) {
         titleEl.innerText = titleEl.innerText.replace(/\(\d+\)/, `(${window.originalStdQuestions.length})`);
     }
+};
+
+function setTrialListMode(enabled = false) {
+    const gameScreen = document.getElementById('screen-game');
+    const map = document.getElementById('question-map-accordion');
+    const navButtons = document.getElementById('trial-nav-buttons');
+    const qText = document.getElementById('q-text');
+    const qImage = document.getElementById('q-image-display');
+    const qMulti = document.getElementById('q-multi-image-container');
+    const boxQuestion = document.getElementById('box-question');
+    const boxTotal = document.getElementById('box-total');
+    const reportBtn = document.querySelector('#screen-game button[onclick="reportQuestion()"]');
+    const favBtn = document.getElementById('btn-fav-current');
+    if (gameScreen) gameScreen.classList.toggle('trial-list-mode', !!enabled);
+    if (map) map.style.display = enabled ? 'none' : 'block';
+    if (navButtons) navButtons.style.display = enabled ? 'none' : 'flex';
+    if (qText) qText.style.display = enabled ? 'none' : 'block';
+    if (qImage) qImage.style.display = enabled ? 'none' : qImage.style.display;
+    if (qMulti) qMulti.style.display = enabled ? 'none' : qMulti.style.display;
+    if (boxQuestion) {
+        if (enabled) {
+            boxQuestion.dataset.prevDisplay = boxQuestion.style.display || '';
+            boxQuestion.style.display = 'none';
+        } else if ('prevDisplay' in boxQuestion.dataset) {
+            boxQuestion.style.display = boxQuestion.dataset.prevDisplay;
+            delete boxQuestion.dataset.prevDisplay;
+        }
+    }
+    if (boxTotal) {
+        if (enabled) {
+            boxTotal.dataset.prevDisplay = boxTotal.style.display || '';
+            boxTotal.style.display = 'none';
+        } else if ('prevDisplay' in boxTotal.dataset) {
+            boxTotal.style.display = boxTotal.dataset.prevDisplay;
+            delete boxTotal.dataset.prevDisplay;
+        }
+    }
+    if (reportBtn) reportBtn.style.display = enabled ? 'none' : 'block';
+    if (favBtn) favBtn.style.display = enabled ? 'none' : 'block';
+}
+
+window.selectTrialListAnswer = (questionIndex, optionIndex) => {
+    const qIndex = Number(questionIndex);
+    const oIndex = Number(optionIndex);
+    if (!Number.isInteger(qIndex) || !Number.isInteger(oIndex)) return;
+    if (qIndex < 0 || qIndex >= trialQuestions.length) return;
+    trialAnswers[qIndex] = oIndex;
+    window.renderTrialQuestionList();
+};
+
+window.renderTrialQuestionList = () => {
+    const area = document.getElementById('opts-area');
+    if (!area) return;
+    area.innerHTML = trialQuestions.map((q, i) => {
+        const answered = trialAnswers[i];
+        const options = Array.isArray(q?.siklar) && q.siklar.length > 0 ? q.siklar : ["A", "B", "C", "D", "E"];
+        const hasSolution = !!(q?.solutionText || q?.solutionImage);
+        const questionText = String(q?.soru || q?.not || "Görseli inceleyiniz.");
+        return `
+            <article class="trial-list-card">
+                <h4 class="trial-list-title">${i + 1}. ${escapeHtml(questionText)}</h4>
+                ${q?.image ? `<img src="${safeImageSrc(q.image)}" class="trial-list-image" alt="Soru görseli">` : ''}
+                <div class="trial-list-options">
+                    ${options.map((option, optionIndex) => {
+                        const isCorrect = answered !== null && optionIndex === Number(q?.dogru);
+                        const isWrong = answered !== null && answered === optionIndex && optionIndex !== Number(q?.dogru);
+                        const cls = isCorrect ? 'correct' : isWrong ? 'wrong' : '';
+                        return `<button type="button" class="opt-btn ${cls}" onclick="window.selectTrialListAnswer(${i}, ${optionIndex})">${escapeHtml(String(option))}</button>`;
+                    }).join('')}
+                </div>
+                ${answered !== null && hasSolution ? `
+                    <div class="solution-revealed trial-list-solution">
+                        <b>👨‍🏫 Çözüm Notu:</b><br>${escapeHtml(q.solutionText || 'Yazılı açıklama eklenmemiş.')}<br>
+                        ${q.solutionImage ? `<img src="${safeImageSrc(q.solutionImage)}" class="trial-list-image" alt="Çözüm görseli">` : ''}
+                    </div>
+                ` : ''}
+            </article>
+        `;
+    }).join('');
 };
 
 window.startLibraryTest = () => {
@@ -3134,13 +3441,11 @@ window.startLibraryTest = () => {
     trialAnswers = new Array(trialQuestions.length).fill(null); 
     currentQIndex = 0; 
     currentMode = 'trial'; 
-    document.getElementById('box-total').style.display = 'none'; 
-    document.getElementById('trial-nav-buttons').style.display = 'flex'; 
+    document.getElementById('trial-nav-buttons').style.display = 'none'; 
     document.getElementById('btn-finish-trial').style.display = 'block'; 
     showScreen('screen-game');
-    renderQuestionMap(trialQuestions.length, 0, []);
-    openMap();
-    renderTrialQuestion();
+    setTrialListMode(true);
+    window.renderTrialQuestionList();
 };
 
 window.reportQuestionFromLibrary = (index) => { 
@@ -3671,7 +3976,7 @@ window.updateLocalListCounts = () => {
         const el = document.getElementById('count-' + type);
         if (el) el.innerText = (JSON.parse(localStorage.getItem(key)) || []).length;
     });
-    const localNB = (JSON.parse(localStorage.getItem('gazi_local_notebook')) || []).length;
+    const localNB = getLocalNotebookQuestions().length;
     const btnLocal = document.getElementById('btn-local-open');
     if (btnLocal) btnLocal.innerText = `💾 Cihazdan Aç (${localNB})`;
     window.renderSavedLibraryCoursesPanel();
@@ -3778,9 +4083,11 @@ window.startGame = () => {
 
     // Yerel kaynaklardan (Yanlışlarım, Boşlarım, Hata Defteri) doğrudan başlat
     if (currentMode === 'trial' && source !== 'sistem') {
-        const sourceKeys = { 'yanlis': 'kpss_wrongs', 'bos': 'kpss_blanks', 'local': 'gazi_local_notebook' };
+        const sourceKeys = { 'yanlis': 'kpss_wrongs', 'bos': 'kpss_blanks', 'local': LOCAL_NOTEBOOK_STORAGE_KEY };
         const sourceNames = { 'yanlis': '❌ Yanlışlarım', 'bos': '⬜ Boş Bıraktıklarım', 'local': '📓 Hata Defterim' };
-        let pool = JSON.parse(localStorage.getItem(sourceKeys[source])) || [];
+        let pool = source === 'local'
+            ? getLocalNotebookQuestions()
+            : (CLIENT_STORE.getJSON(sourceKeys[source], []) || []);
         if (pool.length === 0) return alert(`${sourceNames[source]} listesi şu an boş! Önce sorularınızı kaydedin.`);
         const count = parseInt(document.getElementById('set-count').value) || 10;
         for (let i = pool.length - 1; i > 0; i--) {
@@ -3796,6 +4103,7 @@ window.startGame = () => {
         document.getElementById('trial-nav-buttons').style.display = 'flex';
         document.getElementById('btn-finish-trial').style.display = 'block';
         showScreen('screen-game');
+        setTrialListMode(false);
         renderQuestionMap(trialQuestions.length, 0, []);
         openMap();
         renderTrialQuestion();
@@ -3844,6 +4152,7 @@ window.startGame = () => {
                 document.getElementById('trial-nav-buttons').style.display = 'flex';
                 document.getElementById('btn-finish-trial').style.display = 'block';
                 showScreen('screen-game');
+                setTrialListMode(false);
                 renderQuestionMap(trialQuestions.length, 0, []);
                 openMap();
                 renderTrialQuestion();
@@ -3857,6 +4166,7 @@ window.startGame = () => {
 if(socket) {
     socket.on('newQuestion', d => {
         showScreen('screen-game'); 
+        setTrialListMode(false);
         currentQObject = d; 
         document.getElementById('opts-area').innerHTML = ""; 
         currentQIndex = d.index - 1; 
@@ -3906,6 +4216,7 @@ if(socket) {
         trialAnswers = new Array(trialQuestions.length).fill(null); 
         currentQIndex = 0;
         showScreen('screen-game'); 
+        setTrialListMode(false);
         document.getElementById('trial-nav-buttons').style.display = 'flex'; 
         document.getElementById('btn-finish-trial').style.display = 'block';
         
@@ -3982,6 +4293,7 @@ window.trialPrev = () => { if(currentQIndex > 0) { currentQIndex--; renderTrialQ
 
 window.finishTrial = () => {
     if(totalInt) clearInterval(totalInt); 
+    setTrialListMode(false);
     let s = 0; let d = 0; let y = 0; let b = 0; 
     const realName = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "").trim() || "Gazi Adayı";
     const mistakesToCloud = [];

@@ -189,7 +189,7 @@
                 <b style="font-size:1.1rem;">🔴 Yeni Sorular</b><br><small><span id="new-q-count">0</span> soru çözülmeyi bekliyor.</small>
             </div>
             <div id="review-alert-box" style="flex:1; display:none; background:#f39c12; color:white; padding:12px; border-radius:10px; cursor:pointer; box-shadow: 0 4px 10px rgba(243,156,18,0.3);" onclick="openReviewLibrary()">
-                <b style="font-size:1.1rem;">🧠 Tekrar Vakti!</b><br><small><span id="review-q-count">0</span> soruya göz atmalısın.</small>
+                <b style="font-size:1.1rem;">🧠 Hatırlatılacak Sorular</b><br><small><span id="review-q-count">0</span> soru tekrar bekliyor.</small>
             </div>
         </div>
 
@@ -217,7 +217,7 @@
 
             <div id="library-content-wrapper" class="">
                 <div style="margin-bottom:15px;">
-                    <button onclick="window.openLibraryModal('view')" class="outline" style="width:100%; font-size:0.85rem; border-color:#e67e22; color:#e67e22; padding:10px;">📚 Kayıtlı Kütüphanemi Aç <small style="display:block; font-size:0.72rem; color:#f39c12; margin-top:3px;">Hatırlatılacak: <span id="review-btn-count">0</span></small></button>
+                    <button onclick="window.openLibraryLessonsScreen()" class="outline" style="width:100%; font-size:0.85rem; border-color:#e67e22; color:#e67e22; padding:10px;">📚 Kütüphaneyi Aç <small style="display:block; font-size:0.72rem; color:#f39c12; margin-top:3px;">Hatırlatılacak: <span id="review-btn-count">0</span></small></button>
                 </div>
 
                 <div style="border-top:1px solid #e67e22; padding-top:15px; text-align:left;">
@@ -289,11 +289,7 @@
                     <div style="margin-bottom:10px;">
                         <label style="font-size:0.75rem; font-weight:bold; color:#1e3c72; display:block; margin-bottom:5px;">🔁 Kaç Günde Tekrar Çözeyim?</label>
                         <select id="std-q-reminder" style="font-weight:bold; border-color:#8e44ad; color:#8e44ad;">
-                            <option value="1">1 gün</option>
-                            <option value="3">3 gün</option>
-                            <option value="7" selected>7 gün</option>
-                            <option value="14">14 gün</option>
-                            <option value="30">30 gün</option>
+                            <option value="7">7 gün</option>
                         </select>
                     </div>
 
@@ -455,6 +451,7 @@
                     </div>
                     <small id="profile-notification-status" style="display:block; margin-top:8px; color:#4b5563;">Bildirimler açık.</small>
                 </div>
+                <button type="button" class="outline" style="margin-top:10px; border-color:#8e44ad; color:#8e44ad;" onclick="window.openReminderOptionsScreen()">🔔 Hatırlatma Seçenekleri</button>
             </div>
 
             <div class="settings-derslerim-section">
@@ -501,7 +498,7 @@
                 <section id="saved-library-panel" class="content-card saved-library-panel">
                     <div class="saved-library-panel-header">
                         <h4 style="margin:0;">📚 Kayıtlı Kütüphanem</h4>
-                        <button onclick="window.openLibraryModal('view')" class="saved-library-link-btn" type="button">Kütüphaneyi Aç</button>
+                        <button onclick="window.openLibraryLessonsScreen()" class="saved-library-link-btn" type="button">Kütüphaneyi Aç</button>
                     </div>
                     <p class="saved-library-panel-description">Seçtiğiniz dersler burada görünür. Bir derse dokunarak ilgili kütüphane listesini açabilirsiniz.</p>
                     <div id="saved-library-course-list"></div>
@@ -603,15 +600,44 @@
             </div>
         </div>
         <div id="review-section-header" style="display:none; margin-bottom:10px;"></div>
-        <div id="library-filter-area" class="filter-section" style="display:none;">
-            <label style="font-size:0.75rem; font-weight:bold; color:#1e3c72; display:block;">🔍 SORULARI FİLTRELE</label>
-            <select id="filter-ders" aria-label="Ders filtresi" onchange="applyLibraryFilters()"><option value="ALL">Tüm Dersler</option></select>
-            <select id="filter-konu" aria-label="Konu filtresi" onchange="applyLibraryFilters()"><option value="ALL">Tüm Konular</option></select>
-            <select id="filter-kitap" aria-label="Kaynak filtresi" onchange="applyLibraryFilters()"><option value="ALL">Tüm Kaynaklar/Kitaplar</option></select>
-        </div>
+        <div id="library-filter-area" class="filter-section" style="display:none;"></div>
         <div id="list-content" style="max-height: 400px; overflow-y: auto; text-align:left; color:#333; padding-bottom:20px;"></div>
         <button id="start-library-test-btn" onclick="startLibraryTest()" class="green" style="display:none; width:100%; margin-top:10px; padding:12px; font-size:1rem;">▶ Hepsini Test Olarak Çöz</button>
         <button onclick="showScreen('screen-main')" class="outline" style="margin-top:15px;">⬅️ Kapat</button>
+    </div>
+
+    <div id="screen-library-lessons" class="screen">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <h3 style="margin:0;">📚 Kütüphanedeki Dersler</h3>
+            <button type="button" class="outline" style="width:auto; padding:8px 10px;" onclick="showScreen('screen-main')">⬅️ Kapat</button>
+        </div>
+        <p style="font-size:0.82rem; color:#4b5563; text-align:left; margin-top:0;">Ders başlıklarından konu seçerek kütüphane listesini açabilirsiniz.</p>
+        <div id="library-lessons-list" style="text-align:left;"></div>
+    </div>
+
+    <div id="screen-course-topics" class="screen">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <h3 id="course-topics-subject-title" style="margin:0;">📘 Ders Konuları</h3>
+            <button type="button" class="outline" style="width:auto; padding:8px 10px;" onclick="window.goBackFromCourseTopics()">⬅️ Geri</button>
+        </div>
+        <p style="font-size:0.82rem; color:#4b5563; text-align:left; margin-top:0;">Bu ders için kütüphanede görmek istediğiniz konuları tikleyin.</p>
+        <div id="course-topics-list" style="text-align:left; margin-bottom:12px;"></div>
+        <button type="button" class="green" onclick="window.saveCourseTopicsSelection()">💾 Konu Seçimini Kaydet</button>
+    </div>
+
+    <div id="screen-reminder-options" class="screen">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <h3 style="margin:0; color:#8e44ad;">🔔 Hatırlatma Seçenekleri</h3>
+            <button type="button" class="outline" style="width:auto; padding:8px 10px;" onclick="showScreen('screen-settings')">⬅️ Geri</button>
+        </div>
+        <div class="content-card" style="background:#fff; border:1px solid #ddd; border-radius:10px; padding:12px; text-align:left;">
+            <label style="font-size:0.8rem; font-weight:bold; color:#1e3c72;">Yeni aralık (gün)</label>
+            <div style="display:flex; gap:8px; margin-bottom:10px;">
+                <input id="reminder-interval-input" aria-label="Hatırlatma aralığı (gün)" type="number" min="0.25" step="0.25" placeholder="Örn: 2">
+                <button type="button" class="blue" style="width:auto; min-width:92px;" onclick="window.addReminderInterval()">Ekle</button>
+            </div>
+            <div id="reminder-options-list"></div>
+        </div>
     </div>
 
     <div id="screen-lobby" class="screen">
