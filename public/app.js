@@ -4,7 +4,7 @@ import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/fireb
 import { getStorage, ref as storageRef, uploadString, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
 import { createSafeClientStore } from "./modules/client-storage.mjs";
 import { SETTINGS_MODES, applySettingsMode, getDefaultSettingsModeByRole } from "./modules/settings-mode.mjs";
-import { normalizeTopicFilterMode, getAllowedTopicsForMode, buildDerslerimTopicNavigation, canStartLibraryTest, evaluateStdAnswer } from "./modules/ui-flow.mjs";
+import { normalizeTopicFilterMode, getAllowedTopicsForMode, buildDerslerimTopicNavigation, canStartLibraryTest, evaluateStdAnswer, filterCourseNamesByQuery, buildSemesterSections, getSavedLibraryCourseNames } from "./modules/ui-flow.mjs";
 
 const fallbackFirebaseConfig = { 
     apiKey: "AIzaSyDkZI-LxCOaog4kyb4YSquEK6ZpLNH2pqs", 
@@ -106,6 +106,7 @@ const ADD_QUESTION_UI_PREFS_STORAGE_KEY = 'gazi_add_question_ui_prefs_v1';
 const USER_CURRICULUM_STORAGE_KEY = 'gazi_user_curriculum_v1';
 const SOFT_DARK_THEME_STORAGE_KEY = 'gazi_soft_dark_theme_v1';
 const DERSLERIM_TOPIC_FILTER_STORAGE_KEY = 'gazi_derslerim_topic_filter_v1';
+const DERSLERIM_COURSE_SEARCH_STORAGE_KEY = 'gazi_derslerim_course_search_v1';
 const MAX_READY_SOURCES = 30;
 const FLOAT_COMPARISON_EPSILON = 0.001;
 const VALID_STUDENT_PHOTO_SOURCES = ['camera', 'gallery', 'file'];
@@ -706,23 +707,128 @@ window.renderProfileSubjectsByExam = (savedSubjectsInput = null) => {
     const container = document.getElementById('profile-subjects-area');
     const examTypeEl = document.getElementById('profile-exam-type');
     if (!container || !examTypeEl) return;
-    const subjects = getSubjectsByExamType(examTypeEl.value);
-    const savedSubjects = Array.isArray(savedSubjectsInput) ? savedSubjectsInput : (JSON.parse(localStorage.getItem('gazi_subjects_v2')) || []);
-    const savedMap = new Map(savedSubjects.map(item => [normalizeText(item.name), item.topics || '']));
-    container.innerHTML = subjects.map((subject, i) => {
-        const key = slugifySubjectName(subject);
-        const checkboxId = `subj-dyn-${key}-${i}`;
-        const topicId = `topic-dyn-${key}-${i}`;
-        const savedTopic = savedMap.get(normalizeText(subject)) || '';
-        const checked = savedMap.has(normalizeText(subject)) ? 'checked' : '';
+    const allSubjects = getSubjectsByExamType(examTypeEl.value);
+    const savedSubjects = Array.isArray(savedSubjectsInput) ? savedSubjectsInput : (CLIENT_STORE.getJSON('gazi_subjects_v2', []) || []);
+    const savedMap = new Map();
+    savedSubjects.forEach((item) => {
+        const normalizedName = normalizeText(item?.name);
+        if (!normalizedName) return;
+        savedMap.set(normalizedName, {
+            topics: String(item?.topics || '').trim(),
+            selected: item?.selected === false ? false : true
+        });
+    });
+    const queryInput = document.getElementById('derslerim-course-search');
+    const query = String(queryInput?.value || '').trim();
+    const filteredSubjects = filterCourseNamesByQuery(allSubjects, query);
+    const sections = buildSemesterSections(filteredSubjects);
+
+    if (sections.length === 0) {
+        container.innerHTML = `<p class="derslerim-empty-text">Aramaya uygun ders bulunamadı.</p>`;
+        return;
+    }
+
+    container.innerHTML = sections.map((section, sectionIndex) => {
+        const rowsHTML = section.courses.map((subject, subjectIndex) => {
+            const key = slugifySubjectName(subject);
+            const uniqueId = `${sectionIndex}-${subjectIndex}`;
+            const checkboxId = `subj-dyn-${key}-${uniqueId}`;
+            const topicId = `topic-dyn-${key}-${uniqueId}`;
+            const saved = savedMap.get(normalizeText(subject));
+            const checked = saved?.selected ? 'checked' : '';
+            const savedTopic = saved?.topics || '';
+            return `
+                <div class="subject-row" data-subject-name="${escapeHtml(subject)}" data-semester="${escapeHtml(section.title)}">
+                    <label class="subject-row-main" for="${checkboxId}">
+                        <input type="checkbox" id="${checkboxId}" value="${escapeHtml(subject)}" ${checked} onchange="window.handleDerslerimCourseToggle()">
+                        <span class="subject-row-name">${escapeHtml(subject)}</span>
+                    </label>
+                    <input type="text" id="${topicId}" value="${escapeHtml(savedTopic)}" placeholder="Alt Konu (opsiyonel)">
+                </div>
+            `;
+        }).join('');
         return `
-            <div class="subject-row" data-subject-name="${escapeHtml(subject)}">
-                <input type="checkbox" id="${checkboxId}" value="${escapeHtml(subject)}" ${checked}>
-                <label for="${checkboxId}">${escapeHtml(subject)}</label>
-                <input type="text" id="${topicId}" value="${escapeHtml(savedTopic)}" placeholder="Alt Konu">
-            </div>
+            <section class="derslerim-semester-section">
+                <h5 class="derslerim-semester-title">${escapeHtml(section.title)}</h5>
+                ${rowsHTML}
+            </section>
         `;
     }).join('');
+};
+
+function getDerslerimSubjectDraftsFromUI() {
+    const rows = Array.from(document.querySelectorAll('#profile-subjects-area .subject-row'));
+    if (rows.length === 0) return null;
+    const out = [];
+    rows.forEach((row) => {
+        const cb = row.querySelector('input[type="checkbox"]');
+        const txt = row.querySelector('input[type="text"]');
+        if (!cb) return;
+        out.push({
+            name: cb.value,
+            topics: (txt ? txt.value : '').trim(),
+            selected: !!cb.checked,
+            checked: !!cb.checked
+        });
+    });
+    return out;
+}
+
+function collectSelectedSubjectsFromUI() {
+    const subjectsData = [];
+    document.querySelectorAll('#profile-subjects-area .subject-row').forEach((row) => {
+        const cb = row.querySelector('input[type="checkbox"]');
+        const txt = row.querySelector('input[type="text"]');
+        if (cb && cb.checked) {
+            subjectsData.push({
+                name: cb.value,
+                topics: (txt ? txt.value : '').trim(),
+                selected: true,
+                checked: true
+            });
+        }
+    });
+    return subjectsData;
+}
+
+function syncSelectedSubjectsToStorage(subjectsData = []) {
+    CLIENT_STORE.setJSON('gazi_subjects_v2', subjectsData);
+    CLIENT_STORE.setItem('gazi_onboarding_done', 'true');
+    if (document.getElementById('library-modal-overlay')?.classList.contains('open')) {
+        window.renderLibraryModalTree();
+    }
+    const dersSelect = document.getElementById('std-q-ders');
+    if (dersSelect) {
+        dersSelect.innerHTML = subjectsData.length > 0
+            ? subjectsData.map(s => `<option value="${s.name}">${s.name}</option>`).join('')
+            : `<option value="Genel">Genel</option>`;
+    }
+    window.renderSavedLibraryCoursesPanel();
+}
+
+window.handleDerslerimCourseToggle = () => {
+    syncSelectedSubjectsToStorage(collectSelectedSubjectsFromUI());
+};
+
+window.handleDerslerimCourseSearch = () => {
+    const drafts = getDerslerimSubjectDraftsFromUI();
+    const query = String(document.getElementById('derslerim-course-search')?.value || '');
+    CLIENT_STORE.setItem(DERSLERIM_COURSE_SEARCH_STORAGE_KEY, query);
+    window.renderProfileSubjectsByExam(drafts);
+};
+
+window.renderSavedLibraryCoursesPanel = () => {
+    const wrap = document.getElementById('saved-library-course-list');
+    if (!wrap) return;
+    const savedSubjects = CLIENT_STORE.getJSON('gazi_subjects_v2', []) || [];
+    const courseNames = getSavedLibraryCourseNames(savedSubjects);
+    if (courseNames.length === 0) {
+        wrap.innerHTML = `<p class="saved-library-empty">Henüz ders seçmediniz. Derslerim ekranında tiklenen dersler burada görünür.</p>`;
+        return;
+    }
+    wrap.innerHTML = courseNames
+        .map((name) => `<div class="saved-library-course-item">📘 ${escapeHtml(name)}</div>`)
+        .join('');
 };
 
 window.toggleDerslerimSection = (contentId, arrowId, triggerId = null) => {
@@ -1342,6 +1448,10 @@ window.openSettingsPanel = () => {
     }
 
     const savedSubjects = CLIENT_STORE.getJSON('gazi_subjects_v2', []) || [];
+    const searchInput = document.getElementById('derslerim-course-search');
+    if (searchInput) {
+        searchInput.value = CLIENT_STORE.getItem(DERSLERIM_COURSE_SEARCH_STORAGE_KEY, '');
+    }
     window.renderProfileSubjectsByExam(savedSubjects);
     window.restoreDerslerimTheme();
     showScreen('screen-settings');
@@ -1374,29 +1484,10 @@ window.saveProfileSettings = () => {
     CLIENT_STORE.setItem('gazi_exam_type', document.getElementById('profile-exam-type').value); 
     CLIENT_STORE.setItem('gazi_grade', document.getElementById('profile-grade').value);
     
-    const subjectsData = [];
-    document.querySelectorAll('#profile-subjects-area .subject-row').forEach(row => {
-        const cb = row.querySelector('input[type="checkbox"]');
-        const txt = row.querySelector('input[type="text"]');
-        if (cb && cb.checked) {
-            subjectsData.push({ name: cb.value, topics: (txt ? txt.value : '').trim() });
-        }
-    });
-
-    CLIENT_STORE.setJSON('gazi_subjects_v2', subjectsData); 
-    CLIENT_STORE.setItem('gazi_onboarding_done', 'true');
-    if (document.getElementById('library-modal-overlay')?.classList.contains('open')) {
-        window.renderLibraryModalTree();
-    }
+    const subjectsData = collectSelectedSubjectsFromUI();
+    syncSelectedSubjectsToStorage(subjectsData);
     
     alert("✅ Çalışma Masası Ayarlarınız Kaydedildi!");
-    
-    const dersSelect = document.getElementById('std-q-ders'); 
-    if(dersSelect) { 
-        dersSelect.innerHTML = subjectsData.length > 0 
-            ? subjectsData.map(s => `<option value="${s.name}">${s.name}</option>`).join('') 
-            : `<option value="Genel">Genel</option>`; 
-    }
     showScreen('screen-main');
 };
 
@@ -1527,6 +1618,7 @@ onAuthStateChanged(auth, user => {
     const instPanel = document.getElementById('instructor-panel'); 
     const studentArea = document.getElementById('student-class-area');
     const studentLibPanel = document.getElementById('student-library-panel');
+    const savedLibraryPanel = document.getElementById('saved-library-panel');
     const teacherMainTools = document.getElementById('teacher-main-tools');
 
     if (user) { 
@@ -1559,6 +1651,7 @@ onAuthStateChanged(auth, user => {
         if (instPanel) instPanel.style.display = isTeacher ? "block" : "none";
         if (studentArea) studentArea.style.display = isTeacher ? "none" : "block"; 
         if (studentLibPanel) studentLibPanel.style.display = isTeacher ? "none" : "block";
+        if (savedLibraryPanel) savedLibraryPanel.style.display = isTeacher ? "none" : "block";
         if (teacherMainTools) teacherMainTools.style.display = isTeacher ? "block" : "none";
         if (adminBtn) adminBtn.style.display = isAdmin ? "block" : "none";
         if (adminApproveBtn) adminApproveBtn.style.display = isAdmin ? "block" : "none";
@@ -1620,10 +1713,14 @@ onAuthStateChanged(auth, user => {
             window.showScreen('screen-main'); 
         }
 
-        if (!isTeacher) window.updateLocalListCounts();
+        if (!isTeacher) {
+            window.updateLocalListCounts();
+            window.renderSavedLibraryCoursesPanel();
+        }
 
     } else { 
         APP_STATE.currentUser = { name: "", role: "guest", email: "" };
+        window.renderSavedLibraryCoursesPanel();
         window.showScreen('screen-auth'); 
     }
 });

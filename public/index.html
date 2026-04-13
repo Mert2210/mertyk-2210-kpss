@@ -158,6 +158,13 @@
         </div>
 
         <h2 id="display-user" style="color:#e67e22; margin-top:0;">Hoş Geldin!</h2>
+        <section id="saved-library-panel" class="content-card saved-library-panel">
+            <div class="saved-library-panel-header">
+                <h4 style="margin:0;">📚 Kayıtlı Kütüphanem</h4>
+                <button onclick="openDerslerimPanel()" class="outline" style="width:auto; padding:6px 10px; font-size:0.78rem;">Derslerim</button>
+            </div>
+            <div id="saved-library-course-list"></div>
+        </section>
         
         <div id="notification-center" style="display:flex; gap:10px; margin-bottom:15px;">
             <div id="new-q-alert-box" style="flex:1; display:none; background:#e74c3c; color:white; padding:12px; border-radius:10px; cursor:pointer; box-shadow: 0 4px 10px rgba(231,76,60,0.3);" onclick="startLibraryTest('new')">
@@ -431,12 +438,12 @@
 
                 <h4 style="color:#1e3c72; border-bottom:2px solid #eee; padding-bottom:8px; margin-top:20px;">📚 Sorumlu Olduğunuz Dersler</h4>
                 <p style="font-size:0.75rem; color:#666; margin-top:0;">Dersleri seçip yanlarına çalışacağınız alt konuları belirtebilirsiniz.</p>
+                <input type="search" id="derslerim-course-search" placeholder="🔍 Ders ara..." oninput="window.handleDerslerimCourseSearch()" style="margin-bottom:10px; border-color:#d4dbe8; background:#f8fbff;">
                 <div id="profile-subjects-area" style="max-height: 250px; overflow-y:auto; background:#fff; padding:8px; border-radius:8px; border:1px solid #ddd;"></div>
 
                 <div class="derslerim-collapsible-card" style="margin-top:12px;">
-                    <small style="display:block; color:#1e3c72; margin-bottom:8px; font-weight:700;">📁 Kütüphaneme Kaydet</small>
-                    <button type="button" id="derslerim-library-select-btn" class="outline" style="width:100%; border-color:#1e3c72; color:#1e3c72; font-size:0.85rem; padding:10px;" onclick="window.openLibraryModal('select')">📁 Kütüphane Seç</button>
-                    <p id="derslerim-selected-folder-text" style="margin:8px 0 0 0; font-size:0.78rem; color:#1e3c72; font-weight:600;">Seçili Kütüphane: Henüz seçilmedi</p>
+                    <small style="display:block; color:#1e3c72; margin-bottom:8px; font-weight:700;">✅ Tiklenen dersler doğrudan Kayıtlı Kütüphanem'e eklenir</small>
+                    <p style="margin:0; font-size:0.78rem; color:#4b5563;">Ek bir “kütüphaneden ekle” adımı gerekmez.</p>
                 </div>
 
                 <div class="derslerim-collapsible-card" style="margin-top:15px;">
