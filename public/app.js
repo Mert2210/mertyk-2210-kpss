@@ -265,13 +265,12 @@ function getCustomTopicsBySubject(subject) {
 
 function addCustomTopicsForSubject(subject, topics = []) {
     const safeSubject = String(subject || '').trim();
-    if (!safeSubject) return [];
+    if (!safeSubject) return;
     const customTopicMap = getCustomTopicMap();
     const existingCustomTopics = Array.isArray(customTopicMap?.[safeSubject]) ? customTopicMap[safeSubject] : [];
     const merged = uniqueSubjects([...existingCustomTopics, ...(Array.isArray(topics) ? topics : [])]);
     customTopicMap[safeSubject] = merged;
     CLIENT_STORE.setJSON('gazi_custom_topics', customTopicMap);
-    return merged;
 }
 
 function ensureProfileExamTypeOptions(selectedValue = '') {
