@@ -69,9 +69,10 @@ export function mergeSavedSubjectsWithDrafts(savedSubjects = [], drafts = []) {
     return Array.from(merged.values());
 }
 
-export function buildTopicListFromSources(curriculumTopics = [], userTopics = [], savedTopicsText = '') {
+export function buildTopicListFromSources(curriculumTopics = [], userTopics = [], savedTopicsText = '', customTopics = []) {
     const safeCurriculum = Array.isArray(curriculumTopics) ? curriculumTopics : [];
     const safeUserTopics = Array.isArray(userTopics) ? userTopics : [];
+    const safeCustomTopics = Array.isArray(customTopics) ? customTopics : [];
     const parsedSavedTopics = String(savedTopicsText || '')
         .split(',')
         .map((topic) => topic.trim())
@@ -79,8 +80,9 @@ export function buildTopicListFromSources(curriculumTopics = [], userTopics = []
     return Array.from(new Set([
         ...safeCurriculum.map((topic) => String(topic || '').trim()).filter(Boolean),
         ...safeUserTopics.map((topic) => String(topic || '').trim()).filter(Boolean),
-        ...parsedSavedTopics
-    ]));
+        ...parsedSavedTopics,
+        ...safeCustomTopics.map((topic) => String(topic || '').trim()).filter(Boolean)
+    ])).sort((a, b) => a.localeCompare(b, 'tr'));
 }
 
 export function buildSemesterSections(courseNames = []) {
