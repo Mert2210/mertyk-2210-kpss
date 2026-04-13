@@ -33,7 +33,7 @@ test('Konu seçince listeleme: sadece kayıtlı modunda yalnızca kayıtlı konu
     assert.deepStrictEqual(getAllowedTopicsForMode(topics, saved, 'all'), topics);
 });
 
-test('Kütüphane modal bağlamı: ekleme modunda filtre devre dışıdır, görüntülemede boş aktif filtre tüm konulara düşer', async () => {
+test('Kütüphane modal bağlamı: ekleme modunda filtre devre dışıdır, görüntüleme modunda boş aktif filtre tüm konulara düşer', async () => {
     const { getAllowedTopicsForModalContext } = await importUiFlow();
     const topics = ['Cümlede Anlam', 'Dil Bilgisi'];
     const saved = new Set();
