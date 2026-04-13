@@ -199,6 +199,10 @@ function parseTopicsFromText(text) {
         .filter(Boolean));
 }
 
+function getCurrentExamType() {
+    return String(document.getElementById('profile-exam-type')?.value || CLIENT_STORE.getItem('gazi_exam_type', DEFAULT_EXAM_TYPE));
+}
+
 function getCustomExamTypes() {
     const raw = CLIENT_STORE.getJSON(CUSTOM_EXAM_TYPES_STORAGE_KEY, []);
     if (!Array.isArray(raw)) return [];
@@ -225,6 +229,49 @@ function getCustomCurriculumMap() {
 
 function saveCustomCurriculumMap(nextMap = {}) {
     CLIENT_STORE.setJSON(CUSTOM_CURRICULUM_STORAGE_KEY, nextMap && typeof nextMap === 'object' ? nextMap : {});
+}
+
+function getCustomCurriculumGroupsByExamType(examType) {
+    const customCurriculum = getCustomCurriculumMap();
+    const groups = customCurriculum?.[examType];
+    return groups && typeof groups === 'object' ? groups : {};
+}
+
+function getCustomCurriculumSubjectsByExamType(examType) {
+    return uniqueSubjects(Object.values(getCustomCurriculumGroupsByExamType(examType)).flatMap((groupSubjects) => Object.keys(groupSubjects || {})));
+}
+
+function getCustomCurriculumTopicsByExamTypeAndSubject(examType, subject) {
+    const safeSubject = String(subject || '').trim();
+    if (!safeSubject) return [];
+    return uniqueSubjects(Object.values(getCustomCurriculumGroupsByExamType(examType))
+        .flatMap((groupSubjects) => {
+            const list = groupSubjects?.[safeSubject];
+            return Array.isArray(list) ? list : [];
+        }));
+}
+
+function getCustomTopicMap() {
+    const raw = CLIENT_STORE.getJSON('gazi_custom_topics', {});
+    return raw && typeof raw === 'object' ? raw : {};
+}
+
+function getCustomTopicsBySubject(subject) {
+    const safeSubject = String(subject || '').trim();
+    if (!safeSubject) return [];
+    const customTopicMap = getCustomTopicMap();
+    return Array.isArray(customTopicMap?.[safeSubject]) ? customTopicMap[safeSubject] : [];
+}
+
+function addCustomTopicsForSubject(subject, topics = []) {
+    const safeSubject = String(subject || '').trim();
+    if (!safeSubject) return [];
+    const customTopicMap = getCustomTopicMap();
+    const existingCustomTopics = Array.isArray(customTopicMap?.[safeSubject]) ? customTopicMap[safeSubject] : [];
+    const merged = uniqueSubjects([...existingCustomTopics, ...(Array.isArray(topics) ? topics : [])]);
+    customTopicMap[safeSubject] = merged;
+    CLIENT_STORE.setJSON('gazi_custom_topics', customTopicMap);
+    return merged;
 }
 
 function ensureProfileExamTypeOptions(selectedValue = '') {
@@ -868,9 +915,8 @@ const EXAM_TYPE_SUBJECT_MAP = {
 
 function getSubjectsByExamType(examType) {
     const conf = EXAM_TYPE_SUBJECT_MAP[examType];
-    const customCurriculum = getCustomCurriculumMap();
     if (!conf || !window.mufredat[conf[0]]) {
-        const fallbackCustomSubjects = uniqueSubjects(Object.values(customCurriculum?.[examType] || {}).flatMap((groupSubjects) => Object.keys(groupSubjects || {})));
+        const fallbackCustomSubjects = getCustomCurriculumSubjectsByExamType(examType);
         const savedSubjects = getDerslerimSubjectsFromStorage();
         return uniqueSubjects([...DEFAULT_PROFILE_SUBJECTS, ...fallbackCustomSubjects, ...savedSubjects]);
     }
@@ -880,7 +926,7 @@ function getSubjectsByExamType(examType) {
         const groupData = window.mufredat[examKey][group];
         if (groupData) subjectNames.push(...Object.keys(groupData));
     });
-    const customSubjects = uniqueSubjects(Object.values(customCurriculum?.[examType] || {}).flatMap((groupSubjects) => Object.keys(groupSubjects || {})));
+    const customSubjects = getCustomCurriculumSubjectsByExamType(examType);
     const savedSubjects = getDerslerimSubjectsFromStorage();
     return uniqueSubjects([...(subjectNames.length > 0 ? subjectNames : DEFAULT_PROFILE_SUBJECTS), ...customSubjects, ...savedSubjects]);
 }
@@ -889,14 +935,8 @@ function getCurriculumTopicsByExamTypeAndSubject(examType, subject) {
     const safeSubject = String(subject || '').trim();
     if (!safeSubject) return [];
     const conf = EXAM_TYPE_SUBJECT_MAP[examType];
-    const customCurriculum = getCustomCurriculumMap();
     if (!conf || !window.mufredat[conf[0]]) {
-        const fallbackCustomTopics = Object.values(customCurriculum?.[examType] || {})
-            .flatMap((groupSubjects) => {
-                const list = groupSubjects?.[safeSubject];
-                return Array.isArray(list) ? list : [];
-            });
-        return uniqueSubjects(fallbackCustomTopics);
+        return getCustomCurriculumTopicsByExamTypeAndSubject(examType, safeSubject);
     }
     const [examKey, groups] = conf;
     const topics = [];
@@ -904,11 +944,7 @@ function getCurriculumTopicsByExamTypeAndSubject(examType, subject) {
         const subjectTopics = window.mufredat?.[examKey]?.[group]?.[safeSubject];
         if (Array.isArray(subjectTopics)) topics.push(...subjectTopics);
     });
-    const customTopics = Object.values(customCurriculum?.[examType] || {})
-        .flatMap((groupSubjects) => {
-            const list = groupSubjects?.[safeSubject];
-            return Array.isArray(list) ? list : [];
-        });
+    const customTopics = getCustomCurriculumTopicsByExamTypeAndSubject(examType, safeSubject);
     return uniqueSubjects([...topics, ...customTopics]);
 }
 
@@ -943,8 +979,7 @@ window.renderProfileSubjectsByExam = (savedSubjectsInput = null) => {
             const checked = saved?.selected ? 'checked' : '';
             const userTopics = Array.isArray(window.userCurriculum?.[subject]) ? window.userCurriculum[subject] : [];
             const curriculumTopics = getCurriculumTopicsByExamTypeAndSubject(examTypeEl.value, subject);
-            const customTopicMap = CLIENT_STORE.getJSON('gazi_custom_topics', {}) || {};
-            const customTopics = Array.isArray(customTopicMap?.[subject]) ? customTopicMap[subject] : [];
+            const customTopics = getCustomTopicsBySubject(subject);
             const topicList = buildTopicListFromSources(curriculumTopics, userTopics, saved?.topics || '', customTopics);
             const topicsHTML = topicList.length > 0
                 ? `<div class="subject-row-topics">${topicList.map((topic) => `<span class="subject-topic-chip">${escapeHtml(topic)}</span>`).join('')}</div>`
@@ -1014,8 +1049,8 @@ function syncSelectedSubjectsToStorage(subjectsData = []) {
         }
         if (dersSelect.options.length === 0) {
             const option = document.createElement('option');
-            option.value = 'Genel';
-            option.textContent = 'Genel';
+            option.value = DEFAULT_CUSTOM_GROUP_NAME;
+            option.textContent = DEFAULT_CUSTOM_GROUP_NAME;
             dersSelect.appendChild(option);
         }
     }
@@ -1097,7 +1132,7 @@ window.openDerslerimAddModal = () => {
     const modal = document.getElementById('derslerim-add-modal');
     if (!modal) return;
     const examTypeSelect = document.getElementById('derslerim-add-exam-type');
-    const currentExamType = String(document.getElementById('profile-exam-type')?.value || CLIENT_STORE.getItem('gazi_exam_type', DEFAULT_EXAM_TYPE));
+    const currentExamType = getCurrentExamType();
     ensureDerslerimAddExamOptions(currentExamType);
     if (examTypeSelect) {
         examTypeSelect.value = currentExamType;
@@ -1175,10 +1210,7 @@ window.saveDerslerimCustomCourse = () => {
     CLIENT_STORE.setJSON('gazi_subjects_v2', savedSubjects);
 
     if (topics.length > 0) {
-        const customTopicMap = CLIENT_STORE.getJSON('gazi_custom_topics', {}) || {};
-        const existingCustomTopics = Array.isArray(customTopicMap?.[subjectName]) ? customTopicMap[subjectName] : [];
-        customTopicMap[subjectName] = uniqueSubjects([...existingCustomTopics, ...topics]);
-        CLIENT_STORE.setJSON('gazi_custom_topics', customTopicMap);
+        addCustomTopicsForSubject(subjectName, topics);
 
         if (!Array.isArray(window.userCurriculum?.[subjectName])) window.userCurriculum[subjectName] = [];
         window.userCurriculum[subjectName] = uniqueSubjects([...window.userCurriculum[subjectName], ...topics]);
@@ -1299,10 +1331,8 @@ function getTopicsForDerslerimSubject(subject) {
     const safeSubject = String(subject || '').trim();
     if (!safeSubject) return [];
     const fromUserCurriculum = Array.isArray(window.userCurriculum?.[safeSubject]) ? window.userCurriculum[safeSubject] : [];
-    const customTopicMap = CLIENT_STORE.getJSON('gazi_custom_topics', {}) || {};
-    const fromCustomTopics = Array.isArray(customTopicMap?.[safeSubject]) ? customTopicMap[safeSubject] : [];
-    const examTypeEl = document.getElementById('profile-exam-type');
-    const activeExamType = String(examTypeEl?.value || CLIENT_STORE.getItem('gazi_exam_type', DEFAULT_EXAM_TYPE));
+    const fromCustomTopics = getCustomTopicsBySubject(safeSubject);
+    const activeExamType = getCurrentExamType();
     const fromBaseCurriculum = getCurriculumTopicsByExamTypeAndSubject(activeExamType, safeSubject);
     const saved = CLIENT_STORE.getJSON('gazi_subjects_v2', []) || [];
     const row = saved.find(item => String(item?.name || '').trim() === safeSubject);
@@ -2117,7 +2147,7 @@ onAuthStateChanged(auth, user => {
         if(dersSelect) { 
             dersSelect.innerHTML = savedSubjects.length > 0 
                 ? savedSubjects.map(s => `<option value="${s.name}">${s.name}</option>`).join('') 
-                : `<option value="Genel">Genel</option>`; 
+                : `<option value="${DEFAULT_CUSTOM_GROUP_NAME}">${DEFAULT_CUSTOM_GROUP_NAME}</option>`; 
         }
 
         const onboardingDone = CLIENT_STORE.getItem('gazi_onboarding_done', '');
@@ -2569,12 +2599,7 @@ window.uploadStudentQuestion = async (target = 'cloud') => {
     if(!stdUploadedImageBase64 && !qText) return alert("Lütfen bir fotoğraf yükleyin veya kendinize bir not yazın!");
 
     if(customKonu && !smartTopicContext && finalDers !== "Genel Ders") {
-        let customTopics = CLIENT_STORE.getJSON('gazi_custom_topics', {}) || {};
-        if(!customTopics[finalDers]) customTopics[finalDers] = [];
-        if(!customTopics[finalDers].includes(customKonu)) {
-            customTopics[finalDers].push(customKonu);
-            CLIENT_STORE.setJSON('gazi_custom_topics', customTopics);
-        }
+        addCustomTopicsForSubject(finalDers, [customKonu]);
     }
 
     CLIENT_STORE.setJSON('gazi_sticky_memory', {
