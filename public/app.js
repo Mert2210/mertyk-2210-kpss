@@ -142,6 +142,7 @@ const CUSTOM_CURRICULUM_STORAGE_KEY = 'gazi_custom_curriculum_v1';
 const REMINDER_INTERVALS_STORAGE_KEY = 'gazi_reminder_intervals_v1';
 const LOCAL_NOTEBOOK_STORAGE_KEY = 'gazi_local_notebook';
 const LEGACY_REVIEW_DELAY_DAYS_KEY = 'gazi_review_delay_days';
+const MINUTES_PER_DAY = 24 * 60;
 const CUSTOM_EXAM_PREFIX = 'custom_';
 const DEFAULT_CUSTOM_GROUP_NAME = 'Genel';
 const MAX_READY_SOURCES = 30;
@@ -1006,7 +1007,7 @@ window.renderProfileSubjectsByExam = (savedSubjectsInput = null) => {
                         <input type="checkbox" id="${checkboxId}" value="${escapeHtml(subject)}" ${checked} onchange="window.handleDerslerimCourseToggle()">
                         <span class="subject-row-name">${escapeHtml(subject)}</span>
                     </label>
-                    <button type="button" class="outline subject-open-btn" onclick="window.openCourseTopicsScreenEncoded('${encodeURIComponent(subject)}')">Konuları Aç</button>
+                    <button type="button" class="outline subject-open-btn" onclick="window.openCourseTopicsScreenEncoded(&quot;${encodeURIComponent(subject)}&quot;)">Konuları Aç</button>
                     ${topicsHTML}
                 </div>
             `;
@@ -1398,8 +1399,8 @@ function getReminderIntervals() {
     const storedIntervals = CLIENT_STORE.getJSON(REMINDER_INTERVALS_STORAGE_KEY, []);
     const legacyDays = Number(CLIENT_STORE.getItem(LEGACY_REVIEW_DELAY_DAYS_KEY, '7'));
     const fallbackMinutes = Number.isFinite(legacyDays) && legacyDays > 0
-        ? [Math.round(legacyDays * 24 * 60)]
-        : [7 * 24 * 60];
+        ? [Math.round(legacyDays * MINUTES_PER_DAY)]
+        : [7 * MINUTES_PER_DAY];
     return normalizeReminderIntervals(storedIntervals, fallbackMinutes);
 }
 
@@ -1410,7 +1411,7 @@ function setReminderIntervals(intervals) {
 function formatReminderIntervalLabel(minutes) {
     const safeMinutes = Number(minutes);
     if (!Number.isFinite(safeMinutes) || safeMinutes <= 0) return '';
-    if (safeMinutes % (24 * 60) === 0) return `${safeMinutes / (24 * 60)} gün`;
+    if (safeMinutes % MINUTES_PER_DAY === 0) return `${safeMinutes / MINUTES_PER_DAY} gün`;
     if (safeMinutes % 60 === 0) return `${safeMinutes / 60} saat`;
     return `${safeMinutes} dakika`;
 }
@@ -1426,14 +1427,41 @@ function renderReminderSelectOptions(selectId, selectedValue = null) {
         .join('');
 }
 
+function createStableQuestionKey(question = {}) {
+    const explicitId = String(question?.id || '').trim();
+    if (explicitId) return explicitId;
+    const base = [
+        String(question?.studentName || '').trim(),
+        String(question?.ders || '').trim(),
+        String(question?.konu || question?.deneme || '').trim(),
+        String(question?.soru || question?.not || '').trim()
+    ].join('|');
+    if (!base) return 'question-empty';
+    let hash = 5381;
+    for (let i = 0; i < base.length; i += 1) {
+        hash = ((hash << 5) + hash) + base.charCodeAt(i);
+        hash &= 0xffffffff;
+    }
+    return `q-${Math.abs(hash)}`;
+}
+
+function getReminderEditValueAndUnit(minutes) {
+    const safeMinutes = Number(minutes);
+    if (safeMinutes % MINUTES_PER_DAY === 0) {
+        return { value: safeMinutes / MINUTES_PER_DAY, unit: 'days' };
+    }
+    if (safeMinutes % 60 === 0) {
+        return { value: safeMinutes / 60, unit: 'hours' };
+    }
+    return { value: safeMinutes, unit: 'minutes' };
+}
+
 function mergeLibraryQuestions(cloudQuestions = [], localQuestions = []) {
     const merged = new Map();
     const allQuestions = [...(Array.isArray(cloudQuestions) ? cloudQuestions : []), ...(Array.isArray(localQuestions) ? localQuestions : [])];
-    allQuestions.forEach((question, index) => {
+    allQuestions.forEach((question) => {
         const q = question || {};
-        const explicitId = String(q.id || '').trim();
-        const fallbackId = `${String(q.studentName || '').trim()}|${String(q.ders || '').trim()}|${String(q.konu || q.deneme || '').trim()}|${String(q.soru || q.not || '').trim()}|${String(q.nextReviewDate || '')}`;
-        const key = explicitId || fallbackId || `idx-${index}`;
+        const key = createStableQuestionKey(q);
         if (!merged.has(key)) merged.set(key, q);
     });
     return Array.from(merged.values());
@@ -1456,13 +1484,26 @@ window.renderReminderOptionsList = () => {
     const listEl = document.getElementById('reminder-interval-list');
     if (!listEl) return;
     const intervals = getReminderIntervals();
+    const editingIndex = Number(window.reminderEditingIndex);
     listEl.innerHTML = intervals.map((minutes, index) => `
         <div class="list-item" style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
-            <strong>${escapeHtml(formatReminderIntervalLabel(minutes))}</strong>
-            <div style="display:flex; gap:6px;">
-                <button type="button" class="outline" style="width:auto; padding:6px 8px;" onclick="window.editReminderIntervalOption(${index})">Düzenle</button>
-                <button type="button" class="outline" style="width:auto; padding:6px 8px; border-color:#c0392b; color:#c0392b;" onclick="window.deleteReminderIntervalOption(${index})">Sil</button>
-            </div>
+            ${editingIndex === index
+                ? `<div style="display:flex; flex-wrap:wrap; gap:6px; width:100%;">
+                    <input type="number" min="1" id="edit-reminder-value-${index}" value="${getReminderEditValueAndUnit(minutes).value}" style="margin:0; flex:1;">
+                    <select id="edit-reminder-unit-${index}" style="margin:0; max-width:120px;">
+                        <option value="minutes" ${getReminderEditValueAndUnit(minutes).unit === 'minutes' ? 'selected' : ''}>Dakika</option>
+                        <option value="hours" ${getReminderEditValueAndUnit(minutes).unit === 'hours' ? 'selected' : ''}>Saat</option>
+                        <option value="days" ${getReminderEditValueAndUnit(minutes).unit === 'days' ? 'selected' : ''}>Gün</option>
+                    </select>
+                    <button type="button" class="green" style="width:auto; padding:6px 10px;" onclick="window.saveReminderIntervalEdit(${index})">Kaydet</button>
+                    <button type="button" class="outline" style="width:auto; padding:6px 10px;" onclick="window.cancelReminderIntervalEdit()">İptal</button>
+                   </div>`
+                : `<strong>${escapeHtml(formatReminderIntervalLabel(minutes))}</strong>
+                   <div style="display:flex; gap:6px;">
+                       <button type="button" class="outline" style="width:auto; padding:6px 8px;" onclick="window.startReminderIntervalEdit(${index})">Düzenle</button>
+                       <button type="button" class="outline" style="width:auto; padding:6px 8px; border-color:#c0392b; color:#c0392b;" onclick="window.deleteReminderIntervalOption(${index})">Sil</button>
+                   </div>`
+            }
         </div>
     `).join('');
     renderReminderSelectOptions('std-q-reminder');
@@ -1473,37 +1514,46 @@ window.addReminderIntervalOption = () => {
     const unitEl = document.getElementById('reminder-interval-unit');
     const rawValue = Number(valueEl?.value);
     if (!Number.isFinite(rawValue) || rawValue <= 0) {
-        alert('Lütfen geçerli bir sayı girin.');
+        window.showSoftFeedback('Lütfen geçerli bir sayı girin.');
         return;
     }
     const unit = String(unitEl?.value || 'days');
-    const multiplier = unit === 'minutes' ? 1 : unit === 'hours' ? 60 : 24 * 60;
+    const multiplier = unit === 'minutes' ? 1 : unit === 'hours' ? 60 : MINUTES_PER_DAY;
     const minutes = Math.round(rawValue * multiplier);
     const nextIntervals = normalizeReminderIntervals([...getReminderIntervals(), minutes]);
     setReminderIntervals(nextIntervals);
     if (valueEl) valueEl.value = '';
+    window.reminderEditingIndex = null;
     window.renderReminderOptionsList();
     window.showSoftFeedback('Hatırlatma aralığı eklendi.');
 };
 
-window.editReminderIntervalOption = (index) => {
+window.startReminderIntervalEdit = (index) => {
+    window.reminderEditingIndex = Number(index);
+    window.renderReminderOptionsList();
+};
+
+window.cancelReminderIntervalEdit = () => {
+    window.reminderEditingIndex = null;
+    window.renderReminderOptionsList();
+};
+
+window.saveReminderIntervalEdit = (index) => {
     const intervals = getReminderIntervals();
     const safeIndex = Number(index);
     if (!Number.isInteger(safeIndex) || safeIndex < 0 || safeIndex >= intervals.length) return;
-    const currentMinutes = intervals[safeIndex];
-    const nextValueRaw = prompt('Yeni süreyi sayı olarak girin:', String(currentMinutes % (24 * 60) === 0 ? currentMinutes / (24 * 60) : currentMinutes));
-    if (nextValueRaw === null) return;
-    const nextUnitRaw = prompt('Birim girin (minutes / hours / days):', currentMinutes % (24 * 60) === 0 ? 'days' : (currentMinutes % 60 === 0 ? 'hours' : 'minutes'));
-    if (nextUnitRaw === null) return;
-    const nextValue = Number(nextValueRaw);
-    const nextUnit = String(nextUnitRaw || '').trim().toLowerCase();
+    const valueEl = document.getElementById(`edit-reminder-value-${safeIndex}`);
+    const unitEl = document.getElementById(`edit-reminder-unit-${safeIndex}`);
+    const nextValue = Number(valueEl?.value);
+    const nextUnit = String(unitEl?.value || '').trim().toLowerCase();
     if (!Number.isFinite(nextValue) || nextValue <= 0 || !['minutes', 'hours', 'days'].includes(nextUnit)) {
-        alert('Geçersiz süre veya birim girdiniz.');
+        window.showSoftFeedback('Geçersiz süre veya birim girdiniz.');
         return;
     }
-    const multiplier = nextUnit === 'minutes' ? 1 : nextUnit === 'hours' ? 60 : 24 * 60;
+    const multiplier = nextUnit === 'minutes' ? 1 : nextUnit === 'hours' ? 60 : MINUTES_PER_DAY;
     intervals[safeIndex] = Math.round(nextValue * multiplier);
     setReminderIntervals(intervals);
+    window.reminderEditingIndex = null;
     window.renderReminderOptionsList();
 };
 
@@ -1517,6 +1567,7 @@ window.deleteReminderIntervalOption = (index) => {
     }
     intervals.splice(safeIndex, 1);
     setReminderIntervals(intervals);
+    window.reminderEditingIndex = null;
     window.renderReminderOptionsList();
 };
 
@@ -3170,7 +3221,7 @@ function populateLibraryFilters(data) {
 
 function getSavedReviewDelayMinutes() {
     const saved = Number(CLIENT_STORE.getItem(LEGACY_REVIEW_DELAY_DAYS_KEY, ''));
-    if (Number.isFinite(saved) && saved > 0) return Math.round(saved * 24 * 60);
+    if (Number.isFinite(saved) && saved > 0) return Math.round(saved * MINUTES_PER_DAY);
     return getReminderIntervals()[0];
 }
 
@@ -3304,10 +3355,12 @@ window.updateReviewDateByIndex = (questionIndex, isLocal = false) => {
 window.updateReviewDate = (questionId, isLocal = false, selectedMinutes = null) => {
     const minutes = parseFloat(selectedMinutes || getSavedReviewDelayMinutes());
     if(minutes && minutes > 0) {
-        CLIENT_STORE.setItem(LEGACY_REVIEW_DELAY_DAYS_KEY, String(minutes / (24 * 60)));
+        // Geriye dönük uyumluluk için legacy anahtar gün cinsinden saklanır (gerekirse kesirli olarak).
+        CLIENT_STORE.setItem(LEGACY_REVIEW_DELAY_DAYS_KEY, String(minutes / MINUTES_PER_DAY));
         const newDate = Date.now() + (minutes * 60 * 1000);
         if(!isLocal) { 
-            socket.emit("updateReviewDate", { questionId: questionId, additionalDays: minutes / (24 * 60) }); 
+            // Sunucu sözleşmesi additionalDays alanını bekliyor; dakika değeri güne çevrilerek iletilir.
+            socket.emit("updateReviewDate", { questionId: questionId, additionalDays: minutes / MINUTES_PER_DAY }); 
         } else { 
             let localData = getLocalNotebookQuestions();
             const idx = localData.findIndex(x => x.id === questionId); 
@@ -3362,7 +3415,7 @@ function setTrialFullListVisibility(isVisible = false) {
     if (legacyWrap) legacyWrap.style.display = isVisible ? 'none' : 'block';
     if (optsArea) optsArea.style.display = isVisible ? 'none' : 'block';
     if (mapAccordion) mapAccordion.style.display = isVisible ? 'none' : 'block';
-    if (navButtons) navButtons.style.display = 'none';
+    if (navButtons) navButtons.style.display = isVisible ? 'none' : 'flex';
     if (boxQuestion) boxQuestion.style.display = isVisible ? 'none' : 'block';
 }
 
