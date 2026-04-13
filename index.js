@@ -185,13 +185,13 @@ function sanitizeCurriculumMap(payload) {
     return out;
 }
 
-function generateQuestionId() {
+function generateUniqueQuestionId() {
     return `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 10)}`;
 }
 
 function normalizeQuestionForClient(question, fallbackId = "") {
     const safeQuestion = question && typeof question === "object" ? question : {};
-    const id = sanitizeString(safeQuestion.id, 120) || sanitizeString(fallbackId, 120) || generateQuestionId();
+    const id = sanitizeString(safeQuestion.id, 120) || sanitizeString(fallbackId, 120) || generateUniqueQuestionId();
     return { ...safeQuestion, id };
 }
 
@@ -444,7 +444,7 @@ io.on("connection", (socket) => {
         }
         const safeQ = {
             ...newQ,
-            id: sanitizeString(newQ.id, 120) || generateQuestionId(),
+            id: sanitizeString(newQ.id, 120) || generateUniqueQuestionId(),
             soru: safeQuestionText,
             classCode: safeClassCode,
             ders: sanitizeString(newQ.ders || "GENEL", 60).toLocaleUpperCase("tr"),
@@ -505,14 +505,16 @@ io.on("connection", (socket) => {
             return socket.emit("teacherQuestionDeleted", { success: false, message: "Bu sınıf için silme yetkiniz yok." });
         }
 
-        const beforeCount = tumSorular.length;
-        tumSorular = tumSorular.filter((q) => {
-            if (String(q?.classCode || "").toUpperCase() !== safeClassCode) return true;
-            if (safeQuestionId && sanitizeString(q?.id, 120) === safeQuestionId) return false;
-            if (!safeQuestionId && safeQuestionText && sanitizeString(q?.soru, 10000) === safeQuestionText) return false;
-            return true;
+        const targetIndex = tumSorular.findIndex((q) => {
+            if (String(q?.classCode || "").toUpperCase() !== safeClassCode) return false;
+            if (safeQuestionId) return sanitizeString(q?.id, 120) === safeQuestionId;
+            if (safeQuestionText) return sanitizeString(q?.soru, 10000) === safeQuestionText;
+            return false;
         });
-        if (tumSorular.length !== beforeCount) writeJsonFile(QUESTIONS_FILE, tumSorular);
+        if (targetIndex >= 0) {
+            tumSorular.splice(targetIndex, 1);
+            writeJsonFile(QUESTIONS_FILE, tumSorular);
+        }
 
         if (db && safeClassCode) {
             try {

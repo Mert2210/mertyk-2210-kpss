@@ -3075,6 +3075,7 @@ window.deleteSavedTeacherMaterials = (index) => {
     const list = getStudentSavedTeacherMaterials();
     const safeIndex = Number(index);
     if (!Number.isInteger(safeIndex) || safeIndex < 0 || safeIndex >= list.length) return;
+    if (!confirm("Bu kaydı silmek istediğinizden emin misiniz?")) return;
     list.splice(safeIndex, 1);
     setStudentSavedTeacherMaterials(list);
     window.renderStudentSavedTeacherMaterials();
