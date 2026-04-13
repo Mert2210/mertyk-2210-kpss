@@ -76,7 +76,7 @@ button.outline { background: transparent; border: 2px solid var(--color-primary)
 button.gold { background: #f1c40f; color:#333; }
 button.blue { background: var(--color-info); }
 
-.ui-btn-compact { min-height: 38px; padding: 8px 10px; font-size: 0.84rem; }
+.ui-btn-compact { min-height: 44px; padding: 8px 10px; font-size: 0.84rem; }
 .ui-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); padding: var(--space-3); }
 .ui-input { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-sm); }
 .ui-badge {
