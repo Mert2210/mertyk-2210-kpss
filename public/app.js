@@ -5,6 +5,7 @@ import { getStorage, ref as storageRef, uploadString, getDownloadURL } from "htt
 import { createSafeClientStore } from "./modules/client-storage.mjs";
 import { SETTINGS_MODES, applySettingsMode, getDefaultSettingsModeByRole } from "./modules/settings-mode.mjs";
 import { normalizeTopicFilterMode, getAllowedTopicsForMode, buildDerslerimTopicNavigation, canStartLibraryTest, evaluateStdAnswer, filterCourseNamesByQuery, getSavedLibraryCourseNames, buildDueReminderCountsBySubject, mergeSavedSubjectsWithDrafts, buildTopicListFromSources } from "./modules/ui-flow.mjs";
+import { resolveCurrentExamType, getCustomCurriculumGroupsByExamType as getCustomCurriculumGroupsByExamTypeFromMap, getCustomCurriculumSubjectsByExamType as getCustomCurriculumSubjectsByExamTypeFromMap, getCustomCurriculumTopicsByExamTypeAndSubject as getCustomCurriculumTopicsByExamTypeAndSubjectFromMap, getCustomTopicsBySubject as getCustomTopicsBySubjectFromMap, addCustomTopicsForSubject as addCustomTopicsForSubjectInMap } from "./modules/custom-data.mjs";
 
 const fallbackFirebaseConfig = { 
     apiKey: "AIzaSyDkZI-LxCOaog4kyb4YSquEK6ZpLNH2pqs", 
@@ -200,7 +201,11 @@ function parseTopicsFromText(text) {
 }
 
 function getCurrentExamType() {
-    return String(document.getElementById('profile-exam-type')?.value || CLIENT_STORE.getItem('gazi_exam_type', DEFAULT_EXAM_TYPE));
+    return resolveCurrentExamType(
+        document.getElementById('profile-exam-type')?.value,
+        CLIENT_STORE.getItem('gazi_exam_type', DEFAULT_EXAM_TYPE),
+        DEFAULT_EXAM_TYPE
+    );
 }
 
 function getCustomExamTypes() {
@@ -232,23 +237,15 @@ function saveCustomCurriculumMap(nextMap = {}) {
 }
 
 function getCustomCurriculumGroupsByExamType(examType) {
-    const customCurriculum = getCustomCurriculumMap();
-    const groups = customCurriculum?.[examType];
-    return groups && typeof groups === 'object' ? groups : {};
+    return getCustomCurriculumGroupsByExamTypeFromMap(getCustomCurriculumMap(), examType);
 }
 
 function getCustomCurriculumSubjectsByExamType(examType) {
-    return uniqueSubjects(Object.values(getCustomCurriculumGroupsByExamType(examType)).flatMap((groupSubjects) => Object.keys(groupSubjects || {})));
+    return getCustomCurriculumSubjectsByExamTypeFromMap(getCustomCurriculumMap(), examType);
 }
 
 function getCustomCurriculumTopicsByExamTypeAndSubject(examType, subject) {
-    const safeSubject = String(subject || '').trim();
-    if (!safeSubject) return [];
-    return uniqueSubjects(Object.values(getCustomCurriculumGroupsByExamType(examType))
-        .flatMap((groupSubjects) => {
-            const list = groupSubjects?.[safeSubject];
-            return Array.isArray(list) ? list : [];
-        }));
+    return getCustomCurriculumTopicsByExamTypeAndSubjectFromMap(getCustomCurriculumMap(), examType, subject);
 }
 
 function getCustomTopicMap() {
@@ -257,20 +254,14 @@ function getCustomTopicMap() {
 }
 
 function getCustomTopicsBySubject(subject) {
-    const safeSubject = String(subject || '').trim();
-    if (!safeSubject) return [];
-    const customTopicMap = getCustomTopicMap();
-    return Array.isArray(customTopicMap?.[safeSubject]) ? customTopicMap[safeSubject] : [];
+    return getCustomTopicsBySubjectFromMap(getCustomTopicMap(), subject);
 }
 
 function addCustomTopicsForSubject(subject, topics = []) {
     const safeSubject = String(subject || '').trim();
     if (!safeSubject) return;
-    const customTopicMap = getCustomTopicMap();
-    const existingCustomTopics = Array.isArray(customTopicMap?.[safeSubject]) ? customTopicMap[safeSubject] : [];
-    const merged = uniqueSubjects([...existingCustomTopics, ...(Array.isArray(topics) ? topics : [])]);
-    customTopicMap[safeSubject] = merged;
-    CLIENT_STORE.setJSON('gazi_custom_topics', customTopicMap);
+    const nextMap = addCustomTopicsForSubjectInMap(getCustomTopicMap(), safeSubject, topics);
+    CLIENT_STORE.setJSON('gazi_custom_topics', nextMap);
 }
 
 function ensureProfileExamTypeOptions(selectedValue = '') {
