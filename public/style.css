@@ -152,8 +152,23 @@ input[type="checkbox"] { width: auto !important; margin: 0 10px 0 0 !important; 
     margin-bottom: 6px;
     color: #eaf2ff;
     font-size: 0.88rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 .saved-library-empty { margin: 0; color: #b7c7e6; font-size: 0.82rem; }
+.saved-library-red-dot {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    background: #e74c3c;
+    color: #fff;
+    border-radius: 999px;
+    padding: 2px 8px;
+    font-size: 0.72rem;
+    font-weight: 700;
+}
 
 .list-item { background: #f9f9f9; border: 1px solid #eee; padding: 10px; margin-bottom: 8px; border-radius: 8px; position: relative; }
 .list-item b { color: #1e3c72; }
@@ -538,6 +553,7 @@ input[type="checkbox"] { width: auto !important; margin: 0 10px 0 0 !important; 
     border-radius: 10px;
     transition: 0.2s;
     min-width: 0;
+    position: relative;
 }
 
 .nav-item:active { transform: scale(0.92); }
@@ -557,6 +573,59 @@ input[type="checkbox"] { width: auto !important; margin: 0 10px 0 0 !important; 
 
 .nav-item.active .nav-label { color: #1e3c72; }
 .nav-item.active .nav-icon { filter: drop-shadow(0 2px 4px rgba(30,60,114,0.3)); }
+.nav-reminder-dot {
+    position: absolute;
+    top: 2px;
+    right: 10px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #e74c3c;
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 800;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 0 2px #fff;
+}
+
+.first-run-onboarding {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.82);
+    z-index: 100000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+.first-run-onboarding-card {
+    width: 100%;
+    max-width: 420px;
+    background: #fff;
+    border-radius: 16px;
+    border: 2px solid #dbeafe;
+    box-shadow: 0 18px 42px rgba(0,0,0,0.35);
+    padding: 16px;
+}
+.onboarding-subject-list {
+    max-height: 260px;
+    overflow-y: auto;
+    border: 1px solid #dbeafe;
+    border-radius: 10px;
+    padding: 8px;
+    background: #f8fbff;
+}
+.onboarding-subject-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 4px;
+    color: #1e3c72;
+    font-size: 0.88rem;
+    font-weight: 600;
+}
 
 .nav-home .nav-icon {
     font-size: 1.9rem;

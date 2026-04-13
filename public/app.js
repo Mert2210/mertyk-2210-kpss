@@ -4,7 +4,7 @@ import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/fireb
 import { getStorage, ref as storageRef, uploadString, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
 import { createSafeClientStore } from "./modules/client-storage.mjs";
 import { SETTINGS_MODES, applySettingsMode, getDefaultSettingsModeByRole } from "./modules/settings-mode.mjs";
-import { normalizeTopicFilterMode, getAllowedTopicsForMode, buildDerslerimTopicNavigation, canStartLibraryTest, evaluateStdAnswer, filterCourseNamesByQuery, buildSemesterSections, getSavedLibraryCourseNames } from "./modules/ui-flow.mjs";
+import { normalizeTopicFilterMode, getAllowedTopicsForMode, buildDerslerimTopicNavigation, canStartLibraryTest, evaluateStdAnswer, filterCourseNamesByQuery, buildSemesterSections, getSavedLibraryCourseNames, buildDueReminderCountsBySubject } from "./modules/ui-flow.mjs";
 
 const fallbackFirebaseConfig = { 
     apiKey: "AIzaSyDkZI-LxCOaog4kyb4YSquEK6ZpLNH2pqs", 
@@ -41,56 +41,79 @@ const CLIENT_STORE = createSafeClientStore(window.localStorage, {
     }
 });
 
+const KPSS_B_COMMON_SUBJECTS = {
+    "Türkçe": ["Sözcükte Anlam", "Cümlede Anlam", "Paragraf", "Dil Bilgisi", "Yazım Kuralları", "Noktalama", "Sözel Mantık"],
+    "Matematik": ["Temel Kavramlar", "Sayı Basamakları", "Bölme-Bölünebilme", "Rasyonel Sayılar", "Basit Eşitsizlikler", "Problemler", "Sayısal Mantık", "Geometri"],
+    "Tarih": ["İlk Türk Devletleri", "İslam Tarihi", "Osmanlı Kuruluş-Yükseliş", "XIX. Yüzyıl Osmanlı", "Kurtuluş Savaşı", "Atatürk İlke ve İnkılapları", "Çağdaş Türk ve Dünya"],
+    "Coğrafya": ["Türkiye'nin Fiziki Coğrafyası", "Türkiye'nin Beşeri Coğrafyası", "Türkiye'nin Ekonomik Coğrafyası", "Bölgeler Coğrafyası", "Çevre ve Toplum"],
+    "Vatandaşlık": ["Hukukun Temel Kavramları", "Anayasa Hukuku", "İdare Hukuku", "Temel Hak ve Ödevler", "Güncel Bilgiler"]
+};
+
 // 🚨 YENİ NESİL MÜFREDAT AĞACI VE KAPSÜL (BUTON) SİSTEMİ BAŞLANGICI 🚨
 window.mufredat = {
     "KPSS": {
         "A Grubu": {
-            "Muhasebe": ["Genel Muhasebe", "Maliyet Muhasebesi", "Mali Tablolar Analizi"],
-            "İktisat": ["Mikro İktisat", "Makro İktisat", "Türkiye Ekonomisi"],
-            "Maliye": ["Kamu Maliyesi", "Bütçe", "Vergi Hukuku"],
-            "Hukuk": ["Anayasa", "İdare", "Ceza", "Medeni Hukuk"]
+            "Muhasebe": ["Genel Muhasebe", "Envanter", "Maliyet Muhasebesi", "Şirketler Muhasebesi", "Mali Tablolar Analizi"],
+            "İktisat": ["Mikro İktisat", "Makro İktisat", "Para-Banka", "Uluslararası İktisat", "Büyüme ve Kalkınma", "Türkiye Ekonomisi"],
+            "Maliye": ["Kamu Maliyesi", "Bütçe", "Kamu Harcamaları", "Vergi Hukuku", "Türk Vergi Sistemi", "Maliye Politikası"],
+            "Hukuk": ["Anayasa Hukuku", "İdare Hukuku", "İdari Yargı", "Ceza Hukuku", "Medeni Hukuk", "Borçlar Hukuku", "Ticaret Hukuku"],
+            "İşletme": ["İşletme Bilimine Giriş", "Yönetim ve Organizasyon", "Pazarlama", "Üretim Yönetimi", "Finansal Yönetim"],
+            "Çalışma Ekonomisi": ["İş Hukuku", "Sosyal Güvenlik", "Çalışma Psikolojisi", "Türkiye'de Sosyal Politika"],
+            "Kamu Yönetimi": ["Siyaset Bilimi", "Yönetim Bilimi", "Kentleşme", "Türk İdare Sistemi"],
+            "Uluslararası İlişkiler": ["Uluslararası Hukuk", "Uluslararası Örgütler", "Siyasi Tarih", "Türk Dış Politikası"]
         },
-        "B Grubu (Tümü)": {
-            "Türkçe": ["Sözcükte Anlam", "Cümlede Anlam", "Paragraf", "Dil Bilgisi", "Sözel Mantık"],
-            "Matematik": ["Temel Kavramlar", "Rasyonel Sayılar", "Problemler", "Sayısal Mantık", "Geometri"],
-            "Tarih": ["İslamiyet Öncesi", "Osmanlı Devleti", "İnkılap Tarihi", "Çağdaş Türk ve Dünya"],
-            "Coğrafya": ["Türkiye Fiziki", "Türkiye Beşeri", "Türkiye Ekonomik"],
-            "Vatandaşlık": ["Hukukun Temel Kavramları", "Anayasa Hukuku", "İdare Hukuku", "Güncel Bilgiler"]
+        "B Grubu (Lisans)": {
+            ...KPSS_B_COMMON_SUBJECTS
+        },
+        "B Grubu (Önlisans)": {
+            ...KPSS_B_COMMON_SUBJECTS
+        },
+        "B Grubu (Ortaöğretim)": {
+            ...KPSS_B_COMMON_SUBJECTS
         },
         "Eğitim Bilimleri": {
-            "Gelişim Psikolojisi": ["Bilişsel Gelişim", "Kişilik Gelişimi", "Ahlak Gelişimi"],
-            "Öğrenme Psikolojisi": ["Davranışçı Kuramlar", "Bilişsel Kuramlar"],
-            "Ölçme ve Değerlendirme": ["Temel Kavramlar", "İstatistik", "Test Hazırlama"]
+            "Gelişim Psikolojisi": ["Fiziksel Gelişim", "Bilişsel Gelişim", "Dil Gelişimi", "Kişilik Gelişimi", "Ahlak Gelişimi"],
+            "Öğrenme Psikolojisi": ["Davranışçı Kuramlar", "Bilişsel Kuramlar", "Yapılandırmacılık", "Öğrenmeyi Etkileyen Etmenler"],
+            "Program Geliştirme": ["Program Tasarımı", "Hedef-Davranış Yazımı", "İçerik Düzenleme", "Öğretim Stratejileri"],
+            "Öğretim Yöntem ve Teknikleri": ["Anlatım", "Soru-Cevap", "Tartışma", "Mikro Öğretim", "Tam Öğrenme"],
+            "Ölçme ve Değerlendirme": ["Temel Kavramlar", "Geçerlik-Güvenirlik", "Madde Analizi", "İstatistik", "Test Geliştirme"],
+            "Rehberlik": ["Rehberliğin İlkeleri", "Psikolojik Danışma Kuramları", "Özel Eğitim", "Sınıf Yönetimi"]
         }
     },
     "YKS": {
         "TYT": {
-            "Türkçe": ["Anlam Bilgisi", "Dil Bilgisi", "Noktalama İşaretleri"],
-            "Matematik": ["Sayılar", "Problemler", "Olasılık"],
-            "Fen Bilimleri": ["Fizik", "Kimya", "Biyoloji"],
-            "Sosyal Bilgiler": ["Tarih", "Coğrafya", "Felsefe", "Din K."]
+            "Türkçe": ["Sözcükte Anlam", "Cümlede Anlam", "Paragraf", "Dil Bilgisi", "Yazım Kuralları", "Noktalama", "Anlatım Bozukluğu"],
+            "Matematik": ["Temel Kavramlar", "Sayı Basamakları", "Bölme-Bölünebilme", "EBOB-EKOK", "Rasyonel Sayılar", "Basit Eşitsizlikler", "Mutlak Değer", "Problemler", "Kümeler", "Fonksiyonlar", "Geometri"],
+            "Sosyal Bilimler": ["Tarih", "Coğrafya", "Felsefe", "Din Kültürü ve Ahlak Bilgisi"],
+            "Fen Bilimleri": ["TYT Fizik", "TYT Kimya", "TYT Biyoloji"]
         },
         "AYT": {
-            "Matematik": ["Polinom", "Türev", "İntegral", "Logaritma", "Trigonometri"],
-            "Edebiyat": ["Şiir Bilgisi", "Divan Edebiyatı", "Cumhuriyet Dönemi"],
+            "Matematik": ["Fonksiyonlar", "Polinom", "2. Dereceden Denklemler", "Trigonometri", "Logaritma", "Diziler", "Limit", "Türev", "İntegral"],
+            "Edebiyat-Sosyal 1": ["Edebî Dönemler", "Şiir Bilgisi", "Cumhuriyet Dönemi Edebiyatı", "Tarih-1", "Coğrafya-1"],
+            "Sosyal 2": ["Tarih-2", "Coğrafya-2", "Felsefe Grubu", "Din Kültürü ve Ahlak Bilgisi"],
             "Fen Bilimleri": ["AYT Fizik", "AYT Kimya", "AYT Biyoloji"]
         }
     },
-    "MEB AGS": {
-        "Ortak": {
-            "Eğitim Bilimleri": ["Eğitime Giriş", "Öğretim İlke ve Yöntemleri"],
-            "Genel Kültür": ["Türkçe", "Tarih", "Eğitim Mevzuatı"]
+    "AGS (Akademi Giriş Sınavı)": {
+        "Genel Yetenek ve Genel Kültür": {
+            "Türkçe": ["Sözel Mantık", "Paragraf", "Dil Bilgisi"],
+            "Matematik": ["Temel Kavramlar", "Problemler", "Sayısal Mantık"],
+            "Tarih": ["Atatürk İlkeleri", "İnkılap Tarihi", "Çağdaş Türkiye"],
+            "Coğrafya": ["Türkiye Coğrafyası", "Nüfus ve Yerleşme", "Ekonomik Coğrafya"],
+            "Vatandaşlık": ["Anayasa", "Temel Hukuk", "Kamu Yönetimi"],
+            "Eğitim Mevzuatı": ["1739 Sayılı Kanun", "MEB Yapısı", "Öğretmenlik Meslek Kanunu"]
         }
     },
     "LGS": {
         "Sayısal": {
-            "Matematik": ["Çarpanlar", "Kareköklü Sayılar", "Veri Analizi"],
-            "Fen Bilimleri": ["Mevsimler", "DNA ve Genetik Kod", "Basınç"]
+            "Matematik": ["Çarpanlar ve Katlar", "Üslü İfadeler", "Kareköklü İfadeler", "Veri Analizi", "Basit Olasılık", "Cebirsel İfadeler"],
+            "Fen Bilimleri": ["Mevsimler ve İklim", "DNA ve Genetik Kod", "Basınç", "Madde ve Endüstri", "Basit Makineler", "Elektrik Yükleri"]
         },
         "Sözel": {
-            "Türkçe": ["Paragraf", "Fiilimsiler", "Cümlenin Ögeleri"],
-            "İnkılap Tarihi": ["Bir Kahraman Doğuyor", "Milli Uyanış"],
-            "İngilizce": ["Kelime Bilgisi", "Okuduğunu Anlama"]
+            "Türkçe": ["Sözcükte Anlam", "Cümlede Anlam", "Paragraf", "Fiilimsiler", "Cümlenin Ögeleri"],
+            "T.C. İnkılap Tarihi ve Atatürkçülük": ["Bir Kahraman Doğuyor", "Milli Uyanış", "Ya İstiklal Ya Ölüm", "Atatürkçülük"],
+            "Din Kültürü ve Ahlak Bilgisi": ["Kader İnancı", "Zekât ve Sadaka", "Hz. Muhammed'in Örnekliği"],
+            "İngilizce": ["Friendship", "Teen Life", "In the Kitchen", "On the Phone"]
         }
     }
 };
@@ -683,14 +706,16 @@ function saveReadySource(name, image = null) {
 
 function getSubjectsByExamType(examType) {
     const mapByType = {
-        kpss_lisans: ['KPSS', ['B Grubu (Tümü)', 'Eğitim Bilimleri']],
-        kpss_onlisans: ['KPSS', ['B Grubu (Tümü)']],
-        kpss_ortaogretim: ['KPSS', ['B Grubu (Tümü)']],
+        kpss_a: ['KPSS', ['A Grubu']],
+        kpss_lisans: ['KPSS', ['B Grubu (Lisans)']],
+        kpss_onlisans: ['KPSS', ['B Grubu (Önlisans)']],
+        kpss_ortaogretim: ['KPSS', ['B Grubu (Ortaöğretim)']],
         kpss_egitim: ['KPSS', ['Eğitim Bilimleri']],
         yks_tyt: ['YKS', ['TYT']],
         yks_ayt: ['YKS', ['AYT']],
         lise_okul: ['YKS', ['TYT', 'AYT']],
-        ortaokul: ['LGS', ['Sayısal', 'Sözel']]
+        ortaokul: ['LGS', ['Sayısal', 'Sözel']],
+        ags: ['AGS (Akademi Giriş Sınavı)', ['Genel Yetenek ve Genel Kültür']]
     };
     const conf = mapByType[examType];
     if (!conf || !window.mufredat[conf[0]]) return DEFAULT_PROFILE_SUBJECTS;
@@ -804,6 +829,51 @@ function syncSelectedSubjectsToStorage(subjectsData = []) {
     window.renderSavedLibraryCoursesPanel();
 }
 
+function renderFirstRunOnboardingSubjects() {
+    const container = document.getElementById('onboarding-subjects');
+    const examTypeEl = document.getElementById('onboarding-exam-type');
+    if (!container || !examTypeEl) return;
+    const subjects = getSubjectsByExamType(examTypeEl.value);
+    container.innerHTML = subjects
+        .map((subject, idx) => `
+            <label class="onboarding-subject-item" for="onboarding-subject-${idx}">
+                <input id="onboarding-subject-${idx}" type="checkbox" value="${escapeHtml(subject)}" checked>
+                <span>${escapeHtml(subject)}</span>
+            </label>
+        `)
+        .join('');
+}
+
+window.openFirstRunOnboarding = () => {
+    const overlay = document.getElementById('first-run-onboarding');
+    const examTypeEl = document.getElementById('onboarding-exam-type');
+    if (!overlay || !examTypeEl) return;
+    examTypeEl.value = CLIENT_STORE.getItem('gazi_exam_type', 'kpss_lisans');
+    renderFirstRunOnboardingSubjects();
+    overlay.style.display = 'flex';
+};
+
+window.handleOnboardingExamTypeChange = () => {
+    renderFirstRunOnboardingSubjects();
+};
+
+window.completeFirstRunOnboarding = () => {
+    const examTypeEl = document.getElementById('onboarding-exam-type');
+    const selectedSubjects = Array.from(document.querySelectorAll('#onboarding-subjects input[type="checkbox"]:checked'))
+        .map((cb) => String(cb.value || '').trim())
+        .filter(Boolean);
+    if (!examTypeEl || selectedSubjects.length === 0) {
+        alert("Lütfen en az bir ders seçin.");
+        return;
+    }
+    CLIENT_STORE.setItem('gazi_exam_type', examTypeEl.value);
+    syncSelectedSubjectsToStorage(selectedSubjects.map((name) => ({ name, topics: '', selected: true })));
+    const overlay = document.getElementById('first-run-onboarding');
+    if (overlay) overlay.style.display = 'none';
+    window.showScreen('screen-main');
+    window.updateLocalListCounts();
+};
+
 window.handleDerslerimCourseToggle = () => {
     syncSelectedSubjectsToStorage(collectSelectedSubjectsFromUI());
 };
@@ -821,13 +891,24 @@ window.renderSavedLibraryCoursesPanel = () => {
     if (!wrap) return;
     const savedSubjects = CLIENT_STORE.getJSON('gazi_subjects_v2', []);
     const courseNames = getSavedLibraryCourseNames(savedSubjects);
+    const localNotebook = CLIENT_STORE.getJSON('gazi_local_notebook', []);
+    const dueReminderCounts = buildDueReminderCountsBySubject(localNotebook, Date.now());
     if (courseNames.length === 0) {
         wrap.innerHTML = `<p class="saved-library-empty">Henüz ders seçmediniz. Derslerim ekranında tiklenen dersler burada görünür.</p>`;
+        const navDot = document.getElementById('nav-derslerim-reminder-dot');
+        if (navDot) navDot.style.display = 'none';
         return;
     }
+    let totalDueCount = 0;
     wrap.innerHTML = courseNames
-        .map((name) => `<div class="saved-library-course-item">📘 ${escapeHtml(name)}</div>`)
+        .map((name) => {
+            const dueCount = dueReminderCounts[name] || 0;
+            totalDueCount += dueCount;
+            return `<div class="saved-library-course-item">📘 ${escapeHtml(name)}${dueCount > 0 ? `<span class="saved-library-red-dot" title="Hatırlatma zamanı gelen soru: ${dueCount}">🔴 ${dueCount}</span>` : ''}</div>`;
+        })
         .join('');
+    const navDot = document.getElementById('nav-derslerim-reminder-dot');
+    if (navDot) navDot.style.display = totalDueCount > 0 ? 'inline-flex' : 'none';
 };
 
 window.toggleDerslerimSection = (contentId, arrowId, triggerId = null) => {
@@ -1223,7 +1304,9 @@ window.finishIntro = () => {
     setTimeout(() => { 
         document.getElementById('intro-overlay').style.display = 'none'; 
         localStorage.setItem('gazi_intro_seen', 'true'); 
-        window.openSettingsPanel(); 
+        const onboardingDone = CLIENT_STORE.getItem('gazi_onboarding_done', '');
+        if (onboardingDone) window.openSettingsPanel();
+        else window.openFirstRunOnboarding();
     }, 500);
 };
 
@@ -1706,7 +1789,7 @@ onAuthStateChanged(auth, user => {
             if(!hasSeenIntro) { 
                 document.getElementById('intro-overlay').style.display = 'flex'; 
             } else { 
-                window.openSettingsPanel(); 
+                window.openFirstRunOnboarding();
             }
         } else { 
             window.showScreen('screen-main'); 
@@ -2873,6 +2956,7 @@ window.updateLocalListCounts = () => {
     const localNB = (JSON.parse(localStorage.getItem('gazi_local_notebook')) || []).length;
     const btnLocal = document.getElementById('btn-local-open');
     if (btnLocal) btnLocal.innerText = `💾 Cihazdan Aç (${localNB})`;
+    window.renderSavedLibraryCoursesPanel();
 };
 
 window.showLocalList = (type) => { 
