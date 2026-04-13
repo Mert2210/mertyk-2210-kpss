@@ -232,6 +232,8 @@ function buildStudentNotificationTopic(studentName) {
 }
 
 const REVIEW_REMINDER_INTERVAL_MS = 5 * 60 * 1000;
+const INITIAL_REVIEW_REMINDER_DELAY_MS = 15 * 1000;
+const REVIEW_REMINDER_BATCH_LIMIT = 400;
 let isReviewReminderJobRunning = false;
 
 async function sendDueReviewNotifications() {
@@ -239,7 +241,11 @@ async function sendDueReviewNotifications() {
     isReviewReminderJobRunning = true;
     try {
         const now = Date.now();
-        const snap = await db.collection("student_questions").where("nextReviewDate", "<=", now).get();
+        const snap = await db.collection("student_questions")
+            .where("nextReviewDate", "<=", now)
+            .orderBy("nextReviewDate", "asc")
+            .limit(REVIEW_REMINDER_BATCH_LIMIT)
+            .get();
         if (snap.empty) return;
 
         const byStudent = new Map();
@@ -1050,7 +1056,7 @@ if (db && admin.apps.length) {
         sendDueReviewNotifications().catch((error) => {
             console.error("⚠️ İlk hatırlatma bildirimi çalıştırılamadı:", error);
         });
-    }, 15 * 1000);
+    }, INITIAL_REVIEW_REMINDER_DELAY_MS);
     setInterval(() => {
         sendDueReviewNotifications().catch((error) => {
             console.error("⚠️ Periyodik hatırlatma bildirimi çalıştırılamadı:", error);
