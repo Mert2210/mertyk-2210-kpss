@@ -6,6 +6,7 @@ import { createSafeClientStore } from "./modules/client-storage.mjs";
 import { SETTINGS_MODES, applySettingsMode, getDefaultSettingsModeByRole } from "./modules/settings-mode.mjs";
 import { normalizeTopicFilterMode, getAllowedTopicsForMode, buildDerslerimTopicNavigation, canStartLibraryTest, evaluateStdAnswer, filterCourseNamesByQuery, getSavedLibraryCourseNames, buildDueReminderCountsBySubject, mergeSavedSubjectsWithDrafts, buildTopicListFromSources } from "./modules/ui-flow.mjs";
 import { resolveCurrentExamType, getCustomCurriculumGroupsByExamType as getCustomCurriculumGroupsByExamTypeFromMap, getCustomCurriculumSubjectsByExamType as getCustomCurriculumSubjectsByExamTypeFromMap, getCustomCurriculumTopicsByExamTypeAndSubject as getCustomCurriculumTopicsByExamTypeAndSubjectFromMap, getCustomTopicsBySubject as getCustomTopicsBySubjectFromMap, addCustomTopicsForSubject as addCustomTopicsForSubjectInMap } from "./modules/custom-data.mjs";
+import { buildRelativeResourceUrl, getShareableAppLink, shouldRegisterServiceWorker } from "./modules/app-shell.mjs";
 
 const fallbackFirebaseConfig = { 
     apiKey: "AIzaSyDkZI-LxCOaog4kyb4YSquEK6ZpLNH2pqs", 
@@ -1659,7 +1660,7 @@ window.closePWAPrompt = (os) => {
 };
 
 window.copyLinkAndAlert = () => {
-    navigator.clipboard.writeText("https://gazililer.com.tr").then(() => {
+    navigator.clipboard.writeText(getShareableAppLink(window.location)).then(() => {
         alert("✅ Link kopyalandı! Şimdi iPhone'unuzdan Safari uygulamasını açıp linki yapıştırın.");
     });
 };
@@ -1697,8 +1698,8 @@ window.installPWA = () => {
     } 
 };
 
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js').then(() => console.log("PWA Aktif."));
+if ('serviceWorker' in navigator && shouldRegisterServiceWorker(window.location.protocol)) {
+    navigator.serviceWorker.register(buildRelativeResourceUrl('sw.js')).then(() => console.log("PWA Aktif."));
 }
 
 const ROLE_STUDENT = 'student';
@@ -3484,7 +3485,8 @@ window.downloadPDF = () => {
     const keys = { 'wrong': 'kpss_wrongs', 'fav': 'kpss_favs', 'blank': 'kpss_blanks', 'report': 'kpss_reports' }; 
     const list = JSON.parse(localStorage.getItem(keys[currentListType])) || []; 
     if(list.length === 0) return alert("Liste boş!"); 
-    const win = window.open('', '', 'height=600,width=800'); 
+    const win = window.open('', '', 'height=600,width=800');
+    if (!win) { alert("Tarayıcınız açılır pencereyi engelledi. Lütfen açılır pencerelere izin verip tekrar deneyin."); return; }
     win.document.write('<html><body style="font-family:sans-serif;"><h2>Gazililer Yanlış Soru Kumbaram</h2><hr>'); 
     list.forEach((q, i) => win.document.write(`<p><b>Soru ${i+1}:</b> ${escapeHtml(q.soru)}<br><span style="color:green;">Cevap: ${escapeHtml(q.siklar[q.dogru])}</span></p>`)); 
     win.document.write('</body></html>'); 
@@ -3607,7 +3609,7 @@ window.startGame = () => {
     if (currentMode === 'trial' && socket) {
         socket.emit('startTrial', s);
     } else if (currentMode === 'trial') {
-        fetch('/questions.json')
+        fetch(buildRelativeResourceUrl('questions.json'))
             .then(r => r.json())
             .then(allQuestions => {
                 const filterSubject = s.subject !== "HEPSI" && Array.isArray(s.subject) && s.subject.length > 0;
