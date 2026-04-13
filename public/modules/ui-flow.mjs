@@ -8,6 +8,32 @@ export function getAllowedTopicsForMode(allTopics = [], savedTopicsSet = null, m
     return safeTopics.filter((topic) => savedTopicsSet && savedTopicsSet.has(topic));
 }
 
+export function getAllowedTopicsForModalContext(allTopics = [], savedTopicsSet = null, mode = 'saved', modalMode = 'select') {
+    const safeTopics = Array.isArray(allTopics) ? allTopics : [];
+    const safeModalMode = modalMode === 'view' ? 'view' : 'select';
+    if (safeModalMode !== 'view') {
+        return {
+            topics: safeTopics,
+            effectiveMode: 'all',
+            usedFallback: false
+        };
+    }
+    const normalizedMode = normalizeTopicFilterMode(mode);
+    const filteredTopics = getAllowedTopicsForMode(safeTopics, savedTopicsSet, normalizedMode);
+    if (normalizedMode === 'saved' && filteredTopics.length === 0 && safeTopics.length > 0) {
+        return {
+            topics: safeTopics,
+            effectiveMode: 'all',
+            usedFallback: true
+        };
+    }
+    return {
+        topics: filteredTopics,
+        effectiveMode: normalizedMode,
+        usedFallback: false
+    };
+}
+
 export function buildDerslerimTopicNavigation(subject, topic) {
     const safeSubject = String(subject || '').trim();
     const safeTopic = String(topic || '').trim();

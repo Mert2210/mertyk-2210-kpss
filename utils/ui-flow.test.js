@@ -33,6 +33,21 @@ test('Konu seçince listeleme: sadece kayıtlı modunda yalnızca kayıtlı konu
     assert.deepStrictEqual(getAllowedTopicsForMode(topics, saved, 'all'), topics);
 });
 
+test('Kütüphane modal bağlamı: ekleme modunda filtre devre dışıdır, görüntülemede boş aktif filtre tüm konulara düşer', async () => {
+    const { getAllowedTopicsForModalContext } = await importUiFlow();
+    const topics = ['Cümlede Anlam', 'Dil Bilgisi'];
+    const saved = new Set();
+
+    assert.deepStrictEqual(
+        getAllowedTopicsForModalContext(topics, saved, 'saved', 'select'),
+        { topics, effectiveMode: 'all', usedFallback: false }
+    );
+    assert.deepStrictEqual(
+        getAllowedTopicsForModalContext(topics, saved, 'saved', 'view'),
+        { topics, effectiveMode: 'all', usedFallback: true }
+    );
+});
+
 test('Hepsini çöz: soru havuzu boşsa test başlatılamaz, doluysa başlatılır', async () => {
     const { canStartLibraryTest } = await importUiFlow();
 
