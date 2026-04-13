@@ -7,6 +7,7 @@ const http = require("http");
 const { Server } = require("socket.io");
 const fs = require("fs");
 const path = require("path");
+const crypto = require("crypto");
 const cors = require("cors");
 const rateLimit = require("express-rate-limit");
 const admin = require("firebase-admin");
@@ -96,7 +97,8 @@ app.get('/app-config', staticFileLimiter, (req, res) => {
             messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID || "",
             appId: process.env.FIREBASE_APP_ID || "",
             measurementId: process.env.FIREBASE_MEASUREMENT_ID || ""
-        }
+        },
+        firebaseVapidKey: process.env.FIREBASE_VAPID_PUBLIC_KEY || ""
     });
 });
 
@@ -197,17 +199,91 @@ function normalizeQuestionForClient(question, fallbackId = "") {
 
 // 🚨 BİLDİRİM (PUSH) GÖNDERME FONKSİYONU 🚨
 async function sendPushNotification(topic, title, body) {
-    if (admin.apps.length) {
-        const message = {
-            notification: { title: title, body: body },
-            topic: topic // Öğrenciler sınıfa girdiklerinde bu "topic" (örneğin sınıf kodu) kanalına abone olacaklar
-        };
-        try {
-            const response = await admin.messaging().send(message);
-            console.log("🚀 Bildirim başarıyla gönderildi:", response);
-        } catch (error) {
-            console.error("⚠️ Bildirim gönderme hatası:", error);
+    if (!admin.apps.length || !isValidTopicName(topic)) return false;
+    const message = {
+        notification: { title: title, body: body },
+        topic: topic // Öğrenciler sınıfa girdiklerinde bu "topic" (örneğin sınıf kodu) kanalına abone olacaklar
+    };
+    try {
+        const response = await admin.messaging().send(message);
+        console.log("🚀 Bildirim başarıyla gönderildi:", response);
+        return true;
+    } catch (error) {
+        console.error("⚠️ Bildirim gönderme hatası:", error);
+        return false;
+    }
+}
+
+function isValidTopicName(topic) {
+    // Bu akışta topic, sınıf kodu olarak kullanılır ve sınıf kodu uzunluğu 20 karakterle sınırlandırılır.
+    return typeof topic === "string" && /^[a-zA-Z0-9\-_.~%]{1,20}$/.test(topic);
+}
+
+function isLikelyFcmToken(token) {
+    // FCM web tokenlarında ":" karakteri bulunabildiği için desen buna izin verir.
+    return typeof token === "string" && token.length >= 20 && token.length <= 4096 && /^[\w\-:.]+$/.test(token);
+}
+
+function buildStudentNotificationTopic(studentName) {
+    const safeName = sanitizeString(studentName, 100);
+    if (!safeName) return "";
+    const digest = crypto.createHash("sha256").update(safeName, "utf8").digest("hex").slice(0, 16);
+    return `stu_${digest}`;
+}
+
+const REVIEW_REMINDER_INTERVAL_MS = 5 * 60 * 1000;
+const INITIAL_REVIEW_REMINDER_DELAY_MS = 15 * 1000;
+const REVIEW_REMINDER_BATCH_LIMIT = 400;
+let isReviewReminderJobRunning = false;
+
+async function sendDueReviewNotifications() {
+    if (!db || !admin.apps.length || isReviewReminderJobRunning) return;
+    isReviewReminderJobRunning = true;
+    try {
+        const now = Date.now();
+        const snap = await db.collection("student_questions")
+            .where("nextReviewDate", "<=", now)
+            .orderBy("nextReviewDate", "asc")
+            .limit(REVIEW_REMINDER_BATCH_LIMIT)
+            .get();
+        if (snap.empty) return;
+
+        const byStudent = new Map();
+        snap.docs.forEach((doc) => {
+            const data = doc.data() || {};
+            const studentName = sanitizeString(data.studentName, 100);
+            const nextReviewDate = Number(data.nextReviewDate);
+            const reminderSentAt = Number(data.reminderSentAt || 0);
+            if (!studentName || !Number.isFinite(nextReviewDate) || nextReviewDate <= 0) return;
+            if (Number.isFinite(reminderSentAt) && reminderSentAt >= nextReviewDate) return;
+            if (!byStudent.has(studentName)) byStudent.set(studentName, []);
+            byStudent.get(studentName).push(doc.ref);
+        });
+
+        if (byStudent.size === 0) return;
+
+        const batch = db.batch();
+        let hasWrites = false;
+        for (const [studentName, docRefs] of byStudent.entries()) {
+            const topic = buildStudentNotificationTopic(studentName);
+            if (!topic || docRefs.length === 0) continue;
+            const sent = await sendPushNotification(
+                topic,
+                "⏰ Tekrar Zamanı Geldi!",
+                `Bugün tekrar etmen gereken ${docRefs.length} soru var.`
+            );
+            if (!sent) continue;
+            docRefs.forEach((ref) => {
+                batch.update(ref, { reminderSentAt: now });
+                hasWrites = true;
+            });
         }
+
+        if (hasWrites) await batch.commit();
+    } catch (error) {
+        console.error("⚠️ Hatırlatma bildirimi zamanlayıcı hatası:", error);
+    } finally {
+        isReviewReminderJobRunning = false;
     }
 }
 
@@ -388,6 +464,81 @@ io.on("connection", (socket) => {
         }
     });
 
+    socket.on("setClassNotificationToken", async ({ token, classCode, previousClassCode }) => {
+        if (!admin.apps.length) return;
+        const safeToken = sanitizeString(token, 4096);
+        const safeClassCode = sanitizeString(classCode, 20).toUpperCase();
+        const safePreviousClassCode = sanitizeString(previousClassCode || "", 20).toUpperCase();
+        if (!isLikelyFcmToken(safeToken) || !isValidTopicName(safeClassCode)) {
+            return socket.emit("errorMsg", "Bildirim abonelik bilgisi geçersiz.");
+        }
+        const classes = readClasses();
+        if (!classes[safeClassCode]) {
+            return socket.emit("errorMsg", "Bildirim için geçersiz sınıf kodu.");
+        }
+        try {
+            if (safePreviousClassCode && safePreviousClassCode !== safeClassCode && isValidTopicName(safePreviousClassCode)) {
+                await admin.messaging().unsubscribeFromTopic([safeToken], safePreviousClassCode);
+            }
+            await admin.messaging().subscribeToTopic([safeToken], safeClassCode);
+            socket.emit("notificationSubscriptionUpdated", { success: true, classCode: safeClassCode });
+        } catch (error) {
+            console.error("⚠️ Bildirim abonelik hatası:", error);
+            socket.emit("errorMsg", "Bildirim aboneliği güncellenemedi.");
+        }
+    });
+
+    socket.on("clearClassNotificationToken", async ({ token, classCode }) => {
+        if (!admin.apps.length) return;
+        const safeToken = sanitizeString(token, 4096);
+        const safeClassCode = sanitizeString(classCode, 20).toUpperCase();
+        if (!isLikelyFcmToken(safeToken) || !isValidTopicName(safeClassCode)) return;
+        try {
+            await admin.messaging().unsubscribeFromTopic([safeToken], safeClassCode);
+            socket.emit("notificationSubscriptionCleared", { success: true, classCode: safeClassCode });
+        } catch (error) {
+            console.error("⚠️ Bildirim abonelik kaldırma hatası:", error);
+            socket.emit("errorMsg", "Bildirim aboneliği kapatılamadı.");
+        }
+    });
+
+    socket.on("setStudentNotificationToken", async ({ token, studentName, previousStudentName }) => {
+        if (!admin.apps.length) return;
+        const safeToken = sanitizeString(token, 4096);
+        const safeStudentName = sanitizeString(studentName, 100);
+        const safePreviousStudentName = sanitizeString(previousStudentName || "", 100);
+        const studentTopic = buildStudentNotificationTopic(safeStudentName);
+        const previousTopic = buildStudentNotificationTopic(safePreviousStudentName);
+        if (!isLikelyFcmToken(safeToken) || !studentTopic) {
+            return socket.emit("errorMsg", "Öğrenci bildirim abonelik bilgisi geçersiz.");
+        }
+        try {
+            if (previousTopic && previousTopic !== studentTopic) {
+                await admin.messaging().unsubscribeFromTopic([safeToken], previousTopic);
+            }
+            await admin.messaging().subscribeToTopic([safeToken], studentTopic);
+            socket.emit("notificationStudentSubscriptionUpdated", { success: true, studentTopic });
+        } catch (error) {
+            console.error("⚠️ Öğrenci bildirim abonelik hatası:", error);
+            socket.emit("errorMsg", "Öğrenci bildirim aboneliği güncellenemedi.");
+        }
+    });
+
+    socket.on("clearStudentNotificationToken", async ({ token, studentName }) => {
+        if (!admin.apps.length) return;
+        const safeToken = sanitizeString(token, 4096);
+        const safeStudentName = sanitizeString(studentName, 100);
+        const studentTopic = buildStudentNotificationTopic(safeStudentName);
+        if (!isLikelyFcmToken(safeToken) || !studentTopic) return;
+        try {
+            await admin.messaging().unsubscribeFromTopic([safeToken], studentTopic);
+            socket.emit("notificationStudentSubscriptionCleared", { success: true, studentTopic });
+        } catch (error) {
+            console.error("⚠️ Öğrenci bildirim abonelik kaldırma hatası:", error);
+            socket.emit("errorMsg", "Öğrenci bildirim aboneliği kapatılamadı.");
+        }
+    });
+
     socket.on("saveStudentResult", async (data) => {
         if(db) { try { await db.collection("kpss_results").add({ ...data, date: new Date().toLocaleString('tr-TR'), serverTime: admin.firestore.FieldValue.serverTimestamp() }); } catch(e){} }
     });
@@ -534,7 +685,20 @@ io.on("connection", (socket) => {
     });
 
     socket.on("addStudentQuestion", async (q) => {
-        if (db) { try { await db.collection("student_questions").add({ ...q, createdAt: admin.firestore.FieldValue.serverTimestamp() }); } catch (e) {} }
+        if (!db) return;
+        try {
+            const payload = q && typeof q === "object" ? q : {};
+            const safeStudentName = sanitizeString(payload.studentName, 100);
+            const safeReviewDate = Number(payload.nextReviewDate);
+            if (!safeStudentName) return;
+            await db.collection("student_questions").add({
+                ...payload,
+                studentName: safeStudentName,
+                nextReviewDate: Number.isFinite(safeReviewDate) && safeReviewDate > 0 ? safeReviewDate : Date.now(),
+                reminderSentAt: null,
+                createdAt: admin.firestore.FieldValue.serverTimestamp()
+            });
+        } catch (e) {}
     });
 
     socket.on("checkNotebookReviews", async (studentName) => {
@@ -574,7 +738,7 @@ io.on("connection", (socket) => {
         if(db && questionId) {
             try {
                 const newDate = calculateNextReviewDate(safeDays);
-                await db.collection("student_questions").doc(questionId).update({ nextReviewDate: newDate });
+                await db.collection("student_questions").doc(questionId).update({ nextReviewDate: newDate, reminderSentAt: null });
             } catch(e) {}
         }
     });
@@ -886,3 +1050,16 @@ function sendQuestionToRoom(roomCode) {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`🚀 Gazililer Eğitim Platformu Sunucusu ${PORT} portunda aktif.`));
+
+if (db && admin.apps.length) {
+    setTimeout(() => {
+        sendDueReviewNotifications().catch((error) => {
+            console.error("⚠️ İlk hatırlatma bildirimi çalıştırılamadı:", error);
+        });
+    }, INITIAL_REVIEW_REMINDER_DELAY_MS);
+    setInterval(() => {
+        sendDueReviewNotifications().catch((error) => {
+            console.error("⚠️ Periyodik hatırlatma bildirimi çalıştırılamadı:", error);
+        });
+    }, REVIEW_REMINDER_INTERVAL_MS);
+}

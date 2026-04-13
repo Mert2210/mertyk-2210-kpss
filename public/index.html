@@ -445,6 +445,16 @@
                 <button id="derslerim-theme-toggle-btn" type="button" class="outline derslerim-theme-toggle-btn" aria-label="Gece modunu aç veya kapat" onclick="window.toggleDerslerimTheme()">
                     🌙 Gece Modu: Kapalı
                 </button>
+                <div style="margin-top:12px; padding:12px; border:1px solid #d7e3f3; border-radius:10px; background:#f8fbff;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+                        <strong style="color:#1e3c72;">🔔 Bildirimler</strong>
+                        <label class="library-modal-switch" aria-label="Bildirimleri aç veya kapat">
+                            <input id="profile-notification-toggle" type="checkbox" onchange="window.handleNotificationToggleChange()">
+                            <span class="library-modal-slider"></span>
+                        </label>
+                    </div>
+                    <small id="profile-notification-status" style="display:block; margin-top:8px; color:#4b5563;">Bildirim durumu kontrol ediliyor...</small>
+                </div>
             </div>
 
             <div class="settings-derslerim-section">
