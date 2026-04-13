@@ -34,6 +34,14 @@ export function getAllowedTopicsForModalContext(allTopics = [], savedTopicsSet =
     };
 }
 
+export function isStorageRetryLimitExceededError(error) {
+    const code = String(error?.code || '').trim().toLowerCase();
+    const message = String(error?.message || '').trim().toLowerCase();
+    return code === 'storage/retry-limit-exceeded'
+        || message.includes('storage/retry-limit-exceeded')
+        || message.includes('max retry time for operation exceeded');
+}
+
 export function buildDerslerimTopicNavigation(subject, topic) {
     const safeSubject = String(subject || '').trim();
     const safeTopic = String(topic || '').trim();

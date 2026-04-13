@@ -4,7 +4,7 @@ import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/fireb
 import { getStorage, ref as storageRef, uploadString, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
 import { createSafeClientStore } from "./modules/client-storage.mjs";
 import { SETTINGS_MODES, applySettingsMode, getDefaultSettingsModeByRole } from "./modules/settings-mode.mjs";
-import { normalizeTopicFilterMode, getAllowedTopicsForMode, getAllowedTopicsForModalContext, buildDerslerimTopicNavigation, canStartLibraryTest, evaluateStdAnswer, filterCourseNamesByQuery, getSavedLibraryCourseNames, buildDueReminderCountsBySubject, mergeSavedSubjectsWithDrafts, buildTopicListFromSources } from "./modules/ui-flow.mjs";
+import { normalizeTopicFilterMode, getAllowedTopicsForMode, getAllowedTopicsForModalContext, isStorageRetryLimitExceededError, buildDerslerimTopicNavigation, canStartLibraryTest, evaluateStdAnswer, filterCourseNamesByQuery, getSavedLibraryCourseNames, buildDueReminderCountsBySubject, mergeSavedSubjectsWithDrafts, buildTopicListFromSources } from "./modules/ui-flow.mjs";
 import { resolveCurrentExamType, getCustomCurriculumGroupsByExamType as getCustomCurriculumGroupsByExamTypeFromMap, getCustomCurriculumSubjectsByExamType as getCustomCurriculumSubjectsByExamTypeFromMap, getCustomCurriculumTopicsByExamTypeAndSubject as getCustomCurriculumTopicsByExamTypeAndSubjectFromMap, getCustomTopicsBySubject as getCustomTopicsBySubjectFromMap, addCustomTopicsForSubject as addCustomTopicsForSubjectInMap } from "./modules/custom-data.mjs";
 import { buildRelativeResourceUrl, getShareableAppLink, shouldRegisterServiceWorker } from "./modules/app-shell.mjs";
 
@@ -2734,8 +2734,15 @@ window.uploadQuestion = async () => {
         ]);
     } catch (err) {
         console.error("Soru/çözüm görselleri Storage'a yüklenemedi:", err);
-        const errDetail = err && err.message ? ` (${err.message})` : '';
-        return alert(`⚠️ Soru veya çözüm görseli yüklenemedi${errDetail}. Lütfen tekrar deneyin.`);
+        if (isStorageRetryLimitExceededError(err)) {
+            const continueWithoutImages = confirm("⚠️ Görsel yükleme zaman aşımına uğradı. Soruyu görselsiz kaydetmek ister misiniz?");
+            if (!continueWithoutImages) return;
+            questionImageUrl = null;
+            solutionImageUrl = null;
+        } else {
+            const errDetail = err && err.message ? ` (${err.message})` : '';
+            return alert(`⚠️ Soru veya çözüm görseli yüklenemedi${errDetail}. Lütfen tekrar deneyin.`);
+        }
     }
 
     const q = { 
@@ -2831,8 +2838,18 @@ window.uploadStudentQuestion = async (target = 'cloud') => {
             ]);
         } catch (err) {
             console.error("Öğrenci soru/çözüm/kaynak görselleri Storage'a yüklenemedi:", err);
-            const errDetail = err && err.message ? ` (${err.message})` : '';
-            return alert(`⚠️ Soru, çözüm veya kaynak görseli buluta yüklenemedi${errDetail}. Lütfen tekrar deneyin.`);
+            if (isStorageRetryLimitExceededError(err) && qText) {
+                const continueWithoutImages = confirm("⚠️ Görsel yükleme zaman aşımına uğradı. Soruyu görselsiz kaydetmek ister misiniz?");
+                if (!continueWithoutImages) return;
+                questionImageForSave = null;
+                solutionImageForSave = null;
+                sourceImageForSave = null;
+            } else if (isStorageRetryLimitExceededError(err)) {
+                return alert("⚠️ Görsel yükleme zaman aşımına uğradı. Lütfen tekrar deneyin veya Cihaza Kaydet seçeneğini kullanın.");
+            } else {
+                const errDetail = err && err.message ? ` (${err.message})` : '';
+                return alert(`⚠️ Soru, çözüm veya kaynak görseli buluta yüklenemedi${errDetail}. Lütfen tekrar deneyin.`);
+            }
         }
     }
 

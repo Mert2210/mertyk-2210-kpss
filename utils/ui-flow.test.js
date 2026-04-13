@@ -48,6 +48,14 @@ test('Kütüphane modal bağlamı: ekleme modunda filtre devre dışıdır, gör
     );
 });
 
+test('Storage hata algısı: retry-limit-exceeded durumları doğru yakalanır', async () => {
+    const { isStorageRetryLimitExceededError } = await importUiFlow();
+
+    assert.equal(isStorageRetryLimitExceededError({ code: 'storage/retry-limit-exceeded' }), true);
+    assert.equal(isStorageRetryLimitExceededError({ message: 'Firebase Storage: Max retry time for operation exceeded, please try again.' }), true);
+    assert.equal(isStorageRetryLimitExceededError({ code: 'storage/unauthorized', message: 'Unauthorized' }), false);
+});
+
 test('Hepsini çöz: soru havuzu boşsa test başlatılamaz, doluysa başlatılır', async () => {
     const { canStartLibraryTest } = await importUiFlow();
 
