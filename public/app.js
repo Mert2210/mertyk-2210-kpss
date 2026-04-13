@@ -20,6 +20,7 @@ const fallbackFirebaseConfig = {
 
 const runtimeConfig = window.__APP_CONFIG__ || {};
 const runtimeFirebase = runtimeConfig.firebaseConfig || {};
+const firebaseVapidKey = String(runtimeConfig.firebaseVapidKey || "").trim();
 const firebaseConfig = runtimeFirebase.apiKey
     ? { ...fallbackFirebaseConfig, ...runtimeFirebase }
     : fallbackFirebaseConfig;
@@ -1702,6 +1703,16 @@ if ('serviceWorker' in navigator && shouldRegisterServiceWorker(window.location.
     navigator.serviceWorker.register(buildRelativeResourceUrl('sw.js')).then(() => console.log("PWA Aktif."));
 }
 
+try {
+    onMessage(messaging, (payload) => {
+        const title = String(payload?.notification?.title || "Yeni bildirim");
+        const body = String(payload?.notification?.body || "");
+        window.showSoftFeedback(body ? `🔔 ${title} — ${body}` : `🔔 ${title}`);
+    });
+} catch (error) {
+    console.warn("Foreground bildirim dinleyicisi başlatılamadı:", error);
+}
+
 const ROLE_STUDENT = 'student';
 const ROLE_TEACHER = 'teacher';
 const NAV_ITEM_MAP = {
@@ -1798,7 +1809,37 @@ window.showSoftFeedback = (message) => {
 
 window.toggleDropdown = (id) => document.getElementById(id).classList.toggle('show');
 window.myClassCode = localStorage.getItem("gazi_class_code") || "";
+const NOTIFICATION_SUBSCRIPTION_CLASS_KEY = "gazi_notification_class_code";
 let selectedRole = 'student';
+
+async function subscribeToClassPushNotifications(classCodeRaw) {
+    const classCode = String(classCodeRaw || "").trim().toUpperCase();
+    if (!classCode || !socket) return;
+    if (typeof Notification === "undefined" || !("serviceWorker" in navigator)) return;
+    if (!firebaseVapidKey) return;
+    try {
+        let permission = Notification.permission;
+        if (permission === "default") {
+            permission = await Notification.requestPermission();
+        }
+        if (permission !== "granted") return;
+        const serviceWorkerRegistration = await navigator.serviceWorker.ready;
+        const token = await getToken(messaging, {
+            vapidKey: firebaseVapidKey,
+            serviceWorkerRegistration
+        });
+        if (!token) return;
+        const previousClassCode = localStorage.getItem(NOTIFICATION_SUBSCRIPTION_CLASS_KEY) || "";
+        socket.emit("setClassNotificationToken", {
+            token,
+            classCode,
+            previousClassCode
+        });
+        localStorage.setItem(NOTIFICATION_SUBSCRIPTION_CLASS_KEY, classCode);
+    } catch (error) {
+        console.warn("Bildirim aboneliği kurulamadı:", error);
+    }
+}
 
 window.setMainRole = (role) => {
     selectedRole = role;
@@ -2126,7 +2167,8 @@ onAuthStateChanged(auth, user => {
         const stdClassCode = localStorage.getItem("gazi_class_code");
         if(stdClassCode && !isTeacher) { 
             document.getElementById('class-code-input').value = stdClassCode; 
-            document.getElementById('btn-class-questions').style.display = 'block'; 
+            document.getElementById('btn-class-questions').style.display = 'block';
+            subscribeToClassPushNotifications(stdClassCode);
         }
 
         if(typeof socket !== 'undefined') {
@@ -3378,10 +3420,18 @@ if(socket) socket.on("classJoined", (res) => {
         window.myClassCode = res.code; 
         localStorage.setItem("gazi_class_code", res.code); 
         socket.emit("getFilters", window.myClassCode); 
+        subscribeToClassPushNotifications(res.code);
         alert("✅ Sınıfa katıldın!"); 
         document.getElementById('btn-class-questions').style.display = 'block'; 
     } else {
         alert("❌ Geçersiz Sınıf Kodu!"); 
+    }
+});
+
+if(socket) socket.on("notificationSubscriptionUpdated", (res) => {
+    if (!res || res.success !== true) return;
+    if (res.classCode) {
+        localStorage.setItem(NOTIFICATION_SUBSCRIPTION_CLASS_KEY, String(res.classCode).trim().toUpperCase());
     }
 });
 

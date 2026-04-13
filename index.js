@@ -96,7 +96,8 @@ app.get('/app-config', staticFileLimiter, (req, res) => {
             messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID || "",
             appId: process.env.FIREBASE_APP_ID || "",
             measurementId: process.env.FIREBASE_MEASUREMENT_ID || ""
-        }
+        },
+        firebaseVapidKey: process.env.FIREBASE_VAPID_PUBLIC_KEY || ""
     });
 });
 
@@ -209,6 +210,16 @@ async function sendPushNotification(topic, title, body) {
             console.error("⚠️ Bildirim gönderme hatası:", error);
         }
     }
+}
+
+function isValidTopicName(topic) {
+    // Bu akışta topic, sınıf kodu olarak kullanılır ve sınıf kodu uzunluğu 20 karakterle sınırlandırılır.
+    return typeof topic === "string" && /^[a-zA-Z0-9\-_.~%]{1,20}$/.test(topic);
+}
+
+function isLikelyFcmToken(token) {
+    // FCM web tokenlarında ":" karakteri bulunabildiği için desen buna izin verir.
+    return typeof token === "string" && token.length >= 20 && token.length <= 4096 && /^[\w\-:.]+$/.test(token);
 }
 
 io.on("connection", (socket) => {
@@ -385,6 +396,30 @@ io.on("connection", (socket) => {
             socket.emit("classJoined", { success: true, teacher: classes[safeCode].teacher, code: safeCode });
         } else {
             socket.emit("classJoined", { success: false });
+        }
+    });
+
+    socket.on("setClassNotificationToken", async ({ token, classCode, previousClassCode }) => {
+        if (!admin.apps.length) return;
+        const safeToken = sanitizeString(token, 4096);
+        const safeClassCode = sanitizeString(classCode, 20).toUpperCase();
+        const safePreviousClassCode = sanitizeString(previousClassCode || "", 20).toUpperCase();
+        if (!isLikelyFcmToken(safeToken) || !isValidTopicName(safeClassCode)) {
+            return socket.emit("errorMsg", "Bildirim abonelik bilgisi geçersiz.");
+        }
+        const classes = readClasses();
+        if (!classes[safeClassCode]) {
+            return socket.emit("errorMsg", "Bildirim için geçersiz sınıf kodu.");
+        }
+        try {
+            if (safePreviousClassCode && safePreviousClassCode !== safeClassCode && isValidTopicName(safePreviousClassCode)) {
+                await admin.messaging().unsubscribeFromTopic([safeToken], safePreviousClassCode);
+            }
+            await admin.messaging().subscribeToTopic([safeToken], safeClassCode);
+            socket.emit("notificationSubscriptionUpdated", { success: true, classCode: safeClassCode });
+        } catch (error) {
+            console.error("⚠️ Bildirim abonelik hatası:", error);
+            socket.emit("errorMsg", "Bildirim aboneliği güncellenemedi.");
         }
     });
 
