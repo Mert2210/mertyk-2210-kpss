@@ -53,6 +53,29 @@ test('Şık seçince çözüm görünmesi: doğru/yanlış seçimi çözüm gör
     assert.equal(wrong.correctIndex, 2);
 });
 
+test('Ders arama ve dönemleme: aranan ders filtrelenir ve iki döneme bölünür', async () => {
+    const { filterCourseNamesByQuery, buildSemesterSections } = await importUiFlow();
+    const courses = ['Tarih', 'Coğrafya', 'Matematik', 'Türkçe'];
+
+    assert.deepStrictEqual(filterCourseNamesByQuery(courses, 'ma'), ['Matematik']);
+    assert.deepStrictEqual(buildSemesterSections(courses), [
+        { title: '1. Dönem', courses: ['Tarih', 'Coğrafya'] },
+        { title: '2. Dönem', courses: ['Matematik', 'Türkçe'] }
+    ]);
+});
+
+test('Kayıtlı kütüphane dersleri: seçili/tikli dersler tekilleştirilir', async () => {
+    const { getSavedLibraryCourseNames } = await importUiFlow();
+    const input = [
+        { name: 'Tarih', checked: true },
+        { name: 'Coğrafya', selected: true },
+        { name: 'Tarih', selected: true },
+        { name: '', favorite: true }
+    ];
+
+    assert.deepStrictEqual(getSavedLibraryCourseNames(input), ['Tarih', 'Coğrafya']);
+});
+
 test('Profil modu görünürlük kuralları: profilde kaydet görünür, derslerimde gizli', async () => {
     const { SETTINGS_MODES, getSettingsVisibility, getDefaultSettingsModeByRole } = await importSettingsMode();
 

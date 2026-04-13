@@ -126,6 +126,35 @@ input[type="checkbox"] { width: auto !important; margin: 0 10px 0 0 !important; 
 .checkbox-item { display: flex; align-items: center; justify-content: flex-start; padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; } 
 .checkbox-item label { color: #1e3c72; font-weight: 600; flex: 1; text-align: left; margin:0; cursor: pointer; }
 
+.derslerim-semester-section { margin-bottom: 12px; }
+.derslerim-semester-title { margin: 0 0 8px 0; color: #1e3c72; font-size: 0.88rem; text-transform: uppercase; letter-spacing: 0.03em; }
+.subject-row { background: #f9fbff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 10px; margin-bottom: 8px; }
+.subject-row-main { display: flex; align-items: center; cursor: pointer; margin-bottom: 8px; color: #1e3c72; font-weight: 700; text-align: left; }
+.subject-row-name { line-height: 1.3; }
+.subject-row input[type="text"] { margin: 0; background: #fff; border-color: #d9e2ef; font-size: 0.85rem; }
+
+.saved-library-panel {
+    background: #0f1b2d;
+    color: #e5edff;
+    border: 1px solid #223854;
+    border-radius: 14px;
+    padding: 12px;
+    margin-bottom: 12px;
+    text-align: left;
+}
+.saved-library-panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 8px; }
+.saved-library-panel h4 { color: #eaf2ff; }
+.saved-library-course-item {
+    background: #1b2b44;
+    border: 1px solid #2f4668;
+    border-radius: 10px;
+    padding: 9px 10px;
+    margin-bottom: 6px;
+    color: #eaf2ff;
+    font-size: 0.88rem;
+}
+.saved-library-empty { margin: 0; color: #b7c7e6; font-size: 0.82rem; }
+
 .list-item { background: #f9f9f9; border: 1px solid #eee; padding: 10px; margin-bottom: 8px; border-radius: 8px; position: relative; }
 .list-item b { color: #1e3c72; }
 .list-empty-message { text-align: center; color: #4b5563; }
@@ -732,6 +761,24 @@ body.full-dark-theme #derslerim-library-filter-wrap,
 body.soft-dark-theme #derslerim-library-filter-wrap {
     background: #263446;
     border-color: #445d7b;
+}
+
+body.full-dark-theme #screen-settings.derslerim-mode .subject-row,
+body.soft-dark-theme #screen-settings.derslerim-mode .subject-row {
+    background: #2a3750;
+    border-color: #435a7f;
+}
+body.full-dark-theme #screen-settings.derslerim-mode .subject-row-main,
+body.full-dark-theme #screen-settings.derslerim-mode .derslerim-semester-title,
+body.soft-dark-theme #screen-settings.derslerim-mode .subject-row-main,
+body.soft-dark-theme #screen-settings.derslerim-mode .derslerim-semester-title {
+    color: #deebff;
+}
+body.full-dark-theme #screen-settings.derslerim-mode .subject-row input[type="text"],
+body.soft-dark-theme #screen-settings.derslerim-mode .subject-row input[type="text"] {
+    background: #1f2a3d !important;
+    border-color: #4c6288;
+    color: #e5eeff !important;
 }
 
 body.full-dark-theme {

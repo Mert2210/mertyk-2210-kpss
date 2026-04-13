@@ -33,3 +33,35 @@ export function evaluateStdAnswer(selectedIdx, correctIdx) {
         correctIndex: safeCorrect
     };
 }
+
+export function filterCourseNamesByQuery(courseNames = [], query = '') {
+    const safeNames = Array.isArray(courseNames) ? courseNames : [];
+    const normalizedQuery = String(query || '').trim().toLocaleLowerCase('tr');
+    if (!normalizedQuery) return safeNames;
+    return safeNames.filter((name) => String(name || '').toLocaleLowerCase('tr').includes(normalizedQuery));
+}
+
+export function buildSemesterSections(courseNames = []) {
+    const safeNames = Array.from(new Set((Array.isArray(courseNames) ? courseNames : [])
+        .map((name) => String(name || '').trim())
+        .filter(Boolean)));
+    if (safeNames.length === 0) return [];
+    const splitIndex = Math.ceil(safeNames.length / 2);
+    const first = safeNames.slice(0, splitIndex);
+    const second = safeNames.slice(splitIndex);
+    return [
+        { title: '1. Dönem', courses: first },
+        { title: '2. Dönem', courses: second }
+    ].filter((section) => section.courses.length > 0);
+}
+
+export function getSavedLibraryCourseNames(savedSubjects = []) {
+    const safeList = Array.isArray(savedSubjects) ? savedSubjects : [];
+    const selectedCourses = safeList
+        .filter((row) => {
+            const hasName = String(row?.name || '').trim() !== '';
+            return hasName && (row?.selected || row?.checked);
+        })
+        .map((row) => String(row.name || '').trim());
+    return Array.from(new Set(selectedCourses));
+}
