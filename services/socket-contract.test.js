@@ -16,6 +16,8 @@ test("critical compatibility events are present", () => {
     assert.ok(clientToServerEvents.includes("createClass"));
     assert.ok(clientToServerEvents.includes("getClassMistakes"));
     assert.ok(clientToServerEvents.includes("saveClassMistakes"));
+    assert.ok(clientToServerEvents.includes("deleteTeacherQuestion"));
     assert.ok(serverToClientEvents.includes("teacherClassFound"));
     assert.ok(serverToClientEvents.includes("teacherReportsData"));
+    assert.ok(serverToClientEvents.includes("teacherQuestionDeleted"));
 });
