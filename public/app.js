@@ -1813,6 +1813,7 @@ const NOTIFICATION_SUBSCRIPTION_CLASS_KEY = "gazi_notification_class_code";
 const NOTIFICATION_ENABLED_KEY = "gazi_notifications_enabled";
 const NOTIFICATION_PROMPT_SEEN_KEY = "gazi_notification_prompt_seen";
 const NOTIFICATION_TOKEN_KEY = "gazi_notification_token";
+const NOTIFICATION_SUBSCRIPTION_STUDENT_KEY = "gazi_notification_student_name";
 let selectedRole = 'student';
 
 function areNotificationsEnabled() {
@@ -1825,6 +1826,33 @@ function setNotificationsEnabled(enabled) {
 
 function getPreferredNotificationClassCode() {
     return String(window.myClassCode || localStorage.getItem("gazi_class_code") || "").trim().toUpperCase();
+}
+
+function getCurrentStudentNotificationName() {
+    const role = String(APP_STATE.currentUser?.role || "").trim();
+    if (role !== "student") return "";
+    const safeName = String(APP_STATE.currentUser?.name || "").trim();
+    if (safeName) return safeName;
+    const displayName = String(document.getElementById('display-user')?.innerText || "").replace("Hoş Geldin, ", "").trim();
+    return displayName;
+}
+
+function syncStudentPushSubscription(token) {
+    const safeToken = String(token || "").trim();
+    const studentName = getCurrentStudentNotificationName();
+    if (!socket || !safeToken || !studentName) return;
+    const previousStudentName = String(localStorage.getItem(NOTIFICATION_SUBSCRIPTION_STUDENT_KEY) || "").trim();
+    socket.emit("setStudentNotificationToken", { token: safeToken, studentName, previousStudentName });
+    localStorage.setItem(NOTIFICATION_SUBSCRIPTION_STUDENT_KEY, studentName);
+}
+
+function clearStudentPushSubscription() {
+    if (!socket) return;
+    const token = String(localStorage.getItem(NOTIFICATION_TOKEN_KEY) || "").trim();
+    const studentName = String(localStorage.getItem(NOTIFICATION_SUBSCRIPTION_STUDENT_KEY) || getCurrentStudentNotificationName()).trim();
+    if (!token || !studentName) return;
+    socket.emit("clearStudentNotificationToken", { token, studentName });
+    localStorage.removeItem(NOTIFICATION_SUBSCRIPTION_STUDENT_KEY);
 }
 
 function updateNotificationToggleUI() {
@@ -1874,7 +1902,7 @@ async function clearClassPushSubscription(classCodeRaw) {
 
 async function subscribeToClassPushNotifications(classCodeRaw, { forcePrompt = false } = {}) {
     const classCode = String(classCodeRaw || "").trim().toUpperCase();
-    if (!classCode || !socket) return;
+    if (!socket) return;
     if (typeof Notification === "undefined" || !("serviceWorker" in navigator)) return;
     if (!firebaseVapidKey || !areNotificationsEnabled()) return;
     try {
@@ -1885,6 +1913,8 @@ async function subscribeToClassPushNotifications(classCodeRaw, { forcePrompt = f
         if (permission !== "granted") return;
         const token = await getCurrentFcmToken();
         if (!token) return;
+        syncStudentPushSubscription(token);
+        if (!classCode) return;
         const previousClassCode = localStorage.getItem(NOTIFICATION_SUBSCRIPTION_CLASS_KEY) || "";
         socket.emit("setClassNotificationToken", {
             token,
@@ -1924,6 +1954,7 @@ window.handleNotificationToggleChange = async () => {
         await subscribeToClassPushNotifications(getPreferredNotificationClassCode(), { forcePrompt: true });
     } else {
         await clearClassPushSubscription(localStorage.getItem(NOTIFICATION_SUBSCRIPTION_CLASS_KEY) || getPreferredNotificationClassCode());
+        clearStudentPushSubscription();
         localStorage.removeItem(NOTIFICATION_SUBSCRIPTION_CLASS_KEY);
     }
     updateNotificationToggleUI();
