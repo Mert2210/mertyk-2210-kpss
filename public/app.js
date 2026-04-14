@@ -1569,7 +1569,7 @@ window.openLibraryLessonsScreen = (focusedSubject = '') => {
 window.openLibrarySubjectFromDerslerim = (subjectName = '') => {
     const safeSubject = String(subjectName || '').trim();
     if (!safeSubject) return;
-    window.pendingLibraryFilter = { subject: safeSubject };
+    window.pendingLibraryFilter = { subject: safeSubject, topic: '' };
     window.libraryViewingTopicPath = null;
     window.openStudentLibrary();
 };
