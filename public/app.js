@@ -1000,8 +1000,7 @@ window.selectStudentSaveTarget = (target) => {
 window.openStudentLibrary = (options = {}) => {
     const keepTopicContext = !!(options && options.keepTopicContext);
     if (!keepTopicContext) window.libraryViewingTopicPath = null;
-    const source = (typeof socket !== 'undefined' && socket !== null) ? 'cloud' : 'local';
-    window.fetchStudentLibrary(source, false);
+    window.fetchStudentLibrary('both', false);
 };
 
 window.openSmartAddForCurrentLibraryTopic = () => {
@@ -1585,7 +1584,7 @@ window.openLibrarySubjectFromDerslerim = (subjectName = '') => {
     if (!safeSubject) return;
     window.pendingLibraryFilter = { subject: safeSubject, topic: '' };
     window.libraryViewingTopicPath = null;
-    window.fetchStudentLibrary('local', false);
+    window.fetchStudentLibrary('both', false);
 };
 
 window.toggleDerslerimSection = (contentId, arrowId, triggerId = null) => {
@@ -1685,7 +1684,7 @@ window.openLibraryTopicFromDerslerim = (subject, topic) => {
     if (!nextNavState) return;
     window.libraryViewingTopicPath = nextNavState.libraryViewingTopicPath;
     window.pendingLibraryFilter = nextNavState.pendingLibraryFilter;
-    window.fetchStudentLibrary('local', false);
+    window.fetchStudentLibrary('both', false);
 };
 
 window.toggleDerslerimLibrarySubject = (subjectSlug) => {
@@ -3209,6 +3208,22 @@ window.fetchStudentLibrary = (source = 'cloud', onlyReviews = false) => {
         if(!socket) return alert("Sunucu bağlantısı yok."); 
         const studentName = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "").trim() || "Gazi Adayı"; 
         socket.emit("getStudentLibrary", { studentName: studentName, onlyReviews: onlyReviews });
+    } else if (source === 'both') {
+        let localData = getLocalNotebookQuestions();
+        if (onlyReviews) {
+            const now = Date.now();
+            localData = localData.filter(q => q.nextReviewDate && q.nextReviewDate <= now);
+        } else {
+            localData = [...localData].reverse();
+        }
+        localData = localData.map(q => ({ ...q, _source: 'local' }));
+        if (socket) {
+            window._pendingLocalForMerge = localData;
+            const studentName = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "").trim() || "Gazi Adayı";
+            socket.emit("getStudentLibrary", { studentName: studentName, onlyReviews: onlyReviews });
+        } else {
+            renderStudentLibraryHTML(localData, "💾 Cihaz Hata Defterim");
+        }
     } else {
         let localData = getLocalNotebookQuestions();
         if(onlyReviews) { 
@@ -3251,11 +3266,12 @@ function renderStudentLibraryListOnly(data) {
     if(data.length === 0) { 
         div.innerHTML = "<p class='list-empty-message'>Bu filtreye uygun soru bulunamadı.</p>"; 
     } else {
-        const isLocal = document.getElementById('list-title').innerText.includes("Cihaz");
-        const cloudBadge = !isLocal
-            ? `<span class="cloud-badge" title="Bu soru buluta kaydetilmiştir, internet bağlantısı gerektirir">☁️ ℹ️</span>`
-            : '';
+        const titleIsLocal = document.getElementById('list-title').innerText.includes("Cihaz");
         div.innerHTML = data.map((q, i) => {
+            const isLocalQuestion = q._source ? q._source === 'local' : titleIsLocal;
+            const cloudBadge = !isLocalQuestion
+                ? `<span class="cloud-badge" title="Bu soru buluta kaydetilmiştir, internet bağlantısı gerektirir">☁️ ℹ️</span>`
+                : '';
             const kitapText = typeof q.kitap === 'string' ? q.kitap.trim() : '';
             const showKitap = !!kitapText && kitapText.toLowerCase() !== LEGACY_EMPTY_BOOK_TEXT;
             return `
@@ -3282,8 +3298,8 @@ function renderStudentLibraryListOnly(data) {
                     </select>
                 </div>` : ''}
                 <div class="list-item-action-row">
-                    ${q.id ? `<button onclick="updateReviewDateByIndex(${i}, ${isLocal})" class="outline list-item-review-btn">✅ Tekrar Ettim (Ertele)</button>` : ''}
-                    ${q.id ? `<button onclick="deleteStudentQuestionByIndex(${i}, ${isLocal})" class="outline list-item-delete-btn">🗑️ Sil</button>` : ''}
+                    ${q.id ? `<button onclick="updateReviewDateByIndex(${i}, ${isLocalQuestion})" class="outline list-item-review-btn">✅ Tekrar Ettim (Ertele)</button>` : ''}
+                    ${q.id ? `<button onclick="deleteStudentQuestionByIndex(${i}, ${isLocalQuestion})" class="outline list-item-delete-btn">🗑️ Sil</button>` : ''}
                 </div>
             </div>`;
         }).join(''); 
@@ -3650,7 +3666,19 @@ window.fetchClassQuestions = () => {
 };
 
 if(socket) {
-    socket.on("studentLibraryData", (data) => renderStudentLibraryHTML(data, "☁️ Bulut Hata Defterim"));
+    socket.on("studentLibraryData", (data) => {
+        if (window._pendingLocalForMerge !== undefined) {
+            const local = window._pendingLocalForMerge || [];
+            window._pendingLocalForMerge = undefined;
+            const cloudTagged = data.map(q => ({ ...q, _source: 'cloud' }));
+            const cloudIds = new Set(cloudTagged.map(q => q.id).filter(Boolean));
+            const localOnly = local.filter(q => !cloudIds.has(q.id));
+            const merged = [...cloudTagged, ...localOnly];
+            renderStudentLibraryHTML(merged, "📚 Hata Defterim");
+        } else {
+            renderStudentLibraryHTML(data, "☁️ Bulut Hata Defterim");
+        }
+    });
     socket.on("classQuestionsData", (data) => { 
         if(data.length === 0) return alert("Bu sınıfa henüz öğretmen tarafından soru eklenmemiş."); 
         window.latestFetchedClassCode = String(document.getElementById('class-code-input')?.value || '').trim().toUpperCase();
