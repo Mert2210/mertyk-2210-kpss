@@ -427,7 +427,7 @@
     <div id="screen-settings" class="screen">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
             <h3 id="settings-screen-title" style="margin:0; color:#8e44ad;">⚙️ Çalışma Masam</h3>
-            <button onclick="window.showScreen('screen-main')" class="outline" style="width:auto; padding:8px; font-size:0.8rem;">⬅️ İptal</button>
+            <button onclick="window.goBack('screen-main')" class="outline" style="width:auto; padding:8px; font-size:0.8rem;">⬅️ İptal</button>
         </div>
         <div class="content-card" style="background:#fdfdfd; padding:20px; border-radius:12px; text-align:left; border: 1px solid #ddd; box-shadow:0 10px 25px rgba(0,0,0,0.05);">
             <div class="settings-profile-section">
@@ -482,13 +482,20 @@
                     </div>
                 </div>
 
-                <h4 style="color:#1e3c72; border-bottom:2px solid #eee; padding-bottom:8px; margin-top:20px;">📚 Sorumlu Olduğunuz Dersler</h4>
-                <p style="font-size:0.75rem; color:#666; margin-top:0;">Dersleri seçerek kütüphanenizi oluşturabilirsiniz.</p>
-                <div class="derslerim-search-row">
-                    <input type="search" id="derslerim-course-search" placeholder="🔍 Ders ara..." oninput="window.handleDerslerimCourseSearch()" style="margin-bottom:0; border-color:#d4dbe8; background:#f8fbff;">
-                    <button type="button" class="outline derslerim-add-btn" onclick="window.openDerslerimAddModal()" aria-label="Yeni ders veya konu ekle">➕</button>
+                <div class="derslerim-collapsible-card" style="margin-top:16px;">
+                    <button id="derslerim-subjects-trigger" type="button" class="derslerim-collapse-trigger" aria-expanded="false" aria-controls="derslerim-subjects-content" onclick="window.toggleDerslerimSection('derslerim-subjects-content', 'derslerim-subjects-arrow', 'derslerim-subjects-trigger')">
+                        <span>📚 Sorumlu Olduğunuz Dersler</span>
+                        <span id="derslerim-subjects-arrow">▶</span>
+                    </button>
+                    <div id="derslerim-subjects-content" class="derslerim-collapse-content collapsed">
+                        <p style="font-size:0.75rem; color:#666; margin:10px 0 8px;">Dersleri seçerek kütüphanenizi oluşturabilirsiniz.</p>
+                        <div class="derslerim-search-row">
+                            <input type="search" id="derslerim-course-search" placeholder="🔍 Ders ara..." oninput="window.handleDerslerimCourseSearch()" style="margin-bottom:0; border-color:#d4dbe8; background:#f8fbff;">
+                            <button type="button" class="outline derslerim-add-btn" onclick="window.openDerslerimAddModal()" aria-label="Yeni ders veya konu ekle">➕</button>
+                        </div>
+                        <div id="profile-subjects-area" style="max-height: 250px; overflow-y:auto; background:#fff; padding:8px; border-radius:8px; border:1px solid #ddd;"></div>
+                    </div>
                 </div>
-                <div id="profile-subjects-area" style="max-height: 250px; overflow-y:auto; background:#fff; padding:8px; border-radius:8px; border:1px solid #ddd;"></div>
 
                 <div class="derslerim-collapsible-card" style="margin-top:12px;">
                     <small style="display:block; color:#1e3c72; margin-bottom:8px; font-weight:700;">✅ Tiklenen dersler doğrudan Kayıtlı Kütüphanem'e eklenir</small>
@@ -603,13 +610,13 @@
         <div id="library-filter-area" class="filter-section" style="display:none;"></div>
         <div id="list-content"></div>
         <button id="start-library-test-btn" onclick="startLibraryTest()" class="green" style="display:none; width:100%; margin-top:10px; padding:12px; font-size:1rem;">▶ Hepsini Test Olarak Çöz</button>
-        <button onclick="showScreen('screen-main')" class="outline" style="margin-top:15px;">⬅️ Kapat</button>
+        <button onclick="window.goBack('screen-main')" class="outline" style="margin-top:15px;">⬅️ Kapat</button>
     </div>
 
     <div id="screen-library-lessons" class="screen">
         <div class="library-screen-header">
             <h3 style="margin:0;">📚 Kütüphanedeki Dersler</h3>
-            <button type="button" class="outline ui-btn-compact" style="width:auto; padding:8px 10px;" onclick="showScreen('screen-main')">⬅️ Kapat</button>
+            <button type="button" class="outline ui-btn-compact" style="width:auto; padding:8px 10px;" onclick="window.closeLibraryLessonsScreen()">⬅️ Kapat</button>
         </div>
         <p class="library-screen-desc">Sınavına uygun dersini seçerek kütüphane listesini açabilirsin.</p>
         <div id="library-lessons-list" style="text-align:left;"></div>
@@ -619,21 +626,22 @@
     <div id="screen-reminder-options" class="screen">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
             <h3 style="margin:0; color:#8e44ad;">🔔 Hatırlatma Seçenekleri</h3>
-            <button type="button" class="outline" style="width:auto; padding:8px 10px;" onclick="showScreen('screen-settings')">⬅️ Geri</button>
+            <button type="button" class="outline" style="width:auto; padding:8px 10px;" onclick="window.goBack('screen-settings')">⬅️ Geri</button>
         </div>
         <div class="content-card" style="background:#fff; border:1px solid #ddd; border-radius:10px; padding:12px; text-align:left;">
-            <label style="font-size:0.8rem; font-weight:bold; color:#1e3c72;">Yeni aralık (gün)</label>
+            <label style="font-size:0.8rem; font-weight:bold; color:#1e3c72;">Yeni aralık (gün veya saat)</label>
             <div style="display:flex; gap:8px; margin-bottom:10px;">
-                <input id="reminder-interval-input" aria-label="Hatırlatma aralığı (gün)" type="number" min="0.25" step="0.25" placeholder="Örn: 2">
+                <input id="reminder-interval-input" aria-label="Hatırlatma aralığı (gün veya saat)" type="number" min="0.01" step="0.01" placeholder="Örn: 1 veya 0.125">
                 <button type="button" class="blue" style="width:auto; min-width:92px;" onclick="window.addReminderInterval()">Ekle</button>
             </div>
+            <small style="display:block; color:#4b5563; margin-bottom:8px;">Saatlik kullanım için gün kesri girin (ör. 0.125 = 3 saat, 0.5 = 12 saat).</small>
             <div id="reminder-options-list"></div>
         </div>
     </div>
 
     <div id="screen-lobby" class="screen">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-            <button class="outline" onclick="showScreen('screen-main')" style="width:auto;">⬅️ Geri</button>
+            <button class="outline" onclick="window.goBack('screen-main')" style="width:auto;">⬅️ Geri</button>
             <div style="display:flex; gap:5px;">
                 <button onclick="fetchStudentLibrary('cloud', false)" class="outline" style="width:auto; font-size:0.8rem; padding:8px; border-color:#e67e22; color:#e67e22;">☁️ Bulut Kumbaram</button>
                 <button onclick="fetchStudentLibrary('local', false)" class="outline" style="width:auto; font-size:0.8rem; padding:8px; border-color:#3498db; color:#3498db;">💾 Cihaz Kumbaram</button>

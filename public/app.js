@@ -4,8 +4,8 @@ import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/fireb
 import { getStorage, ref as storageRef, uploadString, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
 import { createSafeClientStore } from "./modules/client-storage.mjs";
 import { SETTINGS_MODES, applySettingsMode, getDefaultSettingsModeByRole } from "./modules/settings-mode.mjs";
-import { normalizeTopicFilterMode, getAllowedTopicsForMode, getAllowedTopicsForModalContext, isStorageRetryLimitExceededError, buildDerslerimTopicNavigation, canStartLibraryTest, evaluateStdAnswer, filterCourseNamesByQuery, getSavedLibraryCourseNames, buildDueReminderCountsBySubject, mergeSavedSubjectsWithDrafts, buildTopicListFromSources, getNextExpandedCourse, buildSelectedCourseLabel } from "./modules/ui-flow.mjs";
-import { resolveCurrentExamType, getCustomCurriculumGroupsByExamType as getCustomCurriculumGroupsByExamTypeFromMap, getCustomCurriculumSubjectsByExamType as getCustomCurriculumSubjectsByExamTypeFromMap, getCustomCurriculumTopicsByExamTypeAndSubject as getCustomCurriculumTopicsByExamTypeAndSubjectFromMap, getCustomTopicsBySubject as getCustomTopicsBySubjectFromMap, addCustomTopicsForSubject as addCustomTopicsForSubjectInMap } from "./modules/custom-data.mjs";
+import { normalizeTopicFilterMode, getAllowedTopicsForMode, getAllowedTopicsForModalContext, isStorageRetryLimitExceededError, buildDerslerimTopicNavigation, canStartLibraryTest, evaluateStdAnswer, filterCourseNamesByQuery, getSavedLibraryCourseNames, buildDueReminderCountsBySubject, mergeSavedSubjectsWithDrafts, buildTopicListFromSources, getNextExpandedCourse, buildSelectedCourseLabel, DEFAULT_REMINDER_INTERVALS, formatReminderOptionLabel } from "./modules/ui-flow.mjs";
+import { resolveCurrentExamType, getCustomCurriculumGroupsByExamType as getCustomCurriculumGroupsByExamTypeFromMap, getCustomCurriculumSubjectsByExamType as getCustomCurriculumSubjectsByExamTypeFromMap, getCustomCurriculumTopicsByExamTypeAndSubject as getCustomCurriculumTopicsByExamTypeAndSubjectFromMap, getCustomTopicsBySubject as getCustomTopicsBySubjectFromMap, addCustomTopicsForSubject as addCustomTopicsForSubjectInMap, mergeSubjectsForExamType } from "./modules/custom-data.mjs";
 import { buildRelativeResourceUrl, getShareableAppLink, shouldRegisterServiceWorker } from "./modules/app-shell.mjs";
 
 const fallbackFirebaseConfig = { 
@@ -144,6 +144,7 @@ const LOCAL_NOTEBOOK_STORAGE_KEY = 'gazi_local_notebook';
 const REMINDER_INTERVALS_STORAGE_KEY = 'gazi_reminder_intervals_v1';
 const CUSTOM_EXAM_PREFIX = 'custom_';
 const DEFAULT_CUSTOM_GROUP_NAME = 'Genel';
+const DEFAULT_LIBRARY_LESSONS_BACK_SCREEN = 'screen-settings';
 const MAX_READY_SOURCES = 30;
 const FLOAT_COMPARISON_EPSILON = 0.001;
 const VALID_STUDENT_PHOTO_SOURCES = ['camera', 'gallery', 'file'];
@@ -217,7 +218,8 @@ function normalizeReminderIntervals(list = []) {
         safeList
             .map((value) => Number(value))
             .filter((value) => Number.isFinite(value) && value > 0)
-            .map((value) => Number(value.toFixed(2)))
+            // Keep 4 decimals to preserve hourly fractions (rounded examples: 1/24≈0.0417, 3/24=0.1250).
+            .map((value) => Number(value.toFixed(4)))
     ));
     unique.sort((a, b) => a - b);
     return unique;
@@ -227,7 +229,7 @@ function getReminderIntervals() {
     const stored = CLIENT_STORE.getJSON(REMINDER_INTERVALS_STORAGE_KEY, []);
     const normalized = normalizeReminderIntervals(stored);
     if (normalized.length > 0) return normalized;
-    const fallback = [7];
+    const fallback = normalizeReminderIntervals(DEFAULT_REMINDER_INTERVALS);
     CLIENT_STORE.setJSON(REMINDER_INTERVALS_STORAGE_KEY, fallback);
     return fallback;
 }
@@ -236,20 +238,13 @@ function setReminderIntervals(intervals = []) {
     CLIENT_STORE.setJSON(REMINDER_INTERVALS_STORAGE_KEY, normalizeReminderIntervals(intervals));
 }
 
-function buildReminderOptionLabel(daysValue) {
-    const safeValue = Number(daysValue);
-    if (!Number.isFinite(safeValue) || safeValue <= 0) return '';
-    const text = Number.isInteger(safeValue) ? String(safeValue) : String(safeValue).replace('.', ',');
-    return `${text} gün`;
-}
-
 window.renderReminderIntervalSelect = () => {
     const select = document.getElementById('std-q-reminder');
     if (!select) return;
     const intervals = getReminderIntervals();
     const currentValue = String(select.value || CLIENT_STORE.getItem('gazi_last_reminder_days', '') || '');
     select.innerHTML = intervals
-        .map((days) => `<option value="${days}">${escapeHtml(buildReminderOptionLabel(days))}</option>`)
+        .map((days) => `<option value="${days}">${escapeHtml(formatReminderOptionLabel(days, FLOAT_COMPARISON_EPSILON))}</option>`)
         .join('');
     const hasCurrent = intervals.some((days) => String(days) === currentValue);
     if (hasCurrent) select.value = currentValue;
@@ -262,7 +257,7 @@ window.renderReminderOptionsScreen = () => {
     const intervals = getReminderIntervals();
     listEl.innerHTML = intervals.map((days, index) => `
         <div class="list-item" style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
-            <strong style="color:#1e3c72;">${escapeHtml(buildReminderOptionLabel(days))}</strong>
+            <strong style="color:#1e3c72;">${escapeHtml(formatReminderOptionLabel(days, FLOAT_COMPARISON_EPSILON))}</strong>
             <div style="display:flex; gap:6px;">
                 <button type="button" class="outline" style="width:auto; padding:6px 10px; font-size:0.74rem;" onclick="window.editReminderInterval(${index})">Düzenle</button>
                 <button type="button" class="outline" style="width:auto; padding:6px 10px; font-size:0.74rem; border-color:#c0392b; color:#c0392b;" onclick="window.deleteReminderInterval(${index})">Sil</button>
@@ -279,7 +274,7 @@ window.openReminderOptionsScreen = () => {
 window.addReminderInterval = () => {
     const input = document.getElementById('reminder-interval-input');
     const value = Number(String(input?.value || '').replace(',', '.'));
-    if (!Number.isFinite(value) || value <= 0) return alert('Lütfen 0’dan büyük bir gün değeri girin.');
+    if (!Number.isFinite(value) || value <= 0) return alert('Lütfen 0’dan büyük bir gün/saat değeri girin.');
     const next = normalizeReminderIntervals([...getReminderIntervals(), value]);
     setReminderIntervals(next);
     if (input) input.value = '';
@@ -291,10 +286,10 @@ window.editReminderInterval = (index) => {
     const list = getReminderIntervals();
     const current = list[Number(index)];
     if (!Number.isFinite(current)) return;
-    const value = prompt('Yeni gün değerini girin:', String(current));
+    const value = prompt('Yeni gün/saat değerini girin:', String(current));
     if (value === null) return;
     const nextValue = Number(String(value).replace(',', '.'));
-    if (!Number.isFinite(nextValue) || nextValue <= 0) return alert('Geçerli bir gün değeri girin.');
+    if (!Number.isFinite(nextValue) || nextValue <= 0) return alert('Geçerli bir gün/saat değeri girin.');
     list[Number(index)] = nextValue;
     setReminderIntervals(list);
     window.renderReminderIntervalSelect();
@@ -1005,8 +1000,7 @@ window.selectStudentSaveTarget = (target) => {
 window.openStudentLibrary = (options = {}) => {
     const keepTopicContext = !!(options && options.keepTopicContext);
     if (!keepTopicContext) window.libraryViewingTopicPath = null;
-    const source = (typeof socket !== 'undefined' && socket !== null) ? 'cloud' : 'local';
-    window.fetchStudentLibrary(source, false);
+    window.fetchStudentLibrary('both', false);
 };
 
 window.openSmartAddForCurrentLibraryTopic = () => {
@@ -1079,10 +1073,15 @@ const EXAM_TYPE_SUBJECT_MAP = {
 
 function getSubjectsByExamType(examType) {
     const conf = EXAM_TYPE_SUBJECT_MAP[examType];
+    const customSubjects = getCustomCurriculumSubjectsByExamType(examType);
+    const savedSubjects = getDerslerimSubjectsFromStorage();
     if (!conf || !window.mufredat[conf[0]]) {
-        const fallbackCustomSubjects = getCustomCurriculumSubjectsByExamType(examType);
-        const savedSubjects = getDerslerimSubjectsFromStorage();
-        return uniqueSubjects([...DEFAULT_PROFILE_SUBJECTS, ...fallbackCustomSubjects, ...savedSubjects]);
+        return mergeSubjectsForExamType(examType, {
+            curriculumSubjects: [],
+            defaultSubjects: DEFAULT_PROFILE_SUBJECTS,
+            customSubjects,
+            savedSubjects
+        });
     }
     const [examKey, groups] = conf;
     const subjectNames = [];
@@ -1090,9 +1089,12 @@ function getSubjectsByExamType(examType) {
         const groupData = window.mufredat[examKey][group];
         if (groupData) subjectNames.push(...Object.keys(groupData));
     });
-    const customSubjects = getCustomCurriculumSubjectsByExamType(examType);
-    const savedSubjects = getDerslerimSubjectsFromStorage();
-    return uniqueSubjects([...(subjectNames.length > 0 ? subjectNames : DEFAULT_PROFILE_SUBJECTS), ...customSubjects, ...savedSubjects]);
+    return mergeSubjectsForExamType(examType, {
+        curriculumSubjects: subjectNames,
+        defaultSubjects: DEFAULT_PROFILE_SUBJECTS,
+        customSubjects,
+        savedSubjects
+    });
 }
 
 function getCurriculumTopicsByExamTypeAndSubject(examType, subject) {
@@ -1550,12 +1552,19 @@ window.renderLibraryLessonsScreen = (focusedSubject = '') => {
     }
     listEl.innerHTML = subjectsToRender.map((subject) => `
         <section style="margin-bottom:10px;">
-            <button type="button" class="derslerim-library-subject" onclick="window.openLibrarySubjectFromDerslerim(${JSON.stringify(subject)})">
+            <button type="button" class="derslerim-library-subject" data-subject-name="${encodeURIComponent(subject)}">
                 <span>📘 ${escapeHtml(subject)}</span>
                 <span>→</span>
             </button>
         </section>
     `).join('');
+    listEl.querySelectorAll('.derslerim-library-subject').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const encodedName = btn.getAttribute('data-subject-name') || '';
+            const safeSubject = decodeURIComponent(encodedName);
+            window.openLibrarySubjectFromDerslerim(safeSubject);
+        });
+    });
 };
 
 window.openLibraryLessonsScreen = (focusedSubject = '') => {
@@ -1566,12 +1575,16 @@ window.openLibraryLessonsScreen = (focusedSubject = '') => {
     showScreen('screen-library-lessons');
 };
 
+window.closeLibraryLessonsScreen = () => {
+    window.goBack(DEFAULT_LIBRARY_LESSONS_BACK_SCREEN);
+};
+
 window.openLibrarySubjectFromDerslerim = (subjectName = '') => {
     const safeSubject = String(subjectName || '').trim();
     if (!safeSubject) return;
     window.pendingLibraryFilter = { subject: safeSubject, topic: '' };
     window.libraryViewingTopicPath = null;
-    window.openStudentLibrary();
+    window.fetchStudentLibrary('both', false);
 };
 
 window.toggleDerslerimSection = (contentId, arrowId, triggerId = null) => {
@@ -1671,7 +1684,7 @@ window.openLibraryTopicFromDerslerim = (subject, topic) => {
     if (!nextNavState) return;
     window.libraryViewingTopicPath = nextNavState.libraryViewingTopicPath;
     window.pendingLibraryFilter = nextNavState.pendingLibraryFilter;
-    window.openStudentLibrary({ keepTopicContext: true });
+    window.fetchStudentLibrary('both', false);
 };
 
 window.toggleDerslerimLibrarySubject = (subjectSlug) => {
@@ -2028,9 +2041,22 @@ window.applyRoleBasedBottomNav = (role = ROLE_STUDENT) => {
     });
 };
 
+window.goBack = (fallback = 'screen-main') => {
+    const prev = String(window.previousScreen || '').trim();
+    if (prev && prev !== 'screen-auth') {
+        showScreen(prev);
+    } else {
+        showScreen(fallback);
+    }
+};
+
 window.showScreen = (id) => { 
+    if (window.currentScreen && window.currentScreen !== id) {
+        window.previousScreen = window.currentScreen;
+    }
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); 
     document.getElementById(id).classList.add('active');
+    window.currentScreen = id;
     const nav = document.getElementById('bottom-nav');
     if (id !== 'screen-auth') {
         nav.style.display = 'flex';
@@ -2398,7 +2424,7 @@ window.saveProfileSettings = () => {
     syncSelectedSubjectsToStorage(subjectsData);
     
     alert("✅ Çalışma Masası Ayarlarınız Kaydedildi!");
-    showScreen('screen-main');
+    window.goBack('screen-main');
 };
 
 window.handleLogin = async () => { 
@@ -3182,6 +3208,22 @@ window.fetchStudentLibrary = (source = 'cloud', onlyReviews = false) => {
         if(!socket) return alert("Sunucu bağlantısı yok."); 
         const studentName = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "").trim() || "Gazi Adayı"; 
         socket.emit("getStudentLibrary", { studentName: studentName, onlyReviews: onlyReviews });
+    } else if (source === 'both') {
+        let localData = getLocalNotebookQuestions();
+        if (onlyReviews) {
+            const now = Date.now();
+            localData = localData.filter(q => q.nextReviewDate && q.nextReviewDate <= now);
+        } else {
+            localData = [...localData].reverse();
+        }
+        localData = localData.map(q => ({ ...q, _source: 'local' }));
+        if (socket) {
+            window._pendingLocalForMerge = localData;
+            const studentName = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "").trim() || "Gazi Adayı";
+            socket.emit("getStudentLibrary", { studentName: studentName, onlyReviews: onlyReviews });
+        } else {
+            renderStudentLibraryHTML(localData, "💾 Cihaz Hata Defterim");
+        }
     } else {
         let localData = getLocalNotebookQuestions();
         if(onlyReviews) { 
@@ -3224,11 +3266,12 @@ function renderStudentLibraryListOnly(data) {
     if(data.length === 0) { 
         div.innerHTML = "<p class='list-empty-message'>Bu filtreye uygun soru bulunamadı.</p>"; 
     } else {
-        const isLocal = document.getElementById('list-title').innerText.includes("Cihaz");
-        const cloudBadge = !isLocal
-            ? `<span class="cloud-badge" title="Bu soru buluta kaydetilmiştir, internet bağlantısı gerektirir">☁️ ℹ️</span>`
-            : '';
+        const titleIsLocal = document.getElementById('list-title').innerText.includes("Cihaz");
         div.innerHTML = data.map((q, i) => {
+            const isLocalQuestion = q._source ? q._source === 'local' : titleIsLocal;
+            const cloudBadge = !isLocalQuestion
+                ? `<span class="cloud-badge" title="Bu soru buluta kaydetilmiştir, internet bağlantısı gerektirir">☁️ ℹ️</span>`
+                : '';
             const kitapText = typeof q.kitap === 'string' ? q.kitap.trim() : '';
             const showKitap = !!kitapText && kitapText.toLowerCase() !== LEGACY_EMPTY_BOOK_TEXT;
             return `
@@ -3251,12 +3294,12 @@ function renderStudentLibraryListOnly(data) {
                 ${q.id ? `<div class="list-item-review-wrap">
                     <label class="list-item-review-label">🔁 Erteleme Süresi</label>
                     <select id="std-review-delay-${i}" class="list-item-review-select">
-                        ${reminderIntervals.map((days) => `<option value="${days}" ${savedReviewDelayDays === String(days) ? 'selected' : ''}>${escapeHtml(buildReminderOptionLabel(days))}</option>`).join('')}
+                        ${reminderIntervals.map((days) => `<option value="${days}" ${savedReviewDelayDays === String(days) ? 'selected' : ''}>${escapeHtml(formatReminderOptionLabel(days, FLOAT_COMPARISON_EPSILON))}</option>`).join('')}
                     </select>
                 </div>` : ''}
                 <div class="list-item-action-row">
-                    ${q.id ? `<button onclick="updateReviewDateByIndex(${i}, ${isLocal})" class="outline list-item-review-btn">✅ Tekrar Ettim (Ertele)</button>` : ''}
-                    ${q.id ? `<button onclick="deleteStudentQuestionByIndex(${i}, ${isLocal})" class="outline list-item-delete-btn">🗑️ Sil</button>` : ''}
+                    ${q.id ? `<button onclick="updateReviewDateByIndex(${i}, ${isLocalQuestion})" class="outline list-item-review-btn">✅ Tekrar Ettim (Ertele)</button>` : ''}
+                    ${q.id ? `<button onclick="deleteStudentQuestionByIndex(${i}, ${isLocalQuestion})" class="outline list-item-delete-btn">🗑️ Sil</button>` : ''}
                 </div>
             </div>`;
         }).join(''); 
@@ -3341,7 +3384,7 @@ window.updateReviewDate = (questionId, isLocal = false, selectedDays = null) => 
             } 
         }
         alert(`✅ Tamamdır! Bu soru sistem takvimine işlendi.`);
-        showScreen('screen-main');
+        window.goBack('screen-list');
         const studentName = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "").trim() || "Gazi Adayı"; 
         socket.emit("checkNotebookReviews", studentName);
     }
@@ -3623,7 +3666,19 @@ window.fetchClassQuestions = () => {
 };
 
 if(socket) {
-    socket.on("studentLibraryData", (data) => renderStudentLibraryHTML(data, "☁️ Bulut Hata Defterim"));
+    socket.on("studentLibraryData", (data) => {
+        if (window._pendingLocalForMerge !== undefined) {
+            const local = window._pendingLocalForMerge || [];
+            window._pendingLocalForMerge = undefined;
+            const cloudTagged = data.map(q => ({ ...q, _source: 'cloud' }));
+            const cloudIds = new Set(cloudTagged.map(q => q.id).filter(Boolean));
+            const localOnly = local.filter(q => !cloudIds.has(q.id));
+            const merged = [...cloudTagged, ...localOnly];
+            renderStudentLibraryHTML(merged, "📚 Hata Defterim");
+        } else {
+            renderStudentLibraryHTML(data, "☁️ Bulut Hata Defterim");
+        }
+    });
     socket.on("classQuestionsData", (data) => { 
         if(data.length === 0) return alert("Bu sınıfa henüz öğretmen tarafından soru eklenmemiş."); 
         window.latestFetchedClassCode = String(document.getElementById('class-code-input')?.value || '').trim().toUpperCase();
