@@ -1092,6 +1092,28 @@ body.nav-visible .container {
     font-weight: 600;
 }
 
+.library-lessons-topic-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 6px;
+    align-items: center;
+}
+
+.library-lessons-topic-add-btn {
+    width: auto;
+    min-width: 36px;
+    padding: 8px 10px;
+    font-size: 1rem;
+    line-height: 1;
+}
+
+.plus-icon {
+    display: inline-block;
+    font-size: 1.1rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
 .derslerim-empty-text {
     color: #6b7280;
 }

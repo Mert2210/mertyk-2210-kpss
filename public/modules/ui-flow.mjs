@@ -88,7 +88,7 @@ export function buildSelectedCourseLabel(subjectName = '') {
         : 'Seçili Ders: Henüz seçilmedi';
 }
 
-export const DEFAULT_REMINDER_INTERVALS = Object.freeze([1 / 24, 3 / 24, 12 / 24, 1, 3, 7, 15, 30]);
+export const DEFAULT_REMINDER_INTERVALS = Object.freeze([1, 3, 7, 15]);
 
 export function formatReminderOptionLabel(daysValue, comparisonEpsilon = 0.001) {
     const safeValue = Number(daysValue);
