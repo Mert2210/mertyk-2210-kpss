@@ -1585,7 +1585,7 @@ window.openLibrarySubjectFromDerslerim = (subjectName = '') => {
     if (!safeSubject) return;
     window.pendingLibraryFilter = { subject: safeSubject, topic: '' };
     window.libraryViewingTopicPath = null;
-    window.openStudentLibrary();
+    window.fetchStudentLibrary('local', false);
 };
 
 window.toggleDerslerimSection = (contentId, arrowId, triggerId = null) => {
@@ -1685,7 +1685,7 @@ window.openLibraryTopicFromDerslerim = (subject, topic) => {
     if (!nextNavState) return;
     window.libraryViewingTopicPath = nextNavState.libraryViewingTopicPath;
     window.pendingLibraryFilter = nextNavState.pendingLibraryFilter;
-    window.openStudentLibrary({ keepTopicContext: true });
+    window.fetchStudentLibrary('local', false);
 };
 
 window.toggleDerslerimLibrarySubject = (subjectSlug) => {
