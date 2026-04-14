@@ -77,7 +77,7 @@ test('Şık seçince çözüm görünmesi: doğru/yanlış seçimi çözüm gör
 });
 
 test('Ders arama ve dönemleme: aranan ders filtrelenir ve iki döneme bölünür', async () => {
-    const { filterCourseNamesByQuery, buildSemesterSections, mergeSavedSubjectsWithDrafts } = await importUiFlow();
+    const { filterCourseNamesByQuery, buildSemesterSections, mergeSavedSubjectsWithDrafts, getNextExpandedCourse, buildSelectedCourseLabel } = await importUiFlow();
     const courses = ['Tarih', 'Coğrafya', 'Matematik', 'Türkçe'];
 
     assert.deepStrictEqual(filterCourseNamesByQuery(courses, 'ma'), ['Matematik']);
@@ -99,6 +99,10 @@ test('Ders arama ve dönemleme: aranan ders filtrelenir ve iki döneme bölünü
             { name: 'Matematik', selected: true, topics: '' }
         ]
     );
+    assert.equal(getNextExpandedCourse('', 'Tarih'), 'Tarih');
+    assert.equal(getNextExpandedCourse('Tarih', 'Tarih'), '');
+    assert.equal(buildSelectedCourseLabel('Coğrafya'), 'Seçili Ders: Coğrafya');
+    assert.equal(buildSelectedCourseLabel(''), 'Seçili Ders: Henüz seçilmedi');
 });
 
 test('Kayıtlı kütüphane dersleri: seçili/tikli dersler tekilleştirilir', async () => {
