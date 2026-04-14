@@ -58,3 +58,29 @@ test('Custom topics map: subject bazlı okuma ve eklemede tekilleştirme korunur
     assert.deepStrictEqual(getCustomTopicsBySubject(next, 'Tarih'), ['Osmanlı', 'Kurtuluş Savaşı', 'Çağdaş Türk ve Dünya']);
     assert.deepStrictEqual(getCustomTopicsBySubject(next, 'Bilinmiyor'), []);
 });
+
+test('Exam subject merge: kpss_a kayıtlı ortak dersleri eklemez', async () => {
+    const { mergeSubjectsForExamType } = await importCustomData();
+
+    const merged = mergeSubjectsForExamType('kpss_a', {
+        curriculumSubjects: ['Muhasebe', 'Hukuk'],
+        defaultSubjects: ['Matematik', 'Türkçe'],
+        customSubjects: ['Vergi Hukuku'],
+        savedSubjects: ['Matematik', 'Coğrafya']
+    });
+
+    assert.deepStrictEqual(merged, ['Muhasebe', 'Hukuk', 'Vergi Hukuku']);
+});
+
+test('Exam subject merge: diğer sınav tiplerinde kayıtlı dersler korunur', async () => {
+    const { mergeSubjectsForExamType } = await importCustomData();
+
+    const merged = mergeSubjectsForExamType('kpss_lisans', {
+        curriculumSubjects: ['Tarih', 'Coğrafya'],
+        defaultSubjects: ['Matematik'],
+        customSubjects: ['Vatandaşlık'],
+        savedSubjects: ['Türkçe']
+    });
+
+    assert.deepStrictEqual(merged, ['Tarih', 'Coğrafya', 'Vatandaşlık', 'Türkçe']);
+});

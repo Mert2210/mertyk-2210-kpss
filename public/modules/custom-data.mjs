@@ -61,3 +61,24 @@ export function addCustomTopicsForSubject(customTopicMap, subject, topics = []) 
     nextMap[safeSubject] = uniqueStrings([...existing, ...(Array.isArray(topics) ? topics : [])]);
     return nextMap;
 }
+
+export function mergeSubjectsForExamType(examType, {
+    curriculumSubjects = [],
+    defaultSubjects = [],
+    customSubjects = [],
+    savedSubjects = []
+} = {}) {
+    const safeExamType = normalizeExamType(examType);
+    const safeCurriculumSubjects = uniqueStrings(curriculumSubjects);
+    const safeDefaultSubjects = uniqueStrings(defaultSubjects);
+    const safeCustomSubjects = uniqueStrings(customSubjects);
+    const safeSavedSubjects = uniqueStrings(savedSubjects);
+    if (safeExamType === 'kpss_a') {
+        return uniqueStrings([...safeCurriculumSubjects, ...safeCustomSubjects]);
+    }
+    return uniqueStrings([
+        ...(safeCurriculumSubjects.length > 0 ? safeCurriculumSubjects : safeDefaultSubjects),
+        ...safeCustomSubjects,
+        ...safeSavedSubjects
+    ]);
+}

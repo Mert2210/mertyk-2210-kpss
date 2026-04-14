@@ -4,8 +4,8 @@ import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/fireb
 import { getStorage, ref as storageRef, uploadString, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
 import { createSafeClientStore } from "./modules/client-storage.mjs";
 import { SETTINGS_MODES, applySettingsMode, getDefaultSettingsModeByRole } from "./modules/settings-mode.mjs";
-import { normalizeTopicFilterMode, getAllowedTopicsForMode, getAllowedTopicsForModalContext, isStorageRetryLimitExceededError, buildDerslerimTopicNavigation, canStartLibraryTest, evaluateStdAnswer, filterCourseNamesByQuery, getSavedLibraryCourseNames, buildDueReminderCountsBySubject, mergeSavedSubjectsWithDrafts, buildTopicListFromSources, getNextExpandedCourse, buildSelectedCourseLabel } from "./modules/ui-flow.mjs";
-import { resolveCurrentExamType, getCustomCurriculumGroupsByExamType as getCustomCurriculumGroupsByExamTypeFromMap, getCustomCurriculumSubjectsByExamType as getCustomCurriculumSubjectsByExamTypeFromMap, getCustomCurriculumTopicsByExamTypeAndSubject as getCustomCurriculumTopicsByExamTypeAndSubjectFromMap, getCustomTopicsBySubject as getCustomTopicsBySubjectFromMap, addCustomTopicsForSubject as addCustomTopicsForSubjectInMap } from "./modules/custom-data.mjs";
+import { normalizeTopicFilterMode, getAllowedTopicsForMode, getAllowedTopicsForModalContext, isStorageRetryLimitExceededError, buildDerslerimTopicNavigation, canStartLibraryTest, evaluateStdAnswer, filterCourseNamesByQuery, getSavedLibraryCourseNames, buildDueReminderCountsBySubject, mergeSavedSubjectsWithDrafts, buildTopicListFromSources, getNextExpandedCourse, buildSelectedCourseLabel, DEFAULT_REMINDER_INTERVALS, formatReminderOptionLabel } from "./modules/ui-flow.mjs";
+import { resolveCurrentExamType, getCustomCurriculumGroupsByExamType as getCustomCurriculumGroupsByExamTypeFromMap, getCustomCurriculumSubjectsByExamType as getCustomCurriculumSubjectsByExamTypeFromMap, getCustomCurriculumTopicsByExamTypeAndSubject as getCustomCurriculumTopicsByExamTypeAndSubjectFromMap, getCustomTopicsBySubject as getCustomTopicsBySubjectFromMap, addCustomTopicsForSubject as addCustomTopicsForSubjectInMap, mergeSubjectsForExamType } from "./modules/custom-data.mjs";
 import { buildRelativeResourceUrl, getShareableAppLink, shouldRegisterServiceWorker } from "./modules/app-shell.mjs";
 
 const fallbackFirebaseConfig = { 
@@ -217,7 +217,7 @@ function normalizeReminderIntervals(list = []) {
         safeList
             .map((value) => Number(value))
             .filter((value) => Number.isFinite(value) && value > 0)
-            .map((value) => Number(value.toFixed(2)))
+            .map((value) => Number(value.toFixed(4)))
     ));
     unique.sort((a, b) => a - b);
     return unique;
@@ -227,7 +227,7 @@ function getReminderIntervals() {
     const stored = CLIENT_STORE.getJSON(REMINDER_INTERVALS_STORAGE_KEY, []);
     const normalized = normalizeReminderIntervals(stored);
     if (normalized.length > 0) return normalized;
-    const fallback = [7];
+    const fallback = normalizeReminderIntervals(DEFAULT_REMINDER_INTERVALS);
     CLIENT_STORE.setJSON(REMINDER_INTERVALS_STORAGE_KEY, fallback);
     return fallback;
 }
@@ -236,20 +236,13 @@ function setReminderIntervals(intervals = []) {
     CLIENT_STORE.setJSON(REMINDER_INTERVALS_STORAGE_KEY, normalizeReminderIntervals(intervals));
 }
 
-function buildReminderOptionLabel(daysValue) {
-    const safeValue = Number(daysValue);
-    if (!Number.isFinite(safeValue) || safeValue <= 0) return '';
-    const text = Number.isInteger(safeValue) ? String(safeValue) : String(safeValue).replace('.', ',');
-    return `${text} gün`;
-}
-
 window.renderReminderIntervalSelect = () => {
     const select = document.getElementById('std-q-reminder');
     if (!select) return;
     const intervals = getReminderIntervals();
     const currentValue = String(select.value || CLIENT_STORE.getItem('gazi_last_reminder_days', '') || '');
     select.innerHTML = intervals
-        .map((days) => `<option value="${days}">${escapeHtml(buildReminderOptionLabel(days))}</option>`)
+        .map((days) => `<option value="${days}">${escapeHtml(formatReminderOptionLabel(days, FLOAT_COMPARISON_EPSILON))}</option>`)
         .join('');
     const hasCurrent = intervals.some((days) => String(days) === currentValue);
     if (hasCurrent) select.value = currentValue;
@@ -262,7 +255,7 @@ window.renderReminderOptionsScreen = () => {
     const intervals = getReminderIntervals();
     listEl.innerHTML = intervals.map((days, index) => `
         <div class="list-item" style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
-            <strong style="color:#1e3c72;">${escapeHtml(buildReminderOptionLabel(days))}</strong>
+            <strong style="color:#1e3c72;">${escapeHtml(formatReminderOptionLabel(days, FLOAT_COMPARISON_EPSILON))}</strong>
             <div style="display:flex; gap:6px;">
                 <button type="button" class="outline" style="width:auto; padding:6px 10px; font-size:0.74rem;" onclick="window.editReminderInterval(${index})">Düzenle</button>
                 <button type="button" class="outline" style="width:auto; padding:6px 10px; font-size:0.74rem; border-color:#c0392b; color:#c0392b;" onclick="window.deleteReminderInterval(${index})">Sil</button>
@@ -279,7 +272,7 @@ window.openReminderOptionsScreen = () => {
 window.addReminderInterval = () => {
     const input = document.getElementById('reminder-interval-input');
     const value = Number(String(input?.value || '').replace(',', '.'));
-    if (!Number.isFinite(value) || value <= 0) return alert('Lütfen 0’dan büyük bir gün değeri girin.');
+    if (!Number.isFinite(value) || value <= 0) return alert('Lütfen 0’dan büyük bir gün/saat değeri girin.');
     const next = normalizeReminderIntervals([...getReminderIntervals(), value]);
     setReminderIntervals(next);
     if (input) input.value = '';
@@ -291,10 +284,10 @@ window.editReminderInterval = (index) => {
     const list = getReminderIntervals();
     const current = list[Number(index)];
     if (!Number.isFinite(current)) return;
-    const value = prompt('Yeni gün değerini girin:', String(current));
+    const value = prompt('Yeni gün/saat değerini girin:', String(current));
     if (value === null) return;
     const nextValue = Number(String(value).replace(',', '.'));
-    if (!Number.isFinite(nextValue) || nextValue <= 0) return alert('Geçerli bir gün değeri girin.');
+    if (!Number.isFinite(nextValue) || nextValue <= 0) return alert('Geçerli bir gün/saat değeri girin.');
     list[Number(index)] = nextValue;
     setReminderIntervals(list);
     window.renderReminderIntervalSelect();
@@ -1079,10 +1072,15 @@ const EXAM_TYPE_SUBJECT_MAP = {
 
 function getSubjectsByExamType(examType) {
     const conf = EXAM_TYPE_SUBJECT_MAP[examType];
+    const customSubjects = getCustomCurriculumSubjectsByExamType(examType);
+    const savedSubjects = getDerslerimSubjectsFromStorage();
     if (!conf || !window.mufredat[conf[0]]) {
-        const fallbackCustomSubjects = getCustomCurriculumSubjectsByExamType(examType);
-        const savedSubjects = getDerslerimSubjectsFromStorage();
-        return uniqueSubjects([...DEFAULT_PROFILE_SUBJECTS, ...fallbackCustomSubjects, ...savedSubjects]);
+        return mergeSubjectsForExamType(examType, {
+            curriculumSubjects: [],
+            defaultSubjects: DEFAULT_PROFILE_SUBJECTS,
+            customSubjects,
+            savedSubjects
+        });
     }
     const [examKey, groups] = conf;
     const subjectNames = [];
@@ -1090,9 +1088,12 @@ function getSubjectsByExamType(examType) {
         const groupData = window.mufredat[examKey][group];
         if (groupData) subjectNames.push(...Object.keys(groupData));
     });
-    const customSubjects = getCustomCurriculumSubjectsByExamType(examType);
-    const savedSubjects = getDerslerimSubjectsFromStorage();
-    return uniqueSubjects([...(subjectNames.length > 0 ? subjectNames : DEFAULT_PROFILE_SUBJECTS), ...customSubjects, ...savedSubjects]);
+    return mergeSubjectsForExamType(examType, {
+        curriculumSubjects: subjectNames,
+        defaultSubjects: DEFAULT_PROFILE_SUBJECTS,
+        customSubjects,
+        savedSubjects
+    });
 }
 
 function getCurriculumTopicsByExamTypeAndSubject(examType, subject) {
@@ -1550,12 +1551,19 @@ window.renderLibraryLessonsScreen = (focusedSubject = '') => {
     }
     listEl.innerHTML = subjectsToRender.map((subject) => `
         <section style="margin-bottom:10px;">
-            <button type="button" class="derslerim-library-subject" onclick="window.openLibrarySubjectFromDerslerim(${JSON.stringify(subject)})">
+            <button type="button" class="derslerim-library-subject" data-subject-name="${encodeURIComponent(subject)}">
                 <span>📘 ${escapeHtml(subject)}</span>
                 <span>→</span>
             </button>
         </section>
     `).join('');
+    listEl.querySelectorAll('.derslerim-library-subject').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const encodedName = btn.getAttribute('data-subject-name') || '';
+            const safeSubject = decodeURIComponent(String(encodedName || ''));
+            window.openLibrarySubjectFromDerslerim(safeSubject);
+        });
+    });
 };
 
 window.openLibraryLessonsScreen = (focusedSubject = '') => {
@@ -3251,7 +3259,7 @@ function renderStudentLibraryListOnly(data) {
                 ${q.id ? `<div class="list-item-review-wrap">
                     <label class="list-item-review-label">🔁 Erteleme Süresi</label>
                     <select id="std-review-delay-${i}" class="list-item-review-select">
-                        ${reminderIntervals.map((days) => `<option value="${days}" ${savedReviewDelayDays === String(days) ? 'selected' : ''}>${escapeHtml(buildReminderOptionLabel(days))}</option>`).join('')}
+                        ${reminderIntervals.map((days) => `<option value="${days}" ${savedReviewDelayDays === String(days) ? 'selected' : ''}>${escapeHtml(formatReminderOptionLabel(days, FLOAT_COMPARISON_EPSILON))}</option>`).join('')}
                     </select>
                 </div>` : ''}
                 <div class="list-item-action-row">
