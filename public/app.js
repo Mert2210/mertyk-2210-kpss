@@ -1570,10 +1570,6 @@ window.renderLibraryLessonsScreen = (focusedSubject = '') => {
 
 window.openLibraryLessonsScreen = (focusedSubject = '') => {
     const normalizedFocus = String(focusedSubject || '').trim();
-    const activeScreen = String(window.currentScreen || '').trim();
-    if (activeScreen && activeScreen !== 'screen-library-lessons') {
-        window.libraryLessonsBackScreen = activeScreen;
-    }
     window.currentLibraryLessonsFocusedSubject = normalizedFocus;
     updateCourseAddedNavBadge(false);
     window.renderLibraryLessonsScreen(focusedSubject);
@@ -1581,12 +1577,7 @@ window.openLibraryLessonsScreen = (focusedSubject = '') => {
 };
 
 window.closeLibraryLessonsScreen = () => {
-    const fallbackScreen = String(window.libraryLessonsBackScreen || DEFAULT_LIBRARY_LESSONS_BACK_SCREEN).trim();
-    if (fallbackScreen && fallbackScreen !== 'screen-library-lessons') {
-        showScreen(fallbackScreen);
-        return;
-    }
-    showScreen(DEFAULT_LIBRARY_LESSONS_BACK_SCREEN);
+    window.goBack(DEFAULT_LIBRARY_LESSONS_BACK_SCREEN);
 };
 
 window.openLibrarySubjectFromDerslerim = (subjectName = '') => {
@@ -2051,7 +2042,19 @@ window.applyRoleBasedBottomNav = (role = ROLE_STUDENT) => {
     });
 };
 
+window.goBack = (fallback = 'screen-main') => {
+    const prev = String(window.previousScreen || '').trim();
+    if (prev && prev !== 'screen-auth') {
+        showScreen(prev);
+    } else {
+        showScreen(fallback);
+    }
+};
+
 window.showScreen = (id) => { 
+    if (window.currentScreen && window.currentScreen !== id) {
+        window.previousScreen = window.currentScreen;
+    }
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); 
     document.getElementById(id).classList.add('active');
     window.currentScreen = id;
@@ -2422,7 +2425,7 @@ window.saveProfileSettings = () => {
     syncSelectedSubjectsToStorage(subjectsData);
     
     alert("✅ Çalışma Masası Ayarlarınız Kaydedildi!");
-    showScreen('screen-main');
+    window.goBack('screen-main');
 };
 
 window.handleLogin = async () => { 
@@ -3365,7 +3368,7 @@ window.updateReviewDate = (questionId, isLocal = false, selectedDays = null) => 
             } 
         }
         alert(`✅ Tamamdır! Bu soru sistem takvimine işlendi.`);
-        showScreen('screen-main');
+        window.goBack('screen-list');
         const studentName = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "").trim() || "Gazi Adayı"; 
         socket.emit("checkNotebookReviews", studentName);
     }

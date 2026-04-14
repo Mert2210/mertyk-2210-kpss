@@ -427,7 +427,7 @@
     <div id="screen-settings" class="screen">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
             <h3 id="settings-screen-title" style="margin:0; color:#8e44ad;">⚙️ Çalışma Masam</h3>
-            <button onclick="window.showScreen('screen-main')" class="outline" style="width:auto; padding:8px; font-size:0.8rem;">⬅️ İptal</button>
+            <button onclick="window.goBack('screen-main')" class="outline" style="width:auto; padding:8px; font-size:0.8rem;">⬅️ İptal</button>
         </div>
         <div class="content-card" style="background:#fdfdfd; padding:20px; border-radius:12px; text-align:left; border: 1px solid #ddd; box-shadow:0 10px 25px rgba(0,0,0,0.05);">
             <div class="settings-profile-section">
@@ -610,7 +610,7 @@
         <div id="library-filter-area" class="filter-section" style="display:none;"></div>
         <div id="list-content"></div>
         <button id="start-library-test-btn" onclick="startLibraryTest()" class="green" style="display:none; width:100%; margin-top:10px; padding:12px; font-size:1rem;">▶ Hepsini Test Olarak Çöz</button>
-        <button onclick="showScreen('screen-main')" class="outline" style="margin-top:15px;">⬅️ Kapat</button>
+        <button onclick="window.goBack('screen-main')" class="outline" style="margin-top:15px;">⬅️ Kapat</button>
     </div>
 
     <div id="screen-library-lessons" class="screen">
@@ -626,7 +626,7 @@
     <div id="screen-reminder-options" class="screen">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
             <h3 style="margin:0; color:#8e44ad;">🔔 Hatırlatma Seçenekleri</h3>
-            <button type="button" class="outline" style="width:auto; padding:8px 10px;" onclick="showScreen('screen-settings')">⬅️ Geri</button>
+            <button type="button" class="outline" style="width:auto; padding:8px 10px;" onclick="window.goBack('screen-settings')">⬅️ Geri</button>
         </div>
         <div class="content-card" style="background:#fff; border:1px solid #ddd; border-radius:10px; padding:12px; text-align:left;">
             <label style="font-size:0.8rem; font-weight:bold; color:#1e3c72;">Yeni aralık (gün veya saat)</label>
@@ -641,7 +641,7 @@
 
     <div id="screen-lobby" class="screen">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-            <button class="outline" onclick="showScreen('screen-main')" style="width:auto;">⬅️ Geri</button>
+            <button class="outline" onclick="window.goBack('screen-main')" style="width:auto;">⬅️ Geri</button>
             <div style="display:flex; gap:5px;">
                 <button onclick="fetchStudentLibrary('cloud', false)" class="outline" style="width:auto; font-size:0.8rem; padding:8px; border-color:#e67e22; color:#e67e22;">☁️ Bulut Kumbaram</button>
                 <button onclick="fetchStudentLibrary('local', false)" class="outline" style="width:auto; font-size:0.8rem; padding:8px; border-color:#3498db; color:#3498db;">💾 Cihaz Kumbaram</button>
