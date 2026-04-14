@@ -147,7 +147,7 @@ const DEFAULT_CUSTOM_GROUP_NAME = 'Genel';
 const DEFAULT_LIBRARY_LESSONS_BACK_SCREEN = 'screen-settings';
 const MAX_READY_SOURCES = 30;
 const MAX_REMINDER_INTERVALS = 5;
-const LEGACY_DEFAULT_REMINDER_INTERVALS = Object.freeze([1 / 24, 3 / 24, 12 / 24, 1, 3, 7, 15, 30]);
+const LEGACY_REMINDER_INTERVALS = Object.freeze([1 / 24, 3 / 24, 12 / 24, 1, 3, 7, 15, 30]);
 const FLOAT_COMPARISON_EPSILON = 0.001;
 const VALID_STUDENT_PHOTO_SOURCES = ['camera', 'gallery', 'file'];
 const IMAGE_OPTIMIZATION_CONFIG = Object.freeze({
@@ -230,7 +230,7 @@ function getReminderIntervals() {
     const stored = CLIENT_STORE.getJSON(REMINDER_INTERVALS_STORAGE_KEY, []);
     const safeStored = Array.isArray(stored) ? stored : [];
     const normalized = normalizeReminderIntervals(safeStored);
-    const legacyNormalized = normalizeReminderIntervals(LEGACY_DEFAULT_REMINDER_INTERVALS);
+    const legacyNormalized = normalizeReminderIntervals(LEGACY_REMINDER_INTERVALS);
     const isLegacyDefault = normalized.length === legacyNormalized.length
         && normalized.every((value, index) => Math.abs(value - legacyNormalized[index]) <= FLOAT_COMPARISON_EPSILON);
     if (isLegacyDefault) {
@@ -273,7 +273,7 @@ function getReminderIntervalDaysFromEditor() {
     const unit = String(unitSelect?.value || 'days');
     if (!Number.isInteger(amount) || amount <= 0) return null;
     if (unit === 'hours') return Number((amount / 24).toFixed(4));
-    return amount;
+    return Number(amount);
 }
 
 function setReminderIntervalEditorFromDays(daysValue) {
@@ -340,7 +340,10 @@ window.addReminderInterval = () => {
         next[editIndex] = valueInDays;
     } else {
         const exists = next.some((value) => Math.abs(value - valueInDays) <= FLOAT_COMPARISON_EPSILON);
-        if (!exists && next.length >= MAX_REMINDER_INTERVALS) {
+        if (exists) {
+            return alert('Bu hatırlatma aralığı zaten listede.');
+        }
+        if (next.length >= MAX_REMINDER_INTERVALS) {
             return alert(`En fazla ${MAX_REMINDER_INTERVALS} hatırlatma aralığı ekleyebilirsiniz.`);
         }
         next.push(valueInDays);
@@ -1121,9 +1124,6 @@ window.renderLibraryTopicAddButton = () => {
     }
     btn.style.display = 'inline-flex';
     btn.title = `Bu konuya soru ekle: ${context.subject} / ${context.topic}`;
-    if (!btn.querySelector('.plus-icon')) {
-        btn.innerHTML = '<span class="plus-icon" aria-hidden="true">+</span>';
-    }
 };
 
 window.saveStudentQuestionWithPreference = () => {
@@ -1671,12 +1671,19 @@ window.renderLibraryLessonsScreen = (focusedSubject = '') => {
             ? topics.map((topic) => {
                 const encodedSubject = encodeURIComponent(subject);
                 const encodedTopic = encodeURIComponent(topic);
+                const addQuestionLabel = `${subject} - ${topic} konusuna soru ekle`;
                 return `<div class="library-lessons-topic-row">
                                 <button type="button" class="derslerim-topic-btn" onclick="window.openLibraryTopicFromDerslerimEncoded('${encodedSubject}', '${encodedTopic}')">📄 ${escapeHtml(topic)}</button>
-                                <button type="button" class="green library-lessons-topic-add-btn" onclick="window.openSmartAddForTopicEncoded('${encodedSubject}', '${encodedTopic}')" aria-label="${escapeHtml(subject)} - ${escapeHtml(topic)} konusuna soru ekle" title="${escapeHtml(topic)} konusuna soru ekle"><span class="plus-icon" aria-hidden="true">+</span></button>
+                                <button
+                                    type="button"
+                                    class="green library-lessons-topic-add-btn"
+                                    onclick="window.openSmartAddForTopicEncoded('${encodedSubject}', '${encodedTopic}')"
+                                    aria-label="${escapeHtml(addQuestionLabel)}"
+                                    title="${escapeHtml(addQuestionLabel)}"
+                                ><span class="plus-icon" aria-hidden="true">+</span></button>
                             </div>`;
-            }).join('')
-            : '<small class="derslerim-empty-text">Bu derste henüz konu bulunamadı.</small>'}
+                    }).join('')
+                    : '<small class="derslerim-empty-text">Bu derste henüz konu bulunamadı.</small>'}
                 </div>
             </section>
         `;
