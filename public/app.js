@@ -146,6 +146,8 @@ const CUSTOM_EXAM_PREFIX = 'custom_';
 const DEFAULT_CUSTOM_GROUP_NAME = 'Genel';
 const DEFAULT_LIBRARY_LESSONS_BACK_SCREEN = 'screen-settings';
 const MAX_READY_SOURCES = 30;
+const MAX_REMINDER_INTERVALS = 5;
+const LEGACY_REMINDER_INTERVALS = Object.freeze([1 / 24, 3 / 24, 12 / 24, 1, 3, 7, 15, 30]);
 const FLOAT_COMPARISON_EPSILON = 0.001;
 const VALID_STUDENT_PHOTO_SOURCES = ['camera', 'gallery', 'file'];
 const IMAGE_OPTIMIZATION_CONFIG = Object.freeze({
@@ -218,16 +220,24 @@ function normalizeReminderIntervals(list = []) {
         safeList
             .map((value) => Number(value))
             .filter((value) => Number.isFinite(value) && value > 0)
-            // Keep 4 decimals to preserve hourly fractions (rounded examples: 1/24≈0.0417, 3/24=0.1250).
             .map((value) => Number(value.toFixed(4)))
     ));
     unique.sort((a, b) => a - b);
-    return unique;
+    return unique.slice(0, MAX_REMINDER_INTERVALS);
 }
 
 function getReminderIntervals() {
     const stored = CLIENT_STORE.getJSON(REMINDER_INTERVALS_STORAGE_KEY, []);
-    const normalized = normalizeReminderIntervals(stored);
+    const safeStored = Array.isArray(stored) ? stored : [];
+    const normalized = normalizeReminderIntervals(safeStored);
+    const legacyNormalized = normalizeReminderIntervals(LEGACY_REMINDER_INTERVALS);
+    const isLegacyDefault = normalized.length === legacyNormalized.length
+        && normalized.every((value, index) => Math.abs(value - legacyNormalized[index]) <= FLOAT_COMPARISON_EPSILON);
+    if (isLegacyDefault) {
+        const fallback = normalizeReminderIntervals(DEFAULT_REMINDER_INTERVALS);
+        CLIENT_STORE.setJSON(REMINDER_INTERVALS_STORAGE_KEY, fallback);
+        return fallback;
+    }
     if (normalized.length > 0) return normalized;
     const fallback = normalizeReminderIntervals(DEFAULT_REMINDER_INTERVALS);
     CLIENT_STORE.setJSON(REMINDER_INTERVALS_STORAGE_KEY, fallback);
@@ -235,7 +245,55 @@ function getReminderIntervals() {
 }
 
 function setReminderIntervals(intervals = []) {
-    CLIENT_STORE.setJSON(REMINDER_INTERVALS_STORAGE_KEY, normalizeReminderIntervals(intervals));
+    const normalized = normalizeReminderIntervals(intervals);
+    CLIENT_STORE.setJSON(
+        REMINDER_INTERVALS_STORAGE_KEY,
+        normalized.length > 0 ? normalized : normalizeReminderIntervals(DEFAULT_REMINDER_INTERVALS)
+    );
+}
+
+let reminderIntervalEditingIndex = -1;
+
+function resetReminderIntervalEditor() {
+    reminderIntervalEditingIndex = -1;
+    const input = document.getElementById('reminder-interval-input');
+    const unitSelect = document.getElementById('reminder-interval-unit');
+    const saveBtn = document.getElementById('reminder-interval-save-btn');
+    const cancelBtn = document.getElementById('reminder-interval-cancel-btn');
+    if (input) input.value = '';
+    if (unitSelect) unitSelect.value = 'days';
+    if (saveBtn) saveBtn.textContent = 'Ekle';
+    if (cancelBtn) cancelBtn.style.display = 'none';
+}
+
+function getReminderIntervalDaysFromEditor() {
+    const input = document.getElementById('reminder-interval-input');
+    const unitSelect = document.getElementById('reminder-interval-unit');
+    const amount = parseInt(String(input?.value || ''), 10);
+    const unit = String(unitSelect?.value || 'days');
+    if (!Number.isInteger(amount) || amount <= 0) return null;
+    if (unit === 'hours') return Number((amount / 24).toFixed(4));
+    return Number(amount);
+}
+
+function setReminderIntervalEditorFromDays(daysValue) {
+    const input = document.getElementById('reminder-interval-input');
+    const unitSelect = document.getElementById('reminder-interval-unit');
+    const saveBtn = document.getElementById('reminder-interval-save-btn');
+    const cancelBtn = document.getElementById('reminder-interval-cancel-btn');
+    if (!input || !unitSelect) return;
+    const safeDays = Number(daysValue);
+    const hours = safeDays * 24;
+    const roundedHours = Math.round(hours);
+    if (safeDays < 1 && roundedHours > 0 && Math.abs(hours - roundedHours) <= FLOAT_COMPARISON_EPSILON) {
+        unitSelect.value = 'hours';
+        input.value = String(roundedHours);
+    } else {
+        unitSelect.value = 'days';
+        input.value = String(Math.max(1, Math.round(safeDays)));
+    }
+    if (saveBtn) saveBtn.textContent = 'Güncelle';
+    if (cancelBtn) cancelBtn.style.display = 'inline-block';
 }
 
 window.renderReminderIntervalSelect = () => {
@@ -267,17 +325,32 @@ window.renderReminderOptionsScreen = () => {
 };
 
 window.openReminderOptionsScreen = () => {
+    resetReminderIntervalEditor();
     window.renderReminderOptionsScreen();
     showScreen('screen-reminder-options');
 };
 
 window.addReminderInterval = () => {
-    const input = document.getElementById('reminder-interval-input');
-    const value = Number(String(input?.value || '').replace(',', '.'));
-    if (!Number.isFinite(value) || value <= 0) return alert('Lütfen 0’dan büyük bir gün/saat değeri girin.');
-    const next = normalizeReminderIntervals([...getReminderIntervals(), value]);
+    const valueInDays = getReminderIntervalDaysFromEditor();
+    if (!Number.isFinite(valueInDays) || valueInDays <= 0) return alert('Lütfen geçerli bir sayı ve birim seçin.');
+    const current = getReminderIntervals();
+    let next = [...current];
+    const editIndex = reminderIntervalEditingIndex;
+    if (editIndex >= 0 && editIndex < next.length) {
+        next[editIndex] = valueInDays;
+    } else {
+        const exists = next.some((value) => Math.abs(value - valueInDays) <= FLOAT_COMPARISON_EPSILON);
+        if (exists) {
+            return alert('Bu hatırlatma aralığı zaten listede.');
+        }
+        if (next.length >= MAX_REMINDER_INTERVALS) {
+            return alert(`En fazla ${MAX_REMINDER_INTERVALS} hatırlatma aralığı ekleyebilirsiniz.`);
+        }
+        next.push(valueInDays);
+    }
+    next = normalizeReminderIntervals(next);
     setReminderIntervals(next);
-    if (input) input.value = '';
+    resetReminderIntervalEditor();
     window.renderReminderIntervalSelect();
     window.renderReminderOptionsScreen();
 };
@@ -286,14 +359,12 @@ window.editReminderInterval = (index) => {
     const list = getReminderIntervals();
     const current = list[Number(index)];
     if (!Number.isFinite(current)) return;
-    const value = prompt('Yeni gün/saat değerini girin:', String(current));
-    if (value === null) return;
-    const nextValue = Number(String(value).replace(',', '.'));
-    if (!Number.isFinite(nextValue) || nextValue <= 0) return alert('Geçerli bir gün/saat değeri girin.');
-    list[Number(index)] = nextValue;
-    setReminderIntervals(list);
-    window.renderReminderIntervalSelect();
-    window.renderReminderOptionsScreen();
+    reminderIntervalEditingIndex = Number(index);
+    setReminderIntervalEditorFromDays(current);
+};
+
+window.cancelReminderIntervalEdit = () => {
+    resetReminderIntervalEditor();
 };
 
 window.deleteReminderInterval = (index) => {
@@ -302,6 +373,11 @@ window.deleteReminderInterval = (index) => {
     if (!Number.isInteger(safeIndex) || safeIndex < 0 || safeIndex >= list.length) return;
     if (list.length === 1) return alert('En az bir hatırlatma aralığı kalmalıdır. Sorulara hatırlatma tarihi atamak için en az bir seçenek gereklidir.');
     list.splice(safeIndex, 1);
+    if (reminderIntervalEditingIndex === safeIndex) {
+        resetReminderIntervalEditor();
+    } else if (reminderIntervalEditingIndex > safeIndex) {
+        reminderIntervalEditingIndex -= 1;
+    }
     setReminderIntervals(list);
     window.renderReminderIntervalSelect();
     window.renderReminderOptionsScreen();
@@ -1014,6 +1090,29 @@ window.openSmartAddForCurrentLibraryTopic = () => {
     if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
 };
 
+window.openSmartAddForTopicEncoded = (encodedSubject, encodedTopic) => {
+    try {
+        const subject = decodeURIComponent(String(encodedSubject || ''));
+        const topic = decodeURIComponent(String(encodedTopic || ''));
+        window.openSmartAddForTopic(subject, topic);
+    } catch (e) {
+        console.warn('Konuya soru ekleme bağlantısı çözümlenemedi:', e);
+        window.showSoftFeedback('Konu bağlantısı çözümlenemedi.');
+    }
+};
+
+window.openSmartAddForTopic = (subject, topic) => {
+    const context = normalizeLibraryPath({ subject, topic });
+    if (!context) return;
+    window.libraryViewingTopicPath = context;
+    window.smartAddTopicPath = context;
+    setSelectedLibraryPath(context.subject, context.topic);
+    window.applySmartAddQuestionFormVisibility();
+    showScreen('screen-main');
+    const panel = document.getElementById('student-library-panel');
+    if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+};
+
 window.renderLibraryTopicAddButton = () => {
     const context = normalizeLibraryPath(window.libraryViewingTopicPath);
     const btn = document.getElementById('library-topic-add-fab');
@@ -1545,24 +1644,59 @@ window.renderLibraryLessonsScreen = (focusedSubject = '') => {
     if (selectedCourseLabel) selectedCourseLabel.textContent = buildSelectedCourseLabel(normalizedFocus);
     const savedSubjects = CLIENT_STORE.getJSON('gazi_subjects_v2', []) || [];
     const selectedSubjects = getSavedLibraryCourseNames(savedSubjects);
+    const filterMode = getDerslerimTopicFilterMode();
+    const savedTopicIndex = buildSavedTopicIndexForDerslerim();
     const subjectsToRender = normalizedFocus ? selectedSubjects.filter((name) => name === normalizedFocus) : selectedSubjects;
     if (subjectsToRender.length === 0) {
         listEl.innerHTML = '<p class="derslerim-empty-text">Henüz kütüphanede ders bulunmuyor.</p>';
         return;
     }
-    listEl.innerHTML = subjectsToRender.map((subject) => `
-        <section style="margin-bottom:10px;">
-            <button type="button" class="derslerim-library-subject" data-subject-name="${encodeURIComponent(subject)}">
-                <span>📘 ${escapeHtml(subject)}</span>
-                <span>→</span>
-            </button>
-        </section>
-    `).join('');
-    listEl.querySelectorAll('.derslerim-library-subject').forEach((btn) => {
+    listEl.innerHTML = subjectsToRender.map((subject) => {
+        const slug = slugifySubjectName(subject);
+        const allTopics = getTopicsForDerslerimSubject(subject);
+        const savedTopicsForSubject = savedTopicIndex.get(subject);
+        const topicResult = getAllowedTopicsForModalContext(allTopics, savedTopicsForSubject, filterMode, 'view');
+        const topics = topicResult.topics;
+        const isExpanded = normalizedFocus
+            ? subject === normalizedFocus
+            : window.expandedLibraryLessonSubject === subject;
+        return `
+            <section style="margin-bottom:10px;">
+                <button type="button" id="derslerim-subj-btn-${slug}" class="derslerim-library-subject library-lessons-subject-btn" data-subject-name="${encodeURIComponent(subject)}" data-subject-slug="${slug}" aria-expanded="${isExpanded ? 'true' : 'false'}" aria-controls="derslerim-topics-${slug}">
+                    <span>📘 ${escapeHtml(subject)}</span>
+                    <span id="derslerim-subj-arrow-${slug}">${isExpanded ? '▲' : '▼'}</span>
+                </button>
+                <div id="derslerim-topics-${slug}" class="derslerim-library-topics ${isExpanded ? 'open' : ''}" role="group" aria-label="${escapeHtml(subject)} konuları">
+                    ${topics.length > 0
+            ? topics.map((topic) => {
+                const encodedSubject = encodeURIComponent(subject);
+                const encodedTopic = encodeURIComponent(topic);
+                const addQuestionLabel = `${subject} - ${topic} konusuna soru ekle`;
+                return `<div class="library-lessons-topic-row">
+                                <button type="button" class="derslerim-topic-btn" onclick="window.openLibraryTopicFromDerslerimEncoded('${encodedSubject}', '${encodedTopic}')">📄 ${escapeHtml(topic)}</button>
+                                <button
+                                    type="button"
+                                    class="green library-lessons-topic-add-btn"
+                                    onclick="window.openSmartAddForTopicEncoded('${encodedSubject}', '${encodedTopic}')"
+                                    aria-label="${escapeHtml(addQuestionLabel)}"
+                                    title="${escapeHtml(addQuestionLabel)}"
+                                ><span class="plus-icon" aria-hidden="true">+</span></button>
+                            </div>`;
+                    }).join('')
+                    : '<small class="derslerim-empty-text">Bu derste henüz konu bulunamadı.</small>'}
+                </div>
+            </section>
+        `;
+    }).join('');
+    listEl.querySelectorAll('.library-lessons-subject-btn').forEach((btn) => {
         btn.addEventListener('click', () => {
-            const encodedName = btn.getAttribute('data-subject-name') || '';
-            const safeSubject = decodeURIComponent(encodedName);
-            window.openLibrarySubjectFromDerslerim(safeSubject);
+            const subjectSlug = String(btn.getAttribute('data-subject-slug') || '').trim();
+            if (!subjectSlug) return;
+            window.toggleDerslerimLibrarySubject(subjectSlug);
+            const subjectName = decodeURIComponent(btn.getAttribute('data-subject-name') || '');
+            const topicsWrap = document.getElementById(`derslerim-topics-${subjectSlug}`);
+            const isOpen = !!topicsWrap?.classList.contains('open');
+            window.expandedLibraryLessonSubject = isOpen ? subjectName : '';
         });
     });
 };
@@ -1570,6 +1704,7 @@ window.renderLibraryLessonsScreen = (focusedSubject = '') => {
 window.openLibraryLessonsScreen = (focusedSubject = '') => {
     const normalizedFocus = String(focusedSubject || '').trim();
     window.currentLibraryLessonsFocusedSubject = normalizedFocus;
+    if (normalizedFocus) window.expandedLibraryLessonSubject = normalizedFocus;
     updateCourseAddedNavBadge(false);
     window.renderLibraryLessonsScreen(focusedSubject);
     showScreen('screen-library-lessons');

@@ -156,10 +156,10 @@ test('Hatırlatma rozetleri: zamanı gelen sorular ders bazında sayılır', asy
 test('Hatırlatma etiketleri: saatlik ve günlük seçenekler doğru yazılır', async () => {
     const { formatReminderOptionLabel, DEFAULT_REMINDER_INTERVALS } = await importUiFlow();
 
-    assert.deepStrictEqual(DEFAULT_REMINDER_INTERVALS, [1 / 24, 3 / 24, 12 / 24, 1, 3, 7, 15, 30]);
+    assert.deepStrictEqual(DEFAULT_REMINDER_INTERVALS, [1, 3, 7, 15]);
     assert.equal(formatReminderOptionLabel(1 / 24), '1 saat');
     assert.equal(formatReminderOptionLabel(3 / 24), '3 saat');
-    assert.equal(formatReminderOptionLabel(12 / 24), '12 saat');
+    assert.equal(formatReminderOptionLabel(0.5), '12 saat');
     assert.equal(formatReminderOptionLabel(7), '7 gün');
 });
 
