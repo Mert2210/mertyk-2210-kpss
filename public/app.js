@@ -601,6 +601,7 @@ function normalizeLibraryPath(path) {
 window.applySmartAddQuestionFormVisibility = () => {
     const selectionArea = document.getElementById('dynamic-selection-area');
     if (!selectionArea) return;
+    // Ev ekranındaki "Kütüphaneden Ekle" alanı kullanıcı isteğiyle her zaman görünür tutulur.
     selectionArea.style.display = 'block';
 };
 
