@@ -1139,31 +1139,14 @@ window.renderProfileSubjectsByExam = (savedSubjectsInput = null) => {
             const key = slugifySubjectName(subject);
             const uniqueId = `${subjectIndex}`;
             const checkboxId = `subj-dyn-${key}-${uniqueId}`;
-            const topicsId = `subj-dyn-topics-${key}-${uniqueId}`;
             const saved = savedMap.get(normalizeText(subject));
             const checked = saved?.selected ? 'checked' : '';
             const savedTopicsText = String(saved?.topics || '').trim();
-            const selectedTopics = parseTopicsFromText(savedTopicsText);
-            const userTopics = Array.isArray(window.userCurriculum?.[subject]) ? window.userCurriculum[subject] : [];
-            const curriculumTopics = getCurriculumTopicsByExamTypeAndSubject(examTypeEl.value, subject);
-            const customTopics = getCustomTopicsBySubject(subject);
-            const topicList = buildTopicListFromSources(curriculumTopics, userTopics, savedTopicsText, customTopics);
-            const isExpanded = normalizeText(window.expandedProfileSubject) === normalizeText(subject);
-            const topicsHTML = topicList.length > 0
-                ? `<div class="subject-row-topics">${topicList.map((topic) => `<span class="subject-topic-chip">${escapeHtml(topic)}</span>`).join('')}</div>`
-                : `<p class="subject-row-empty-topic">Konu başlığı bulunamadı.</p>`;
             return `
                 <div class="subject-row" data-subject-name="${escapeHtml(subject)}" data-topics-text="${escapeHtml(savedTopicsText)}">
                     <div class="subject-row-main">
                         <input type="checkbox" id="${checkboxId}" value="${escapeHtml(subject)}" ${checked} onchange="window.handleDerslerimCourseToggle()">
-                        <button type="button" class="subject-row-collapse-btn" aria-expanded="${isExpanded ? 'true' : 'false'}" aria-controls="${topicsId}" onclick="window.toggleProfileSubjectTopics(${JSON.stringify(subject)})">
-                            <span class="subject-row-name">📘 ${escapeHtml(subject)}</span>
-                            <span>${isExpanded ? '▲' : '▼'}</span>
-                        </button>
-                    </div>
-                    <div id="${topicsId}" class="subject-row-accordion${isExpanded ? ' open' : ''}">
-                        <button type="button" class="outline" style="width:auto; padding:6px 10px; font-size:0.74rem; border-color:#3498db; color:#3498db;" onclick="window.openCourseTopicsScreen(${JSON.stringify(subject)})">Konuları Seç (${selectedTopics.length})</button>
-                        ${topicsHTML}
+                        <label for="${checkboxId}" class="subject-row-name" style="cursor:pointer;">📘 ${escapeHtml(subject)}</label>
                     </div>
                 </div>
             `;
@@ -1512,10 +1495,6 @@ window.renderSavedLibraryCoursesPanel = () => {
     const wrap = document.getElementById('saved-library-course-list');
     if (!wrap) return;
     const savedSubjects = CLIENT_STORE.getJSON('gazi_subjects_v2', []);
-    const savedSubjectMap = new Map(
-        (Array.isArray(savedSubjects) ? savedSubjects : [])
-            .map((row) => [normalizeText(row?.name), String(row?.topics || '').trim()])
-    );
     const courseNames = getSavedLibraryCourseNames(savedSubjects);
     const localNotebook = getLocalNotebookQuestions();
     const dueReminderCounts = buildDueReminderCountsBySubject(localNotebook, Date.now());
@@ -1527,20 +1506,12 @@ window.renderSavedLibraryCoursesPanel = () => {
     }
     let totalDueCount = 0;
     wrap.innerHTML = courseNames
-        .map((name, index) => {
+        .map((name) => {
             const dueCount = dueReminderCounts[name] || 0;
             totalDueCount += dueCount;
             const encodedName = encodeURIComponent(name);
-            const selectedTopics = parseTopicsFromText(savedSubjectMap.get(normalizeText(name)) || '');
-            const topics = selectedTopics.length > 0 ? selectedTopics : getTopicsForDerslerimSubject(name);
-            const topicsHtml = topics.length > 0
-                ? `<div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;">
-                    ${topics.map((topic) => `<button type="button" class="outline" style="width:auto; padding:4px 7px; font-size:0.72rem; border-color:#8eb4ff; color:#dce7ff;" onclick="window.openLibraryTopicFromDerslerimEncoded('${encodeURIComponent(name)}','${encodeURIComponent(topic)}')">${escapeHtml(topic)}</button>`).join('')}
-                   </div>`
-                : `<small style="display:block; margin-top:8px; color:#b7c7e6;">Bu derste konu bulunamadı.</small>`;
             return `<div class="saved-library-course-item" data-subject-name="${encodedName}" style="display:block;">
                 <button type="button" class="saved-library-course-btn" data-subject-name="${encodedName}" style="display:flex; justify-content:space-between; align-items:center;">📘 ${escapeHtml(name)}${dueCount > 0 ? `<span class="saved-library-red-dot" title="Hatırlatma zamanı gelen soru: ${dueCount}">🔴 ${dueCount}</span>` : ''}</button>
-                ${topicsHtml}
             </div>`;
         })
         .join('');
@@ -1572,50 +1543,35 @@ window.renderLibraryLessonsScreen = (focusedSubject = '') => {
     if (selectedCourseLabel) selectedCourseLabel.textContent = buildSelectedCourseLabel(normalizedFocus);
     const savedSubjects = CLIENT_STORE.getJSON('gazi_subjects_v2', []) || [];
     const selectedSubjects = getSavedLibraryCourseNames(savedSubjects);
-    const savedMap = new Map(
-        (Array.isArray(savedSubjects) ? savedSubjects : [])
-            .map((row) => [normalizeText(row?.name), String(row?.topics || '').trim()])
-    );
     const subjectsToRender = normalizedFocus ? selectedSubjects.filter((name) => name === normalizedFocus) : selectedSubjects;
     if (subjectsToRender.length === 0) {
         listEl.innerHTML = '<p class="derslerim-empty-text">Henüz kütüphanede ders bulunmuyor.</p>';
         return;
     }
-    listEl.innerHTML = subjectsToRender.map((subject) => {
-        const subjectSlug = slugifySubjectName(subject);
-        const topicWrapId = `library-lessons-topics-${subjectSlug}`;
-        const selectedTopics = parseTopicsFromText(savedMap.get(normalizeText(subject)) || '');
-        const topics = selectedTopics.length > 0 ? selectedTopics : getTopicsForDerslerimSubject(subject);
-        const isExpanded = normalizeText(window.expandedLibraryLessonSubject) === normalizeText(subject);
-        const topicButtons = topics.length > 0
-            ? topics.map((topic) => `<button type="button" class="derslerim-topic-btn" onclick="window.openLibraryTopicFromDerslerim(${JSON.stringify(subject)}, ${JSON.stringify(topic)})">${escapeHtml(topic)}</button>`).join('')
-            : `<small class="derslerim-empty-text">Bu derste konu bulunamadı.</small>`;
-        return `
-            <section style="margin-bottom:10px;">
-                <button type="button" class="derslerim-library-subject" id="library-lessons-subj-btn-${subjectSlug}" aria-expanded="${isExpanded ? 'true' : 'false'}" aria-controls="${topicWrapId}" onclick="window.toggleLibraryLessonSubject(${JSON.stringify(subject)})">
-                    <span>📘 ${escapeHtml(subject)}</span>
-                    <span>${isExpanded ? '▲' : '▼'}</span>
-                </button>
-                <div id="${topicWrapId}" class="derslerim-library-topics${isExpanded ? ' open' : ''}" style="margin-top:6px;">${topicButtons}</div>
-            </section>
-        `;
-    }).join('');
+    listEl.innerHTML = subjectsToRender.map((subject) => `
+        <section style="margin-bottom:10px;">
+            <button type="button" class="derslerim-library-subject" onclick="window.openLibrarySubjectFromDerslerim(${JSON.stringify(subject)})">
+                <span>📘 ${escapeHtml(subject)}</span>
+                <span>→</span>
+            </button>
+        </section>
+    `).join('');
 };
 
 window.openLibraryLessonsScreen = (focusedSubject = '') => {
     const normalizedFocus = String(focusedSubject || '').trim();
     window.currentLibraryLessonsFocusedSubject = normalizedFocus;
-    if (normalizedFocus) window.expandedLibraryLessonSubject = normalizedFocus;
     updateCourseAddedNavBadge(false);
     window.renderLibraryLessonsScreen(focusedSubject);
     showScreen('screen-library-lessons');
 };
 
-window.toggleLibraryLessonSubject = (subjectName = '') => {
+window.openLibrarySubjectFromDerslerim = (subjectName = '') => {
     const safeSubject = String(subjectName || '').trim();
     if (!safeSubject) return;
-    window.expandedLibraryLessonSubject = getNextExpandedCourse(window.expandedLibraryLessonSubject, safeSubject);
-    window.renderLibraryLessonsScreen(window.currentLibraryLessonsFocusedSubject || '');
+    window.pendingLibraryFilter = { subject: safeSubject };
+    window.libraryViewingTopicPath = null;
+    window.openStudentLibrary();
 };
 
 window.toggleDerslerimSection = (contentId, arrowId, triggerId = null) => {
@@ -3334,12 +3290,17 @@ function renderStudentLibraryHTML(data, title) {
     if (pendingFilter && typeof pendingFilter === 'object') {
         const filtered = data.filter((q) => {
             const sameSubject = String(q?.ders || '').trim() === String(pendingFilter.subject || '').trim();
-            const sameTopic = String(q?.konu || q?.deneme || '').trim() === String(pendingFilter.topic || '').trim();
-            return sameSubject && sameTopic;
+            if (!sameSubject) return false;
+            const filterTopic = String(pendingFilter.topic || '').trim();
+            if (!filterTopic) return true;
+            const sameTopic = String(q?.konu || q?.deneme || '').trim() === filterTopic;
+            return sameTopic;
         });
         if (filtered.length > 0) {
             renderStudentLibraryListOnly(filtered);
-            resolvedTopicContext = { subject: pendingFilter.subject, topic: pendingFilter.topic };
+            if (String(pendingFilter.topic || '').trim()) {
+                resolvedTopicContext = { subject: pendingFilter.subject, topic: pendingFilter.topic };
+            }
         } else {
             renderStudentLibraryListOnly(data);
         }
