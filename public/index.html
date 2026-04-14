@@ -482,13 +482,20 @@
                     </div>
                 </div>
 
-                <h4 style="color:#1e3c72; border-bottom:2px solid #eee; padding-bottom:8px; margin-top:20px;">📚 Sorumlu Olduğunuz Dersler</h4>
-                <p style="font-size:0.75rem; color:#666; margin-top:0;">Dersleri seçerek kütüphanenizi oluşturabilirsiniz.</p>
-                <div class="derslerim-search-row">
-                    <input type="search" id="derslerim-course-search" placeholder="🔍 Ders ara..." oninput="window.handleDerslerimCourseSearch()" style="margin-bottom:0; border-color:#d4dbe8; background:#f8fbff;">
-                    <button type="button" class="outline derslerim-add-btn" onclick="window.openDerslerimAddModal()" aria-label="Yeni ders veya konu ekle">➕</button>
+                <div class="derslerim-collapsible-card" style="margin-top:16px;">
+                    <button id="derslerim-subjects-trigger" type="button" class="derslerim-collapse-trigger" aria-expanded="false" aria-controls="derslerim-subjects-content" onclick="window.toggleDerslerimSection('derslerim-subjects-content', 'derslerim-subjects-arrow', 'derslerim-subjects-trigger')">
+                        <span>📚 Sorumlu Olduğunuz Dersler</span>
+                        <span id="derslerim-subjects-arrow">▶</span>
+                    </button>
+                    <div id="derslerim-subjects-content" class="derslerim-collapse-content collapsed">
+                        <p style="font-size:0.75rem; color:#666; margin:10px 0 8px;">Dersleri seçerek kütüphanenizi oluşturabilirsiniz.</p>
+                        <div class="derslerim-search-row">
+                            <input type="search" id="derslerim-course-search" placeholder="🔍 Ders ara..." oninput="window.handleDerslerimCourseSearch()" style="margin-bottom:0; border-color:#d4dbe8; background:#f8fbff;">
+                            <button type="button" class="outline derslerim-add-btn" onclick="window.openDerslerimAddModal()" aria-label="Yeni ders veya konu ekle">➕</button>
+                        </div>
+                        <div id="profile-subjects-area" style="max-height: 250px; overflow-y:auto; background:#fff; padding:8px; border-radius:8px; border:1px solid #ddd;"></div>
+                    </div>
                 </div>
-                <div id="profile-subjects-area" style="max-height: 250px; overflow-y:auto; background:#fff; padding:8px; border-radius:8px; border:1px solid #ddd;"></div>
 
                 <div class="derslerim-collapsible-card" style="margin-top:12px;">
                     <small style="display:block; color:#1e3c72; margin-bottom:8px; font-weight:700;">✅ Tiklenen dersler doğrudan Kayıtlı Kütüphanem'e eklenir</small>
@@ -609,7 +616,7 @@
     <div id="screen-library-lessons" class="screen">
         <div class="library-screen-header">
             <h3 style="margin:0;">📚 Kütüphanedeki Dersler</h3>
-            <button type="button" class="outline ui-btn-compact" style="width:auto; padding:8px 10px;" onclick="showScreen('screen-main')">⬅️ Kapat</button>
+            <button type="button" class="outline ui-btn-compact" style="width:auto; padding:8px 10px;" onclick="window.closeLibraryLessonsScreen()">⬅️ Kapat</button>
         </div>
         <p class="library-screen-desc">Sınavına uygun dersini seçerek kütüphane listesini açabilirsin.</p>
         <div id="library-lessons-list" style="text-align:left;"></div>

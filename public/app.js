@@ -1568,10 +1568,23 @@ window.renderLibraryLessonsScreen = (focusedSubject = '') => {
 
 window.openLibraryLessonsScreen = (focusedSubject = '') => {
     const normalizedFocus = String(focusedSubject || '').trim();
+    const activeScreen = String(window.currentScreen || '').trim();
+    if (activeScreen && activeScreen !== 'screen-library-lessons') {
+        window.libraryLessonsBackScreen = activeScreen;
+    }
     window.currentLibraryLessonsFocusedSubject = normalizedFocus;
     updateCourseAddedNavBadge(false);
     window.renderLibraryLessonsScreen(focusedSubject);
     showScreen('screen-library-lessons');
+};
+
+window.closeLibraryLessonsScreen = () => {
+    const fallbackScreen = String(window.libraryLessonsBackScreen || 'screen-settings').trim();
+    if (fallbackScreen && fallbackScreen !== 'screen-library-lessons') {
+        showScreen(fallbackScreen);
+        return;
+    }
+    showScreen('screen-settings');
 };
 
 window.openLibrarySubjectFromDerslerim = (subjectName = '') => {
@@ -2039,6 +2052,7 @@ window.applyRoleBasedBottomNav = (role = ROLE_STUDENT) => {
 window.showScreen = (id) => { 
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); 
     document.getElementById(id).classList.add('active');
+    window.currentScreen = id;
     const nav = document.getElementById('bottom-nav');
     if (id !== 'screen-auth') {
         nav.style.display = 'flex';
