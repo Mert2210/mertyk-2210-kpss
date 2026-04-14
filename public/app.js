@@ -144,6 +144,7 @@ const LOCAL_NOTEBOOK_STORAGE_KEY = 'gazi_local_notebook';
 const REMINDER_INTERVALS_STORAGE_KEY = 'gazi_reminder_intervals_v1';
 const CUSTOM_EXAM_PREFIX = 'custom_';
 const DEFAULT_CUSTOM_GROUP_NAME = 'Genel';
+const DEFAULT_LIBRARY_LESSONS_BACK_SCREEN = 'screen-settings';
 const MAX_READY_SOURCES = 30;
 const FLOAT_COMPARISON_EPSILON = 0.001;
 const VALID_STUDENT_PHOTO_SOURCES = ['camera', 'gallery', 'file'];
@@ -217,6 +218,7 @@ function normalizeReminderIntervals(list = []) {
         safeList
             .map((value) => Number(value))
             .filter((value) => Number.isFinite(value) && value > 0)
+            // Keep 4 decimals to preserve hourly fractions (rounded examples: 1/24≈0.0417, 3/24=0.1250).
             .map((value) => Number(value.toFixed(4)))
     ));
     unique.sort((a, b) => a - b);
@@ -1560,7 +1562,7 @@ window.renderLibraryLessonsScreen = (focusedSubject = '') => {
     listEl.querySelectorAll('.derslerim-library-subject').forEach((btn) => {
         btn.addEventListener('click', () => {
             const encodedName = btn.getAttribute('data-subject-name') || '';
-            const safeSubject = decodeURIComponent(String(encodedName || ''));
+            const safeSubject = decodeURIComponent(encodedName);
             window.openLibrarySubjectFromDerslerim(safeSubject);
         });
     });
@@ -1579,12 +1581,12 @@ window.openLibraryLessonsScreen = (focusedSubject = '') => {
 };
 
 window.closeLibraryLessonsScreen = () => {
-    const fallbackScreen = String(window.libraryLessonsBackScreen || 'screen-settings').trim();
+    const fallbackScreen = String(window.libraryLessonsBackScreen || DEFAULT_LIBRARY_LESSONS_BACK_SCREEN).trim();
     if (fallbackScreen && fallbackScreen !== 'screen-library-lessons') {
         showScreen(fallbackScreen);
         return;
     }
-    showScreen('screen-settings');
+    showScreen(DEFAULT_LIBRARY_LESSONS_BACK_SCREEN);
 };
 
 window.openLibrarySubjectFromDerslerim = (subjectName = '') => {

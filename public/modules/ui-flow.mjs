@@ -90,13 +90,13 @@ export function buildSelectedCourseLabel(subjectName = '') {
 
 export const DEFAULT_REMINDER_INTERVALS = Object.freeze([1 / 24, 3 / 24, 12 / 24, 1, 3, 7, 15, 30]);
 
-export function formatReminderOptionLabel(daysValue, floatEpsilon = 0.001) {
+export function formatReminderOptionLabel(daysValue, comparisonEpsilon = 0.001) {
     const safeValue = Number(daysValue);
     if (!Number.isFinite(safeValue) || safeValue <= 0) return '';
     if (safeValue < 1) {
         const hours = safeValue * 24;
         const roundedHours = Math.round(hours);
-        if (roundedHours > 0 && Math.abs(hours - roundedHours) <= Number(floatEpsilon)) {
+        if (roundedHours > 0 && Math.abs(hours - roundedHours) <= comparisonEpsilon) {
             return `${roundedHours} saat`;
         }
     }
