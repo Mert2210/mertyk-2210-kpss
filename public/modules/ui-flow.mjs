@@ -74,6 +74,20 @@ export function filterCourseNamesByQuery(courseNames = [], query = '') {
     return safeNames.filter((name) => String(name || '').toLocaleLowerCase('tr').includes(normalizedQuery));
 }
 
+export function getNextExpandedCourse(currentExpandedCourse = '', clickedCourse = '') {
+    const current = String(currentExpandedCourse || '').trim();
+    const clicked = String(clickedCourse || '').trim();
+    if (!clicked) return current;
+    return current === clicked ? '' : clicked;
+}
+
+export function buildSelectedCourseLabel(subjectName = '') {
+    const safeSubject = String(subjectName || '').trim();
+    return safeSubject
+        ? `Seçili Ders: ${safeSubject}`
+        : 'Seçili Ders: Henüz seçilmedi';
+}
+
 export function mergeSavedSubjectsWithDrafts(savedSubjects = [], drafts = []) {
     const savedList = Array.isArray(savedSubjects) ? savedSubjects : [];
     const draftList = Array.isArray(drafts) ? drafts : [];

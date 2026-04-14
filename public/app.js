@@ -4,7 +4,7 @@ import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/fireb
 import { getStorage, ref as storageRef, uploadString, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
 import { createSafeClientStore } from "./modules/client-storage.mjs";
 import { SETTINGS_MODES, applySettingsMode, getDefaultSettingsModeByRole } from "./modules/settings-mode.mjs";
-import { normalizeTopicFilterMode, getAllowedTopicsForMode, getAllowedTopicsForModalContext, isStorageRetryLimitExceededError, buildDerslerimTopicNavigation, canStartLibraryTest, evaluateStdAnswer, filterCourseNamesByQuery, getSavedLibraryCourseNames, buildDueReminderCountsBySubject, mergeSavedSubjectsWithDrafts, buildTopicListFromSources } from "./modules/ui-flow.mjs";
+import { normalizeTopicFilterMode, getAllowedTopicsForMode, getAllowedTopicsForModalContext, isStorageRetryLimitExceededError, buildDerslerimTopicNavigation, canStartLibraryTest, evaluateStdAnswer, filterCourseNamesByQuery, getSavedLibraryCourseNames, buildDueReminderCountsBySubject, mergeSavedSubjectsWithDrafts, buildTopicListFromSources, getNextExpandedCourse, buildSelectedCourseLabel } from "./modules/ui-flow.mjs";
 import { resolveCurrentExamType, getCustomCurriculumGroupsByExamType as getCustomCurriculumGroupsByExamTypeFromMap, getCustomCurriculumSubjectsByExamType as getCustomCurriculumSubjectsByExamTypeFromMap, getCustomCurriculumTopicsByExamTypeAndSubject as getCustomCurriculumTopicsByExamTypeAndSubjectFromMap, getCustomTopicsBySubject as getCustomTopicsBySubjectFromMap, addCustomTopicsForSubject as addCustomTopicsForSubjectInMap } from "./modules/custom-data.mjs";
 import { buildRelativeResourceUrl, getShareableAppLink, shouldRegisterServiceWorker } from "./modules/app-shell.mjs";
 
@@ -136,6 +136,7 @@ const USER_CURRICULUM_STORAGE_KEY = 'gazi_user_curriculum_v1';
 const SOFT_DARK_THEME_STORAGE_KEY = 'gazi_soft_dark_theme_v1';
 const DERSLERIM_TOPIC_FILTER_STORAGE_KEY = 'gazi_derslerim_topic_filter_v1';
 const DERSLERIM_COURSE_SEARCH_STORAGE_KEY = 'gazi_derslerim_course_search_v1';
+const DERSLERIM_COURSE_ADDED_BADGE_STORAGE_KEY = 'gazi_derslerim_course_added_badge_v1';
 const STUDENT_SAVED_MATERIALS_STORAGE_KEY = 'gazi_student_saved_teacher_materials_v1';
 const CUSTOM_EXAM_TYPES_STORAGE_KEY = 'gazi_custom_exam_types_v1';
 const CUSTOM_CURRICULUM_STORAGE_KEY = 'gazi_custom_curriculum_v1';
@@ -172,7 +173,10 @@ const DERSLERIM_STATE = {
     libraryViewingTopicPath: null,
     smartAddTopicPath: null,
     pendingLibraryFilter: null,
-    isStudentUploadInProgress: false
+    isStudentUploadInProgress: false,
+    expandedProfileSubject: '',
+    expandedLibraryLessonSubject: '',
+    currentLibraryLessonsFocusedSubject: ''
 };
 
 function normalizeText(v) {
@@ -546,6 +550,18 @@ Object.defineProperties(window, {
         get() { return DERSLERIM_STATE.pendingLibraryFilter; },
         set(value) { DERSLERIM_STATE.pendingLibraryFilter = value; }
     },
+    expandedProfileSubject: {
+        get() { return DERSLERIM_STATE.expandedProfileSubject; },
+        set(value) { DERSLERIM_STATE.expandedProfileSubject = String(value || '').trim(); }
+    },
+    expandedLibraryLessonSubject: {
+        get() { return DERSLERIM_STATE.expandedLibraryLessonSubject; },
+        set(value) { DERSLERIM_STATE.expandedLibraryLessonSubject = String(value || '').trim(); }
+    },
+    currentLibraryLessonsFocusedSubject: {
+        get() { return DERSLERIM_STATE.currentLibraryLessonsFocusedSubject; },
+        set(value) { DERSLERIM_STATE.currentLibraryLessonsFocusedSubject = String(value || '').trim(); }
+    },
     isStudentUploadInProgress: {
         get() { return DERSLERIM_STATE.isStudentUploadInProgress; },
         set(value) { DERSLERIM_STATE.isStudentUploadInProgress = !!value; }
@@ -585,7 +601,8 @@ function normalizeLibraryPath(path) {
 window.applySmartAddQuestionFormVisibility = () => {
     const selectionArea = document.getElementById('dynamic-selection-area');
     if (!selectionArea) return;
-    selectionArea.style.display = window.smartAddTopicPath ? 'none' : 'block';
+    // Ev ekranındaki "Kütüphaneden Ekle" alanı kullanıcı isteğiyle her zaman görünür tutulur.
+    selectionArea.style.display = 'block';
 };
 
 function getLibraryModalActiveOnlyEnabled() {
@@ -1122,6 +1139,7 @@ window.renderProfileSubjectsByExam = (savedSubjectsInput = null) => {
             const key = slugifySubjectName(subject);
             const uniqueId = `${subjectIndex}`;
             const checkboxId = `subj-dyn-${key}-${uniqueId}`;
+            const topicsId = `subj-dyn-topics-${key}-${uniqueId}`;
             const saved = savedMap.get(normalizeText(subject));
             const checked = saved?.selected ? 'checked' : '';
             const savedTopicsText = String(saved?.topics || '').trim();
@@ -1130,17 +1148,23 @@ window.renderProfileSubjectsByExam = (savedSubjectsInput = null) => {
             const curriculumTopics = getCurriculumTopicsByExamTypeAndSubject(examTypeEl.value, subject);
             const customTopics = getCustomTopicsBySubject(subject);
             const topicList = buildTopicListFromSources(curriculumTopics, userTopics, savedTopicsText, customTopics);
+            const isExpanded = normalizeText(window.expandedProfileSubject) === normalizeText(subject);
             const topicsHTML = topicList.length > 0
                 ? `<div class="subject-row-topics">${topicList.map((topic) => `<span class="subject-topic-chip">${escapeHtml(topic)}</span>`).join('')}</div>`
                 : `<p class="subject-row-empty-topic">Konu başlığı bulunamadı.</p>`;
             return `
                 <div class="subject-row" data-subject-name="${escapeHtml(subject)}" data-topics-text="${escapeHtml(savedTopicsText)}">
-                    <label class="subject-row-main" for="${checkboxId}">
+                    <div class="subject-row-main">
                         <input type="checkbox" id="${checkboxId}" value="${escapeHtml(subject)}" ${checked} onchange="window.handleDerslerimCourseToggle()">
-                        <span class="subject-row-name">${escapeHtml(subject)}</span>
-                    </label>
-                    <button type="button" class="outline" style="width:auto; padding:6px 10px; font-size:0.74rem; border-color:#3498db; color:#3498db;" onclick="window.openCourseTopicsScreen(${JSON.stringify(subject)})">Konuları Seç (${selectedTopics.length})</button>
-                    ${topicsHTML}
+                        <button type="button" class="subject-row-collapse-btn" aria-expanded="${isExpanded ? 'true' : 'false'}" aria-controls="${topicsId}" onclick="window.toggleProfileSubjectTopics(${JSON.stringify(subject)})">
+                            <span class="subject-row-name">📘 ${escapeHtml(subject)}</span>
+                            <span>${isExpanded ? '▲' : '▼'}</span>
+                        </button>
+                    </div>
+                    <div id="${topicsId}" class="subject-row-accordion${isExpanded ? ' open' : ''}">
+                        <button type="button" class="outline" style="width:auto; padding:6px 10px; font-size:0.74rem; border-color:#3498db; color:#3498db;" onclick="window.openCourseTopicsScreen(${JSON.stringify(subject)})">Konuları Seç (${selectedTopics.length})</button>
+                        ${topicsHTML}
+                    </div>
                 </div>
             `;
     }).join('');
@@ -1358,6 +1382,15 @@ window.handleDerslerimCourseSearch = () => {
     window.renderProfileSubjectsByExam(merged);
 };
 
+window.toggleProfileSubjectTopics = (subjectName = '') => {
+    const safeSubject = String(subjectName || '').trim();
+    if (!safeSubject) return;
+    window.expandedProfileSubject = getNextExpandedCourse(window.expandedProfileSubject, safeSubject);
+    const drafts = getDerslerimSubjectDraftsFromUI();
+    const saved = CLIENT_STORE.getJSON('gazi_subjects_v2', []);
+    window.renderProfileSubjectsByExam(mergeSavedSubjectsWithDrafts(saved, drafts));
+};
+
 window.openDerslerimAddModal = () => {
     const modal = document.getElementById('derslerim-add-modal');
     if (!modal) return;
@@ -1390,6 +1423,13 @@ window.toggleDerslerimAddCustomExamInput = () => {
     if (!examTypeSelect || !customExamWrap) return;
     customExamWrap.style.display = examTypeSelect.value === '__custom__' ? 'block' : 'none';
 };
+
+function updateCourseAddedNavBadge(show) {
+    const shouldShow = !!show;
+    const dot = document.getElementById('nav-derslerim-added-dot');
+    if (dot) dot.style.display = shouldShow ? 'inline-flex' : 'none';
+    CLIENT_STORE.setItem(DERSLERIM_COURSE_ADDED_BADGE_STORAGE_KEY, shouldShow ? '1' : '0');
+}
 
 window.saveDerslerimCustomCourse = () => {
     const examTypeSelect = document.getElementById('derslerim-add-exam-type');
@@ -1457,12 +1497,14 @@ window.saveDerslerimCustomCourse = () => {
 
     ensureProfileExamTypeOptions(examTypeValue);
     ensureDerslerimAddExamOptions(examTypeValue);
+    window.expandedProfileSubject = subjectName;
     const profileExamType = document.getElementById('profile-exam-type');
     if (profileExamType) profileExamType.value = examTypeValue;
     CLIENT_STORE.setItem('gazi_exam_type', examTypeValue);
     window.updateGradeDropdown();
     window.renderSavedLibraryCoursesPanel();
     window.closeDerslerimAddModal();
+    updateCourseAddedNavBadge(true);
     window.showSoftFeedback('Ders/Konu başarıyla eklendi.');
 };
 
@@ -1525,36 +1567,55 @@ window.openSavedLibraryLesson = (encodedName) => {
 window.renderLibraryLessonsScreen = (focusedSubject = '') => {
     const listEl = document.getElementById('library-lessons-list');
     if (!listEl) return;
+    const selectedCourseLabel = document.getElementById('library-lessons-selected-course');
+    const normalizedFocus = String(focusedSubject || window.currentLibraryLessonsFocusedSubject || '').trim();
+    if (selectedCourseLabel) selectedCourseLabel.textContent = buildSelectedCourseLabel(normalizedFocus);
     const savedSubjects = CLIENT_STORE.getJSON('gazi_subjects_v2', []) || [];
     const selectedSubjects = getSavedLibraryCourseNames(savedSubjects);
     const savedMap = new Map(
         (Array.isArray(savedSubjects) ? savedSubjects : [])
             .map((row) => [normalizeText(row?.name), String(row?.topics || '').trim()])
     );
-    const normalizedFocus = String(focusedSubject || '').trim();
     const subjectsToRender = normalizedFocus ? selectedSubjects.filter((name) => name === normalizedFocus) : selectedSubjects;
     if (subjectsToRender.length === 0) {
         listEl.innerHTML = '<p class="derslerim-empty-text">Henüz kütüphanede ders bulunmuyor.</p>';
         return;
     }
     listEl.innerHTML = subjectsToRender.map((subject) => {
+        const subjectSlug = slugifySubjectName(subject);
+        const topicWrapId = `library-lessons-topics-${subjectSlug}`;
         const selectedTopics = parseTopicsFromText(savedMap.get(normalizeText(subject)) || '');
         const topics = selectedTopics.length > 0 ? selectedTopics : getTopicsForDerslerimSubject(subject);
+        const isExpanded = normalizeText(window.expandedLibraryLessonSubject) === normalizeText(subject);
         const topicButtons = topics.length > 0
             ? topics.map((topic) => `<button type="button" class="derslerim-topic-btn" onclick="window.openLibraryTopicFromDerslerim(${JSON.stringify(subject)}, ${JSON.stringify(topic)})">${escapeHtml(topic)}</button>`).join('')
             : `<small class="derslerim-empty-text">Bu derste konu bulunamadı.</small>`;
         return `
-            <section style="margin-bottom:14px; border:1px solid #e5ecf6; border-radius:10px; padding:10px; background:#fff;">
-                <h4 style="margin:0 0 8px 0; color:#1e3c72;">📘 ${escapeHtml(subject)}</h4>
-                <div style="display:grid; gap:6px;">${topicButtons}</div>
+            <section style="margin-bottom:10px;">
+                <button type="button" class="derslerim-library-subject" id="library-lessons-subj-btn-${subjectSlug}" aria-expanded="${isExpanded ? 'true' : 'false'}" aria-controls="${topicWrapId}" onclick="window.toggleLibraryLessonSubject(${JSON.stringify(subject)})">
+                    <span>📘 ${escapeHtml(subject)}</span>
+                    <span>${isExpanded ? '▲' : '▼'}</span>
+                </button>
+                <div id="${topicWrapId}" class="derslerim-library-topics${isExpanded ? ' open' : ''}" style="margin-top:6px;">${topicButtons}</div>
             </section>
         `;
     }).join('');
 };
 
 window.openLibraryLessonsScreen = (focusedSubject = '') => {
+    const normalizedFocus = String(focusedSubject || '').trim();
+    window.currentLibraryLessonsFocusedSubject = normalizedFocus;
+    if (normalizedFocus) window.expandedLibraryLessonSubject = normalizedFocus;
+    updateCourseAddedNavBadge(false);
     window.renderLibraryLessonsScreen(focusedSubject);
     showScreen('screen-library-lessons');
+};
+
+window.toggleLibraryLessonSubject = (subjectName = '') => {
+    const safeSubject = String(subjectName || '').trim();
+    if (!safeSubject) return;
+    window.expandedLibraryLessonSubject = getNextExpandedCourse(window.expandedLibraryLessonSubject, safeSubject);
+    window.renderLibraryLessonsScreen(window.currentLibraryLessonsFocusedSubject || '');
 };
 
 window.toggleDerslerimSection = (contentId, arrowId, triggerId = null) => {
@@ -1887,6 +1948,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     setTimeout(() => { window.initEtiketleme(); }, 500);
     window.restoreDerslerimTheme();
+    updateCourseAddedNavBadge(CLIENT_STORE.getItem(DERSLERIM_COURSE_ADDED_BADGE_STORAGE_KEY, '0') === '1');
 });
 // 🚨 YENİ NESİL MÜFREDAT AĞACI BİTİŞ 🚨
 
@@ -2036,6 +2098,7 @@ window.openProfilePanel = () => {
 
 window.openDerslerimPanel = () => {
     if (activeNavRole !== ROLE_STUDENT) return;
+    updateCourseAddedNavBadge(false);
     const settingsEl = document.getElementById('screen-settings');
     const titleEl = document.getElementById('settings-screen-title');
     applySettingsMode(settingsEl, titleEl, SETTINGS_MODES.DERSLERIM);
