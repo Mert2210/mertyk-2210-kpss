@@ -1114,6 +1114,25 @@ body.nav-visible .container {
     line-height: 1;
 }
 
+.topic-count-badge {
+    color: #6b7280;
+    font-size: 0.82em;
+    font-weight: 400;
+    margin-left: 2px;
+}
+
+.topic-new-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #e74c3c;
+    margin-left: 5px;
+    vertical-align: middle;
+    flex-shrink: 0;
+    box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.2);
+}
+
 .derslerim-empty-text {
     color: #6b7280;
 }
