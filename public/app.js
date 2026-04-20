@@ -1087,9 +1087,7 @@ window.openSmartAddForCurrentLibraryTopic = () => {
     window.smartAddTopicPath = context;
     setSelectedLibraryPath(context.subject, context.topic);
     window.applySmartAddQuestionFormVisibility();
-    showScreen('screen-main');
-    const panel = document.getElementById('student-library-panel');
-    if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    showScreen('screen-soru-ekle');
 };
 
 window.openSmartAddForTopicEncoded = (encodedSubject, encodedTopic) => {
@@ -1110,9 +1108,7 @@ window.openSmartAddForTopic = (subject, topic) => {
     window.smartAddTopicPath = context;
     setSelectedLibraryPath(context.subject, context.topic);
     window.applySmartAddQuestionFormVisibility();
-    showScreen('screen-main');
-    const panel = document.getElementById('student-library-panel');
-    if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    showScreen('screen-soru-ekle');
 };
 
 window.renderLibraryTopicAddButton = () => {
@@ -2199,14 +2195,16 @@ const ROLE_STUDENT = 'student';
 const ROLE_TEACHER = 'teacher';
 const NAV_ITEM_MAP = {
     'screen-main': 'nav-ev',
+    'screen-derslerim': 'nav-derslerim',
+    'screen-soru-ekle': 'nav-soru-ekle',
     'screen-settings': null, // set dynamically by mode
     'screen-secure-logout': null, // follows settings mode dynamically
     'screen-gelisim': 'nav-gelisim',
     'screen-friends': 'nav-arkadaslar',
     'screen-stats': 'nav-gelisim',
     'screen-list': 'nav-gelisim',
-    'screen-library-lessons': 'nav-derslerim',
-    'screen-course-topics': 'nav-derslerim',
+    'screen-library-lessons': 'nav-ev',
+    'screen-course-topics': 'nav-ev',
     'screen-reminder-options': 'nav-profil',
     'screen-teacher': 'nav-ogretmen',
 };
@@ -2263,9 +2261,12 @@ window.openProfilePanel = () => {
 window.openDerslerimPanel = () => {
     if (activeNavRole !== ROLE_STUDENT) return;
     updateCourseAddedNavBadge(false);
-    showScreen('screen-main');
-    document.getElementById('nav-ev')?.classList.remove('active');
-    document.getElementById('nav-derslerim')?.classList.add('active');
+    showScreen('screen-derslerim');
+};
+
+window.openSoruEklePanel = () => {
+    if (activeNavRole !== ROLE_STUDENT) return;
+    showScreen('screen-soru-ekle');
 };
 
 window.openSecureLogoutScreen = () => {
