@@ -2195,7 +2195,6 @@ const ROLE_STUDENT = 'student';
 const ROLE_TEACHER = 'teacher';
 const NAV_ITEM_MAP = {
     'screen-main': 'nav-ev',
-    'screen-derslerim': 'nav-derslerim',
     'screen-soru-ekle': 'nav-soru-ekle',
     'screen-settings': null, // set dynamically by mode
     'screen-secure-logout': null, // follows settings mode dynamically
@@ -2256,12 +2255,6 @@ window.openProfilePanel = () => {
     applySettingsMode(settingsEl, titleEl, SETTINGS_MODES.PROFILE);
     NAV_ITEM_MAP['screen-settings'] = 'nav-profil';
     window.openSettingsPanel();
-};
-
-window.openDerslerimPanel = () => {
-    if (activeNavRole !== ROLE_STUDENT) return;
-    updateCourseAddedNavBadge(false);
-    showScreen('screen-derslerim');
 };
 
 window.openSoruEklePanel = () => {
@@ -2736,7 +2729,6 @@ onAuthStateChanged(auth, user => {
     const studentArea = document.getElementById('student-class-area');
     const studentLibPanel = document.getElementById('student-library-panel');
     const savedLibraryPanel = document.getElementById('saved-library-panel');
-    const teacherMainTools = document.getElementById('teacher-main-tools');
 
     if (user) { 
         let nameFromAuth = user.displayName;
@@ -2769,7 +2761,6 @@ onAuthStateChanged(auth, user => {
         if (studentArea) studentArea.style.display = isTeacher ? "none" : "block"; 
         if (studentLibPanel) studentLibPanel.style.display = isTeacher ? "none" : "block";
         if (savedLibraryPanel) savedLibraryPanel.style.display = isTeacher ? "none" : "block";
-        if (teacherMainTools) teacherMainTools.style.display = isTeacher ? "block" : "none";
         if (adminBtn) adminBtn.style.display = isAdmin ? "block" : "none";
         if (adminApproveBtn) adminApproveBtn.style.display = isAdmin ? "block" : "none";
         window.applyRoleBasedBottomNav(isTeacher ? ROLE_TEACHER : ROLE_STUDENT);
@@ -2782,7 +2773,7 @@ onAuthStateChanged(auth, user => {
             NAV_ITEM_MAP['screen-settings'] = 'nav-profil';
         } else {
             applySettingsMode(settingsEl, titleEl, SETTINGS_MODES.DERSLERIM);
-            NAV_ITEM_MAP['screen-settings'] = 'nav-derslerim';
+            NAV_ITEM_MAP['screen-settings'] = 'nav-ev';
         }
 
         const stdClassCode = localStorage.getItem("gazi_class_code");

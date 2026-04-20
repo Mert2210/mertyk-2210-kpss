@@ -225,73 +225,6 @@
             </div>
         </div>
 
-        <div id="teacher-main-tools" class="content-card" style="display:none; background:#1e3c72; border:2px solid #e67e22; padding:15px; border-radius:10px; margin-bottom:15px; text-align:left;">
-            <h4 style="margin:0 0 10px 0; color:#fff;">👨‍🏫 Öğretmen Araçları</h4>
-
-            <div style="background:rgba(255,255,255,0.1); padding:12px; border-radius:10px; margin-bottom:15px; border:1px solid rgba(255,255,255,0.2);">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; cursor:pointer;" onclick="toggleSection('sinif-yonetimi-body')">
-                    <label style="font-size:0.85rem; font-weight:bold; color:#fff; margin:0; cursor:pointer;">🏫 Sınıf Yönetimi</label>
-                    <button onclick="event.stopPropagation(); refreshTeacherClasses()" style="background:transparent; border:none; color:#f1c40f; padding:0; width:auto; font-size:0.8rem; cursor:pointer;">🔄 Yenile</button>
-                </div>
-
-                <div id="sinif-yonetimi-body">
-                    <div style="display:flex; gap:5px; margin-bottom:10px;">
-                        <input type="text" id="new-class-name" placeholder="Sınıf Adı (Örn: A Şubesi)" style="margin:0; flex:2;">
-                        <button onclick="createNewNamedClass()" class="green" style="margin:0; flex:1; font-size:0.8rem; padding:10px;">Kur</button>
-                    </div>
-                    <div id="teacher-classes-list" style="max-height:120px; overflow-y:auto; background:rgba(0,0,0,0.2); border-radius:8px; padding:5px; font-size:0.8rem; text-align:left; color:#fff;">
-                        Sınıflar yükleniyor...
-                    </div>
-                </div>
-            </div>
-
-            <div style="border-top:1px solid rgba(255,255,255,0.3); padding-top:10px; text-align:left;">
-                <h4 style="font-size:0.9rem; margin-top:0; color:#fff; cursor:pointer; display:flex; justify-content:space-between; align-items:center;" onclick="toggleSection('yeni-soru-body')">
-                    <span>➕ Yeni Soru Ekle</span><span style="font-size:0.75rem;">🔽</span>
-                </h4>
-
-                <div id="yeni-soru-body">
-                    <label style="font-size:0.75rem; font-weight:bold; margin-bottom:5px; display:block; color:#fff;">📍 Sorunun Gönderileceği Sınıf:</label>
-                    <select id="target-class-select" style="margin-bottom:10px; font-weight:bold; color:#1e3c72; background:#fff;">
-                        <option value="">Önce Sınıf Seçin...</option>
-                    </select>
-
-                    <div style="display:flex; gap:10px; margin-bottom:10px;">
-                        <button type="button" class="outline" style="flex:1; font-size:0.85rem; padding:8px; border-color:#fff; color:#fff;" onclick="document.getElementById('img-upload-camera').click()">📸 Fotoğraf Çek</button>
-                        <button type="button" class="outline" style="flex:1; font-size:0.85rem; padding:8px; border-color:#fff; color:#fff;" onclick="document.getElementById('img-upload-file').click()">📁 Galeriden Seç</button>
-                    </div>
-                    <input type="file" id="img-upload-camera" accept="image/*" capture="environment" style="display:none;" onchange="processImageUpload(event, 'question')">
-                    <input type="file" id="img-upload-file" accept="image/*" style="display:none;" onchange="processImageUpload(event, 'question')">
-                    <img id="img-preview" src="" style="width:100%; max-height:200px; object-fit:contain; display:none; margin-bottom:10px; border-radius:8px;">
-
-                    <div style="display:flex; gap:5px;">
-                        <input type="text" id="new-q-ders" placeholder="Ders Adı (Örn: Tarih)">
-                        <input type="text" id="new-q-deneme" placeholder="Konu/Kaynak (Örn: TG-1)">
-                    </div>
-
-                    <textarea id="new-q-text" placeholder="Soru metni... (Veya sadece resim yükle)"></textarea>
-                    <label style="font-size:0.75rem; font-weight:bold; margin-bottom:5px; display:block; color:#fff;">✅ DOĞRU ŞIKKI HANGİSİ?</label>
-                    <select id="new-q-correct" style="font-weight:bold; color:#1e3c72; background:#fff; margin-bottom:10px;">
-                        <option value="0">A Şıkkı</option>
-                        <option value="1">B Şıkkı</option>
-                        <option value="2">C Şıkkı</option>
-                        <option value="3">D Şıkkı</option>
-                        <option value="4">E Şıkkı</option>
-                    </select>
-
-                    <div style="margin-bottom:10px; background:rgba(255,255,255,0.1); padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,0.3);">
-                        <label style="font-size:0.8rem; font-weight:bold; margin-bottom:5px; display:block; color:#fff;">✏️ Öğrenciler İçin Çözüm (İsteğe Bağlı)</label>
-                        <button type="button" class="outline" style="width:100%; font-size:0.8rem; padding:8px; border-color:#f1c40f; color:#f1c40f; margin-bottom:8px;" onclick="document.getElementById('img-upload-solution').click()">📸 Çözüm Fotoğrafı Ekle</button>
-                        <input type="file" id="img-upload-solution" accept="image/*" style="display:none;" onchange="processImageUpload(event, 'solution')">
-                        <img id="img-preview-solution" src="" style="width:100%; max-height:200px; object-fit:contain; display:none; margin-bottom:10px; border-radius:8px;">
-                        <textarea id="new-q-sol-text" placeholder="Varsa çözüm açıklaması..." style="margin-bottom:0;"></textarea>
-                    </div>
-
-                    <button onclick="uploadQuestionToNamedClass()" class="orange" style="background:#e67e22; color:#fff; border:2px solid #fff;">🚀 SEÇİLİ SINIFIMA GÖNDER</button>
-                </div>
-            </div>
-        </div>
-
         <button onclick="goToLobby('trial')" class="purple">📝 Hızlı Deneme (Offline)</button>
         <button onclick="goToLobby('room')" class="orange" style="margin-top:10px;">🏠 Oda Kur / Katıl</button>
         
@@ -787,10 +720,6 @@
     <div class="nav-item" id="nav-arkadaslar" onclick="openFriendsPanel()">
         <span class="nav-icon">👥</span>
         <span class="nav-label">Arkadaşlarım</span>
-    </div>
-    <div class="nav-item student-only" id="nav-derslerim" onclick="openDerslerimPanel()">
-        <span class="nav-icon">📚</span>
-        <span class="nav-label">Derslerim</span>
     </div>
     <div class="nav-item student-only" id="nav-soru-ekle" onclick="openSoruEklePanel()">
         <span class="nav-icon">➕</span>
