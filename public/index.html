@@ -553,7 +553,7 @@
         <div id="library-filter-area" class="filter-section" style="display:none;"></div>
         <div id="list-content"></div>
         <button id="start-library-test-btn" onclick="startLibraryTest()" class="green" style="display:none; width:100%; margin-top:10px; padding:12px; font-size:1rem;">▶ Hepsini Test Olarak Çöz</button>
-        <button onclick="window.goBack('screen-main')" class="outline" style="margin-top:15px;">⬅️ Kapat</button>
+        <button onclick="window.goBack('screen-library-topics')" class="outline" style="margin-top:15px;">⬅️ Kapat</button>
     </div>
 
     <div id="screen-library-lessons" class="screen">
@@ -564,6 +564,15 @@
         <p class="library-screen-desc">Sınavına uygun dersini seçerek kütüphane listesini açabilirsin.</p>
         <div id="library-lessons-list" style="text-align:left;"></div>
         <p id="library-lessons-selected-course" class="library-selected-course-label">Seçili Ders: Henüz seçilmedi</p>
+    </div>
+
+    <div id="screen-library-topics" class="screen">
+        <div class="library-screen-header">
+            <h3 id="library-topics-title" style="margin:0;">📘 Ders</h3>
+            <button type="button" class="outline ui-btn-compact" style="width:auto; padding:8px 10px;" onclick="window.closeLibraryTopicsScreen()">⬅️ Geri</button>
+        </div>
+        <p class="library-screen-desc">Konu seçerek soruları listeleyebilirsin.</p>
+        <div id="library-topics-list" style="text-align:left;"></div>
     </div>
 
     <div id="screen-reminder-options" class="screen">

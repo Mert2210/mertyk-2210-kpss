@@ -1627,7 +1627,8 @@ window.openSavedLibraryLesson = (encodedName) => {
     try {
         const subjectName = decodeURIComponent(String(encodedName || ''));
         if (!subjectName) return;
-        window.openLibraryLessonsScreen(subjectName);
+        window.openLibraryLessonsScreen();
+        window.openLibraryTopicsScreen(subjectName);
     } catch (e) {
         console.warn('Kayıtlı kütüphane dersi açılamadı:', e);
         window.showSoftFeedback('Ders bağlantısı çözümlenemedi.');
@@ -1642,66 +1643,25 @@ window.renderLibraryLessonsScreen = (focusedSubject = '') => {
     if (selectedCourseLabel) selectedCourseLabel.textContent = buildSelectedCourseLabel(normalizedFocus);
     const savedSubjects = CLIENT_STORE.getJSON('gazi_subjects_v2', []) || [];
     const selectedSubjects = getSavedLibraryCourseNames(savedSubjects);
-    const filterMode = getDerslerimTopicFilterMode();
-    const savedTopicIndex = buildSavedTopicIndexForDerslerim();
-    const topicCountMap = buildTopicQuestionCountMap();
-    const newTopics = getNewQuestionTopics();
-    const subjectsToRender = normalizedFocus ? selectedSubjects.filter((name) => name === normalizedFocus) : selectedSubjects;
-    if (subjectsToRender.length === 0) {
+    if (selectedSubjects.length === 0) {
         listEl.innerHTML = '<p class="derslerim-empty-text">Henüz kütüphanede ders bulunmuyor.</p>';
         return;
     }
-    listEl.innerHTML = subjectsToRender.map((subject) => {
-        const slug = slugifySubjectName(subject);
-        const allTopics = getTopicsForDerslerimSubject(subject);
-        const savedTopicsForSubject = savedTopicIndex.get(subject);
-        const topicResult = getAllowedTopicsForModalContext(allTopics, savedTopicsForSubject, filterMode, 'view');
-        const topics = topicResult.topics;
-        const isExpanded = normalizedFocus
-            ? subject === normalizedFocus
-            : window.expandedLibraryLessonSubject === subject;
-        const subjectCounts = topicCountMap.get(subject);
+    listEl.innerHTML = selectedSubjects.map((subject) => {
         return `
             <section style="margin-bottom:10px;">
-                <button type="button" id="derslerim-subj-btn-${slug}" class="derslerim-library-subject library-lessons-subject-btn" data-subject-name="${encodeURIComponent(subject)}" data-subject-slug="${slug}" aria-expanded="${isExpanded ? 'true' : 'false'}" aria-controls="derslerim-topics-${slug}">
+                <button type="button" class="derslerim-library-subject library-lessons-subject-btn" data-subject-name="${encodeURIComponent(subject)}">
                     <span>📘 ${escapeHtml(subject)}</span>
-                    <span id="derslerim-subj-arrow-${slug}">${isExpanded ? '▲' : '▼'}</span>
+                    <span>▶</span>
                 </button>
-                <div id="derslerim-topics-${slug}" class="derslerim-library-topics ${isExpanded ? 'open' : ''}" role="group" aria-label="${escapeHtml(subject)} konuları">
-                    ${topics.length > 0
-            ? topics.map((topic) => {
-                const encodedSubject = encodeURIComponent(subject);
-                const encodedTopic = encodeURIComponent(topic);
-                const addQuestionLabel = `${subject} - ${topic} konusuna soru ekle`;
-                const topicCount = subjectCounts ? (subjectCounts.get(topic) || 0) : 0;
-                const isNew = newTopics.has(`${subject}${TOPIC_KEY_DELIMITER}${topic}`);
-                const countBadge = topicCount > 0 ? ` <span class="topic-count-badge">(${topicCount})</span>` : '';
-                const newDot = isNew ? `<span class="topic-new-dot" title="Yeni soru eklendi"></span>` : '';
-                return `<div class="library-lessons-topic-row">
-                                <button type="button" class="derslerim-topic-btn" onclick="window.openLibraryTopicFromDerslerimEncoded('${encodedSubject}', '${encodedTopic}')">📄 ${escapeHtml(topic)}${countBadge}${newDot}</button>
-                                <button
-                                    type="button"
-                                    class="green library-lessons-topic-add-btn"
-                                    onclick="window.openSmartAddForTopicEncoded('${encodedSubject}', '${encodedTopic}')"
-                                    aria-label="${escapeHtml(addQuestionLabel)}"
-                                    title="${escapeHtml(addQuestionLabel)}"
-                                ><span class="plus-icon" aria-hidden="true">+</span></button>
-                            </div>`;
-                    }).join('')
-                    : '<small class="derslerim-empty-text">Bu derste henüz konu bulunamadı.</small>'}
-                </div>
             </section>
         `;
     }).join('');
     listEl.querySelectorAll('.library-lessons-subject-btn').forEach((btn) => {
         btn.addEventListener('click', () => {
-            const subjectSlug = String(btn.getAttribute('data-subject-slug') || '').trim();
-            if (!subjectSlug) return;
-            window.toggleDerslerimLibrarySubject(subjectSlug);
-            const subjectName = decodeURIComponent(btn.getAttribute('data-subject-name') || '');
-            const topicsWrap = document.getElementById(`derslerim-topics-${subjectSlug}`);
-            const isOpen = !!topicsWrap?.classList.contains('open');
-            window.expandedLibraryLessonSubject = isOpen ? subjectName : '';
+            const subjectName = decodeURIComponent(String(btn.getAttribute('data-subject-name') || '').trim());
+            if (!subjectName) return;
+            window.openLibraryTopicsScreen(subjectName);
         });
     });
 };
@@ -1717,6 +1677,58 @@ window.openLibraryLessonsScreen = (focusedSubject = '') => {
 
 window.closeLibraryLessonsScreen = () => {
     window.goBack(DEFAULT_LIBRARY_LESSONS_BACK_SCREEN);
+};
+
+window.openLibraryTopicsScreen = (subjectName = '') => {
+    const safeSubject = String(subjectName || '').trim();
+    if (!safeSubject) return;
+    window.currentLibraryLessonsFocusedSubject = safeSubject;
+    window.renderLibraryTopicsScreen(safeSubject);
+    showScreen('screen-library-topics');
+};
+
+window.closeLibraryTopicsScreen = () => {
+    showScreen('screen-library-lessons');
+};
+
+window.renderLibraryTopicsScreen = (subjectName = '') => {
+    const subject = String(subjectName || '').trim();
+    const titleEl = document.getElementById('library-topics-title');
+    const listEl = document.getElementById('library-topics-list');
+    if (!listEl) return;
+    if (titleEl) titleEl.textContent = subject ? `📘 ${subject}` : '📘 Ders';
+    const filterMode = getDerslerimTopicFilterMode();
+    const savedTopicIndex = buildSavedTopicIndexForDerslerim();
+    const topicCountMap = buildTopicQuestionCountMap();
+    const newTopics = getNewQuestionTopics();
+    const allTopics = getTopicsForDerslerimSubject(subject);
+    const savedTopicsForSubject = savedTopicIndex.get(subject);
+    const topicResult = getAllowedTopicsForModalContext(allTopics, savedTopicsForSubject, filterMode, 'view');
+    const topics = Array.isArray(topicResult?.topics) ? topicResult.topics : [];
+    if (topics.length === 0) {
+        listEl.innerHTML = '<p class="derslerim-empty-text">Bu derste konu bulunamadı.</p>';
+        return;
+    }
+    const subjectCounts = topicCountMap.get(subject);
+    listEl.innerHTML = topics.map((topic) => {
+        const encodedSubject = encodeURIComponent(subject);
+        const encodedTopic = encodeURIComponent(topic);
+        const addQuestionLabel = `${subject} - ${topic} konusuna soru ekle`;
+        const topicCount = subjectCounts ? (subjectCounts.get(topic) || 0) : 0;
+        const isNew = newTopics.has(`${subject}${TOPIC_KEY_DELIMITER}${topic}`);
+        const countBadge = topicCount > 0 ? ` <span class="topic-count-badge">(${topicCount})</span>` : '';
+        const newDot = isNew ? `<span class="topic-new-dot" title="Yeni soru eklendi"></span>` : '';
+        return `<div class="library-lessons-topic-row">
+                    <button type="button" class="derslerim-topic-btn" onclick="window.openLibraryTopicFromDerslerimEncoded('${encodedSubject}', '${encodedTopic}')">📄 ${escapeHtml(topic)}${countBadge}${newDot}</button>
+                    <button
+                        type="button"
+                        class="green library-lessons-topic-add-btn"
+                        onclick="window.openSmartAddForTopicEncoded('${encodedSubject}', '${encodedTopic}')"
+                        aria-label="${escapeHtml(addQuestionLabel)}"
+                        title="${escapeHtml(addQuestionLabel)}"
+                    ><span class="plus-icon" aria-hidden="true">+</span></button>
+                </div>`;
+    }).join('');
 };
 
 window.openLibrarySubjectFromDerslerim = (subjectName = '') => {
@@ -2203,6 +2215,7 @@ const NAV_ITEM_MAP = {
     'screen-stats': 'nav-gelisim',
     'screen-list': 'nav-gelisim',
     'screen-library-lessons': 'nav-ev',
+    'screen-library-topics': 'nav-ev',
     'screen-course-topics': 'nav-ev',
     'screen-reminder-options': 'nav-profil',
     'screen-teacher': 'nav-ogretmen',
