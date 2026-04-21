@@ -137,7 +137,12 @@ window.EXAM_TYPE_TO_SUBJECTS = {
     "kpss_egitim": window.mufredat["KPSS"]["Eğitim Bilimleri"],
     "yks_tyt": window.mufredat["YKS"]["TYT"],
     "yks_ayt": window.mufredat["YKS"]["AYT"],
-    "ortaokul": window.mufredat["LGS"] ? Object.assign({}, ...Object.values(window.mufredat["LGS"])) : {}
+    "ortaokul": (() => {
+        const lgs = window.mufredat["LGS"] || {};
+        const merged = {};
+        Object.values(lgs).forEach(group => { Object.assign(merged, group); });
+        return merged;
+    })()
 };
 
 const DEFAULT_PROFILE_SUBJECTS = ['Tarih', 'Coğrafya', 'Vatandaşlık', 'Matematik', 'Türkçe', 'Eğitim Bilimleri', 'Fizik', 'Kimya', 'Biyoloji', 'Fen Bilimleri'];
@@ -4017,7 +4022,7 @@ if(socket) {
                 if (examSubjectsMap) Object.keys(examSubjectsMap).forEach(s => allowedSubjects.add(s.toLowerCase()));
             });
             if (allowedSubjects.size > 0) {
-                filteredData = data.filter(q => !q.ders || allowedSubjects.has(String(q.ders).toLowerCase().trim()));
+                filteredData = data.filter(q => q.ders && allowedSubjects.has(String(q.ders).toLowerCase().trim()));
             }
             window._teacherExamFilters = null;
         }
