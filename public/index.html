@@ -193,10 +193,96 @@
             </div>
         </div>
 
+        <!-- ===== TEACHER DASHBOARD PANEL (shown only for teachers) ===== -->
+        <div id="teacher-main-panel" style="display:none;">
+            <div class="content-card teacher-dash-card">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <h4 style="margin:0; color:#fff; font-size:0.95rem;">🏫 Sınıflarım</h4>
+                    <button onclick="window.refreshTeacherClasses()" style="width:auto; padding:4px 8px; font-size:0.72rem; background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.3); color:#fff; border-radius:6px; cursor:pointer;">🔄 Yenile</button>
+                </div>
+                <div id="teacher-classes-list" style="max-height:150px; overflow-y:auto; font-size:0.82rem; color:#fff;">Yükleniyor...</div>
+                <div style="display:flex; gap:6px; margin-top:10px;">
+                    <input id="new-class-name" type="text" placeholder="Yeni sınıf adı (örn: 12A Fen)" style="margin:0; flex:2; background:rgba(255,255,255,0.9); color:#1e3c72;">
+                    <button onclick="createNewNamedClass()" style="width:auto; padding:8px 10px; background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.4); color:#fff; border-radius:8px; cursor:pointer;">➕ Sınıf</button>
+                </div>
+                <small id="generated-code" style="display:block; color:#f1c40f; font-weight:bold; margin-top:6px;"></small>
+            </div>
+
+            <div class="content-card teacher-dash-card" style="margin-top:12px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; cursor:pointer;" onclick="toggleSection('teacher-send-body')">
+                    <h4 style="margin:0; color:#fff; font-size:0.95rem;">🚀 Sınıfa Soru Gönder</h4>
+                    <span style="color:#f1c40f; font-size:0.75rem;">🔽</span>
+                </div>
+                <div id="teacher-send-body">
+                    <label style="font-size:0.75rem; font-weight:bold; margin-bottom:5px; display:block; color:#fff;">Soru gönderilecek sınıf:</label>
+                    <select id="target-class-select" onchange="window.onTeacherDashClassChange(this.value)" style="margin-bottom:8px; font-weight:bold; color:#1e3c72; background:#fff;">
+                        <option value="">--- Sınıf Seçin ---</option>
+                    </select>
+
+                    <div id="teacher-exam-multiselect-area" style="display:none; margin-bottom:10px; background:rgba(255,255,255,0.08); padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,0.2);">
+                        <label style="font-size:0.78rem; font-weight:bold; color:#f1c40f; display:block; margin-bottom:6px;">📝 Hangi sınava hazırlıyorsunuz?</label>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:3px; font-size:0.8rem;">
+                            <label style="display:flex; align-items:center; gap:4px; color:#fff; padding:3px;"><input type="checkbox" class="teacher-exam-filter" value="kpss_a"> KPSS A Grubu</label>
+                            <label style="display:flex; align-items:center; gap:4px; color:#fff; padding:3px;"><input type="checkbox" class="teacher-exam-filter" value="kpss_lisans"> B Grubu (Lisans)</label>
+                            <label style="display:flex; align-items:center; gap:4px; color:#fff; padding:3px;"><input type="checkbox" class="teacher-exam-filter" value="kpss_onlisans"> B Grubu (Önlisans)</label>
+                            <label style="display:flex; align-items:center; gap:4px; color:#fff; padding:3px;"><input type="checkbox" class="teacher-exam-filter" value="kpss_ortaogretim"> B Grubu (Ortaöğretim)</label>
+                            <label style="display:flex; align-items:center; gap:4px; color:#fff; padding:3px;"><input type="checkbox" class="teacher-exam-filter" value="kpss_egitim"> Eğitim Bilimleri</label>
+                            <label style="display:flex; align-items:center; gap:4px; color:#fff; padding:3px;"><input type="checkbox" class="teacher-exam-filter" value="yks_tyt"> TYT</label>
+                            <label style="display:flex; align-items:center; gap:4px; color:#fff; padding:3px;"><input type="checkbox" class="teacher-exam-filter" value="yks_ayt"> AYT</label>
+                            <label style="display:flex; align-items:center; gap:4px; color:#fff; padding:3px;"><input type="checkbox" class="teacher-exam-filter" value="ortaokul"> LGS</label>
+                        </div>
+                        <button onclick="window.filterLibraryByTeacherExams()" style="width:100%; margin-top:8px; padding:7px; font-size:0.8rem; background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.4); color:#fff; border-radius:6px; cursor:pointer;">📚 Kütüphaneden Soru Filtrele</button>
+                    </div>
+
+                    <input id="new-q-ders" type="text" placeholder="Ders (örn: Matematik)" style="margin-bottom:6px;">
+                    <input id="new-q-deneme" type="text" placeholder="Konu / Deneme (örn: Problemler)" style="margin-bottom:6px;">
+                    <textarea id="new-q-text" placeholder="Soru metni..." style="margin-bottom:6px;"></textarea>
+                    <label style="font-size:0.72rem; font-weight:bold; color:#fff; display:block; margin:4px 0;">✅ Doğru Şık</label>
+                    <select id="new-q-correct" style="margin-bottom:6px; font-weight:bold; color:#1e3c72; background:#fff;">
+                        <option value="0">A</option>
+                        <option value="1">B</option>
+                        <option value="2">C</option>
+                        <option value="3">D</option>
+                        <option value="4">E</option>
+                    </select>
+                    <textarea id="new-q-sol-text" placeholder="Çözüm notu (isteğe bağlı)" style="margin-bottom:6px;"></textarea>
+
+                    <div style="display:flex; gap:6px; margin-bottom:8px;">
+                        <button type="button" class="outline" style="flex:1; border-color:rgba(255,255,255,0.5); color:#fff;" onclick="document.getElementById('new-q-image-upload').click()">🖼️ Soru Görseli</button>
+                        <button type="button" class="outline" style="flex:1; border-color:rgba(255,255,255,0.5); color:#fff;" onclick="document.getElementById('new-q-solution-upload').click()">🧩 Çözüm Görseli</button>
+                    </div>
+                    <input id="new-q-image-upload" type="file" accept="image/*" style="display:none;" onchange="processImageUpload(event, 'question')">
+                    <input id="new-q-solution-upload" type="file" accept="image/*" style="display:none;" onchange="processImageUpload(event, 'solution')">
+                    <img id="img-preview" src="" style="display:none; width:100%; max-height:180px; object-fit:contain; border-radius:8px; border:1px solid rgba(255,255,255,0.5); margin-bottom:6px;">
+                    <img id="img-preview-solution" src="" style="display:none; width:100%; max-height:180px; object-fit:contain; border-radius:8px; border:1px solid rgba(255,255,255,0.5); margin-bottom:6px;">
+
+                    <button onclick="uploadQuestionToNamedClass()" class="green" style="width:100%; padding:10px; font-size:0.85rem;">📤 Seçili Sınıfa Soruyu Gönder</button>
+                </div>
+            </div>
+        </div>
+        <!-- ===== END TEACHER DASHBOARD PANEL ===== -->
+
         <div id="main-quick-actions" class="main-quick-actions" style="display:none;">
             <button type="button" id="exam-selection-btn" class="main-quick-btn main-quick-btn-exam" onclick="window.openExamSelectionPanel()">🎯 Sınav Seçimi</button>
             <button type="button" class="main-quick-btn main-quick-btn-subjects" onclick="window.openSubjectSelectionPanel()">📚 Derslerimi Seç</button>
         </div>
+
+        <!-- ===== STUDENT CLASS CODE PANEL (shown only for students) ===== -->
+        <div id="student-class-area" class="ui-panel-soft" style="display:none;">
+            <div class="ui-input-row">
+                <input type="text" id="class-code-input" placeholder="Sınıf Kodu Gir" style="margin:0; flex:2;">
+                <button onclick="joinClass()" class="blue" style="margin:0; flex:1; font-size:0.9rem;">Katıl</button>
+            </div>
+            <button id="btn-class-questions" onclick="fetchClassQuestions()" class="green" style="width:100%; margin-top:10px; display:none; padding:10px;">👨‍🏫 Hocamın Gönderdiği Sorular</button>
+            <div id="student-saved-materials-panel" style="margin-top:10px; background:#fff; border:1px solid #d6e9f8; border-radius:8px; padding:8px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:6px;">
+                    <strong style="color:#1e3c72; font-size:0.85rem;">📥 Kaydedilen Öğretmen Gönderileri</strong>
+                    <button type="button" class="outline" style="width:auto; padding:4px 8px; font-size:0.72rem;" onclick="window.saveLatestTeacherClassMaterials()">Kaydet</button>
+                </div>
+                <div id="student-saved-materials-list" style="font-size:0.78rem; color:#4b5563;">Henüz kayıtlı gönderi yok.</div>
+            </div>
+        </div>
+        <!-- ===== END STUDENT CLASS CODE PANEL ===== -->
 
         <div id="student-library-panel" class="ui-panel-warm" style="display:none;">
             
@@ -220,27 +306,6 @@
             <p class="saved-library-panel-description">Seçtiğiniz dersler burada görünür. Bir derse dokunarak ilgili kütüphane listesini açabilirsiniz.</p>
             <div id="main-saved-library-course-list"></div>
         </section>
-        
-    </div>
-
-    <div id="screen-derslerim" class="screen">
-        <div id="student-class-area" class="ui-panel-soft">
-            <div class="ui-input-row">
-                <input type="text" id="class-code-input" placeholder="Sınıf Kodu Gir" style="margin:0; flex:2;">
-                <button onclick="joinClass()" class="blue" style="margin:0; flex:1; font-size:0.9rem;">Katıl</button>
-            </div>
-            <button id="btn-class-questions" onclick="fetchClassQuestions()" class="green" style="width:100%; margin-top:10px; display:none; padding:10px;">👨‍🏫 Hocamın Eklediği Soruları Çöz</button>
-            <div id="student-saved-materials-panel" style="margin-top:10px; background:#fff; border:1px solid #d6e9f8; border-radius:8px; padding:8px;">
-                <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:6px;">
-                    <strong style="color:#1e3c72; font-size:0.85rem;">📥 Kaydedilen Öğretmen Gönderileri</strong>
-                    <button type="button" class="outline" style="width:auto; padding:4px 8px; font-size:0.72rem;" onclick="window.saveLatestTeacherClassMaterials()">Kaydet</button>
-                </div>
-                <div id="student-saved-materials-list" style="font-size:0.78rem; color:#4b5563;">Henüz kayıtlı gönderi yok.</div>
-            </div>
-        </div>
-
-        <button onclick="goToLobby('trial')" class="purple">📝 Hızlı Deneme (Offline)</button>
-        <button onclick="goToLobby('room')" class="orange" style="margin-top:10px;">🏠 Oda Kur / Katıl</button>
         
     </div>
 
@@ -380,48 +445,6 @@
                 </div>
             </div>
 
-            <div style="background:rgba(255,255,255,0.1); padding:12px; border-radius:10px; margin-bottom:15px; border:1px solid rgba(255,255,255,0.2);">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; cursor:pointer;" onclick="toggleSection('teacher-send-body')">
-                    <label style="font-size:0.85rem; font-weight:bold; color:#fff; margin:0; cursor:pointer;">🚀 Sınıfa Soru Gönder</label>
-                    <span style="color:#f1c40f; font-size:0.75rem;">🔽</span>
-                </div>
-                <div id="teacher-send-body">
-                    <div style="display:flex; gap:6px; margin-bottom:8px;">
-                        <input id="new-class-name" type="text" placeholder="Yeni sınıf adı (örn: 12A Fen)" style="margin:0; flex:2;">
-                        <button onclick="createNewNamedClass()" class="outline" style="width:auto; padding:8px 10px; border-color:#fff; color:#fff;">➕ Sınıf</button>
-                    </div>
-                    <small id="generated-code" style="display:block; color:#f1c40f; font-weight:bold; margin-bottom:8px;"></small>
-
-                    <label style="font-size:0.75rem; font-weight:bold; margin-bottom:5px; display:block; color:#fff;">Soru gönderilecek sınıf:</label>
-                    <select id="target-class-select" style="margin-bottom:8px; font-weight:bold; color:#1e3c72; background:#fff;">
-                        <option value="">--- Sınıf Seçin ---</option>
-                    </select>
-
-                    <input id="new-q-ders" type="text" placeholder="Ders (örn: Matematik)" style="margin-bottom:6px;">
-                    <input id="new-q-deneme" type="text" placeholder="Konu / Deneme (örn: Problemler)" style="margin-bottom:6px;">
-                    <textarea id="new-q-text" placeholder="Soru metni..." style="margin-bottom:6px;"></textarea>
-                    <label style="font-size:0.72rem; font-weight:bold; color:#fff; display:block; margin:4px 0;">✅ Doğru Şık</label>
-                    <select id="new-q-correct" style="margin-bottom:6px; font-weight:bold; color:#1e3c72; background:#fff;">
-                        <option value="0">A</option>
-                        <option value="1">B</option>
-                        <option value="2">C</option>
-                        <option value="3">D</option>
-                        <option value="4">E</option>
-                    </select>
-                    <textarea id="new-q-sol-text" placeholder="Çözüm notu (isteğe bağlı)" style="margin-bottom:6px;"></textarea>
-
-                    <div style="display:flex; gap:6px; margin-bottom:8px;">
-                        <button type="button" class="outline" style="flex:1; border-color:#fff; color:#fff;" onclick="document.getElementById('new-q-image-upload').click()">🖼️ Soru Görseli</button>
-                        <button type="button" class="outline" style="flex:1; border-color:#fff; color:#fff;" onclick="document.getElementById('new-q-solution-upload').click()">🧩 Çözüm Görseli</button>
-                    </div>
-                    <input id="new-q-image-upload" type="file" accept="image/*" style="display:none;" onchange="processImageUpload(event, 'question')">
-                    <input id="new-q-solution-upload" type="file" accept="image/*" style="display:none;" onchange="processImageUpload(event, 'solution')">
-                    <img id="img-preview" src="" style="display:none; width:100%; max-height:180px; object-fit:contain; border-radius:8px; border:1px solid rgba(255,255,255,0.5); margin-bottom:6px;">
-                    <img id="img-preview-solution" src="" style="display:none; width:100%; max-height:180px; object-fit:contain; border-radius:8px; border:1px solid rgba(255,255,255,0.5); margin-bottom:6px;">
-
-                    <button onclick="uploadQuestionToNamedClass()" class="green" style="width:100%; padding:10px; font-size:0.85rem;">📤 Seçili Sınıfa Soruyu Gönder</button>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -576,6 +599,15 @@
                 <button onclick="showLocalList('report')" class="outline" style="font-size:0.85rem; border-color:#c0392b; color:#c0392b;" id="btn-local-report">🚨 Hatalı Sorular (<span id="count-report">0</span>)</button>
                 <button id="admin-report-btn" onclick="fetchAdminReports()" class="red" style="grid-column: span 2; font-size:0.85rem; background:#000; margin-top:5px; display:none;">👑 Tüm Hata Raporlarını Oku</button>
                 <button id="admin-approve-btn" onclick="fetchPendingTeachers()" class="orange" style="grid-column: span 2; font-size:0.85rem; margin-top:5px; display:none;">👨‍🏫 Öğretmen Onay Bekleyenler</button>
+            </div>
+        </div>
+
+        <!-- Deneme & Oda (öğrenci için) -->
+        <div id="gelisim-game-panel" class="student-only" style="display:none; margin-top:15px;">
+            <div class="content-card" style="background:rgba(0,0,0,0.03); padding:15px; border-radius:10px;">
+                <h4 style="margin:0 0 10px 0; text-align:left; color:#333;">🎮 Deneme & Yarışma</h4>
+                <button onclick="goToLobby('trial')" class="purple" style="width:100%; margin-bottom:10px;">📝 Hızlı Deneme (Offline)</button>
+                <button onclick="goToLobby('room')" class="orange" style="width:100%;">🏠 Oda Kur / Katıl</button>
             </div>
         </div>
     </div>
