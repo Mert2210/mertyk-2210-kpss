@@ -2287,7 +2287,7 @@ window.openProfilePanel = () => {
 window.openExamSelectionPanel = () => {
     const settingsEl = document.getElementById('screen-settings');
     const titleEl = document.getElementById('settings-screen-title');
-    applySettingsMode(settingsEl, titleEl, SETTINGS_MODES.PROFILE);
+    applySettingsMode(settingsEl, titleEl, SETTINGS_MODES.DERSLERIM);
     NAV_ITEM_MAP['screen-settings'] = 'nav-ev';
     window.openSettingsPanel();
     setTimeout(() => {
