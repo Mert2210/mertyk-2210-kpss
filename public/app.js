@@ -2594,6 +2594,14 @@ window.updateGradeDropdown = () => {
     window.renderProfileSubjectsByExam();
 };
 
+function updateExamSelectionBtnLabel() {
+    const btn = document.getElementById('exam-selection-btn');
+    if (!btn) return;
+    const sel = document.getElementById('profile-exam-type');
+    const text = sel && sel.selectedIndex >= 0 ? sel.options[sel.selectedIndex]?.text : '';
+    btn.textContent = text ? `🎯 Sınav Seçimi (${text})` : '🎯 Sınav Seçimi';
+}
+
 window.openSettingsPanel = () => {
     const userNameText = document.getElementById('display-user').innerText;
     if(userNameText.includes("Misafir")) { 
@@ -2606,6 +2614,7 @@ window.openSettingsPanel = () => {
     ensureProfileExamTypeOptions(savedExamType);
     document.getElementById('profile-exam-type').value = savedExamType; 
     window.updateGradeDropdown();
+    updateExamSelectionBtnLabel();
     
     const savedGrade = CLIENT_STORE.getItem('gazi_grade', '');
     if(savedGrade) { 
@@ -2655,6 +2664,7 @@ window.saveProfileSettings = () => {
 
     CLIENT_STORE.setItem('gazi_exam_type', document.getElementById('profile-exam-type').value); 
     CLIENT_STORE.setItem('gazi_grade', document.getElementById('profile-grade').value);
+    updateExamSelectionBtnLabel();
     
     const subjectsData = collectSelectedSubjectsFromUI();
     syncSelectedSubjectsToStorage(subjectsData);
@@ -2896,6 +2906,14 @@ onAuthStateChanged(auth, user => {
             window.updateLocalListCounts();
             window.renderSavedLibraryCoursesPanel();
             window.renderStudentSavedTeacherMaterials();
+        }
+
+        {
+            const savedExamType = CLIENT_STORE.getItem('gazi_exam_type', DEFAULT_EXAM_TYPE);
+            ensureProfileExamTypeOptions(savedExamType);
+            const examSel = document.getElementById('profile-exam-type');
+            if (examSel) examSel.value = savedExamType;
+            updateExamSelectionBtnLabel();
         }
 
     } else { 
