@@ -3112,7 +3112,12 @@ if(socket) {
     socket.on("errorMsg", (msg) => {
         const safeMsg = typeof msg === "string" && msg.trim() ? msg : DEFAULT_ERROR_MESSAGE;
         const role = String(APP_STATE.currentUser?.role || '').trim();
-        if (safeMsg.includes("öğretmen yetkisi gerekir") && (role === "teacher" || role === "admin")) {
+        const isPrivilegedUser = role === "teacher" || role === "admin";
+        if (safeMsg.includes("öğretmen yetkisi gerekir") && isPrivilegedUser) {
+            return;
+        }
+        if (safeMsg.includes("öğretmen yetkisi gerekir") && !isPrivilegedUser) {
+            alert("⚠️ Bu işlem için öğretmen yetkisi gerekir.");
             return;
         }
         alert(`⚠️ ${safeMsg}`);
