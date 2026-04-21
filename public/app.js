@@ -128,6 +128,23 @@ window.secilenGrup = "";
 window.secilenDers = "";
 window.secilenKonu = "";
 
+// Exam type key → subjects mapping for teacher library filtering
+window.EXAM_TYPE_TO_SUBJECTS = {
+    "kpss_a": window.mufredat["KPSS"]["A Grubu"],
+    "kpss_lisans": window.mufredat["KPSS"]["B Grubu (Lisans)"],
+    "kpss_onlisans": window.mufredat["KPSS"]["B Grubu (Önlisans)"],
+    "kpss_ortaogretim": window.mufredat["KPSS"]["B Grubu (Ortaöğretim)"],
+    "kpss_egitim": window.mufredat["KPSS"]["Eğitim Bilimleri"],
+    "yks_tyt": window.mufredat["YKS"]["TYT"],
+    "yks_ayt": window.mufredat["YKS"]["AYT"],
+    "ortaokul": (() => {
+        const lgs = window.mufredat["LGS"] || {};
+        const merged = {};
+        Object.values(lgs).forEach(group => { Object.assign(merged, group); });
+        return merged;
+    })()
+};
+
 const DEFAULT_PROFILE_SUBJECTS = ['Tarih', 'Coğrafya', 'Vatandaşlık', 'Matematik', 'Türkçe', 'Eğitim Bilimleri', 'Fizik', 'Kimya', 'Biyoloji', 'Fen Bilimleri'];
 const DEFAULT_EXAM_TYPE = 'kpss_lisans';
 const READY_SOURCES_STORAGE_KEY = 'gazi_ready_sources_v1';
@@ -2803,6 +2820,8 @@ onAuthStateChanged(auth, user => {
     const savedLibraryPanel = document.getElementById('saved-library-panel');
     const mainQuickActions = document.getElementById('main-quick-actions');
     const mainSavedLibraryPanel = document.getElementById('main-saved-library-panel');
+    const teacherMainPanel = document.getElementById('teacher-main-panel');
+    const gelisimGamePanel = document.getElementById('gelisim-game-panel');
 
     if (user) { 
         let nameFromAuth = user.displayName;
@@ -2832,11 +2851,13 @@ onAuthStateChanged(auth, user => {
         }
         
         if (instPanel) instPanel.style.display = isTeacher ? "block" : "none";
+        if (teacherMainPanel) teacherMainPanel.style.display = isTeacher ? "block" : "none";
         if (studentArea) studentArea.style.display = isTeacher ? "none" : "block"; 
         if (studentLibPanel) studentLibPanel.style.display = isTeacher ? "none" : "block";
         if (savedLibraryPanel) savedLibraryPanel.style.display = isTeacher ? "none" : "block";
         if (mainQuickActions) mainQuickActions.style.display = isTeacher ? "none" : "flex";
         if (mainSavedLibraryPanel) mainSavedLibraryPanel.style.display = isTeacher ? "none" : "block";
+        if (gelisimGamePanel) gelisimGamePanel.style.display = isTeacher ? "none" : "flex";
         if (adminBtn) adminBtn.style.display = isAdmin ? "block" : "none";
         if (adminApproveBtn) adminApproveBtn.style.display = isAdmin ? "block" : "none";
         window.applyRoleBasedBottomNav(isTeacher ? ROLE_TEACHER : ROLE_STUDENT);
@@ -3992,13 +4013,26 @@ if(socket) {
 
     socket.on("teacherLibraryData", (data) => { 
         document.getElementById('library-filter-area').style.display = 'none'; 
-        window.tempStdQuestions = data; 
+        const activeExamFilters = Array.isArray(window._teacherExamFilters) && window._teacherExamFilters.length > 0 ? window._teacherExamFilters : null;
+        let filteredData = data;
+        if (activeExamFilters) {
+            const allowedSubjects = new Set();
+            activeExamFilters.forEach(examKey => {
+                const examSubjectsMap = window.EXAM_TYPE_TO_SUBJECTS ? window.EXAM_TYPE_TO_SUBJECTS[examKey] : null;
+                if (examSubjectsMap) Object.keys(examSubjectsMap).forEach(s => allowedSubjects.add(s.toLowerCase()));
+            });
+            if (allowedSubjects.size > 0) {
+                filteredData = data.filter(q => q.ders && allowedSubjects.has(String(q.ders).toLowerCase().trim()));
+            }
+            window._teacherExamFilters = null;
+        }
+        window.tempStdQuestions = filteredData; 
         currentListType = "teacher_library"; 
-        document.getElementById('list-title').innerText = "📚 Soru Kütüphanem"; 
+        document.getElementById('list-title').innerText = "📚 Soru Kütüphanem" + (activeExamFilters ? " (Filtrelenmiş)" : ""); 
         const div = document.getElementById('list-content'); 
         
-        if(data.length === 0) div.innerHTML = "<p style='text-align:center;'>Kütüphanenizde henüz soru bulunmuyor.</p>"; 
-        else div.innerHTML = data.map((q, i) => `
+        if(filteredData.length === 0) div.innerHTML = "<p style='text-align:center;'>Kütüphanenizde henüz soru bulunmuyor.</p>"; 
+        else div.innerHTML = filteredData.map((q, i) => `
             <div class="list-item" style="border-left: 5px solid #e67e22;">
                 <b>Soru:</b> ${escapeHtml(q.soru)} <br>
                 <span style="color:#27ae60;"><b>Cevap:</b> ${escapeHtml(q.siklar ? q.siklar[q.dogru] : 'Bilinmiyor')}</span> <br>
@@ -4128,6 +4162,23 @@ window.uploadQuestionToNamedClass = () => {
     window.uploadQuestion(); 
 };
 
+window.onTeacherDashClassChange = (classCode) => {
+    const examArea = document.getElementById('teacher-exam-multiselect-area');
+    if (examArea) examArea.style.display = classCode ? 'block' : 'none';
+    if (classCode) {
+        window.myClassCode = classCode;
+        if (socket) socket.emit("getFilters", classCode);
+    }
+};
+
+window.filterLibraryByTeacherExams = () => {
+    const classCode = (document.getElementById('target-class-select')?.value || window.myClassCode || '').trim().toUpperCase();
+    if (!classCode) return alert("Lütfen önce bir sınıf seçin.");
+    const selected = Array.from(document.querySelectorAll('.teacher-exam-filter:checked')).map(cb => cb.value);
+    window._teacherExamFilters = selected;
+    if (socket) socket.emit("getTeacherLibrary", classCode);
+};
+
 if(socket) {
     socket.on("teacherClassesData", (classes) => {
         if(classes.length > 0) {
@@ -4185,16 +4236,41 @@ function renderTeacherClasses(classes) {
     if(reportSelect) reportSelect.innerHTML = '<option value="">--- Sınıf Seçin ---</option>' + classes.map(c => `<option value="${escapeHtml(c.code)}">${escapeHtml(c.name)}</option>`).join('');
     if (instructorClassesDiv) {
         instructorClassesDiv.innerHTML = classes.map((c) => `
-            <div style="padding:6px; margin-bottom:6px; background:rgba(255,255,255,0.08); border-radius:6px;">
-                <strong>${escapeHtml(c.name)}</strong><br>
-                <small>Kod: ${escapeHtml(c.code)}</small>
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:6px; margin-bottom:6px; background:rgba(255,255,255,0.08); border-radius:6px;">
+                <div><strong>${escapeHtml(c.name)}</strong><br><small>Kod: ${escapeHtml(c.code)}</small></div>
+                <button onclick="copyToClipboard(${JSON.stringify(c.code)})" style="width:auto; padding:4px 8px; font-size:0.7rem; background:#3498db; border:none; color:white; border-radius:4px; cursor:pointer;">Kopyala</button>
             </div>
         `).join('');
     }
 }
 
 window.copyToClipboard = (text) => { 
-    navigator.clipboard.writeText(text).then(() => { alert("✅ Sınıf kodu kopyalandı: " + text); }); 
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+            window.showSoftFeedback ? window.showSoftFeedback('✅ Sınıf kodu kopyalandı: ' + text) : alert("✅ Sınıf kodu kopyalandı: " + text);
+        }).catch(() => {
+            window._fallbackCopyToClipboard(text);
+        });
+    } else {
+        window._fallbackCopyToClipboard(text);
+    }
+};
+
+window._fallbackCopyToClipboard = (text) => {
+    try {
+        const el = document.createElement('textarea');
+        el.value = text;
+        el.style.position = 'fixed';
+        el.style.opacity = '0';
+        document.body.appendChild(el);
+        el.focus();
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+        window.showSoftFeedback ? window.showSoftFeedback('✅ Sınıf kodu kopyalandı: ' + text) : alert("✅ Sınıf kodu kopyalandı: " + text);
+    } catch (e) {
+        alert("Sınıf kodu: " + text + "\n(Kopyalama için yukarıdaki kodu seçip kopyalayın)");
+    }
 };
 
 window.createClass = () => { 
