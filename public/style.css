@@ -1427,6 +1427,253 @@ body.full-dark-theme .library-topic-add {
     color: #82bef8;
 }
 
+/* ===== ANA EKRAN HIZLI ERİŞİM BUTONLARI ===== */
+.main-quick-actions {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+.main-quick-btn {
+    flex: 1;
+    padding: 14px 10px;
+    border-radius: 14px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: transform 0.12s ease, box-shadow 0.15s ease;
+    text-align: center;
+}
+.main-quick-btn:active { transform: scale(0.95); }
+.main-quick-btn-exam {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: #fff;
+    border-color: #2a5298;
+    box-shadow: 0 4px 12px rgba(30,60,114,0.25);
+}
+.main-quick-btn-subjects {
+    background: linear-gradient(135deg, #e67e22 0%, #f39c12 100%);
+    color: #fff;
+    border-color: #e67e22;
+    box-shadow: 0 4px 12px rgba(230,126,34,0.25);
+}
+
+/* ===== KOYU MOD (FULL DARK) — EKSİK ELEMENTLER ===== */
+body.full-dark-theme .ui-panel-warm {
+    background: #1c2d40 !important;
+    border-color: #c0602a !important;
+    color: #f0e0cc !important;
+}
+body.full-dark-theme .ui-panel-soft {
+    background: #1a2b38 !important;
+    border-color: #2e5068 !important;
+    color: #cde4f3 !important;
+}
+body.full-dark-theme .ui-panel-header h4 {
+    color: #f0a070 !important;
+}
+body.full-dark-theme .ui-panel-toggle-tag {
+    background: #263445 !important;
+    border-color: #b0602a !important;
+    color: #f0a070 !important;
+}
+body.full-dark-theme #dynamic-selection-area {
+    background: #1a2535 !important;
+    border-color: #33445d !important;
+}
+body.full-dark-theme #bottom-nav {
+    background: #121925 !important;
+    border-color: #1e2e42 !important;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.5) !important;
+}
+body.full-dark-theme .nav-item.active .nav-label {
+    color: #7fb5ff !important;
+}
+body.full-dark-theme .nav-reminder-dot {
+    box-shadow: 0 0 0 2px #121925 !important;
+}
+body.full-dark-theme .nav-added-dot {
+    box-shadow: 0 0 0 2px #121925 !important;
+}
+body.full-dark-theme .main-quick-btn-exam {
+    background: linear-gradient(135deg, #0e2244 0%, #16336a 100%) !important;
+    border-color: #2a5298 !important;
+    box-shadow: 0 4px 12px rgba(10,20,60,0.45) !important;
+}
+body.full-dark-theme .main-quick-btn-subjects {
+    background: linear-gradient(135deg, #7a3d0a 0%, #9a5010 100%) !important;
+    border-color: #b86a1a !important;
+    box-shadow: 0 4px 12px rgba(80,40,10,0.45) !important;
+}
+body.full-dark-theme .ui-alert-card-danger {
+    background: #7b1f1f !important;
+}
+body.full-dark-theme .ui-alert-card-warning {
+    background: #7a4f0a !important;
+}
+body.full-dark-theme .screen-primary-title {
+    color: #f0a070 !important;
+}
+body.full-dark-theme .list-item-solution-box {
+    background: #1a2b38 !important;
+    color: #cde4f3 !important;
+}
+body.full-dark-theme .student-saved-materials-panel,
+body.full-dark-theme #student-saved-materials-panel {
+    background: #1b2535 !important;
+    border-color: #2c3f5a !important;
+}
+body.full-dark-theme .outline {
+    border-color: #4a6080 !important;
+    color: #c8d8f0 !important;
+    background: transparent !important;
+}
+body.full-dark-theme .outline:hover {
+    background: rgba(200,216,240,0.08) !important;
+}
+
+/* ===== KOYU MOD (SOFT DARK) — GENEL STILLER ===== */
+body.soft-dark-theme {
+    background: #1a2233 !important;
+    color: #e0e8f5;
+}
+body.soft-dark-theme .container {
+    background: #1f2c40 !important;
+    color: #e0e8f5 !important;
+    box-shadow: 0 12px 34px rgba(0,0,0,0.40);
+}
+body.soft-dark-theme h1,
+body.soft-dark-theme h2,
+body.soft-dark-theme h3,
+body.soft-dark-theme h4,
+body.soft-dark-theme p,
+body.soft-dark-theme label,
+body.soft-dark-theme small,
+body.soft-dark-theme .nav-label {
+    color: #dce8ff !important;
+}
+body.soft-dark-theme input,
+body.soft-dark-theme select,
+body.soft-dark-theme textarea {
+    background: #243348 !important;
+    color: #e0e8ff !important;
+    border-color: #3d536e !important;
+}
+body.soft-dark-theme .content-card,
+body.soft-dark-theme .list-item,
+body.soft-dark-theme .filter-section,
+body.soft-dark-theme #lobby-settings,
+body.soft-dark-theme #student-class-area,
+body.soft-dark-theme #student-library-panel,
+body.soft-dark-theme #lobby-players-area {
+    background: #243044 !important;
+    color: #e0e8ff !important;
+    border-color: #3d526c !important;
+}
+body.soft-dark-theme .ui-panel-warm {
+    background: #22303f !important;
+    border-color: #b06025 !important;
+    color: #f0dcc8 !important;
+}
+body.soft-dark-theme .ui-panel-soft {
+    background: #1f2e3a !important;
+    border-color: #2d4e65 !important;
+    color: #c8e0f0 !important;
+}
+body.soft-dark-theme .ui-panel-header h4 {
+    color: #f0a478 !important;
+}
+body.soft-dark-theme .ui-panel-toggle-tag {
+    background: #2b3f52 !important;
+    border-color: #a05e28 !important;
+    color: #f0a478 !important;
+}
+body.soft-dark-theme #dynamic-selection-area {
+    background: #1f2e3e !important;
+    border-color: #3a506a !important;
+}
+body.soft-dark-theme #bottom-nav {
+    background: #1a2535 !important;
+    border-color: #253547 !important;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.35) !important;
+}
+body.soft-dark-theme .nav-item.active .nav-label {
+    color: #8ac0ff !important;
+}
+body.soft-dark-theme .nav-reminder-dot {
+    box-shadow: 0 0 0 2px #1a2535 !important;
+}
+body.soft-dark-theme .nav-added-dot {
+    box-shadow: 0 0 0 2px #1a2535 !important;
+}
+body.soft-dark-theme .main-quick-btn-exam {
+    background: linear-gradient(135deg, #142244 0%, #1e3870 100%) !important;
+    border-color: #2a5298 !important;
+}
+body.soft-dark-theme .main-quick-btn-subjects {
+    background: linear-gradient(135deg, #7a3e0a 0%, #9a5412 100%) !important;
+    border-color: #c07020 !important;
+}
+body.soft-dark-theme .ui-alert-card-danger {
+    background: #7a2020 !important;
+}
+body.soft-dark-theme .ui-alert-card-warning {
+    background: #7a5010 !important;
+}
+body.soft-dark-theme .screen-primary-title {
+    color: #f0a478 !important;
+}
+body.soft-dark-theme .library-modal {
+    background: #182030;
+}
+body.soft-dark-theme .library-modal-header {
+    background: #1f2d3f;
+    border-color: #304560;
+}
+body.soft-dark-theme .library-modal-title-btn,
+body.soft-dark-theme .library-modal-toggle-label,
+body.soft-dark-theme .library-modal-info-btn {
+    color: #dce8ff;
+}
+body.soft-dark-theme .library-modal-info-btn {
+    background: #20304a;
+    border-color: #38507a;
+}
+body.soft-dark-theme .library-modal-slider {
+    background: #506070;
+}
+body.soft-dark-theme .library-modal-switch input:checked + .library-modal-slider {
+    background: #27ae60;
+}
+body.soft-dark-theme .library-card,
+body.soft-dark-theme .library-topic-item {
+    background: #1f2d40;
+    color: #dce8ff;
+    border-color: #354e6a;
+}
+body.soft-dark-theme .library-topic-add {
+    background: #223048;
+    border-color: #4a80b8;
+    color: #80b8f0;
+}
+body.soft-dark-theme .list-item-solution-box {
+    background: #1f2e3a !important;
+    color: #c8e0f0 !important;
+}
+body.soft-dark-theme .student-saved-materials-panel,
+body.soft-dark-theme #student-saved-materials-panel {
+    background: #1f2d40 !important;
+    border-color: #2c4060 !important;
+}
+body.soft-dark-theme .outline {
+    border-color: #4a6080 !important;
+    color: #c0d0e8 !important;
+    background: transparent !important;
+}
+body.soft-dark-theme .outline:hover {
+    background: rgba(192,208,232,0.08) !important;
+}
+
 /* ===== RESPONSIVE TASARIM ===== */
 
 /* Küçük Mobil (480px'den küçük ekranlar) */
