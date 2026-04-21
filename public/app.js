@@ -1592,19 +1592,22 @@ window.saveDerslerimCustomCourse = () => {
 
 window.renderSavedLibraryCoursesPanel = () => {
     const wrap = document.getElementById('saved-library-course-list');
-    if (!wrap) return;
+    const mainWrap = document.getElementById('main-saved-library-course-list');
+    if (!wrap && !mainWrap) return;
     const savedSubjects = CLIENT_STORE.getJSON('gazi_subjects_v2', []);
     const courseNames = getSavedLibraryCourseNames(savedSubjects);
     const localNotebook = getLocalNotebookQuestions();
     const dueReminderCounts = buildDueReminderCountsBySubject(localNotebook, Date.now());
     if (courseNames.length === 0) {
-        wrap.innerHTML = `<p class="saved-library-empty">Henüz ders seçmediniz. Derslerim ekranında tiklenen dersler burada görünür.</p>`;
+        const emptyHtml = `<p class="saved-library-empty">Henüz ders seçmediniz. Derslerim ekranında tiklenen dersler burada görünür.</p>`;
+        if (wrap) wrap.innerHTML = emptyHtml;
+        if (mainWrap) mainWrap.innerHTML = emptyHtml;
         const navDot = document.getElementById('nav-derslerim-reminder-dot');
         if (navDot) navDot.style.display = 'none';
         return;
     }
     let totalDueCount = 0;
-    wrap.innerHTML = courseNames
+    const itemsHtml = courseNames
         .map((name) => {
             const dueCount = dueReminderCounts[name] || 0;
             totalDueCount += dueCount;
@@ -1614,11 +1617,22 @@ window.renderSavedLibraryCoursesPanel = () => {
             </div>`;
         })
         .join('');
-    wrap.querySelectorAll('.saved-library-course-btn').forEach((btn) => {
-        btn.addEventListener('click', () => {
-            window.openSavedLibraryLesson(btn.dataset.subjectName || '');
+    if (wrap) {
+        wrap.innerHTML = itemsHtml;
+        wrap.querySelectorAll('.saved-library-course-btn').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                window.openSavedLibraryLesson(btn.dataset.subjectName || '');
+            });
         });
-    });
+    }
+    if (mainWrap) {
+        mainWrap.innerHTML = itemsHtml;
+        mainWrap.querySelectorAll('.saved-library-course-btn').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                window.openSavedLibraryLesson(btn.dataset.subjectName || '');
+            });
+        });
+    }
     const navDot = document.getElementById('nav-derslerim-reminder-dot');
     if (navDot) navDot.style.display = totalDueCount > 0 ? 'inline-flex' : 'none';
 };
@@ -2270,6 +2284,41 @@ window.openProfilePanel = () => {
     window.openSettingsPanel();
 };
 
+window.openExamSelectionPanel = () => {
+    const settingsEl = document.getElementById('screen-settings');
+    const titleEl = document.getElementById('settings-screen-title');
+    applySettingsMode(settingsEl, titleEl, SETTINGS_MODES.PROFILE);
+    NAV_ITEM_MAP['screen-settings'] = 'nav-ev';
+    window.openSettingsPanel();
+    setTimeout(() => {
+        const examContent = document.getElementById('derslerim-exam-content');
+        const examTrigger = document.getElementById('derslerim-exam-trigger');
+        if (examContent && examContent.classList.contains('collapsed')) {
+            examContent.classList.remove('collapsed');
+            if (examTrigger) examTrigger.setAttribute('aria-expanded', 'true');
+        }
+        const profileExam = document.getElementById('profile-exam-type');
+        if (profileExam) profileExam.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 200);
+};
+
+window.openSubjectSelectionPanel = () => {
+    const settingsEl = document.getElementById('screen-settings');
+    const titleEl = document.getElementById('settings-screen-title');
+    applySettingsMode(settingsEl, titleEl, SETTINGS_MODES.DERSLERIM);
+    NAV_ITEM_MAP['screen-settings'] = 'nav-ev';
+    window.openSettingsPanel();
+    setTimeout(() => {
+        const subjectsContent = document.getElementById('derslerim-subjects-content');
+        const subjectsTrigger = document.getElementById('derslerim-subjects-trigger');
+        if (subjectsContent && subjectsContent.classList.contains('collapsed')) {
+            subjectsContent.classList.remove('collapsed');
+            if (subjectsTrigger) subjectsTrigger.setAttribute('aria-expanded', 'true');
+        }
+        if (subjectsContent) subjectsContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 200);
+};
+
 window.openSoruEklePanel = () => {
     if (activeNavRole !== ROLE_STUDENT) return;
     showScreen('screen-soru-ekle');
@@ -2742,6 +2791,8 @@ onAuthStateChanged(auth, user => {
     const studentArea = document.getElementById('student-class-area');
     const studentLibPanel = document.getElementById('student-library-panel');
     const savedLibraryPanel = document.getElementById('saved-library-panel');
+    const mainQuickActions = document.getElementById('main-quick-actions');
+    const mainSavedLibraryPanel = document.getElementById('main-saved-library-panel');
 
     if (user) { 
         let nameFromAuth = user.displayName;
@@ -2774,6 +2825,8 @@ onAuthStateChanged(auth, user => {
         if (studentArea) studentArea.style.display = isTeacher ? "none" : "block"; 
         if (studentLibPanel) studentLibPanel.style.display = isTeacher ? "none" : "block";
         if (savedLibraryPanel) savedLibraryPanel.style.display = isTeacher ? "none" : "block";
+        if (mainQuickActions) mainQuickActions.style.display = isTeacher ? "none" : "flex";
+        if (mainSavedLibraryPanel) mainSavedLibraryPanel.style.display = isTeacher ? "none" : "block";
         if (adminBtn) adminBtn.style.display = isAdmin ? "block" : "none";
         if (adminApproveBtn) adminApproveBtn.style.display = isAdmin ? "block" : "none";
         window.applyRoleBasedBottomNav(isTeacher ? ROLE_TEACHER : ROLE_STUDENT);
