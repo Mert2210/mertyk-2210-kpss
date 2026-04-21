@@ -48,6 +48,21 @@ test('Kütüphane modal bağlamı: ekleme modunda filtre devre dışıdır, gör
     );
 });
 
+test('Kütüphane modal bağlamı: görüntüleme modunda eşleşen kayıtlı konular fallback olmadan döner', async () => {
+    const { getAllowedTopicsForModalContext } = await importUiFlow();
+    const topics = ['Cümlede Anlam', 'Dil Bilgisi'];
+    const saved = new Set(['Dil Bilgisi']);
+
+    assert.deepStrictEqual(
+        getAllowedTopicsForModalContext(topics, saved, 'saved', 'view'),
+        { topics: ['Dil Bilgisi'], effectiveMode: 'saved', usedFallback: false }
+    );
+    assert.deepStrictEqual(
+        getAllowedTopicsForModalContext(topics, saved, 'all', 'view'),
+        { topics, effectiveMode: 'all', usedFallback: false }
+    );
+});
+
 test('Storage hata algısı: retry-limit-exceeded durumları doğru yakalanır', async () => {
     const { isStorageRetryLimitExceededError } = await importUiFlow();
 
