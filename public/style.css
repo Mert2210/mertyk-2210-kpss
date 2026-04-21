@@ -42,6 +42,10 @@ html, body {
     width: 100%;
     max-width: 100vw;
     overflow-x: hidden;
+    overscroll-behavior: none;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
 }
 
 /* YENİ EKLENEN KAPSÜL (CHIP) TASARIMLARI (V4.4) */
