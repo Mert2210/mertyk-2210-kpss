@@ -194,7 +194,7 @@
         </div>
 
         <div id="main-quick-actions" class="main-quick-actions" style="display:none;">
-            <button type="button" class="main-quick-btn main-quick-btn-exam" onclick="window.openExamSelectionPanel()">🎯 Sınav Seçimi</button>
+            <button type="button" id="exam-selection-btn" class="main-quick-btn main-quick-btn-exam" onclick="window.openExamSelectionPanel()">🎯 Sınav Seçimi</button>
             <button type="button" class="main-quick-btn main-quick-btn-subjects" onclick="window.openSubjectSelectionPanel()">📚 Derslerimi Seç</button>
         </div>
 
@@ -379,13 +379,56 @@
                     <button onclick="fetchMyLibrary()" class="outline" style="font-size:0.85rem; margin-bottom:5px; width:100%; border-color:#27ae60; color:#27ae60; background:rgba(255,255,255,0.9);">📚 Soru Kütüphanem</button>
                 </div>
             </div>
+
+            <div style="background:rgba(255,255,255,0.1); padding:12px; border-radius:10px; margin-bottom:15px; border:1px solid rgba(255,255,255,0.2);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; cursor:pointer;" onclick="toggleSection('teacher-send-body')">
+                    <label style="font-size:0.85rem; font-weight:bold; color:#fff; margin:0; cursor:pointer;">🚀 Sınıfa Soru Gönder</label>
+                    <span style="color:#f1c40f; font-size:0.75rem;">🔽</span>
+                </div>
+                <div id="teacher-send-body">
+                    <div style="display:flex; gap:6px; margin-bottom:8px;">
+                        <input id="new-class-name" type="text" placeholder="Yeni sınıf adı (örn: 12A Fen)" style="margin:0; flex:2;">
+                        <button onclick="createNewNamedClass()" class="outline" style="width:auto; padding:8px 10px; border-color:#fff; color:#fff;">➕ Sınıf</button>
+                    </div>
+                    <small id="generated-code" style="display:block; color:#f1c40f; font-weight:bold; margin-bottom:8px;"></small>
+
+                    <label style="font-size:0.75rem; font-weight:bold; margin-bottom:5px; display:block; color:#fff;">Soru gönderilecek sınıf:</label>
+                    <select id="target-class-select" style="margin-bottom:8px; font-weight:bold; color:#1e3c72; background:#fff;">
+                        <option value="">--- Sınıf Seçin ---</option>
+                    </select>
+
+                    <input id="new-q-ders" type="text" placeholder="Ders (örn: Matematik)" style="margin-bottom:6px;">
+                    <input id="new-q-deneme" type="text" placeholder="Konu / Deneme (örn: Problemler)" style="margin-bottom:6px;">
+                    <textarea id="new-q-text" placeholder="Soru metni..." style="margin-bottom:6px;"></textarea>
+                    <label style="font-size:0.72rem; font-weight:bold; color:#fff; display:block; margin:4px 0;">✅ Doğru Şık</label>
+                    <select id="new-q-correct" style="margin-bottom:6px; font-weight:bold; color:#1e3c72; background:#fff;">
+                        <option value="0">A</option>
+                        <option value="1">B</option>
+                        <option value="2">C</option>
+                        <option value="3">D</option>
+                        <option value="4">E</option>
+                    </select>
+                    <textarea id="new-q-sol-text" placeholder="Çözüm notu (isteğe bağlı)" style="margin-bottom:6px;"></textarea>
+
+                    <div style="display:flex; gap:6px; margin-bottom:8px;">
+                        <button type="button" class="outline" style="flex:1; border-color:#fff; color:#fff;" onclick="document.getElementById('new-q-image-upload').click()">🖼️ Soru Görseli</button>
+                        <button type="button" class="outline" style="flex:1; border-color:#fff; color:#fff;" onclick="document.getElementById('new-q-solution-upload').click()">🧩 Çözüm Görseli</button>
+                    </div>
+                    <input id="new-q-image-upload" type="file" accept="image/*" style="display:none;" onchange="processImageUpload(event, 'question')">
+                    <input id="new-q-solution-upload" type="file" accept="image/*" style="display:none;" onchange="processImageUpload(event, 'solution')">
+                    <img id="img-preview" src="" style="display:none; width:100%; max-height:180px; object-fit:contain; border-radius:8px; border:1px solid rgba(255,255,255,0.5); margin-bottom:6px;">
+                    <img id="img-preview-solution" src="" style="display:none; width:100%; max-height:180px; object-fit:contain; border-radius:8px; border:1px solid rgba(255,255,255,0.5); margin-bottom:6px;">
+
+                    <button onclick="uploadQuestionToNamedClass()" class="green" style="width:100%; padding:10px; font-size:0.85rem;">📤 Seçili Sınıfa Soruyu Gönder</button>
+                </div>
+            </div>
         </div>
     </div>
 
     <div id="screen-settings" class="screen">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
             <h3 id="settings-screen-title" style="margin:0; color:#8e44ad;">⚙️ Çalışma Masam</h3>
-            <button onclick="window.goBack('screen-main')" class="outline" style="width:auto; padding:8px; font-size:0.8rem;">⬅️ İptal</button>
+            <button onclick="showScreen('screen-main')" class="outline" style="width:auto; padding:8px; font-size:0.8rem;">⬅️ İptal</button>
         </div>
         <div class="content-card" style="background:#fdfdfd; padding:20px; border-radius:12px; text-align:left; border: 1px solid #ddd; box-shadow:0 10px 25px rgba(0,0,0,0.05);">
             <div class="settings-profile-section">

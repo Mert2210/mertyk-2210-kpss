@@ -2287,7 +2287,7 @@ window.openProfilePanel = () => {
 window.openExamSelectionPanel = () => {
     const settingsEl = document.getElementById('screen-settings');
     const titleEl = document.getElementById('settings-screen-title');
-    applySettingsMode(settingsEl, titleEl, SETTINGS_MODES.PROFILE);
+    applySettingsMode(settingsEl, titleEl, SETTINGS_MODES.DERSLERIM);
     NAV_ITEM_MAP['screen-settings'] = 'nav-ev';
     window.openSettingsPanel();
     setTimeout(() => {
@@ -2594,6 +2594,14 @@ window.updateGradeDropdown = () => {
     window.renderProfileSubjectsByExam();
 };
 
+function updateExamSelectionBtnLabel() {
+    const btn = document.getElementById('exam-selection-btn');
+    if (!btn) return;
+    const sel = document.getElementById('profile-exam-type');
+    const text = sel?.options?.[sel.selectedIndex]?.text || '';
+    btn.textContent = text ? `🎯 Sınav Seçimi (${text})` : '🎯 Sınav Seçimi';
+}
+
 window.openSettingsPanel = () => {
     const userNameText = document.getElementById('display-user').innerText;
     if(userNameText.includes("Misafir")) { 
@@ -2606,6 +2614,7 @@ window.openSettingsPanel = () => {
     ensureProfileExamTypeOptions(savedExamType);
     document.getElementById('profile-exam-type').value = savedExamType; 
     window.updateGradeDropdown();
+    updateExamSelectionBtnLabel();
     
     const savedGrade = CLIENT_STORE.getItem('gazi_grade', '');
     if(savedGrade) { 
@@ -2655,6 +2664,7 @@ window.saveProfileSettings = () => {
 
     CLIENT_STORE.setItem('gazi_exam_type', document.getElementById('profile-exam-type').value); 
     CLIENT_STORE.setItem('gazi_grade', document.getElementById('profile-grade').value);
+    updateExamSelectionBtnLabel();
     
     const subjectsData = collectSelectedSubjectsFromUI();
     syncSelectedSubjectsToStorage(subjectsData);
@@ -2898,6 +2908,14 @@ onAuthStateChanged(auth, user => {
             window.renderStudentSavedTeacherMaterials();
         }
 
+        {
+            const savedExamType = CLIENT_STORE.getItem('gazi_exam_type', DEFAULT_EXAM_TYPE);
+            ensureProfileExamTypeOptions(savedExamType);
+            const examSel = document.getElementById('profile-exam-type');
+            if (examSel) examSel.value = savedExamType;
+            updateExamSelectionBtnLabel();
+        }
+
     } else { 
         APP_STATE.currentUser = { name: "", role: "guest", email: "" };
         window.renderSavedLibraryCoursesPanel();
@@ -3094,8 +3112,12 @@ if(socket) {
     socket.on("errorMsg", (msg) => {
         const safeMsg = typeof msg === "string" && msg.trim() ? msg : DEFAULT_ERROR_MESSAGE;
         const role = String(APP_STATE.currentUser?.role || '').trim();
-        if (safeMsg.includes("öğretmen yetkisi gerekir") && (role === "teacher" || role === "admin")) {
-            window.showSoftFeedback(`⚠️ ${safeMsg}`);
+        const isPrivilegedUser = role === "teacher" || role === "admin";
+        if (safeMsg.includes("öğretmen yetkisi gerekir") && isPrivilegedUser) {
+            return;
+        }
+        if (safeMsg.includes("öğretmen yetkisi gerekir") && !isPrivilegedUser) {
+            alert("⚠️ Bu işlem için öğretmen yetkisi gerekir.");
             return;
         }
         alert(`⚠️ ${safeMsg}`);
@@ -4026,11 +4048,12 @@ if(socket) {
 }
 
 window.refreshTeacherClasses = () => {
-    document.getElementById('teacher-classes-list').innerHTML = "Yükleniyor...";
+    const listDiv = document.getElementById('teacher-classes-list') || document.getElementById('instructor-my-classes-list');
+    if (listDiv) listDiv.innerHTML = "Yükleniyor...";
     if(socket) socket.emit("getTeacherClass", auth.currentUser.email);
     setTimeout(() => { 
-        const div = document.getElementById('teacher-classes-list'); 
-        if(div.innerHTML === "Yükleniyor...") div.innerHTML = "Sınıf bulunamadı veya bağlantı kurulamadı."; 
+        const div = document.getElementById('teacher-classes-list') || document.getElementById('instructor-my-classes-list'); 
+        if(div && div.innerHTML === "Yükleniyor...") div.innerHTML = "Sınıf bulunamadı veya bağlantı kurulamadı."; 
     }, 3000);
 };
 
@@ -4133,26 +4156,30 @@ if(socket) {
 }
 
 function renderTeacherClasses(classes) {
-    const listDiv = document.getElementById('teacher-classes-list'); 
+    const listDiv = document.getElementById('teacher-classes-list') || document.getElementById('instructor-my-classes-list'); 
     const select = document.getElementById('target-class-select');
     const instructorClassesDiv = document.getElementById('instructor-my-classes-list');
     
-    if(!listDiv || !select) return;
-
-    if(classes.length === 0) { 
-        listDiv.innerHTML = "Henüz sınıf oluşturulmadı."; 
+    if(classes.length === 0) {
+        if (listDiv) listDiv.innerHTML = "Henüz sınıf oluşturulmadı.";
         if (instructorClassesDiv) instructorClassesDiv.innerHTML = "Henüz sınıf oluşturulmadı.";
-        select.innerHTML = '<option value="">Önce Sınıf Oluşturun</option>'; 
-        return; 
+        if (select) select.innerHTML = '<option value="">Önce Sınıf Oluşturun</option>';
+        const reportSelectEmpty = document.getElementById('report-class-select');
+        if (reportSelectEmpty) reportSelectEmpty.innerHTML = '<option value="">--- Sınıf Seçin ---</option>';
+        return;
     }
     
-    listDiv.innerHTML = classes.map(c => `
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px; background:rgba(255,255,255,0.1); padding:8px; border-radius:6px;">
-            <span><b>${escapeHtml(c.name)}</b> (${escapeHtml(c.code)})</span>
-            <button onclick="copyToClipboard(${JSON.stringify(c.code)})" style="width:auto; padding:4px 8px; font-size:0.7rem; background:#3498db; border:none; color:white; border-radius:4px; cursor:pointer;">Kopyala</button>
-        </div>`).join('');
+    if (listDiv) {
+        listDiv.innerHTML = classes.map(c => `
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px; background:rgba(255,255,255,0.1); padding:8px; border-radius:6px;">
+                <span><b>${escapeHtml(c.name)}</b> (${escapeHtml(c.code)})</span>
+                <button onclick="copyToClipboard(${JSON.stringify(c.code)})" style="width:auto; padding:4px 8px; font-size:0.7rem; background:#3498db; border:none; color:white; border-radius:4px; cursor:pointer;">Kopyala</button>
+            </div>`).join('');
+    }
     
-    select.innerHTML = '<option value="">--- Sınıf Seçin ---</option>' + classes.map(c => `<option value="${escapeHtml(c.code)}">${escapeHtml(c.name)}</option>`).join('');
+    if (select) {
+        select.innerHTML = '<option value="">--- Sınıf Seçin ---</option>' + classes.map(c => `<option value="${escapeHtml(c.code)}">${escapeHtml(c.name)}</option>`).join('');
+    }
     
     const reportSelect = document.getElementById('report-class-select');
     if(reportSelect) reportSelect.innerHTML = '<option value="">--- Sınıf Seçin ---</option>' + classes.map(c => `<option value="${escapeHtml(c.code)}">${escapeHtml(c.name)}</option>`).join('');
@@ -4179,13 +4206,15 @@ window.createClass = () => {
 
 if(socket) { 
     socket.on("classCreated", (code) => { 
-        document.getElementById('generated-code').innerText = "KODUNUZ: " + code; 
+        const generatedCodeEl = document.getElementById('generated-code');
+        if (generatedCodeEl) generatedCodeEl.innerText = "KODUNUZ: " + code;
         window.myClassCode = code; 
         localStorage.setItem("gazi_class_code", code); 
         socket.emit("getFilters", window.myClassCode); 
     }); 
     socket.on("teacherClassFound", (code) => { 
-        document.getElementById('generated-code').innerText = "KODUNUZ: " + code; 
+        const generatedCodeEl = document.getElementById('generated-code');
+        if (generatedCodeEl) generatedCodeEl.innerText = "KODUNUZ: " + code;
         window.myClassCode = code; 
         localStorage.setItem("gazi_class_code", code); 
         socket.emit("getFilters", window.myClassCode); 
