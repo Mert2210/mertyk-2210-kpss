@@ -36,10 +36,22 @@ const staticFileLimiter = rateLimit({
 // VERİ İŞLEME KAPASİTESİ (Resimli sorular için kritik)
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-app.use(cors());
+
+const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || "";
+if (!ALLOWED_ORIGIN) {
+    console.warn("⚠️ UYARI: ALLOWED_ORIGIN ayarlanmamış, tüm kökenlerden istek kabul ediliyor. Prodüksiyonda ALLOWED_ORIGIN env değişkenini tanımlayın.");
+}
+
+// Güvenli CORS yöneticisi: ALLOWED_ORIGIN ayarlanmışsa yalnızca o kökeni kabul et,
+// aksi takdirde (geliştirme ortamı) tüm kökenlere izin ver.
+const corsOriginHandler = ALLOWED_ORIGIN
+    ? (origin, cb) => { cb(null, !origin || origin === ALLOWED_ORIGIN); }
+    : (origin, cb) => { cb(null, true); };
+
+app.use(cors({ origin: corsOriginHandler }));
 
 const io = new Server(server, {
-    cors: { origin: "*", methods: ["GET", "POST"] },
+    cors: { origin: corsOriginHandler, methods: ["GET", "POST"] },
     transports: ["polling", "websocket"]
 });
 
@@ -545,7 +557,26 @@ io.on("connection", (socket) => {
     });
 
     socket.on("saveStudentResult", async (data) => {
-        if(db) { try { await db.collection("kpss_results").add({ ...data, date: new Date().toLocaleString('tr-TR'), serverTime: admin.firestore.FieldValue.serverTimestamp() }); } catch(e){} }
+        if (!data || typeof data !== "object") return;
+        const safeName = sanitizeString(data.name, 120);
+        const safeClassCode = sanitizeString(data.classCode || "", 20).toUpperCase();
+        if (!safeName) return;
+        const safeScore = typeof data.score === "number" && Number.isFinite(data.score) ? data.score : 0;
+        const safeTotal = typeof data.total === "number" && Number.isFinite(data.total) ? data.total : 0;
+        const safeDuration = typeof data.duration === "number" && Number.isFinite(data.duration) ? data.duration : 0;
+        if(db) {
+            try {
+                await db.collection("kpss_results").add({
+                    name: safeName,
+                    classCode: safeClassCode,
+                    score: safeScore,
+                    total: safeTotal,
+                    duration: safeDuration,
+                    date: new Date().toLocaleString('tr-TR'),
+                    serverTime: admin.firestore.FieldValue.serverTimestamp()
+                });
+            } catch(e) {}
+        }
     });
 
     socket.on("getMyStats", async (studentName) => {
@@ -908,12 +939,13 @@ io.on("connection", (socket) => {
     });
 
     socket.on("adminGetReports", () => {
+        if (!ensureAdmin(socket)) return;
         socket.emit("allReportsData", readJsonFile(REPORTS_FILE, []));
     });
 
     socket.on("createRoom", (data) => {
-        const username = (typeof data === 'object') ? data.username : (data || "Öğrenci");
-        const rank = data.rank || "1. Seviye";
+        const username = sanitizeString((typeof data === 'object') ? (data.username || "Öğrenci") : (data || "Öğrenci"), 100) || "Öğrenci";
+        const rank = sanitizeString((data && data.rank) || "1. Seviye", 50) || "1. Seviye";
         const roomCode = Math.floor(1000 + Math.random() * 9000).toString();
         
         rooms[roomCode] = { 
@@ -929,8 +961,10 @@ io.on("connection", (socket) => {
 
     socket.on("joinRoom", ({ username, roomCode, rank }) => {
         if (!rooms[roomCode]) return socket.emit("errorMsg", "Oda bulunamadı!");
+        const safeUsername = sanitizeString(username, 100) || "Öğrenci";
+        const safeRank = sanitizeString(rank || "1. Seviye", 50) || "1. Seviye";
         socket.join(roomCode);
-        rooms[roomCode].players[socket.id] = { id: socket.id, username, rank: rank || "1. Seviye", score: 0, hasAnsweredThisRound: false };
+        rooms[roomCode].players[socket.id] = { id: socket.id, username: safeUsername, rank: safeRank, score: 0, hasAnsweredThisRound: false };
         socket.emit("roomJoined", roomCode);
         io.to(roomCode).emit("updatePlayerList", Object.values(rooms[roomCode].players));
     });

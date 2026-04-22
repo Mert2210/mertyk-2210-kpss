@@ -11,7 +11,9 @@ function readJsonFile(filePath, fallbackValue) {
 }
 
 function writeJsonFile(filePath, value) {
-    fs.writeFileSync(filePath, JSON.stringify(value, null, 2));
+    const tmpPath = filePath + ".tmp";
+    fs.writeFileSync(tmpPath, JSON.stringify(value, null, 2));
+    fs.renameSync(tmpPath, filePath);
 }
 
 module.exports = {

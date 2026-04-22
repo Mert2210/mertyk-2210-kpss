@@ -239,7 +239,12 @@ function normalizeReminderIntervals(list = []) {
         safeList
             .map((value) => Number(value))
             .filter((value) => Number.isFinite(value) && value > 0)
-            .map((value) => Number(value.toFixed(4)))
+            .map((value) => {
+                if (value >= 1) return Math.round(value);
+                const wholeHours = Math.round(value * 24);
+                return wholeHours > 0 ? Number((wholeHours / 24).toFixed(4)) : null;
+            })
+            .filter((value) => value !== null && value > 0)
     ));
     unique.sort((a, b) => a - b);
     return unique.slice(0, MAX_REMINDER_INTERVALS);
@@ -1825,7 +1830,17 @@ function getTopicsForDerslerimSubject(subject) {
     const fromUserCurriculum = Array.isArray(window.userCurriculum?.[safeSubject]) ? window.userCurriculum[safeSubject] : [];
     const fromCustomTopics = getCustomTopicsBySubject(safeSubject);
     const activeExamType = getCurrentExamType();
-    const fromBaseCurriculum = getCurriculumTopicsByExamTypeAndSubject(activeExamType, safeSubject);
+    let fromBaseCurriculum = getCurriculumTopicsByExamTypeAndSubject(activeExamType, safeSubject);
+    if (fromBaseCurriculum.length === 0) {
+        for (const examType of Object.keys(EXAM_TYPE_SUBJECT_MAP)) {
+            if (examType === activeExamType) continue;
+            const topics = getCurriculumTopicsByExamTypeAndSubject(examType, safeSubject);
+            if (topics.length > 0) {
+                fromBaseCurriculum = topics;
+                break;
+            }
+        }
+    }
     const saved = CLIENT_STORE.getJSON('gazi_subjects_v2', []) || [];
     const row = saved.find(item => String(item?.name || '').trim() === safeSubject);
     return buildTopicListFromSources(fromBaseCurriculum, fromUserCurriculum, row?.topics || '', fromCustomTopics);
