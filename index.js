@@ -37,14 +37,21 @@ const staticFileLimiter = rateLimit({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || "*";
-if (ALLOWED_ORIGIN === "*") {
+const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || "";
+if (!ALLOWED_ORIGIN) {
     console.warn("⚠️ UYARI: ALLOWED_ORIGIN ayarlanmamış, tüm kökenlerden istek kabul ediliyor. Prodüksiyonda ALLOWED_ORIGIN env değişkenini tanımlayın.");
 }
-app.use(cors({ origin: ALLOWED_ORIGIN }));
+
+// Güvenli CORS yöneticisi: ALLOWED_ORIGIN ayarlanmışsa yalnızca o kökeni kabul et,
+// aksi takdirde (geliştirme ortamı) tüm kökenlere izin ver.
+const corsOriginHandler = ALLOWED_ORIGIN
+    ? (origin, cb) => { cb(null, !origin || origin === ALLOWED_ORIGIN); }
+    : (origin, cb) => { cb(null, true); };
+
+app.use(cors({ origin: corsOriginHandler }));
 
 const io = new Server(server, {
-    cors: { origin: ALLOWED_ORIGIN, methods: ["GET", "POST"] },
+    cors: { origin: corsOriginHandler, methods: ["GET", "POST"] },
     transports: ["polling", "websocket"]
 });
 
@@ -938,7 +945,7 @@ io.on("connection", (socket) => {
 
     socket.on("createRoom", (data) => {
         const username = sanitizeString((typeof data === 'object') ? (data.username || "Öğrenci") : (data || "Öğrenci"), 100) || "Öğrenci";
-        const rank = sanitizeString((data && data.rank) || "1. Seviye", 50);
+        const rank = sanitizeString((data && data.rank) || "1. Seviye", 50) || "1. Seviye";
         const roomCode = Math.floor(1000 + Math.random() * 9000).toString();
         
         rooms[roomCode] = { 
@@ -955,7 +962,7 @@ io.on("connection", (socket) => {
     socket.on("joinRoom", ({ username, roomCode, rank }) => {
         if (!rooms[roomCode]) return socket.emit("errorMsg", "Oda bulunamadı!");
         const safeUsername = sanitizeString(username, 100) || "Öğrenci";
-        const safeRank = sanitizeString(rank || "1. Seviye", 50);
+        const safeRank = sanitizeString(rank || "1. Seviye", 50) || "1. Seviye";
         socket.join(roomCode);
         rooms[roomCode].players[socket.id] = { id: socket.id, username: safeUsername, rank: safeRank, score: 0, hasAnsweredThisRound: false };
         socket.emit("roomJoined", roomCode);
