@@ -231,60 +231,65 @@ function buildStudentNotificationTopic(studentName) {
     return `stu_${digest}`;
 }
 
-const REVIEW_REMINDER_INTERVAL_MS = 5 * 60 * 1000;
-const INITIAL_REVIEW_REMINDER_DELAY_MS = 15 * 1000;
-const REVIEW_REMINDER_BATCH_LIMIT = 400;
-let isReviewReminderJobRunning = false;
+// Bekleyen hatırlatma zamanlayıcıları: docId -> timeout handle
+const scheduledReminders = new Map();
+// Öğrenci başına debounce zamanlayıcıları: topic -> timeout handle
+const studentDebounceTimers = new Map();
 
-async function sendDueReviewNotifications() {
-    if (!db || !admin.apps.length || isReviewReminderJobRunning) return;
-    isReviewReminderJobRunning = true;
-    try {
+function scheduleReminder(docId, data) {
+    if (scheduledReminders.has(docId)) {
+        clearTimeout(scheduledReminders.get(docId));
+        scheduledReminders.delete(docId);
+    }
+    const nextReviewDate = Number(data.nextReviewDate);
+    const reminderSentAt = Number(data.reminderSentAt || 0);
+    const studentName = sanitizeString(data.studentName, 100);
+    if (!studentName || !Number.isFinite(nextReviewDate) || nextReviewDate <= 0) return;
+    if (Number.isFinite(reminderSentAt) && reminderSentAt >= nextReviewDate) return;
+    const delay = Math.max(0, nextReviewDate - Date.now());
+    const handle = setTimeout(() => {
+        scheduledReminders.delete(docId);
+        triggerStudentReminder(studentName).catch((e) => console.error("⚠️ Hatırlatma tetiklenemedi:", e));
+    }, delay);
+    scheduledReminders.set(docId, handle);
+}
+
+async function triggerStudentReminder(studentName) {
+    if (!db || !admin.apps.length) return;
+    const topic = buildStudentNotificationTopic(studentName);
+    if (!topic) return;
+    if (studentDebounceTimers.has(topic)) {
+        clearTimeout(studentDebounceTimers.get(topic));
+    }
+    studentDebounceTimers.set(topic, setTimeout(async () => {
+        studentDebounceTimers.delete(topic);
         const now = Date.now();
-        const snap = await db.collection("student_questions")
-            .where("nextReviewDate", "<=", now)
-            .orderBy("nextReviewDate", "asc")
-            .limit(REVIEW_REMINDER_BATCH_LIMIT)
-            .get();
-        if (snap.empty) return;
-
-        const byStudent = new Map();
-        snap.docs.forEach((doc) => {
-            const data = doc.data() || {};
-            const studentName = sanitizeString(data.studentName, 100);
-            const nextReviewDate = Number(data.nextReviewDate);
-            const reminderSentAt = Number(data.reminderSentAt || 0);
-            if (!studentName || !Number.isFinite(nextReviewDate) || nextReviewDate <= 0) return;
-            if (Number.isFinite(reminderSentAt) && reminderSentAt >= nextReviewDate) return;
-            if (!byStudent.has(studentName)) byStudent.set(studentName, []);
-            byStudent.get(studentName).push(doc.ref);
-        });
-
-        if (byStudent.size === 0) return;
-
-        const batch = db.batch();
-        let hasWrites = false;
-        for (const [studentName, docRefs] of byStudent.entries()) {
-            const topic = buildStudentNotificationTopic(studentName);
-            if (!topic || docRefs.length === 0) continue;
+        try {
+            const snap = await db.collection("student_questions")
+                .where("studentName", "==", studentName)
+                .where("nextReviewDate", "<=", now)
+                .orderBy("nextReviewDate", "asc")
+                .get();
+            const dueRefs = snap.docs.filter((doc) => {
+                const d = doc.data() || {};
+                const sat = Number(d.reminderSentAt || 0);
+                const nrd = Number(d.nextReviewDate);
+                return !Number.isFinite(sat) || sat < nrd;
+            });
+            if (dueRefs.length === 0) return;
             const sent = await sendPushNotification(
                 topic,
                 "⏰ Tekrar Zamanı Geldi!",
-                `Bugün tekrar etmen gereken ${docRefs.length} soru var.`
+                `Bugün tekrar etmen gereken ${dueRefs.length} soru var.`
             );
-            if (!sent) continue;
-            docRefs.forEach((ref) => {
-                batch.update(ref, { reminderSentAt: now });
-                hasWrites = true;
-            });
+            if (!sent) return;
+            const batch = db.batch();
+            dueRefs.forEach((doc) => batch.update(doc.ref, { reminderSentAt: now }));
+            await batch.commit();
+        } catch (error) {
+            console.error("⚠️ Hatırlatma gönderme hatası:", error);
         }
-
-        if (hasWrites) await batch.commit();
-    } catch (error) {
-        console.error("⚠️ Hatırlatma bildirimi zamanlayıcı hatası:", error);
-    } finally {
-        isReviewReminderJobRunning = false;
-    }
+    }, 2000));
 }
 
 io.on("connection", (socket) => {
@@ -572,8 +577,33 @@ io.on("connection", (socket) => {
         const safeMessage = sanitizeString(data.message, 500);
         const safeSender = sanitizeString(data.sender || currentUser(socket).name || "Eğitmen", 100);
         io.emit("receiveGlobalAlert", { message: safeMessage, sender: safeSender });
-        // Eğer istersen ileride bu duyuruyu bildirim (push) olarak da attırabiliriz:
-        // sendPushNotification("global", "📢 " + (data.sender || "Eğitmen"), data.message);
+        // Global duyuruyu yalnızca admin topic'ine push olarak gönder
+        sendPushNotification("adm_alerts", "📢 " + safeSender, safeMessage);
+    });
+
+    socket.on("setAdminNotificationToken", async ({ token }) => {
+        if (!admin.apps.length) return;
+        const safeToken = sanitizeString(token, 4096);
+        if (!isLikelyFcmToken(safeToken)) return;
+        const userEmail = sanitizeString(currentUser(socket).email, 200).toLowerCase();
+        if (userEmail !== ROOT_ADMIN_EMAIL) return;
+        try {
+            await admin.messaging().subscribeToTopic([safeToken], "adm_alerts");
+            socket.emit("adminNotificationSubscriptionUpdated", { success: true });
+        } catch (error) {
+            console.error("⚠️ Admin bildirim abonelik hatası:", error);
+        }
+    });
+
+    socket.on("clearAdminNotificationToken", async ({ token }) => {
+        if (!admin.apps.length) return;
+        const safeToken = sanitizeString(token, 4096);
+        if (!isLikelyFcmToken(safeToken)) return;
+        try {
+            await admin.messaging().unsubscribeFromTopic([safeToken], "adm_alerts");
+        } catch (error) {
+            console.error("⚠️ Admin bildirim abonelik kaldırma hatası:", error);
+        }
     });
 
     socket.on("addNewQuestion", async (newQ) => {
@@ -1052,14 +1082,21 @@ const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`🚀 Gazililer Eğitim Platformu Sunucusu ${PORT} portunda aktif.`));
 
 if (db && admin.apps.length) {
-    setTimeout(() => {
-        sendDueReviewNotifications().catch((error) => {
-            console.error("⚠️ İlk hatırlatma bildirimi çalıştırılamadı:", error);
-        });
-    }, INITIAL_REVIEW_REMINDER_DELAY_MS);
-    setInterval(() => {
-        sendDueReviewNotifications().catch((error) => {
-            console.error("⚠️ Periyodik hatırlatma bildirimi çalıştırılamadı:", error);
-        });
-    }, REVIEW_REMINDER_INTERVAL_MS);
+    db.collection("student_questions").onSnapshot(
+        (snap) => {
+            snap.docChanges().forEach((change) => {
+                if (change.type === "removed") {
+                    if (scheduledReminders.has(change.doc.id)) {
+                        clearTimeout(scheduledReminders.get(change.doc.id));
+                        scheduledReminders.delete(change.doc.id);
+                    }
+                    return;
+                }
+                scheduleReminder(change.doc.id, change.doc.data() || {});
+            });
+        },
+        (error) => {
+            console.error("⚠️ Hatırlatma listener başlatılamadı:", error);
+        }
+    );
 }

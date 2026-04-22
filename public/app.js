@@ -2470,6 +2470,27 @@ async function clearClassPushSubscription(classCodeRaw) {
     socket.emit("clearClassNotificationToken", { token, classCode });
 }
 
+async function subscribeAdminPushNotifications() {
+    if (!socket || !areNotificationsEnabled()) return;
+    if (typeof Notification === "undefined" || !("serviceWorker" in navigator)) return;
+    if (!firebaseVapidKey) return;
+    if (Notification.permission !== "granted") return;
+    try {
+        const token = await getCurrentFcmToken();
+        if (!token) return;
+        socket.emit("setAdminNotificationToken", { token });
+    } catch (error) {
+        console.warn("Admin bildirim aboneliği kurulamadı:", error);
+    }
+}
+
+function clearAdminPushSubscription() {
+    if (!socket) return;
+    const token = String(localStorage.getItem(NOTIFICATION_TOKEN_KEY) || "").trim();
+    if (!token) return;
+    socket.emit("clearAdminNotificationToken", { token });
+}
+
 async function subscribeToClassPushNotifications(classCodeRaw, { forcePrompt = false } = {}) {
     const classCode = String(classCodeRaw || "").trim().toUpperCase();
     if (!socket) return;
@@ -2508,6 +2529,7 @@ async function promptNotificationsOnFirstLaunch() {
         if (Notification.permission === "default") await Notification.requestPermission();
         if (Notification.permission === "granted") {
             await subscribeToClassPushNotifications(getPreferredNotificationClassCode(), { forcePrompt: false });
+            if (isGodModeUser()) await subscribeAdminPushNotifications();
         }
     } catch (error) {
         console.warn("İlk açılış bildirim izni alınamadı:", error);
@@ -2524,9 +2546,11 @@ window.handleNotificationToggleChange = async () => {
     if (isEnabled) {
         if (status) status.textContent = "Bildirimler açık.";
         await subscribeToClassPushNotifications(getPreferredNotificationClassCode(), { forcePrompt: true });
+        if (isGodModeUser()) await subscribeAdminPushNotifications();
     } else {
         await clearClassPushSubscription(localStorage.getItem(NOTIFICATION_SUBSCRIPTION_CLASS_KEY) || getPreferredNotificationClassCode());
         clearStudentPushSubscription();
+        if (isGodModeUser()) clearAdminPushSubscription();
         localStorage.removeItem(NOTIFICATION_SUBSCRIPTION_CLASS_KEY);
     }
     updateNotificationToggleUI();
@@ -2879,6 +2903,8 @@ onAuthStateChanged(auth, user => {
             document.getElementById('btn-class-questions').style.display = 'block';
             subscribeToClassPushNotifications(stdClassCode);
         }
+
+        if (isAdmin) subscribeAdminPushNotifications();
 
         if(typeof socket !== 'undefined') {
             syncSocketUserContext(user, role, realName);

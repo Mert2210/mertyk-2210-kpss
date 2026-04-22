@@ -1,3 +1,36 @@
+importScripts('https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/10.8.1/firebase-messaging-compat.js');
+
+firebase.initializeApp({
+    apiKey: "AIzaSyDkZI-LxCOaog4kyb4YSquEK6ZpLNH2pqs",
+    authDomain: "kpss-genel-kultur-soru-havuzu.firebaseapp.com",
+    projectId: "kpss-genel-kultur-soru-havuzu",
+    storageBucket: "kpss-genel-kultur-soru-havuzu.firebasestorage.app",
+    messagingSenderId: "435941343639",
+    appId: "1:435941343639:web:3ce323e0f8386d796c04d2"
+});
+
+const messaging = firebase.messaging();
+
+// Uygulama kapalı/arka planda iken gelen data-only (bildirim alanı olmayan) mesajları işler.
+// Bildirim alanı içeren FCM mesajları Firebase SDK tarafından otomatik gösterilir.
+messaging.onBackgroundMessage((payload) => {
+    try {
+        const notificationPayload = payload.notification || payload.data || {};
+        const title = String(notificationPayload.title || 'Gazililer');
+        const body = String(notificationPayload.body || 'Yeni bir bildirim var.');
+        const url = String(notificationPayload.click_action || payload.fcmOptions?.link || notificationPayload.link || '/');
+        return self.registration.showNotification(title, {
+            body,
+            icon: '/icon-192.png',
+            badge: '/icon-192.png',
+            data: { url }
+        });
+    } catch (error) {
+        console.error('[Service Worker] Arka plan bildirimi gösterilemedi:', error);
+    }
+});
+
 self.OFFLINE_HTML = '<!doctype html><html lang="tr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Çevrimdışı</title></head><body><h3>Çevrimdışısınız</h3><p>Lütfen internet bağlantınızı kontrol edin.</p></body></html>';
 
 self.addEventListener('install', (e) => {
@@ -18,29 +51,6 @@ self.addEventListener('fetch', (e) => {
                 );
             }
             return new Response('Offline', { status: 503, statusText: 'Offline' });
-        })
-    );
-});
-
-self.addEventListener('push', (event) => {
-    let payload = {};
-    if (event.data) {
-        try {
-            payload = event.data.json();
-        } catch (error) {
-            payload = { notification: { body: event.data.text() } };
-        }
-    }
-    const notificationPayload = payload.notification || payload.data || {};
-    const title = String(notificationPayload.title || 'Gazililer');
-    const body = String(notificationPayload.body || 'Yeni bir bildirim var.');
-    const url = String(notificationPayload.click_action || payload.fcmOptions?.link || notificationPayload.link || '/');
-    event.waitUntil(
-        self.registration.showNotification(title, {
-            body,
-            icon: '/icon-192.png',
-            badge: '/icon-192.png',
-            data: { url }
         })
     );
 });
