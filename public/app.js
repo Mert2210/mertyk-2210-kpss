@@ -2305,6 +2305,9 @@ window.showScreen = (id) => {
     } else {
         nav.style.display = 'none';
         document.body.classList.remove('nav-visible');
+        const savedEmail = localStorage.getItem('gazi_last_email') || '';
+        const emailInput = document.getElementById('login-email');
+        if (emailInput && savedEmail) emailInput.value = savedEmail;
     }
 };
 
@@ -2730,8 +2733,10 @@ window.saveProfileSettings = () => {
 };
 
 window.handleLogin = async () => { 
-    try { 
-        await signInWithEmailAndPassword(auth, document.getElementById('login-email').value.trim(), document.getElementById('login-pass').value); 
+    try {
+        const email = document.getElementById('login-email').value.trim();
+        await signInWithEmailAndPassword(auth, email, document.getElementById('login-pass').value);
+        localStorage.setItem('gazi_last_email', email);
     } catch(e) { 
         alert("❌ Giriş Başarısız: E-posta veya şifre hatalı."); 
     } 
