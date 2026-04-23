@@ -2913,11 +2913,13 @@ onAuthStateChanged(auth, user => {
         }
 
         const stdClassCode = localStorage.getItem("gazi_class_code");
-        if(stdClassCode && !isTeacher) { 
-            document.getElementById('class-code-input').value = stdClassCode; 
-            const teacherQPanel = document.getElementById('gelisim-teacher-questions-panel');
-            if (teacherQPanel) teacherQPanel.style.display = 'block';
-            subscribeToClassPushNotifications(stdClassCode);
+        if (!isTeacher) {
+            if (stdClassCode) {
+                document.getElementById('class-code-input').value = stdClassCode;
+                const teacherQPanel = document.getElementById('gelisim-teacher-questions-panel');
+                if (teacherQPanel) teacherQPanel.style.display = 'block';
+            }
+            subscribeToClassPushNotifications(stdClassCode || "");
         }
 
         if (isAdmin) subscribeAdminPushNotifications();
