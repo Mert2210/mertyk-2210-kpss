@@ -2915,7 +2915,8 @@ onAuthStateChanged(auth, user => {
         const stdClassCode = localStorage.getItem("gazi_class_code");
         if(stdClassCode && !isTeacher) { 
             document.getElementById('class-code-input').value = stdClassCode; 
-            document.getElementById('btn-class-questions').style.display = 'block';
+            const teacherQPanel = document.getElementById('gelisim-teacher-questions-panel');
+            if (teacherQPanel) teacherQPanel.style.display = 'block';
             subscribeToClassPushNotifications(stdClassCode);
         }
 
@@ -4345,7 +4346,8 @@ window.joinClass = () => {
     if(!code) return alert("Sınıf kodu girin!"); 
     socket.emit("joinClass", { code, studentName: name }); 
     localStorage.setItem("gazi_class_code", code); 
-    document.getElementById('btn-class-questions').style.display = 'block';
+    const teacherQPanel = document.getElementById('gelisim-teacher-questions-panel');
+    if (teacherQPanel) teacherQPanel.style.display = 'block';
 };
 
 if(socket) socket.on("classJoined", (res) => { 
@@ -4355,7 +4357,8 @@ if(socket) socket.on("classJoined", (res) => {
         socket.emit("getFilters", window.myClassCode); 
         subscribeToClassPushNotifications(res.code, { forcePrompt: true });
         alert("✅ Sınıfa katıldın!"); 
-        document.getElementById('btn-class-questions').style.display = 'block'; 
+        const teacherQPanel = document.getElementById('gelisim-teacher-questions-panel');
+        if (teacherQPanel) teacherQPanel.style.display = 'block';
     } else {
         alert("❌ Geçersiz Sınıf Kodu!"); 
     }
