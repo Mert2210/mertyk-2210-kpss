@@ -2305,6 +2305,9 @@ window.showScreen = (id) => {
     } else {
         nav.style.display = 'none';
         document.body.classList.remove('nav-visible');
+        const savedEmail = localStorage.getItem('gazi_last_email') || '';
+        const emailInput = document.getElementById('login-email');
+        if (emailInput && savedEmail) emailInput.value = savedEmail;
     }
 };
 
@@ -2730,8 +2733,10 @@ window.saveProfileSettings = () => {
 };
 
 window.handleLogin = async () => { 
-    try { 
-        await signInWithEmailAndPassword(auth, document.getElementById('login-email').value.trim(), document.getElementById('login-pass').value); 
+    try {
+        const email = document.getElementById('login-email').value.trim();
+        await signInWithEmailAndPassword(auth, email, document.getElementById('login-pass').value);
+        localStorage.setItem('gazi_last_email', email);
     } catch(e) { 
         alert("❌ Giriş Başarısız: E-posta veya şifre hatalı."); 
     } 
@@ -2913,10 +2918,13 @@ onAuthStateChanged(auth, user => {
         }
 
         const stdClassCode = localStorage.getItem("gazi_class_code");
-        if(stdClassCode && !isTeacher) { 
-            document.getElementById('class-code-input').value = stdClassCode; 
-            document.getElementById('btn-class-questions').style.display = 'block';
-            subscribeToClassPushNotifications(stdClassCode);
+        if (!isTeacher) {
+            if (stdClassCode) {
+                document.getElementById('class-code-input').value = stdClassCode;
+                const teacherQPanel = document.getElementById('gelisim-teacher-questions-panel');
+                if (teacherQPanel) teacherQPanel.style.display = 'block';
+            }
+            subscribeToClassPushNotifications(stdClassCode || "");
         }
 
         if (isAdmin) subscribeAdminPushNotifications();
@@ -4345,7 +4353,8 @@ window.joinClass = () => {
     if(!code) return alert("Sınıf kodu girin!"); 
     socket.emit("joinClass", { code, studentName: name }); 
     localStorage.setItem("gazi_class_code", code); 
-    document.getElementById('btn-class-questions').style.display = 'block';
+    const teacherQPanel = document.getElementById('gelisim-teacher-questions-panel');
+    if (teacherQPanel) teacherQPanel.style.display = 'block';
 };
 
 if(socket) socket.on("classJoined", (res) => { 
@@ -4355,7 +4364,8 @@ if(socket) socket.on("classJoined", (res) => {
         socket.emit("getFilters", window.myClassCode); 
         subscribeToClassPushNotifications(res.code, { forcePrompt: true });
         alert("✅ Sınıfa katıldın!"); 
-        document.getElementById('btn-class-questions').style.display = 'block'; 
+        const teacherQPanel = document.getElementById('gelisim-teacher-questions-panel');
+        if (teacherQPanel) teacherQPanel.style.display = 'block';
     } else {
         alert("❌ Geçersiz Sınıf Kodu!"); 
     }
