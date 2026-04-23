@@ -16,6 +16,21 @@
     
     <link rel="stylesheet" href="style.css">
 
+    <!-- Critical CSS inlined for faster first contentful paint (#11) -->
+    <style>
+        body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:linear-gradient(135deg,#1e3c72 0%,#2a5298 100%);margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;color:#fff;text-align:center}
+        .container{background:rgba(255,255,255,.95);color:#243447;width:95%;max-width:480px;padding:20px;border-radius:16px;box-shadow:0 14px 30px rgba(0,0,0,.28);margin-bottom:20px;box-sizing:border-box}
+        .screen{display:none;width:100%}
+        .active{display:block}
+        #screen-auth.active{display:block}
+        button{min-height:44px;padding:12px;border-radius:8px;border:none;background:#1e3c72;color:#fff;font-weight:700;cursor:pointer;font-size:1rem;width:100%;box-sizing:border-box}
+        input,select{width:100%;min-height:44px;padding:12px;margin-bottom:8px;border-radius:8px;border:1px solid #d9e4f5;box-sizing:border-box;font-size:1rem}
+        .auth-form{background:#fff;padding:20px;border-radius:12px;margin:10px auto 0;text-align:left;border:1px solid #eee}
+        .role-toggle{display:flex;background:#e8f4f8;border-radius:10px;padding:5px;margin-bottom:20px}
+        .role-btn{flex:1;padding:12px;border-radius:8px;font-weight:700;cursor:pointer;text-align:center;color:#1e3c72;transition:.3s}
+        .role-btn.active{background:#1e3c72;color:#fff}
+    </style>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="socket.io/socket.io.js"></script>
@@ -109,9 +124,12 @@
         
         <div id="login-box" class="auth-form">
             <h3 style="margin-top:0; color:#1e3c72; text-align:center; font-size:1.2rem;">Hesabınıza Giriş Yapın</h3>
-            <input type="email" id="login-email" placeholder="E-posta Adresiniz">
-            <input type="password" id="login-pass" placeholder="Şifreniz">
-            <button onclick="handleLogin()" class="green" style="padding:15px; font-size:1.1rem;">🚀 Giriş Yap</button>
+            <input type="email" id="login-email" placeholder="E-posta Adresiniz" onkeydown="if(event.key==='Enter')document.getElementById('login-pass').focus()">
+            <div class="password-field-wrap">
+                <input type="password" id="login-pass" placeholder="Şifreniz" onkeydown="if(event.key==='Enter')handleLogin()">
+                <button type="button" class="password-toggle-btn" aria-label="Şifreyi göster veya gizle" onclick="togglePasswordVisibility('login-pass', this)">👁</button>
+            </div>
+            <button id="login-btn" onclick="handleLogin()" class="green" style="padding:15px; font-size:1.1rem;">🚀 Giriş Yap</button>
             
             <div style="display:flex; gap:8px; margin-top:15px;">
                 <button onclick="handleGoogleLogin()" style="background:#db4437; flex:2; font-size:0.9rem; border-radius:8px;">🌐 Google ile Giriş Yap</button>
@@ -128,8 +146,14 @@
             <h3 style="margin-top:0; color:#e67e22; text-align:center; font-size:1.2rem;">Yeni Kayıt</h3>
             <input type="text" id="reg-username" placeholder="İsim Soyisim / Kullanıcı Adı">
             <input type="email" id="reg-email" placeholder="E-posta">
-            <input type="password" id="reg-pass" placeholder="Şifre Belirleyin">
-            <input type="password" id="reg-pass-confirm" placeholder="Şifre Tekrar">
+            <div class="password-field-wrap">
+                <input type="password" id="reg-pass" placeholder="Şifre Belirleyin">
+                <button type="button" class="password-toggle-btn" aria-label="Şifreyi göster veya gizle" onclick="togglePasswordVisibility('reg-pass', this)">👁</button>
+            </div>
+            <div class="password-field-wrap">
+                <input type="password" id="reg-pass-confirm" placeholder="Şifre Tekrar" onkeydown="if(event.key==='Enter')handleRegister()">
+                <button type="button" class="password-toggle-btn" aria-label="Şifre tekrarını göster veya gizle" onclick="togglePasswordVisibility('reg-pass-confirm', this)">👁</button>
+            </div>
             
             <div id="reg-student-options" style="background:#f9f9f9; padding:10px; border-radius:8px; margin-top:10px; border:1px solid #ddd;">
                 <label style="font-size:0.75rem; font-weight:bold; color:#1e3c72; display:block; margin-bottom:5px;">Hedef Sınavınız:</label>
@@ -169,7 +193,7 @@
 
             <p id="teacher-info-text" style="display:none; font-size:0.8rem; color:#c0392b; font-weight:bold; text-align:center; background:#fff3f3; padding:10px; border-radius:8px; border:1px solid #f5c6cb; margin-top:15px;">⚠️ Öğretmen kayıtları, yönetici onayından sonra aktifleşir.</p>
             
-            <button onclick="handleRegister()" class="orange" style="margin-top:15px; padding:15px; font-size:1.1rem;">Kayıt İşlemini Tamamla</button>
+            <button id="register-btn" onclick="handleRegister()" class="orange" style="margin-top:15px; padding:15px; font-size:1.1rem;">Kayıt İşlemini Tamamla</button>
             <div style="text-align:center; margin-top:20px;">
                 <span class="auth-switch" onclick="switchAuth('login')">⬅️ Zaten hesabım var, Giriş Yap</span>
             </div>
@@ -193,12 +217,31 @@
             </div>
         </div>
 
+        <!-- ===== STREAK & DAILY TASK CARDS (student-only) (#6, #8) ===== -->
+        <div id="student-motivation-area" class="student-only" style="display:none;">
+            <div class="streak-daily-grid">
+                <div class="streak-card" id="streak-card">
+                    <div class="streak-fire">🔥</div>
+                    <div class="streak-count" id="streak-count">0</div>
+                    <div class="streak-label">Günlük Seri</div>
+                </div>
+                <div class="daily-task-card" id="daily-task-card" onclick="openReviewLibrary()" role="button" tabindex="0" aria-label="Bugünün görevini aç">
+                    <div class="daily-task-title">📅 Bugünün Görevi</div>
+                    <div class="daily-task-body">
+                        <span id="daily-task-count">0</span> soru tekrarlanacak
+                    </div>
+                    <div class="daily-task-hint">Dokunarak başla →</div>
+                </div>
+            </div>
+        </div>
+        <!-- ===== END STREAK & DAILY TASK ===== -->
+
         <!-- ===== TEACHER DASHBOARD PANEL (shown only for teachers) ===== -->
         <div id="teacher-main-panel" style="display:none;">
             <div class="content-card teacher-dash-card">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                     <h4 style="margin:0; color:#fff; font-size:0.95rem;">🏫 Sınıflarım</h4>
-                    <button onclick="window.refreshTeacherClasses()" style="width:auto; padding:4px 8px; font-size:0.72rem; background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.3); color:#fff; border-radius:6px; cursor:pointer;">🔄 Yenile</button>
+                    <button onclick="window.refreshTeacherClasses()" style="width:auto; padding:4px 8px; font-size:0.72rem; background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.3); color:#fff; border-radius:6px; cursor:pointer;" aria-label="Sınıf listesini yenile">🔄 Yenile</button>
                 </div>
                 <div id="teacher-classes-list" style="max-height:150px; overflow-y:auto; font-size:0.82rem; color:#fff;">Yükleniyor...</div>
                 <div style="display:flex; gap:6px; margin-top:10px;">
@@ -257,6 +300,33 @@
                     <img id="img-preview-solution" src="" style="display:none; width:100%; max-height:180px; object-fit:contain; border-radius:8px; border:1px solid rgba(255,255,255,0.5); margin-bottom:6px;">
 
                     <button onclick="uploadQuestionToNamedClass()" class="green" style="width:100%; padding:10px; font-size:0.85rem;">📤 Seçili Sınıfa Soruyu Gönder</button>
+                </div>
+            </div>
+
+            <!-- ===== TEACHER SEND HISTORY (#12) ===== -->
+            <div class="content-card teacher-dash-card" style="margin-top:12px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; cursor:pointer;" onclick="toggleSection('teacher-history-body')">
+                    <h4 style="margin:0; color:#fff; font-size:0.95rem;">📋 Gönderim Geçmişi</h4>
+                    <span style="color:#f1c40f; font-size:0.75rem;">🔽</span>
+                </div>
+                <div id="teacher-history-body" class="hidden-panel">
+                    <div id="teacher-send-history-list" style="max-height:180px; overflow-y:auto; font-size:0.78rem; color:#fff;">
+                        <p style="margin:0; color:rgba(255,255,255,0.6);">Henüz gönderim kaydı yok.</p>
+                    </div>
+                    <button type="button" onclick="window.clearTeacherSendHistory()" style="width:100%; margin-top:8px; padding:6px; font-size:0.72rem; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.3); color:#fff; border-radius:6px; cursor:pointer;" aria-label="Gönderim geçmişini temizle">🗑️ Geçmişi Temizle</button>
+                </div>
+            </div>
+
+            <!-- ===== CLASS PERFORMANCE SUMMARY (#13) ===== -->
+            <div class="content-card teacher-dash-card" style="margin-top:12px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; cursor:pointer;" onclick="toggleSection('teacher-perf-body')">
+                    <h4 style="margin:0; color:#fff; font-size:0.95rem;">📊 Sınıf Performans Özeti</h4>
+                    <span style="color:#f1c40f; font-size:0.75rem;">🔽</span>
+                </div>
+                <div id="teacher-perf-body" class="hidden-panel">
+                    <div id="teacher-class-performance-list" style="font-size:0.82rem; color:#fff;">
+                        <p style="margin:0; color:rgba(255,255,255,0.6);">Performans verisi için rapor alınız.</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -780,15 +850,17 @@
             <button onclick="trialNext()" class="outline" style="width:48%;">İleri ➡️</button>
         </div>
 
-        <div class="ui-question-block">
-            <button onclick="reportQuestion()" class="ui-absolute-icon-btn report" title="Hatalı Soru Bildir">🚨</button>
-            <button id="btn-fav-current" onclick="toggleFavCurrent()" class="ui-absolute-icon-btn fav">☆</button>
+        <div class="ui-question-block" id="swipeable-question-block">
+            <button onclick="reportQuestion()" class="ui-absolute-icon-btn report" title="Hatalı Soru Bildir" aria-label="Hatalı soru bildir">🚨</button>
+            <button id="btn-fav-current" onclick="toggleFavCurrent()" class="ui-absolute-icon-btn fav" aria-label="Soruyu favorilere ekle veya çıkar">☆</button>
             
-            <img id="q-image-display" src="" style="width:100%; border-radius:10px; margin-top:30px; display:none;">
+            <img id="q-image-display" src="" style="width:100%; border-radius:10px; margin-top:30px; display:none;" alt="Soru görseli">
             <div id="q-multi-image-container" style="display:none; flex-direction:column; gap:10px; margin-top:30px;"></div>
             
             <h3 id="q-text" class="ui-question-title">Soru Yükleniyor...</h3>
         </div>
+        <!-- Swipe hint (#9) -->
+        <div id="swipe-hint" style="display:none; text-align:center; font-size:0.72rem; color:#95a5a6; margin-top:6px;">← Önceki &nbsp;|&nbsp; Sonraki →</div>
 
         <div id="opts-area" style="margin-top:20px;"></div>
         
