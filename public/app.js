@@ -2154,6 +2154,22 @@ document.addEventListener("DOMContentLoaded", () => {
     setTimeout(() => { window.initEtiketleme(); }, 500);
     window.restoreDerslerimTheme();
     updateCourseAddedNavBadge(CLIENT_STORE.getItem(DERSLERIM_COURSE_ADDED_BADGE_STORAGE_KEY, '0') === '1');
+
+    const handleEnterPress = (e) => {
+        if (e.key === 'Enter') {
+            window.handleLogin();
+        }
+    };
+
+    const loginEmailInput = document.getElementById('login-email');
+    if (loginEmailInput) {
+        loginEmailInput.addEventListener('keyup', handleEnterPress);
+    }
+
+    const loginPassInput = document.getElementById('login-pass');
+    if (loginPassInput) {
+        loginPassInput.addEventListener('keyup', handleEnterPress);
+    }
 });
 // 🚨 YENİ NESİL MÜFREDAT AĞACI BİTİŞ 🚨
 
@@ -2733,13 +2749,27 @@ window.saveProfileSettings = () => {
 };
 
 window.handleLogin = async () => { 
+    const loginBtn = document.getElementById('login-btn');
+    let originalText = '';
+
+    if (loginBtn) {
+        originalText = loginBtn.innerText;
+        loginBtn.disabled = true;
+        loginBtn.innerText = 'Yükleniyor...';
+    }
+
     try {
         const email = document.getElementById('login-email').value.trim();
         await signInWithEmailAndPassword(auth, email, document.getElementById('login-pass').value);
         localStorage.setItem('gazi_last_email', email);
     } catch(e) { 
         alert("❌ Giriş Başarısız: E-posta veya şifre hatalı."); 
-    } 
+    } finally {
+        if (loginBtn) {
+            loginBtn.disabled = false;
+            loginBtn.innerText = originalText;
+        }
+    }
 };
 
 window.handleRegister = async () => {
