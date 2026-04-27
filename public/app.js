@@ -7,6 +7,7 @@ import { SETTINGS_MODES, applySettingsMode, getDefaultSettingsModeByRole } from 
 import { normalizeTopicFilterMode, getAllowedTopicsForMode, getAllowedTopicsForModalContext, isStorageRetryLimitExceededError, buildDerslerimTopicNavigation, canStartLibraryTest, evaluateStdAnswer, filterCourseNamesByQuery, getSavedLibraryCourseNames, buildDueReminderCountsBySubject, mergeSavedSubjectsWithDrafts, buildTopicListFromSources, getNextExpandedCourse, buildSelectedCourseLabel, DEFAULT_REMINDER_INTERVALS, formatReminderOptionLabel } from "./modules/ui-flow.mjs";
 import { resolveCurrentExamType, getCustomCurriculumGroupsByExamType as getCustomCurriculumGroupsByExamTypeFromMap, getCustomCurriculumSubjectsByExamType as getCustomCurriculumSubjectsByExamTypeFromMap, getCustomCurriculumTopicsByExamTypeAndSubject as getCustomCurriculumTopicsByExamTypeAndSubjectFromMap, getCustomTopicsBySubject as getCustomTopicsBySubjectFromMap, addCustomTopicsForSubject as addCustomTopicsForSubjectInMap, mergeSubjectsForExamType } from "./modules/custom-data.mjs";
 import { buildRelativeResourceUrl, getShareableAppLink, shouldRegisterServiceWorker } from "./modules/app-shell.mjs";
+import { escapeHtml } from "./modules/security.mjs";
 
 const fallbackFirebaseConfig = { 
     apiKey: "AIzaSyDkZI-LxCOaog4kyb4YSquEK6ZpLNH2pqs", 
@@ -3068,16 +3069,6 @@ onAuthStateChanged(auth, user => {
 });
 
 window.logout = () => signOut(auth).then(() => location.reload());
-
-function escapeHtml(str) {
-    if (str === null || str === undefined) return '';
-    return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
-}
 
 function safeImageSrc(src) {
     if (typeof src !== 'string') return '';
