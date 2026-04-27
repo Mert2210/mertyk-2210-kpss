@@ -1,0 +1,6 @@
+
+> gazililer-bilgi-bankasi@1.1.0 start
+> node index.js
+
+⚠️ UYARI: ALLOWED_ORIGIN ayarlanmamış, tüm kökenlerden istek kabul ediliyor. Prodüksiyonda ALLOWED_ORIGIN env değişkenini tanımlayın.
+🚀 Gazililer Eğitim Platformu Sunucusu 3000 portunda aktif.
