@@ -110,7 +110,13 @@
         <div id="login-box" class="auth-form">
             <h3 style="margin-top:0; color:#1e3c72; text-align:center; font-size:1.2rem;">Hesabınıza Giriş Yapın</h3>
             <input type="email" id="login-email" placeholder="E-posta Adresiniz">
-            <input type="password" id="login-pass" placeholder="Şifreniz">
+            <div style="position: relative; width: 100%;">
+                <input type="password" id="login-pass" placeholder="Şifreniz" style="padding-right: 40px; margin-bottom: 0;">
+                <span onclick="togglePasswordVisibility('login-pass', this)" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #6b7a99; user-select: none; display: flex; align-items: center; justify-content: center; width: 24px; height: 24px;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 18px; height: 18px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                </span>
+            </div>
+            <div style="margin-bottom: 8px;"></div>
             <button id="login-btn" onclick="handleLogin()" class="green" style="padding:15px; font-size:1.1rem;">🚀 Giriş Yap</button>
             
             <div style="display:flex; gap:8px; margin-top:15px;">
@@ -128,8 +134,19 @@
             <h3 style="margin-top:0; color:#e67e22; text-align:center; font-size:1.2rem;">Yeni Kayıt</h3>
             <input type="text" id="reg-username" placeholder="İsim Soyisim / Kullanıcı Adı">
             <input type="email" id="reg-email" placeholder="E-posta">
-            <input type="password" id="reg-pass" placeholder="Şifre Belirleyin">
-            <input type="password" id="reg-pass-confirm" placeholder="Şifre Tekrar">
+            <div style="position: relative; width: 100%; margin-bottom: 8px;">
+                <input type="password" id="reg-pass" placeholder="Şifre Belirleyin" style="padding-right: 40px; margin-bottom: 0;">
+                <span onclick="togglePasswordVisibility('reg-pass', this)" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #6b7a99; user-select: none; display: flex; align-items: center; justify-content: center; width: 24px; height: 24px;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 18px; height: 18px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                </span>
+            </div>
+            <div style="position: relative; width: 100%;">
+                <input type="password" id="reg-pass-confirm" placeholder="Şifre Tekrar" style="padding-right: 40px; margin-bottom: 0;">
+                <span onclick="togglePasswordVisibility('reg-pass-confirm', this)" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #6b7a99; user-select: none; display: flex; align-items: center; justify-content: center; width: 24px; height: 24px;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 18px; height: 18px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                </span>
+            </div>
+            <div style="margin-bottom: 8px;"></div>
             
             <div id="reg-student-options" style="background:#f9f9f9; padding:10px; border-radius:8px; margin-top:10px; border:1px solid #ddd;">
                 <label style="font-size:0.75rem; font-weight:bold; color:#1e3c72; display:block; margin-bottom:5px;">Hedef Sınavınız:</label>
@@ -169,7 +186,7 @@
 
             <p id="teacher-info-text" style="display:none; font-size:0.8rem; color:#c0392b; font-weight:bold; text-align:center; background:#fff3f3; padding:10px; border-radius:8px; border:1px solid #f5c6cb; margin-top:15px;">⚠️ Öğretmen kayıtları, yönetici onayından sonra aktifleşir.</p>
             
-            <button onclick="handleRegister()" class="orange" style="margin-top:15px; padding:15px; font-size:1.1rem;">Kayıt İşlemini Tamamla</button>
+            <button id="reg-btn" onclick="handleRegister()" class="orange" style="margin-top:15px; padding:15px; font-size:1.1rem;">Kayıt İşlemini Tamamla</button>
             <div style="text-align:center; margin-top:20px;">
                 <span class="auth-switch" onclick="switchAuth('login')">⬅️ Zaten hesabım var, Giriş Yap</span>
             </div>

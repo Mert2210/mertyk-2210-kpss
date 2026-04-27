@@ -2748,6 +2748,19 @@ window.saveProfileSettings = () => {
     window.goBack('screen-main');
 };
 
+window.togglePasswordVisibility = (inputId, iconElement) => {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+
+    if (input.type === 'password') {
+        input.type = 'text';
+        iconElement.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 18px; height: 18px;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>';
+    } else {
+        input.type = 'password';
+        iconElement.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 18px; height: 18px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
+    }
+};
+
 window.handleLogin = async () => { 
     const loginBtn = document.getElementById('login-btn');
     let originalText = '';
@@ -2763,7 +2776,17 @@ window.handleLogin = async () => {
         await signInWithEmailAndPassword(auth, email, document.getElementById('login-pass').value);
         localStorage.setItem('gazi_last_email', email);
     } catch(e) { 
-        alert("❌ Giriş Başarısız: E-posta veya şifre hatalı."); 
+        if (e.code === 'auth/user-not-found') {
+            alert("❌ Kullanıcı bulunamadı.");
+        } else if (e.code === 'auth/wrong-password') {
+            alert("❌ Şifreniz yanlış.");
+        } else if (e.code === 'auth/invalid-email') {
+            alert("❌ Geçersiz e-posta adresi.");
+        } else if (e.code === 'auth/invalid-credential') {
+            alert("❌ E-posta veya şifre hatalı.");
+        } else {
+            alert("❌ Giriş Başarısız: E-posta veya şifre hatalı.");
+        }
     } finally {
         if (loginBtn) {
             loginBtn.disabled = false;
@@ -2780,6 +2803,14 @@ window.handleRegister = async () => {
     
     if(p1 !== p2) return alert("❌ Şifreler uymuyor!");
     
+    const regBtn = document.getElementById('reg-btn');
+    let originalText = '';
+    if (regBtn) {
+        originalText = regBtn.innerText;
+        regBtn.disabled = true;
+        regBtn.innerText = 'Yükleniyor...';
+    }
+
     const regExamType = document.getElementById('reg-exam-type').value; 
     const regGrade = document.getElementById('reg-grade').value;
     
@@ -2800,7 +2831,20 @@ window.handleRegister = async () => {
         await signOut(auth); 
         location.reload(); 
     } catch(e) { 
-        alert("❌ Kayıt Hatası: İşlem tamamlanamadı."); 
+        if (e.code === 'auth/email-already-in-use') {
+            alert("❌ Bu e-posta zaten kullanımda.");
+        } else if (e.code === 'auth/weak-password') {
+            alert("❌ Şifre çok zayıf (en az 6 karakter olmalı).");
+        } else if (e.code === 'auth/invalid-email') {
+            alert("❌ Geçersiz e-posta adresi.");
+        } else {
+            alert("❌ Kayıt Hatası: İşlem tamamlanamadı.");
+        }
+    } finally {
+        if (regBtn) {
+            regBtn.disabled = false;
+            regBtn.innerText = originalText;
+        }
     }
 };
 
