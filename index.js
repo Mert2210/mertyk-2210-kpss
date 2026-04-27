@@ -764,14 +764,12 @@ io.on("connection", (socket) => {
     socket.on("checkNotebookReviews", async (studentName) => {
         if(db && studentName) {
             try {
-                const snap = await db.collection("student_questions").where("studentName", "==", studentName).get();
                 const now = Date.now();
-                let reviewCount = 0;
-                snap.docs.forEach(doc => {
-                    const data = doc.data();
-                    if(data.nextReviewDate && data.nextReviewDate <= now) reviewCount++;
-                });
-                socket.emit("notebookReviewsCount", reviewCount);
+                const snap = await db.collection("student_questions")
+                    .where("studentName", "==", studentName)
+                    .where("nextReviewDate", "<=", now)
+                    .get();
+                socket.emit("notebookReviewsCount", snap.size);
             } catch(e) {}
         }
     });
@@ -779,12 +777,14 @@ io.on("connection", (socket) => {
     socket.on("getStudentLibrary", async ({ studentName, onlyReviews }) => {
         if(db && studentName) {
             try {
-                const snap = await db.collection("student_questions").where("studentName", "==", studentName).get();
-                let library = snap.docs.map(doc => { let d = doc.data(); d.id = doc.id; return d; });
+                let query = db.collection("student_questions").where("studentName", "==", studentName);
                 if(onlyReviews) {
                     const now = Date.now();
-                    library = library.filter(q => q.nextReviewDate && q.nextReviewDate <= now);
-                } else {
+                    query = query.where("nextReviewDate", "<=", now);
+                }
+                const snap = await query.get();
+                let library = snap.docs.map(doc => { let d = doc.data(); d.id = doc.id; return d; });
+                if(!onlyReviews) {
                     library.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
                 }
                 socket.emit("studentLibraryData", library);
