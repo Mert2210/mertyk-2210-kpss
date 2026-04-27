@@ -2,6 +2,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebas
 import { getAuth, onAuthStateChanged, updateProfile, updatePassword, EmailAuthProvider, reauthenticateWithCredential, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInAnonymously, signOut, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, sendEmailVerification, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-messaging.js";
 import { getStorage, ref as storageRef, uploadString, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 import { createSafeClientStore } from "./modules/client-storage.mjs";
 import { SETTINGS_MODES, applySettingsMode, getDefaultSettingsModeByRole } from "./modules/settings-mode.mjs";
 import { normalizeTopicFilterMode, getAllowedTopicsForMode, getAllowedTopicsForModalContext, isStorageRetryLimitExceededError, buildDerslerimTopicNavigation, canStartLibraryTest, evaluateStdAnswer, filterCourseNamesByQuery, getSavedLibraryCourseNames, buildDueReminderCountsBySubject, mergeSavedSubjectsWithDrafts, buildTopicListFromSources, getNextExpandedCourse, buildSelectedCourseLabel, DEFAULT_REMINDER_INTERVALS, formatReminderOptionLabel } from "./modules/ui-flow.mjs";
@@ -30,6 +31,11 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const messaging = getMessaging(app);
 const storage = getStorage(app);
+
+const SUPABASE_URL = "https://aguvunmrdtupfneydriw.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_FxQnziem_O35Ei9XsoHgWw_d3K6aUNQ";
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 const ROOT_ADMIN_EMAIL = "kayamert319@gmail.com";
 const APP_STATE = {
     currentUser: { name: "", role: "guest", email: "" },
@@ -3182,12 +3188,57 @@ async function uploadImageDataUrlIfNeeded(dataUrl, folder) {
     if (!dataUrl || typeof dataUrl !== 'string') return null;
     if (/^https?:\/\//.test(dataUrl)) return dataUrl;
     if (!/^data:image\/(jpeg|png|gif|webp);base64,/.test(dataUrl)) return null;
-    const ext = getImageExtensionFromDataUrl(dataUrl);
+
+    let finalDataUrl = dataUrl;
+    let ext = getImageExtensionFromDataUrl(finalDataUrl);
+
+    // Compress the image before uploading
+    const image = await new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = finalDataUrl;
+    });
+
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = image.width;
+    canvas.height = image.height;
+    ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+    // Attempt compression to webp/jpeg with lower quality
+    const compressedDataUrl = canvas.toDataURL('image/webp', 0.8) || canvas.toDataURL('image/jpeg', 0.8);
+    if (compressedDataUrl && compressedDataUrl !== 'data:,') {
+        finalDataUrl = compressedDataUrl;
+        ext = getImageExtensionFromDataUrl(finalDataUrl);
+    }
+
     const uniqueId = generateUniqueId();
-    const fileName = `${uniqueId}.${ext}`;
-    const fileRef = storageRef(storage, `${folder}/${fileName}`);
-    await uploadString(fileRef, dataUrl, 'data_url');
-    return getDownloadURL(fileRef);
+    const fileName = `${folder}/${uniqueId}.${ext}`;
+
+    // Convert Data URL to Blob
+    const res = await fetch(finalDataUrl);
+    const blob = await res.blob();
+
+    // Upload to Supabase Storage
+    const { data, error } = await supabase.storage
+        .from('soru-fotograflari')
+        .upload(fileName, blob, {
+            contentType: blob.type,
+            upsert: false
+        });
+
+    if (error) {
+        console.error("Supabase yükleme hatası:", error);
+        throw new Error("Görsel yüklenirken bir hata oluştu: " + error.message);
+    }
+
+    // Get public URL
+    const { data: publicUrlData } = supabase.storage
+        .from('soru-fotograflari')
+        .getPublicUrl(fileName);
+
+    return publicUrlData.publicUrl;
 }
 
 let socket; 
