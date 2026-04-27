@@ -4541,6 +4541,7 @@ window.showLocalList = (type) => {
     const keys = { 'wrong': 'kpss_wrongs', 'fav': 'kpss_favs', 'blank': 'kpss_blanks', 'report': 'kpss_reports' }; 
     const titles = { 'wrong': '❌ Yanlışlarım', 'fav': '⭐ Favorilerim', 'blank': '⬜ Boş Bıraktıklarım', 'report': '🚨 Hatalı Bildirdiklerim' }; 
     const list = JSON.parse(localStorage.getItem(keys[type])) || []; 
+    window.tempStdQuestions = list;
     document.getElementById('list-title').innerText = `${titles[type]} (${list.length})`; 
     const contentDiv = document.getElementById('list-content'); 
     if(list.length === 0) contentDiv.innerHTML = "<p style='text-align:center;'>Bu liste şu an boş.</p>"; 
@@ -4550,12 +4551,21 @@ window.showLocalList = (type) => {
 
 window.downloadPDF = () => { 
     const keys = { 'wrong': 'kpss_wrongs', 'fav': 'kpss_favs', 'blank': 'kpss_blanks', 'report': 'kpss_reports' }; 
-    const list = JSON.parse(localStorage.getItem(keys[currentListType])) || []; 
+    let list = [];
+    if (keys[currentListType]) {
+        list = JSON.parse(localStorage.getItem(keys[currentListType])) || [];
+    } else {
+        list = window.tempStdQuestions || [];
+    }
+
     if(list.length === 0) return alert("Liste boş!"); 
     const win = window.open('', '', 'height=600,width=800');
     if (!win) { alert("Tarayıcınız açılır pencereyi engelledi. Lütfen açılır pencerelere izin verip tekrar deneyin."); return; }
     win.document.write('<html><body style="font-family:sans-serif;"><h2>Gazililer Yanlış Soru Kumbaram</h2><hr>'); 
-    list.forEach((q, i) => win.document.write(`<p><b>Soru ${i+1}:</b> ${escapeHtml(q.soru)}<br><span style="color:green;">Cevap: ${escapeHtml(q.siklar[q.dogru])}</span></p>`)); 
+    list.forEach((q, i) => {
+        const answer = (q.siklar && q.siklar[q.dogru]) ? q.siklar[q.dogru] : 'Bilinmiyor';
+        win.document.write(`<p><b>Soru ${i+1}:</b> ${escapeHtml(q.soru)}<br><span style="color:green;">Cevap: ${escapeHtml(answer)}</span></p>`);
+    });
     win.document.write('</body></html>'); 
     win.document.close(); 
     win.print(); 
