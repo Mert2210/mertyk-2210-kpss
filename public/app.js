@@ -3184,6 +3184,19 @@ function generateUniqueId(prefix = '') {
     return prefix ? `${prefix}_${baseId}` : baseId;
 }
 
+function base64ToBlob(dataUrl) {
+    const parts = dataUrl.split(',');
+    const mimeMatch = parts[0].match(/:(.*?);/);
+    const mime = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+    const bstr = atob(parts[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new Blob([u8arr], { type: mime });
+}
+
 async function uploadImageDataUrlIfNeeded(dataUrl, folder) {
     if (!dataUrl || typeof dataUrl !== 'string') return null;
     if (/^https?:\/\//.test(dataUrl)) return dataUrl;
@@ -3217,8 +3230,7 @@ async function uploadImageDataUrlIfNeeded(dataUrl, folder) {
     const fileName = `${folder}/${uniqueId}.${ext}`;
 
     // Convert Data URL to Blob
-    const res = await fetch(finalDataUrl);
-    const blob = await res.blob();
+    const blob = base64ToBlob(finalDataUrl);
 
     // Upload to Supabase Storage
     const { data, error } = await supabase.storage
