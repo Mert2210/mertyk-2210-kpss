@@ -217,8 +217,7 @@ async function sendPushNotification(topic, title, body) {
         topic: topic // Öğrenciler sınıfa girdiklerinde bu "topic" (örneğin sınıf kodu) kanalına abone olacaklar
     };
     try {
-        const response = await admin.messaging().send(message);
-        console.log("🚀 Bildirim başarıyla gönderildi:", response);
+        await admin.messaging().send(message);
         return true;
     } catch (error) {
         console.error("⚠️ Bildirim gönderme hatası:", error);
