@@ -3140,7 +3140,7 @@ async function optimizeImageFileForUpload(file, options = {}) {
     };
     redraw();
 
-    const mimeCandidates = ['image/webp', 'image/jpeg'];
+    const mimeCandidates = ['image/webp'];
     let bestDataUrl = null;
     let bestBytes = Number.POSITIVE_INFINITY;
 
@@ -3174,7 +3174,11 @@ async function optimizeImageFileForUpload(file, options = {}) {
         redraw();
     }
 
-    return bestDataUrl || originalDataUrl;
+    if (!bestDataUrl || !bestDataUrl.startsWith('data:image/webp')) {
+        throw new Error('Görsel image/webp formatına dönüştürülemedi.');
+    }
+
+    return bestDataUrl;
 }
 
 function generateUniqueId(prefix = '') {

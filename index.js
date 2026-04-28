@@ -396,7 +396,7 @@ io.on("connection", (socket) => {
             if(geminiApiKey === "ANAHTAR_YOK") { socket.emit("geminiParsedData", "⚠️ Sunucuda API Anahtarı yok."); return; }
             if (!imageBase64 || typeof imageBase64 !== 'string') { socket.emit("geminiParsedData", "⚠️ Geçersiz görsel verisi."); return; }
             if (!/^data:image\/(jpeg|jpg|png|gif|webp);base64,/i.test(imageBase64)) { socket.emit("geminiParsedData", "⚠️ Görsel formatı desteklenmiyor."); return; }
-            if (imageBase64.length > 2 * 1024 * 1024) { socket.emit("geminiParsedData", "⚠️ Görsel dosyası çok büyük (max 2 MB)."); return; }
+            if (imageBase64.length > 10 * 1024 * 1024) { socket.emit("geminiParsedData", "⚠️ Görsel dosyası çok büyük (max 10 MB)."); return; }
             const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, "");
             const imageParts = [{ inlineData: { data: base64Data, mimeType: "image/jpeg" } }];
             const prompt = "Bu bir sınav sorusudur. Resmi analiz et. Soru metnini ve şıkları ayrı ayrı çıkar. Formatın şu olsun:\nSORU_METNI: [soruyu buraya yaz]\nSIKLAR: [A şıkkı] | [B şıkkı] | [C şıkkı] | [D şıkkı] | [E şıkkı]\nDOGRU_INDEKS: [sence doğru cevap hangisiyse 0'dan başlayarak sadece rakam yaz (A=0, B=1...)]";
@@ -643,8 +643,8 @@ io.on("connection", (socket) => {
         const safeQuestionText = sanitizeString(newQ.soru, 10000);
         const safeClassCode = sanitizeString(newQ.classCode, 20).toUpperCase();
         if (!safeQuestionText || !safeClassCode) return socket.emit("errorMsg", "Soru metni ve sınıf kodu boş olamaz.");
-        if (newQ.image && !isValidImageDataUrl(newQ.image)) return socket.emit("errorMsg", "Soru görseli geçersiz veya çok büyük (max 2 MB).");
-        if (newQ.solutionImage && !isValidImageDataUrl(newQ.solutionImage)) return socket.emit("errorMsg", "Çözüm görseli geçersiz veya çok büyük (max 2 MB).");
+        if (newQ.image && !isValidImageDataUrl(newQ.image)) return socket.emit("errorMsg", "Soru görseli geçersiz veya çok büyük (max 10 MB).");
+        if (newQ.solutionImage && !isValidImageDataUrl(newQ.solutionImage)) return socket.emit("errorMsg", "Çözüm görseli geçersiz veya çok büyük (max 10 MB).");
         const classes = readClasses();
         const teacherEmail = sanitizeString(currentUser(socket).email, 200);
         if (!classes[safeClassCode] || !classes[safeClassCode].teacher) {
