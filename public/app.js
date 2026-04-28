@@ -4224,6 +4224,58 @@ if(socket) {
             </div>`).join(''); 
         showScreen('screen-list'); 
     });
+    socket.on("classPerformanceSummaryData", (data) => {
+        document.getElementById('library-filter-area').style.display = 'none';
+        currentListType = "class_performance";
+        document.getElementById('list-title').innerText = "📈 Sınıf Performans Özeti";
+        const startBtn = document.getElementById('start-library-test-btn');
+        if (startBtn) startBtn.style.display = 'none';
+        const reviewHeader = document.getElementById('review-section-header');
+        if (reviewHeader) reviewHeader.style.display = 'none';
+        const div = document.getElementById('list-content');
+
+        div.innerHTML = `
+            <div class="list-item" style="border-left: 5px solid #8e44ad; text-align:center; padding:20px;">
+                <h3 style="color:#8e44ad; margin-top:0;">Ortalama Başarı</h3>
+                <div style="font-size:3rem; font-weight:bold; color:#27ae60; margin:10px 0;">
+                    %${escapeHtml(data.averageRatio)}
+                </div>
+                <div style="font-size:0.9rem; color:#555;">
+                    Sınıftaki Öğrenci Katılımı: <b>${escapeHtml(data.totalStudents)}</b> kişi<br>
+                    Toplam Doğru Cevap: <b>${escapeHtml(data.totalCorrect || 0)}</b> / Toplam Çözülen: <b>${escapeHtml(data.totalQuestions || 0)}</b>
+                </div>
+            </div>
+        `;
+        showScreen('screen-list');
+    });
+
+    socket.on("teacherHistoryData", (data) => {
+        document.getElementById('library-filter-area').style.display = 'none';
+        currentListType = "teacher_history";
+        document.getElementById('list-title').innerText = "🕒 Soru Gönderme Geçmişi";
+        const startBtn = document.getElementById('start-library-test-btn');
+        if (startBtn) startBtn.style.display = 'none';
+        const reviewHeader = document.getElementById('review-section-header');
+        if (reviewHeader) reviewHeader.style.display = 'none';
+        const div = document.getElementById('list-content');
+
+        if(data.length === 0) {
+            div.innerHTML = "<p style='text-align:center;'>Bu sınıfa henüz soru gönderilmemiş.</p>";
+        } else {
+            div.innerHTML = data.map((q, i) => {
+                const dateText = q.createdAt && typeof q.createdAt.toDate === 'function' ? q.createdAt.toDate().toLocaleString('tr-TR') :
+                                (q.createdAt ? new Date(q.createdAt).toLocaleString('tr-TR') : 'Bilinmeyen Tarih');
+                return `
+                <div class="list-item" style="border-left: 5px solid #f39c12;">
+                    <small style="color:#888;"><b>Tarih:</b> ${escapeHtml(dateText)}</small><br>
+                    <b>Soru:</b> ${escapeHtml(q.soru)} <br>
+                    <small>Ders: ${escapeHtml(q.ders)} | Konu: ${escapeHtml(q.deneme)}</small><br>
+                </div>`;
+            }).join('');
+        }
+        showScreen('screen-list');
+    });
+
     socket.on("teacherQuestionDeleted", ({ success, message }) => {
         if (success) {
             window.showSoftFeedback('Soru silindi.');
@@ -4318,6 +4370,20 @@ window.fetchMyLibrary = () => {
     if(!socket) return; 
     if(!window.myClassCode) return alert("Önce bir sınıf seçmelisiniz."); 
     socket.emit("getTeacherLibrary", window.myClassCode); 
+};
+
+window.fetchTeacherHistory = () => {
+    if(!socket) return;
+    const code = document.getElementById('report-class-select').value;
+    if(!code) return alert("Lütfen geçmişini görmek istediğiniz sınıfı seçin!");
+    socket.emit("getTeacherHistory", code.toUpperCase());
+};
+
+window.fetchClassPerformanceSummary = () => {
+    if(!socket) return;
+    const code = document.getElementById('report-class-select').value;
+    if(!code) return alert("Lütfen özetini görmek istediğiniz sınıfı seçin!");
+    socket.emit("getClassPerformanceSummary", code.toUpperCase());
 };
 
 window.fetchPendingTeachers = () => { if(socket) socket.emit("getPendingTeachers"); };
