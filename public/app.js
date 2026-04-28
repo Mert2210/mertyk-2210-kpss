@@ -3140,41 +3140,10 @@ async function optimizeImageFileForUpload(file, options = {}) {
     };
     redraw();
 
-    const mimeCandidates = ['image/webp', 'image/jpeg'];
-    let bestDataUrl = null;
-    let bestBytes = Number.POSITIVE_INFINITY;
-
-    for (let attempt = 0; attempt < config.maxAttempts; attempt++) {
-        let currentDataUrl = null;
-        for (const mimeType of mimeCandidates) {
-            const encoded = encodeCanvasToDataUrl(canvas, mimeType, quality);
-            if (encoded) {
-                currentDataUrl = encoded;
-                break;
-            }
-        }
-        if (!currentDataUrl) break;
-
-        const bytes = estimateDataUrlBytes(currentDataUrl);
-        if (bytes > 0 && bytes < bestBytes) {
-            bestBytes = bytes;
-            bestDataUrl = currentDataUrl;
-        }
-        if (bytes > 0 && bytes <= config.targetBytes) break;
-
-        if (quality > config.minQuality + FLOAT_COMPARISON_EPSILON) {
-            quality = Math.max(config.minQuality, quality - config.qualityStep);
-            continue;
-        }
-
-        if (width <= config.minWidth) break;
-        width = Math.max(config.minWidth, Math.round(width * config.scaleStep));
-        height = Math.max(1, Math.round((image.height * width) / Math.max(1, image.width)));
-        quality = config.initialQuality;
-        redraw();
-    }
-
-    return bestDataUrl || originalDataUrl;
+    // Force WebP at 0.8 quality without iterative size checking or fallbacks
+    const webpUrl = encodeCanvasToDataUrl(canvas, 'image/webp', 0.8);
+    if (webpUrl) return webpUrl;
+    throw new Error('WebP formatında görsel oluşturulamadı.');
 }
 
 function generateUniqueId(prefix = '') {
