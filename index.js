@@ -691,6 +691,22 @@ io.on("connection", (socket) => {
         }
     });
 
+    socket.on("getTeacherHistory", async (classCode) => {
+        if (!ensureTeacher(socket)) return;
+        const safeClassCode = sanitizeString(classCode, 20).toUpperCase();
+        if(db && safeClassCode) {
+            try {
+                const snap = await db.collection("kpss_sorular").where("classCode", "==", safeClassCode).orderBy("createdAt", "desc").get();
+                socket.emit("teacherHistoryData", snap.docs.map((doc) => normalizeQuestionForClient(doc.data(), doc.id)));
+            } catch(e) { socket.emit("teacherHistoryData", []); }
+        } else {
+            const list = tumSorular
+                .filter(q => q.classCode === safeClassCode)
+                .map((q, index) => normalizeQuestionForClient(q, `${safeClassCode}-${index}`));
+            socket.emit("teacherHistoryData", list.reverse());
+        }
+    });
+
     socket.on("getClassQuestions", async (classCode) => {
         if(db && classCode) {
             try {
@@ -862,6 +878,41 @@ io.on("connection", (socket) => {
             createdAt: Date.now()
         });
         writeJsonFile(REVIEW_QUEUE_FILE, queue.slice(-5000));
+    });
+
+    socket.on("getClassPerformanceSummary", async (classCode) => {
+        if (!ensureTeacher(socket)) return;
+        const safeClassCode = sanitizeString(classCode, 20).toUpperCase();
+        if (!safeClassCode) return socket.emit("classPerformanceSummaryData", { averageRatio: 0, totalStudents: 0 });
+        try {
+            let reports = [];
+            if (db) {
+                const snap = await db.collection("kpss_results").where("classCode", "==", safeClassCode).get();
+                reports = snap.docs.map(doc => doc.data());
+            }
+            if (!reports.length) {
+                return socket.emit("classPerformanceSummaryData", { averageRatio: 0, totalStudents: 0 });
+            }
+            let totalCorrect = 0;
+            let totalQuestions = 0;
+            reports.forEach(r => {
+                totalCorrect += (Number(r.score) || 0);
+                totalQuestions += (Number(r.total) || 0);
+            });
+            const ratio = totalQuestions > 0 ? Math.round((totalCorrect / totalQuestions) * 100) : 0;
+
+            // To be accurate, we can also calculate unique students
+            const uniqueStudents = new Set(reports.map(r => r.name)).size;
+
+            socket.emit("classPerformanceSummaryData", {
+                averageRatio: ratio,
+                totalStudents: uniqueStudents,
+                totalCorrect,
+                totalQuestions
+            });
+        } catch (error) {
+            socket.emit("classPerformanceSummaryData", { averageRatio: 0, totalStudents: 0 });
+        }
     });
 
     socket.on("getEvaluationData", async (classCode) => {
