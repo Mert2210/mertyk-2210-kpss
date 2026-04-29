@@ -14,14 +14,33 @@ async function importSettingsMode() {
     return import(settingsModeModuleUrl);
 }
 
-test('Kütüphaneyi açma akışı: Derslerim konu seçimi pending filtre durumunu üretir', async () => {
+test('Kütüphaneyi açma akışı: Derslerim konu seçimi pending filtre durumunu üretir ve girdileri normalize eder', async () => {
     const { buildDerslerimTopicNavigation } = await importUiFlow();
-    const state = buildDerslerimTopicNavigation('Tarih', 'Osmanlı Devleti');
 
-    assert.deepStrictEqual(state, {
+    // Happy path
+    assert.deepStrictEqual(buildDerslerimTopicNavigation('Tarih', 'Osmanlı Devleti'), {
         libraryViewingTopicPath: { subject: 'Tarih', topic: 'Osmanlı Devleti' },
         pendingLibraryFilter: { subject: 'Tarih', topic: 'Osmanlı Devleti' }
     });
+
+    // Trimming and normalization
+    assert.deepStrictEqual(buildDerslerimTopicNavigation('  Matematik  ', ' Türev '), {
+        libraryViewingTopicPath: { subject: 'Matematik', topic: 'Türev' },
+        pendingLibraryFilter: { subject: 'Matematik', topic: 'Türev' }
+    });
+
+    // Non-string inputs (should be converted to string and trimmed)
+    assert.deepStrictEqual(buildDerslerimTopicNavigation(123, true), {
+        libraryViewingTopicPath: { subject: '123', topic: 'true' },
+        pendingLibraryFilter: { subject: '123', topic: 'true' }
+    });
+
+    // Missing or invalid inputs should return null
+    assert.strictEqual(buildDerslerimTopicNavigation(null, 'Konu'), null);
+    assert.strictEqual(buildDerslerimTopicNavigation('Ders', undefined), null);
+    assert.strictEqual(buildDerslerimTopicNavigation('', 'Konu'), null);
+    assert.strictEqual(buildDerslerimTopicNavigation('Ders', '   '), null);
+    assert.strictEqual(buildDerslerimTopicNavigation(null, null), null);
 });
 
 test('Konu seçince listeleme: sadece kayıtlı modunda yalnızca kayıtlı konu döner', async () => {
