@@ -1183,7 +1183,7 @@ function sendQuestionToRoom(roomCode) {
 }
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`🚀 Gazililer Eğitim Platformu Sunucusu ${PORT} portunda aktif.`));
+server.listen(PORT);
 
 if (db && admin.apps.length) {
     db.collection("student_questions").onSnapshot(
