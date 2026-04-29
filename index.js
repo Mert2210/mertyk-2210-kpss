@@ -936,13 +936,23 @@ io.on("connection", (socket) => {
         if (!ensureAdmin(socket)) return;
         if(admin.apps.length) {
             try {
-                const listUsersResult = await admin.auth().listUsers(1000);
                 const pending = [];
-                listUsersResult.users.forEach(userRecord => {
-                    if (userRecord.displayName && userRecord.displayName.includes("|teacher_pending")) {
-                        pending.push({ email: userRecord.email, name: userRecord.displayName.split("|")[0] });
-                    }
-                });
+                if (db) {
+                    const snap = await db.collection("teacher_approvals").where("status", "==", "pending").get();
+                    snap.docs.forEach(doc => {
+                        const data = doc.data();
+                        if (data.email && data.name) {
+                            pending.push({ email: data.email, name: data.name });
+                        }
+                    });
+                } else {
+                    const listUsersResult = await admin.auth().listUsers(1000);
+                    listUsersResult.users.forEach(userRecord => {
+                        if (userRecord.displayName && userRecord.displayName.includes("|teacher_pending")) {
+                            pending.push({ email: userRecord.email, name: userRecord.displayName.split("|")[0] });
+                        }
+                    });
+                }
                 socket.emit("pendingTeachersData", pending);
             } catch(e) { socket.emit("pendingTeachersData", []); }
         } else { socket.emit("pendingTeachersData", []); }
@@ -968,13 +978,23 @@ io.on("connection", (socket) => {
                         }, { merge: true });
                     }
                     
-                    const listUsersResult = await admin.auth().listUsers(1000);
                     const pending = [];
-                    listUsersResult.users.forEach(u => {
-                        if (u.displayName && u.displayName.includes("|teacher_pending")) {
-                            pending.push({ email: u.email, name: u.displayName.split("|")[0] });
-                        }
-                    });
+                    if (db) {
+                        const snap = await db.collection("teacher_approvals").where("status", "==", "pending").get();
+                        snap.docs.forEach(doc => {
+                            const data = doc.data();
+                            if (data.email && data.name) {
+                                pending.push({ email: data.email, name: data.name });
+                            }
+                        });
+                    } else {
+                        const listUsersResult = await admin.auth().listUsers(1000);
+                        listUsersResult.users.forEach(u => {
+                            if (u.displayName && u.displayName.includes("|teacher_pending")) {
+                                pending.push({ email: u.email, name: u.displayName.split("|")[0] });
+                            }
+                        });
+                    }
                     socket.emit("pendingTeachersData", pending);
                 }
             } catch(e) {}
