@@ -803,8 +803,8 @@
         </div>
 
         <div class="ui-question-block">
-            <button onclick="reportQuestion()" class="ui-absolute-icon-btn report" title="Hatalı Soru Bildir">🚨</button>
-            <button id="btn-fav-current" onclick="toggleFavCurrent()" class="ui-absolute-icon-btn fav">☆</button>
+            <button onclick="reportQuestion()" class="ui-absolute-icon-btn report" title="Hatalı Soru Bildir" aria-label="Hatalı Soru Bildir">🚨</button>
+            <button id="btn-fav-current" onclick="toggleFavCurrent()" class="ui-absolute-icon-btn fav" title="Favoriyi Değiştir" aria-label="Favoriyi Değiştir">☆</button>
             
             <img id="q-image-display" src="" style="width:100%; border-radius:10px; margin-top:30px; display:none;">
             <div id="q-multi-image-container" style="display:none; flex-direction:column; gap:10px; margin-top:30px;"></div>
@@ -838,7 +838,7 @@
                     <span class="library-modal-slider"></span>
                 </label>
             </div>
-            <button type="button" class="library-modal-close" onclick="window.closeLibraryModal()">✕</button>
+            <button type="button" class="library-modal-close" aria-label="Kütüphane penceresini kapat" onclick="window.closeLibraryModal()">✕</button>
         </div>
         <div id="library-modal-content" class="library-modal-content gpu-transition"></div>
     </div>
