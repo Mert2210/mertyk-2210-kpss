@@ -32,9 +32,16 @@ const auth = getAuth(app);
 const messaging = getMessaging(app);
 const storage = getStorage(app);
 
-const SUPABASE_URL = "https://aguvunmrdtupfneydriw.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_FxQnziem_O35Ei9XsoHgWw_d3K6aUNQ";
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Use dynamic Supabase configuration from backend, fallback to empty strings to avoid errors if missing (though the client needs valid ones)
+const runtimeSupabase = runtimeConfig.supabaseConfig || {};
+const SUPABASE_URL = runtimeSupabase.url || "";
+const SUPABASE_ANON_KEY = runtimeSupabase.anonKey || "";
+let supabase = null;
+if (SUPABASE_URL && SUPABASE_ANON_KEY) {
+    supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+} else {
+    console.warn("⚠️ Supabase konfigürasyonu eksik, görsel yükleme özellikleri devre dışı kalabilir.");
+}
 
 const ROOT_ADMIN_EMAIL = "kayamert319@gmail.com";
 const APP_STATE = {
@@ -3232,6 +3239,11 @@ async function uploadImageDataUrlIfNeeded(dataUrl, folder) {
 
     const uniqueId = generateUniqueId();
     const fileName = `${folder}/${uniqueId}.${ext}`;
+
+    if (!supabase) {
+        console.error("Supabase yükleme hatası: Konfigürasyon eksik.");
+        throw new Error("Görsel yüklenirken bir hata oluştu: Supabase konfigürasyonu eksik.");
+    }
 
     // Convert Data URL to Blob
     const blob = base64ToBlob(finalDataUrl);
