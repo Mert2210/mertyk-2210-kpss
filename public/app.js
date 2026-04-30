@@ -4618,10 +4618,12 @@ window.toggleFavCurrent = () => {
         removeFromLocal('kpss_favs', currentQObject); 
         btn.style.color = "#ccc"; 
         btn.innerText = "☆"; 
+        btn.setAttribute('aria-label', 'Favorilere Ekle');
     } else { 
         saveToLocal('kpss_favs', currentQObject); 
         btn.style.color = "#f1c40f"; 
         btn.innerText = "⭐"; 
+        btn.setAttribute('aria-label', 'Favorilerden Çıkar');
     } 
 };
 
