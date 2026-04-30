@@ -55,7 +55,6 @@ const io = new Server(server, {
     transports: ["polling", "websocket"]
 });
 
-app.use(express.static(path.join(__dirname)));
 app.use(express.static(path.join(__dirname, "public")));
 
 let serviceAccount;
@@ -110,7 +109,11 @@ app.get('/app-config', staticFileLimiter, (req, res) => {
             appId: process.env.FIREBASE_APP_ID || "",
             measurementId: process.env.FIREBASE_MEASUREMENT_ID || ""
         },
-        firebaseVapidKey: process.env.FIREBASE_VAPID_PUBLIC_KEY || ""
+        firebaseVapidKey: process.env.FIREBASE_VAPID_PUBLIC_KEY || "",
+        supabaseConfig: {
+            url: process.env.SUPABASE_URL || "",
+            anonKey: process.env.SUPABASE_ANON_KEY || ""
+        }
     });
 });
 
