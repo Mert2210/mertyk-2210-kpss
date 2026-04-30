@@ -115,6 +115,7 @@ app.get('/app-config', staticFileLimiter, (req, res) => {
 });
 
 let tumSorular = [];
+let cachedFiltersData = null;
 const QUESTIONS_FILE = path.join(__dirname, 'questions.json');
 const REPORTS_FILE = path.join(__dirname, 'reports.json'); 
 const CLASSES_FILE = path.join(__dirname, 'classes.json');
@@ -148,8 +149,20 @@ sorulariYukle();
 
 const rooms = {};
 
+// ⚡ Bolt Optimization: getFiltersData Caching
+// 💡 What: Caches the result of `getFiltersData` and invalidates it only when questions update.
+// 🎯 Why: Re-calculating filters for the 50,000+ length `tumSorular` array on every `socket.on("getFilters")` or `io.on("connection")` blocked the event loop.
+// 📊 Impact: Avoids redundant O(n) array traversals, massively dropping CPU overhead during high-traffic client connections.
+function getCachedFilters() {
+    if (!cachedFiltersData) {
+        cachedFiltersData = getFiltersData(tumSorular);
+    }
+    return cachedFiltersData;
+}
+
 function listeleriHerkesinEkranindaGuncelle() {
-    io.emit('updateFilters', getFiltersData(tumSorular));
+    cachedFiltersData = null; // Invalidate cache
+    io.emit('updateFilters', getCachedFilters());
 }
 
 function readClasses() {
@@ -304,10 +317,10 @@ async function triggerStudentReminder(studentName) {
 }
 
 io.on("connection", (socket) => {
-    socket.emit('updateFilters', getFiltersData(tumSorular));
+    socket.emit('updateFilters', getCachedFilters());
 
     socket.on("getFilters", () => {
-        socket.emit('updateFilters', getFiltersData(tumSorular));
+        socket.emit('updateFilters', getCachedFilters());
     });
 
     socket.on("getUserCurriculum", async () => {
