@@ -745,14 +745,23 @@ io.on("connection", (socket) => {
 
         if (db && safeClassCode) {
             try {
-                const snap = await db.collection("kpss_sorular").where("classCode", "==", safeClassCode).get();
-                const targetDoc = snap.docs.find((doc) => {
-                    const row = doc.data() || {};
-                    if (safeQuestionId && sanitizeString(row.id, 120) === safeQuestionId) return true;
-                    if (!safeQuestionId && safeQuestionText && sanitizeString(row.soru, 10000) === safeQuestionText) return true;
-                    return false;
-                });
-                if (targetDoc) await targetDoc.ref.delete();
+                if (safeQuestionId) {
+                    const snap = await db.collection("kpss_sorular")
+                        .where("classCode", "==", safeClassCode)
+                        .where("id", "==", safeQuestionId)
+                        .limit(1)
+                        .get();
+                    if (!snap.empty) await snap.docs[0].ref.delete();
+                } else if (safeQuestionText) {
+                    const snap = await db.collection("kpss_sorular")
+                        .where("classCode", "==", safeClassCode)
+                        .get();
+                    const targetDoc = snap.docs.find((doc) => {
+                        const row = doc.data() || {};
+                        return sanitizeString(row.soru, 10000) === safeQuestionText;
+                    });
+                    if (targetDoc) await targetDoc.ref.delete();
+                }
             } catch (e) {}
         }
 
