@@ -4746,12 +4746,12 @@ if(socket) {
     socket.on('roomCreated', c => { myRoom = c; APP_STATE.room.code = c; document.getElementById('lobby-room-code').innerText = c; });
     socket.on('updatePlayerList', p => { 
         const l = document.getElementById('lobby-players-list'); 
-        if(l) l.innerHTML = p.map(x => `<span class="player-badge">${x.username}</span>`).join(''); 
+        if(l) l.innerHTML = p.map(x => `<span class="player-badge">${escapeHtml(x.username)}</span>`).join('');
         
         const live = document.getElementById('live-leaderboard'); 
         if(live) { 
             live.style.display = currentMode === 'room' ? 'block' : 'none'; 
-            live.innerHTML = "🏆 " + p.sort((a,b)=>b.score-a.score).map(x => `<b>${x.username}:</b> ${x.score}p`).join(' | '); 
+            live.innerHTML = "🏆 " + p.sort((a,b)=>b.score-a.score).map(x => `<b>${escapeHtml(x.username)}:</b> ${x.score}p`).join(' | ');
         }
     });
     socket.on('gameOver', (players) => {
@@ -4763,7 +4763,7 @@ if(socket) {
         let html = `<h3 style="color:#e67e22; margin-bottom:5px;">Oda Sınavı Sona Erdi!</h3>`;
         html += players.map((p, i) => `
             <div class="list-item" style="border-left:5px solid ${i===0?'#f1c40f':'#3498db'}; font-size:1.1rem; text-align:left;">
-                <b>${i === 0 ? '👑' : ''} ${i+1}. ${p.username}</b> 
+                <b>${i === 0 ? '👑' : ''} ${i+1}. ${escapeHtml(p.username)}</b>
                 <span style="float:right; color:#27ae60; font-weight:bold;">${p.score} Puan</span>
             </div>`).join('');
         
