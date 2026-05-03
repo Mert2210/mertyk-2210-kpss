@@ -3164,7 +3164,7 @@ async function optimizeImageFileForUpload(file, options = {}) {
     };
     redraw();
 
-    const mimeCandidates = ['image/webp'];
+    const mimeCandidates = ['image/webp', 'image/jpeg'];
     let bestDataUrl = null;
     let bestBytes = Number.POSITIVE_INFINITY;
 
@@ -3198,7 +3198,7 @@ async function optimizeImageFileForUpload(file, options = {}) {
         redraw();
     }
 
-    if (!bestDataUrl || !/^data:image\/webp/.test(bestDataUrl)) {
+    if (!bestDataUrl || !/^data:image\//.test(bestDataUrl)) {
         throw new Error(`Görsel optimize edilemedi (denenen formatlar: ${mimeCandidates.join(', ')}).`);
     }
 
