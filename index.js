@@ -228,8 +228,8 @@ function normalizeQuestionForClient(question, fallbackId = "") {
 // 🚨 BİLDİRİM (PUSH) GÖNDERME FONKSİYONU 🚨
 async function sendPushNotification(topic, title, body) {
     if (!admin.apps.length || !isValidTopicName(topic)) return false;
-    const safeTitle = typeof title === "string" ? title : String(title || "");
-    const safeBody = typeof body === "string" ? body : String(body || "");
+    const safeTitle = String(title || "");
+    const safeBody = String(body || "");
     const message = {
         data: {
             title: safeTitle,
