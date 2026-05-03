@@ -1065,16 +1065,25 @@ io.on("connection", (socket) => {
     });
 
     socket.on("startTrial", (settings) => {
-        let pool = [...tumSorular];
-        if (settings.deneme && settings.deneme !== "HEPSI" && (!Array.isArray(settings.deneme) || settings.deneme.length > 0)) {
-            const secilenler = Array.isArray(settings.deneme) ? settings.deneme : [settings.deneme];
-            pool = pool.filter(q => secilenler.includes(q.deneme));
+        // ⚡ Bolt: Prevent event loop blocking and intermediate allocations
+        // 💡 What: Single loop replacement for chained .filter() calls
+        // 🎯 Why: Iterating over large `tumSorular` multiple times caused CPU spikes
+        let pool = [];
+        const hasDeneme = settings.deneme && settings.deneme !== "HEPSI" && (!Array.isArray(settings.deneme) || settings.deneme.length > 0);
+        const secilenler = hasDeneme ? (Array.isArray(settings.deneme) ? settings.deneme : [settings.deneme]) : null;
+
+        const hasSubject = settings.subject && settings.subject !== "HEPSI" && (!Array.isArray(settings.subject) || settings.subject.length > 0);
+        const hedefler = hasSubject ? (Array.isArray(settings.subject) ? settings.subject : [settings.subject]) : null;
+
+        const zorluk = (settings.difficulty && settings.difficulty !== "HEPSI") ? settings.difficulty : null;
+
+        for (let i = 0; i < tumSorular.length; i++) {
+            const q = tumSorular[i];
+            if (secilenler && !secilenler.includes(q.deneme)) continue;
+            if (hedefler && !hedefler.includes((q.ders || "GENEL").trim().toLocaleUpperCase('tr'))) continue;
+            if (zorluk && (q.zorluk || "ORTA").toLocaleUpperCase('tr') !== zorluk) continue;
+            pool.push(q);
         }
-        if (settings.subject && settings.subject !== "HEPSI" && (!Array.isArray(settings.subject) || settings.subject.length > 0)) {
-            const hedefler = Array.isArray(settings.subject) ? settings.subject : [settings.subject];
-            pool = pool.filter(q => hedefler.includes((q.ders || "GENEL").trim().toLocaleUpperCase('tr')));
-        }
-        if (settings.difficulty && settings.difficulty !== "HEPSI") pool = pool.filter(q => (q.zorluk || "ORTA").toLocaleUpperCase('tr') === settings.difficulty);
 
         fisherYatesShuffle(pool);
         const limit = parseInt(settings.count) || 10;
@@ -1087,19 +1096,26 @@ io.on("connection", (socket) => {
         const room = rooms[roomCode];
         if (!room) return;
         
-        let pool = [...tumSorular];
+        // ⚡ Bolt: Prevent event loop blocking and intermediate allocations
+        // 💡 What: Single loop replacement for chained .filter() calls
+        // 🎯 Why: Iterating over large `tumSorular` multiple times caused CPU spikes
+        let pool = [];
         const limit = parseInt(settings.count) || 10;
 
-        if (settings.deneme && settings.deneme !== "HEPSI" && (!Array.isArray(settings.deneme) || settings.deneme.length > 0)) {
-            const secilenler = Array.isArray(settings.deneme) ? settings.deneme : [settings.deneme];
-            pool = pool.filter(q => secilenler.includes(q.deneme));
-        }
-        if (settings.subject && settings.subject !== "HEPSI" && (!Array.isArray(settings.subject) || settings.subject.length > 0)) {
-            const hedefler = Array.isArray(settings.subject) ? settings.subject : [settings.subject];
-            pool = pool.filter(q => hedefler.includes((q.ders || "GENEL").trim().toLocaleUpperCase('tr')));
-        }
-        if (settings.difficulty && settings.difficulty !== "HEPSI") {
-            pool = pool.filter(q => (q.zorluk || "ORTA").toLocaleUpperCase('tr') === settings.difficulty);
+        const hasDeneme = settings.deneme && settings.deneme !== "HEPSI" && (!Array.isArray(settings.deneme) || settings.deneme.length > 0);
+        const secilenler = hasDeneme ? (Array.isArray(settings.deneme) ? settings.deneme : [settings.deneme]) : null;
+
+        const hasSubject = settings.subject && settings.subject !== "HEPSI" && (!Array.isArray(settings.subject) || settings.subject.length > 0);
+        const hedefler = hasSubject ? (Array.isArray(settings.subject) ? settings.subject : [settings.subject]) : null;
+
+        const zorluk = (settings.difficulty && settings.difficulty !== "HEPSI") ? settings.difficulty : null;
+
+        for (let i = 0; i < tumSorular.length; i++) {
+            const q = tumSorular[i];
+            if (secilenler && !secilenler.includes(q.deneme)) continue;
+            if (hedefler && !hedefler.includes((q.ders || "GENEL").trim().toLocaleUpperCase('tr'))) continue;
+            if (zorluk && (q.zorluk || "ORTA").toLocaleUpperCase('tr') !== zorluk) continue;
+            pool.push(q);
         }
 
         fisherYatesShuffle(pool);
