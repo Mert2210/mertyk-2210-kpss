@@ -2273,7 +2273,11 @@ if ('serviceWorker' in navigator && shouldRegisterServiceWorker(window.location.
 
 try {
     onMessage(messaging, (payload) => {
-        const notificationPayload = payload?.notification || payload?.data || {};
+        const notificationPayload = payload?.notification || payload?.data;
+        if (!notificationPayload) {
+            console.warn("Bildirim içeriği alınamadı:", payload);
+            return;
+        }
         const title = String(notificationPayload.title || "Yeni bildirim");
         const body = String(notificationPayload.body || "");
         window.showSoftFeedback(body ? `🔔 ${title} — ${body}` : `🔔 ${title}`);
