@@ -2273,8 +2273,13 @@ if ('serviceWorker' in navigator && shouldRegisterServiceWorker(window.location.
 
 try {
     onMessage(messaging, (payload) => {
-        const title = String(payload?.notification?.title || "Yeni bildirim");
-        const body = String(payload?.notification?.body || "");
+        const notificationPayload = payload?.notification || payload?.data;
+        if (!notificationPayload) {
+            console.warn("Bildirim içeriği alınamadı:", payload);
+            return;
+        }
+        const title = String(notificationPayload.title || "Yeni bildirim");
+        const body = String(notificationPayload.body || "");
         window.showSoftFeedback(body ? `🔔 ${title} — ${body}` : `🔔 ${title}`);
     });
 } catch (error) {
@@ -2489,15 +2494,18 @@ function updateNotificationToggleUI() {
         status.textContent = "Bu cihazda bildirim desteği yok.";
         return;
     }
-    if (Notification.permission === "granted") {
-        status.textContent = "Bildirimler açık.";
-        return;
+    const permission = Notification.permission;
+    switch (permission) {
+        case "granted":
+            status.textContent = "Bildirimler açık.";
+            return;
+        case "denied":
+            status.textContent = "Tarayıcı bildirimi engelliyor. Tarayıcı ayarından açabilirsiniz.";
+            return;
+        case "default":
+            status.textContent = "Bildirim izni bekleniyor. Açmak için anahtara dokunun.";
+            return;
     }
-    if (Notification.permission === "denied") {
-        status.textContent = "Tarayıcı bildirimi engelliyor. Tarayıcı ayarından açabilirsiniz.";
-        return;
-    }
-    status.textContent = "Bildirimler açık.";
 }
 
 async function getCurrentFcmToken() {
@@ -3164,7 +3172,7 @@ async function optimizeImageFileForUpload(file, options = {}) {
     };
     redraw();
 
-    const mimeCandidates = ['image/webp'];
+    const mimeCandidates = ['image/webp', 'image/jpeg', 'image/png'];
     let bestDataUrl = null;
     let bestBytes = Number.POSITIVE_INFINITY;
 
@@ -3198,7 +3206,7 @@ async function optimizeImageFileForUpload(file, options = {}) {
         redraw();
     }
 
-    if (!bestDataUrl || !/^data:image\/webp/.test(bestDataUrl)) {
+    if (!bestDataUrl || !/^data:image\/(webp|jpeg|png)/.test(bestDataUrl)) {
         throw new Error(`Görsel optimize edilemedi (denenen formatlar: ${mimeCandidates.join(', ')}).`);
     }
 

@@ -228,8 +228,13 @@ function normalizeQuestionForClient(question, fallbackId = "") {
 // 🚨 BİLDİRİM (PUSH) GÖNDERME FONKSİYONU 🚨
 async function sendPushNotification(topic, title, body) {
     if (!admin.apps.length || !isValidTopicName(topic)) return false;
+    const safeTitle = String(title || "");
+    const safeBody = String(body || "");
     const message = {
-        notification: { title: title, body: body },
+        data: {
+            title: safeTitle,
+            body: safeBody
+        },
         topic: topic // Öğrenciler sınıfa girdiklerinde bu "topic" (örneğin sınıf kodu) kanalına abone olacaklar
     };
     try {
