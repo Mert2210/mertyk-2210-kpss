@@ -22,13 +22,9 @@ const fallbackFirebaseConfig = {
 
 const runtimeConfig = window.__APP_CONFIG__ || {};
 const runtimeFirebase = runtimeConfig.firebaseConfig || {};
-let _cachedVapidKey = "";
-function getFirebaseVapidKey() {
-    if (!_cachedVapidKey) {
-        _cachedVapidKey = String((window.__APP_CONFIG__ || {}).firebaseVapidKey || "").trim();
-    }
-    return _cachedVapidKey;
-}
+const _vapidKeyReady = (window.__APP_CONFIG_READY__ || Promise.resolve(window.__APP_CONFIG__ || {}))
+    .then((cfg) => String((cfg || {}).firebaseVapidKey || "").trim());
+async function getFirebaseVapidKey() { return _vapidKeyReady; }
 const firebaseConfig = runtimeFirebase.apiKey
     ? { ...fallbackFirebaseConfig, ...runtimeFirebase }
     : fallbackFirebaseConfig;
@@ -2506,10 +2502,11 @@ function updateNotificationToggleUI() {
 
 async function getCurrentFcmToken() {
     if (typeof Notification === "undefined" || !("serviceWorker" in navigator)) return "";
-    if (!getFirebaseVapidKey()) return "";
+    const vapidKey = await getFirebaseVapidKey();
+    if (!vapidKey) return "";
     const serviceWorkerRegistration = await navigator.serviceWorker.ready;
     const token = await getToken(messaging, {
-        vapidKey: getFirebaseVapidKey(),
+        vapidKey,
         serviceWorkerRegistration
     });
     if (token) localStorage.setItem(NOTIFICATION_TOKEN_KEY, token);
@@ -2527,7 +2524,7 @@ async function clearClassPushSubscription(classCodeRaw) {
 async function subscribeAdminPushNotifications() {
     if (!socket || !areNotificationsEnabled()) return;
     if (typeof Notification === "undefined" || !("serviceWorker" in navigator)) return;
-    if (!getFirebaseVapidKey()) return;
+    if (!await getFirebaseVapidKey()) return;
     if (Notification.permission !== "granted") return;
     try {
         const token = await getCurrentFcmToken();
@@ -2549,7 +2546,7 @@ async function subscribeToClassPushNotifications(classCodeRaw, { forcePrompt = f
     const classCode = String(classCodeRaw || "").trim().toUpperCase();
     if (!socket) return;
     if (typeof Notification === "undefined" || !("serviceWorker" in navigator)) return;
-    if (!getFirebaseVapidKey() || !areNotificationsEnabled()) return;
+    if (!await getFirebaseVapidKey() || !areNotificationsEnabled()) return;
     try {
         let permission = Notification.permission;
         if (permission === "default" && forcePrompt) {
