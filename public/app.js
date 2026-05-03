@@ -3161,7 +3161,7 @@ async function optimizeImageFileForUpload(file, options = {}) {
     };
     redraw();
 
-    const mimeCandidates = ['image/webp', 'image/jpeg'];
+    const mimeCandidates = ['image/webp'];
     let bestDataUrl = null;
     let bestBytes = Number.POSITIVE_INFINITY;
 
@@ -3195,7 +3195,7 @@ async function optimizeImageFileForUpload(file, options = {}) {
         redraw();
     }
 
-    if (!bestDataUrl || !/^data:image\/(webp|jpeg)/.test(bestDataUrl)) {
+    if (!bestDataUrl || !/^data:image\/webp/.test(bestDataUrl)) {
         throw new Error(`Görsel optimize edilemedi (denenen formatlar: ${mimeCandidates.join(', ')}).`);
     }
 
@@ -3244,8 +3244,8 @@ async function uploadImageDataUrlIfNeeded(dataUrl, folder) {
     canvas.height = image.height;
     ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
 
-    // Attempt compression to webp/jpeg with lower quality
-    const compressedDataUrl = canvas.toDataURL('image/webp', 0.8) || canvas.toDataURL('image/jpeg', 0.8);
+    // Attempt compression to webp with lower quality
+    const compressedDataUrl = canvas.toDataURL('image/webp', 0.8);
     if (compressedDataUrl && compressedDataUrl !== 'data:,') {
         finalDataUrl = compressedDataUrl;
         ext = getImageExtensionFromDataUrl(finalDataUrl);
