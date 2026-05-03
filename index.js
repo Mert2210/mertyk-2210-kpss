@@ -233,8 +233,7 @@ async function sendPushNotification(topic, title, body) {
     const message = {
         data: {
             title: safeTitle,
-            body: safeBody,
-            link: "/"
+            body: safeBody
         },
         topic: topic // Öğrenciler sınıfa girdiklerinde bu "topic" (örneğin sınıf kodu) kanalına abone olacaklar
     };

@@ -2498,7 +2498,11 @@ function updateNotificationToggleUI() {
         status.textContent = "Tarayıcı bildirimi engelliyor. Tarayıcı ayarından açabilirsiniz.";
         return;
     }
-    status.textContent = "Bildirim izni bekleniyor. Açmak için anahtara dokunun.";
+    if (Notification.permission === "default") {
+        status.textContent = "Bildirim izni bekleniyor. Açmak için anahtara dokunun.";
+        return;
+    }
+    status.textContent = "Bildirim durumu belirlenemedi.";
 }
 
 async function getCurrentFcmToken() {
