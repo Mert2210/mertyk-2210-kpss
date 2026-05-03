@@ -365,10 +365,15 @@ io.on("connection", (socket) => {
 
     socket.on("setUserContext", async ({ idToken, fallbackName, fallbackRole }) => {
         const safeName = sanitizeString(fallbackName, 120) || "Kullanıcı";
-        const safeFallbackRole = String(fallbackRole || "").trim() === "teacher" ? "teacher" : "student";
+        const normalizedFallbackRole = String(fallbackRole || "").trim();
+        const validFallbackRoles = ["teacher", "student"];
+        const safeFallbackRole = validFallbackRoles.includes(normalizedFallbackRole) ? normalizedFallbackRole : "student";
         socket.data.user = { name: safeName, role: safeFallbackRole, isVerified: false, isAdmin: false, email: "" };
 
-        if (!idToken || !admin.apps.length) return;
+        if (!idToken || !admin.apps.length) {
+            socket.emit("userContextSet", { role: socket.data.user.role, isVerified: false });
+            return;
+        }
         try {
             const decoded = await admin.auth().verifyIdToken(idToken);
             const userRecord = await admin.auth().getUser(decoded.uid);
@@ -397,6 +402,7 @@ io.on("connection", (socket) => {
         } catch (error) {
             socket.emit("errorMsg", "Kimlik doğrulama yapılamadı. Bazı işlemler kısıtlanabilir.");
         }
+        socket.emit("userContextSet", { role: socket.data.user.role, isVerified: socket.data.user.isVerified });
     });
 
     socket.on("askGemini", async (qObj) => {

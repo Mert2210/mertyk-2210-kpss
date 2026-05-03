@@ -3043,11 +3043,15 @@ onAuthStateChanged(auth, user => {
         if (isAdmin) subscribeAdminPushNotifications();
 
         if(typeof socket !== 'undefined') {
+            socket.once("userContextSet", ({ role, isVerified }) => {
+                const verifiedIsTeacher = role === "teacher" || role === "admin";
+                const verifiedIsAdmin = role === "admin";
+                if (verifiedIsTeacher) socket.emit("getTeacherClass", user.email);
+                if (!verifiedIsTeacher) socket.emit("checkNotebookReviews", realName);
+                if (verifiedIsAdmin && isVerified) socket.emit("getUserCurriculum");
+            });
             syncSocketUserContext(user, role, realName);
-            if (isTeacher) socket.emit("getTeacherClass", user.email);
             socket.emit("getFilters", window.myClassCode || "");
-            if (!isTeacher) socket.emit("checkNotebookReviews", realName);
-            if (isAdmin) socket.emit("getUserCurriculum");
         }
 
         if (isTeacher) {
