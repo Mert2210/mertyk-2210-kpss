@@ -874,10 +874,10 @@
 </nav>
 <script>
 window.__APP_CONFIG__ = {};
-fetch('app-config')
+window.__APP_CONFIG_READY__ = fetch('app-config')
     .then((r) => r.ok ? r.json() : {})
-    .then((data) => { window.__APP_CONFIG__ = data || {}; })
-    .catch(() => { window.__APP_CONFIG__ = {}; });
+    .then((data) => { window.__APP_CONFIG__ = data || {}; return window.__APP_CONFIG__; })
+    .catch(() => { window.__APP_CONFIG__ = {}; return {}; });
 </script>
 <script type="module" src="app.js"></script>
 
