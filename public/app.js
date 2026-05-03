@@ -2490,19 +2490,21 @@ function updateNotificationToggleUI() {
         status.textContent = "Bu cihazda bildirim desteği yok.";
         return;
     }
-    if (Notification.permission === "granted") {
-        status.textContent = "Bildirimler açık.";
-        return;
+    const permission = Notification.permission;
+    switch (permission) {
+        case "granted":
+            status.textContent = "Bildirimler açık.";
+            return;
+        case "denied":
+            status.textContent = "Tarayıcı bildirimi engelliyor. Tarayıcı ayarından açabilirsiniz.";
+            return;
+        case "default":
+            status.textContent = "Bildirim izni bekleniyor. Açmak için anahtara dokunun.";
+            return;
+        default:
+            status.textContent = "Bildirim durumu belirlenemedi.";
+            return;
     }
-    if (Notification.permission === "denied") {
-        status.textContent = "Tarayıcı bildirimi engelliyor. Tarayıcı ayarından açabilirsiniz.";
-        return;
-    }
-    if (Notification.permission === "default") {
-        status.textContent = "Bildirim izni bekleniyor. Açmak için anahtara dokunun.";
-        return;
-    }
-    status.textContent = "Bildirim durumu belirlenemedi.";
 }
 
 async function getCurrentFcmToken() {
