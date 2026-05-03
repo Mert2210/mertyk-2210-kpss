@@ -2273,8 +2273,9 @@ if ('serviceWorker' in navigator && shouldRegisterServiceWorker(window.location.
 
 try {
     onMessage(messaging, (payload) => {
-        const title = String(payload?.notification?.title || "Yeni bildirim");
-        const body = String(payload?.notification?.body || "");
+        const notificationPayload = payload?.notification || payload?.data || {};
+        const title = String(notificationPayload.title || "Yeni bildirim");
+        const body = String(notificationPayload.body || "");
         window.showSoftFeedback(body ? `🔔 ${title} — ${body}` : `🔔 ${title}`);
     });
 } catch (error) {
@@ -2497,7 +2498,7 @@ function updateNotificationToggleUI() {
         status.textContent = "Tarayıcı bildirimi engelliyor. Tarayıcı ayarından açabilirsiniz.";
         return;
     }
-    status.textContent = "Bildirimler açık.";
+    status.textContent = "Bildirim izni bekleniyor. Açmak için anahtara dokunun.";
 }
 
 async function getCurrentFcmToken() {
@@ -3164,7 +3165,7 @@ async function optimizeImageFileForUpload(file, options = {}) {
     };
     redraw();
 
-    const mimeCandidates = ['image/webp'];
+    const mimeCandidates = ['image/webp', 'image/jpeg', 'image/png'];
     let bestDataUrl = null;
     let bestBytes = Number.POSITIVE_INFINITY;
 
@@ -3198,7 +3199,7 @@ async function optimizeImageFileForUpload(file, options = {}) {
         redraw();
     }
 
-    if (!bestDataUrl || !/^data:image\/webp/.test(bestDataUrl)) {
+    if (!bestDataUrl || !/^data:image\/(webp|jpeg|png)/.test(bestDataUrl)) {
         throw new Error(`Görsel optimize edilemedi (denenen formatlar: ${mimeCandidates.join(', ')}).`);
     }
 
