@@ -2573,6 +2573,14 @@ async function promptNotificationsOnFirstLaunch() {
     CLIENT_STORE.setItem(NOTIFICATION_PROMPT_SEEN_KEY, '1');
     if (!areNotificationsEnabled()) return;
     if (typeof Notification === "undefined") return;
+    // iOS Safari requires requestPermission to be called from a user gesture.
+    // Auto-prompting at launch (without a user gesture) silently fails on iOS.
+    // Skip auto-prompt on iOS; the user can enable via the toggle in settings.
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    if (isIOS) {
+        updateNotificationToggleUI();
+        return;
+    }
     try {
         if (Notification.permission === "default") await Notification.requestPermission();
         if (Notification.permission === "granted") {
@@ -2593,7 +2601,13 @@ window.handleNotificationToggleChange = async () => {
     setNotificationsEnabled(isEnabled);
     if (isEnabled) {
         if (status) status.textContent = "Bildirimler açık.";
-        await subscribeToClassPushNotifications(getPreferredNotificationClassCode(), { forcePrompt: true });
+        // iOS Safari requires requestPermission to be called directly within
+        // a user gesture handler (no await before it). Permission is requested
+        // here explicitly, so forcePrompt is set to false in the call below.
+        if (typeof Notification !== "undefined" && Notification.permission === "default") {
+            await Notification.requestPermission();
+        }
+        await subscribeToClassPushNotifications(getPreferredNotificationClassCode(), { forcePrompt: false });
         if (isGodModeUser()) await subscribeAdminPushNotifications();
     } else {
         await clearClassPushSubscription(localStorage.getItem(NOTIFICATION_SUBSCRIPTION_CLASS_KEY) || getPreferredNotificationClassCode());
@@ -3147,7 +3161,7 @@ async function optimizeImageFileForUpload(file, options = {}) {
     };
     redraw();
 
-    const mimeCandidates = ['image/webp'];
+    const mimeCandidates = ['image/webp', 'image/jpeg'];
     let bestDataUrl = null;
     let bestBytes = Number.POSITIVE_INFINITY;
 
@@ -3181,8 +3195,8 @@ async function optimizeImageFileForUpload(file, options = {}) {
         redraw();
     }
 
-    if (!bestDataUrl || !bestDataUrl.startsWith('data:image/webp')) {
-        throw new Error('Görsel image/webp formatına dönüştürülemedi.');
+    if (!bestDataUrl || !/^data:image\/(webp|jpeg)/.test(bestDataUrl)) {
+        throw new Error(`Görsel optimize edilemedi (denenen formatlar: ${mimeCandidates.join(', ')}).`);
     }
 
     return bestDataUrl;
