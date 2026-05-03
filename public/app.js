@@ -46,6 +46,9 @@ const _supabaseReady = (window.__APP_CONFIG_READY__ || Promise.resolve(window.__
         } else {
             console.warn("⚠️ Supabase konfigürasyonu eksik, görsel yükleme özellikleri devre dışı kalabilir.");
         }
+    })
+    .catch((err) => {
+        console.warn("⚠️ Supabase başlatılamadı:", err);
     });
 
 const ROOT_ADMIN_EMAIL = "kayamert319@gmail.com";
