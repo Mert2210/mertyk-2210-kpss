@@ -2505,9 +2505,6 @@ function updateNotificationToggleUI() {
         case "default":
             status.textContent = "Bildirim izni bekleniyor. Açmak için anahtara dokunun.";
             return;
-        default:
-            status.textContent = "Bildirim durumu belirlenemedi.";
-            return;
     }
 }
 
