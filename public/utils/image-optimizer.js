@@ -131,7 +131,7 @@ export async function compressImageDataUrl(dataUrl, options = {}) {
     };
     redraw();
 
-    const FLOAT_EPS = 0.001;
+    const FLOAT_COMPARISON_EPSILON = 0.001;
     // Önce kayıplı formatları dene, son çare lossless PNG
     const mimeCandidates = ['image/webp', 'image/jpeg', 'image/png'];
     let bestDataUrl = null;
@@ -155,7 +155,7 @@ export async function compressImageDataUrl(dataUrl, options = {}) {
         }
         if (bytes > 0 && bytes <= config.targetBytes) break;
 
-        if (quality > config.minQuality + FLOAT_EPS) {
+        if (quality > config.minQuality + FLOAT_COMPARISON_EPSILON) {
             quality = Math.max(config.minQuality, quality - config.qualityStep);
             continue;
         }

@@ -62,7 +62,8 @@ self.addEventListener('push', (event) => {
 
 self.OFFLINE_HTML = '<!doctype html><html lang="tr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Çevrimdışı</title></head><body><h3>Çevrimdışısınız</h3><p>Lütfen internet bağlantınızı kontrol edin.</p></body></html>';
 
-const IMAGE_CACHE_NAME = 'soru-gorselleri-v1';
+const IMAGE_CACHE_NAME_PREFIX = 'soru-gorselleri-';
+const IMAGE_CACHE_NAME = `${IMAGE_CACHE_NAME_PREFIX}v1`;
 // Supabase Storage görsel URL'lerini önbelleğe al
 const SUPABASE_STORAGE_PATTERN = /supabase\.co\/storage\/v1\/object\/public\//;
 
@@ -76,7 +77,7 @@ self.addEventListener('activate', (e) => {
         caches.keys().then((keys) =>
             Promise.all(
                 keys
-                    .filter((k) => k.startsWith('soru-gorselleri-') && k !== IMAGE_CACHE_NAME)
+                    .filter((k) => k.startsWith(IMAGE_CACHE_NAME_PREFIX) && k !== IMAGE_CACHE_NAME)
                     .map((k) => caches.delete(k))
             )
         ).then(() => self.clients.claim())
