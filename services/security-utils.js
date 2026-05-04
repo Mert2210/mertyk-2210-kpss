@@ -17,9 +17,24 @@ function isAdminRole(role) {
     return role === "admin";
 }
 
+/**
+ * E-posta adresinin temel format geçerliliğini kontrol eder.
+ * Gerçek teslimat edilebilirliğini doğrulamaz; yalnızca açık hatalı
+ * girdileri reddeder.
+ * @param {string} email
+ * @returns {boolean}
+ */
+function isValidEmail(email) {
+    if (!email || typeof email !== "string") return false;
+    const trimmed = email.trim();
+    if (trimmed.length > 254) return false;
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed);
+}
+
 module.exports = {
     sanitizeString,
     isValidImageDataUrl,
     isTeacherRole,
-    isAdminRole
+    isAdminRole,
+    isValidEmail
 };

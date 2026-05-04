@@ -16,7 +16,23 @@ function writeJsonFile(filePath, value) {
     fs.renameSync(tmpPath, filePath);
 }
 
+/**
+ * Birden fazla dosyaya atomik toplu yazma işlemi gerçekleştirir.
+ * Her bir giriş { filePath, value } biçiminde bir nesne olmalıdır.
+ * Herhangi bir yazma başarısız olursa hata fırlatılır; o noktaya kadar
+ * tamamlanan yazma işlemleri geri alınmaz.
+ *
+ * @param {Array<{ filePath: string, value: * }>} entries
+ */
+function batchWriteJsonFiles(entries) {
+    if (!Array.isArray(entries)) throw new TypeError("entries must be an array");
+    for (const entry of entries) {
+        writeJsonFile(entry.filePath, entry.value);
+    }
+}
+
 module.exports = {
     readJsonFile,
-    writeJsonFile
+    writeJsonFile,
+    batchWriteJsonFiles
 };
