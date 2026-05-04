@@ -62,15 +62,48 @@ self.addEventListener('push', (event) => {
 
 self.OFFLINE_HTML = '<!doctype html><html lang="tr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Çevrimdışı</title></head><body><h3>Çevrimdışısınız</h3><p>Lütfen internet bağlantınızı kontrol edin.</p></body></html>';
 
+const IMAGE_CACHE_NAME = 'soru-gorselleri-v1';
+// Supabase Storage görsel URL'lerini önbelleğe al
+const SUPABASE_STORAGE_PATTERN = /supabase\.co\/storage\/v1\/object\/public\//;
+
 self.addEventListener('install', (e) => {
     console.log('[Service Worker] Kuruldu');
     self.skipWaiting();
 });
 self.addEventListener('activate', (e) => {
-    e.waitUntil(self.clients.claim());
+    // Eski resim önbelleklerini temizle
+    e.waitUntil(
+        caches.keys().then((keys) =>
+            Promise.all(
+                keys
+                    .filter((k) => k.startsWith('soru-gorselleri-') && k !== IMAGE_CACHE_NAME)
+                    .map((k) => caches.delete(k))
+            )
+        ).then(() => self.clients.claim())
+    );
 });
 self.addEventListener('fetch', (e) => {
     if (e.request.method !== 'GET') return;
+
+    // Supabase Storage görsellerini önbellekle (Cache-First)
+    if (SUPABASE_STORAGE_PATTERN.test(e.request.url)) {
+        e.respondWith(
+            caches.open(IMAGE_CACHE_NAME).then((cache) =>
+                cache.match(e.request).then((cached) => {
+                    if (cached) return cached;
+                    return fetch(e.request).then((response) => {
+                        if (response.ok) {
+                            cache.put(e.request, response.clone());
+                        }
+                        return response;
+                    });
+                })
+            )
+        );
+        return;
+    }
+
+    // Diğer istekler: Network-First (çevrimdışıysa offline HTML göster)
     e.respondWith(
         fetch(e.request).catch(() => {
             if (e.request.mode === 'navigate') {
