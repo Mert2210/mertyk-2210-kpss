@@ -9,6 +9,7 @@ import { normalizeTopicFilterMode, getAllowedTopicsForMode, getAllowedTopicsForM
 import { resolveCurrentExamType, getCustomCurriculumGroupsByExamType as getCustomCurriculumGroupsByExamTypeFromMap, getCustomCurriculumSubjectsByExamType as getCustomCurriculumSubjectsByExamTypeFromMap, getCustomCurriculumTopicsByExamTypeAndSubject as getCustomCurriculumTopicsByExamTypeAndSubjectFromMap, getCustomTopicsBySubject as getCustomTopicsBySubjectFromMap, addCustomTopicsForSubject as addCustomTopicsForSubjectInMap, mergeSubjectsForExamType } from "./modules/custom-data.mjs";
 import { buildRelativeResourceUrl, getShareableAppLink, shouldRegisterServiceWorker } from "./modules/app-shell.mjs";
 import { escapeHtml } from "./modules/security.mjs";
+import { compressImageDataUrl, compressImageFile, initLazyImageLoading } from "./utils/image-optimizer.js";
 
 const fallbackFirebaseConfig = { 
     apiKey: "AIzaSyDkZI-LxCOaog4kyb4YSquEK6ZpLNH2pqs", 
@@ -2346,6 +2347,8 @@ window.showScreen = (id) => {
         const emailInput = document.getElementById('login-email');
         if (emailInput && savedEmail) emailInput.value = savedEmail;
     }
+    // Ekrana geçildiğinde lazy resimleri viewport'a göre yükle
+    initLazyImageLoading(document.getElementById(id));
 };
 
 window.openProfilePanel = () => {
@@ -3122,95 +3125,20 @@ function getImageExtensionFromDataUrl(dataUrl) {
     return match[1];
 }
 
-function estimateDataUrlBytes(dataUrl) {
-    if (typeof dataUrl !== 'string') return 0;
-    const commaIndex = dataUrl.indexOf(',');
-    if (commaIndex < 0) return 0;
-    const base64 = dataUrl.slice(commaIndex + 1);
-    const paddingMatch = base64.match(/=*$/);
-    const padding = paddingMatch ? paddingMatch[0].length : 0;
-    return Math.max(0, Math.floor((base64.length * 3) / 4) - padding);
-}
-
-function encodeCanvasToDataUrl(canvas, mimeType, quality) {
-    try {
-        const dataUrl = canvas.toDataURL(mimeType, quality);
-        return dataUrl.startsWith(`data:${mimeType}`) ? dataUrl : null;
-    } catch (e) {
-        return null;
-    }
-}
-
+/**
+ * Görsel dosyasını sıkıştırır.
+ * Asıl mantık image-optimizer.js utility'sinde; bu wrapper
+ * IMAGE_OPTIMIZATION_CONFIG / SOURCE_IMAGE_OPTIMIZATION_OVERRIDES'ı
+ * utility'nin beklediği formata dönüştürür.
+ */
 async function optimizeImageFileForUpload(file, options = {}) {
     if (!file) return null;
     const config = { ...IMAGE_OPTIMIZATION_CONFIG, ...(options || {}) };
-    const originalDataUrl = await new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-    });
-    const image = await new Promise((resolve, reject) => {
-        const img = new Image();
-        img.onload = () => resolve(img);
-        img.onerror = reject;
-        img.src = originalDataUrl;
-    });
-
-    const baseWidth = Math.max(1, Math.round(Math.min(image.width, config.maxWidth)));
-    let width = baseWidth;
-    let height = Math.max(1, Math.round((image.height * width) / Math.max(1, image.width)));
-    let quality = config.initialQuality;
-
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return originalDataUrl;
-    const redraw = () => {
-        canvas.width = width;
-        canvas.height = height;
-        ctx.drawImage(image, 0, 0, width, height);
-    };
-    redraw();
-
-    const mimeCandidates = ['image/webp', 'image/jpeg', 'image/png'];
-    let bestDataUrl = null;
-    let bestBytes = Number.POSITIVE_INFINITY;
-
-    for (let attempt = 0; attempt < config.maxAttempts; attempt++) {
-        let currentDataUrl = null;
-        for (const mimeType of mimeCandidates) {
-            const encoded = encodeCanvasToDataUrl(canvas, mimeType, quality);
-            if (encoded) {
-                currentDataUrl = encoded;
-                break;
-            }
-        }
-        if (!currentDataUrl) break;
-
-        const bytes = estimateDataUrlBytes(currentDataUrl);
-        if (bytes > 0 && bytes < bestBytes) {
-            bestBytes = bytes;
-            bestDataUrl = currentDataUrl;
-        }
-        if (bytes > 0 && bytes <= config.targetBytes) break;
-
-        if (quality > config.minQuality + FLOAT_COMPARISON_EPSILON) {
-            quality = Math.max(config.minQuality, quality - config.qualityStep);
-            continue;
-        }
-
-        if (width <= config.minWidth) break;
-        width = Math.max(config.minWidth, Math.round(width * config.scaleStep));
-        height = Math.max(1, Math.round((image.height * width) / Math.max(1, image.width)));
-        quality = config.initialQuality;
-        redraw();
+    const result = await compressImageFile(file, config);
+    if (!result || !/^data:image\/(webp|jpeg|png)/.test(result)) {
+        throw new Error('Görsel optimize edilemedi (WebP/JPEG/PNG dönüşümü başarısız).');
     }
-
-    if (!bestDataUrl || !/^data:image\/(webp|jpeg|png)/.test(bestDataUrl)) {
-        throw new Error(`Görsel optimize edilemedi (denenen formatlar: ${mimeCandidates.join(', ')}).`);
-    }
-
-    return bestDataUrl;
+    return result;
 }
 
 function generateUniqueId(prefix = '') {
@@ -3238,29 +3166,13 @@ async function uploadImageDataUrlIfNeeded(dataUrl, folder) {
     if (/^https?:\/\//.test(dataUrl)) return dataUrl;
     if (!/^data:image\/(jpeg|png|gif|webp);base64,/.test(dataUrl)) return null;
 
-    let finalDataUrl = dataUrl;
-    let ext = getImageExtensionFromDataUrl(finalDataUrl);
-
-    // Compress the image before uploading
-    const image = await new Promise((resolve, reject) => {
-        const img = new Image();
-        img.onload = () => resolve(img);
-        img.onerror = reject;
-        img.src = finalDataUrl;
-    });
-
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    canvas.width = image.width;
-    canvas.height = image.height;
-    ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-
-    // Attempt compression to webp with lower quality
-    const compressedDataUrl = canvas.toDataURL('image/webp', 0.8);
-    if (compressedDataUrl && compressedDataUrl !== 'data:,') {
-        finalDataUrl = compressedDataUrl;
-        ext = getImageExtensionFromDataUrl(finalDataUrl);
-    }
+    // Proper compression: uses IMAGE_OPTIMIZATION_CONFIG (maxWidth, targetBytes,
+    // multi-attempt quality reduction, correct WebP support detection + JPEG fallback).
+    // Replaces the previous single-pass canvas.toDataURL('image/webp', 0.8) which
+    // could silently fall back to full-quality PNG on unsupported browsers, making
+    // the file larger instead of smaller.
+    const finalDataUrl = await compressImageDataUrl(dataUrl, IMAGE_OPTIMIZATION_CONFIG);
+    const ext = getImageExtensionFromDataUrl(finalDataUrl);
 
     const uniqueId = generateUniqueId();
     const fileName = `${folder}/${uniqueId}.${ext}`;

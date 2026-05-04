@@ -1776,3 +1776,79 @@ body.soft-dark-theme .outline:hover {
     margin: 0;
     accent-color: #f1c40f;
 }
+
+/* =====================================================================
+   PERFORMANS & UX: Skeleton Loaders, Transitions, Lazy Images
+   ===================================================================== */
+
+/* Skeleton loader animasyonu */
+@keyframes skeleton-pulse {
+    0%   { opacity: 1; }
+    50%  { opacity: 0.4; }
+    100% { opacity: 1; }
+}
+
+.skeleton-card {
+    background: var(--color-surface, #fff);
+    border-radius: var(--radius-md, 12px);
+    padding: var(--space-4, 16px);
+    margin-bottom: var(--space-3, 12px);
+    border: 1px solid var(--color-border, #d9e4f5);
+    animation: skeleton-pulse 1.4s ease-in-out infinite;
+}
+
+.skeleton-line {
+    background: #e0e7ef;
+    border-radius: 4px;
+    height: 14px;
+    margin-bottom: 10px;
+}
+.skeleton-line--title  { height: 18px; width: 60%; }
+.skeleton-line--body   { width: 100%; }
+.skeleton-line--short  { width: 45%; }
+
+.skeleton-image {
+    background: #e0e7ef;
+    border-radius: var(--radius-sm, 8px);
+    height: 120px;
+    margin-top: 8px;
+}
+
+/* Ekran geçişi (fade-in) */
+@keyframes fade-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.screen.active {
+    animation: fade-in 0.22s ease-out both;
+}
+
+/* Lazy-loaded görseller: yüklenene kadar soluk, yüklenince belir */
+img[data-lazy-src] {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+img:not([data-lazy-src]) {
+    /* src atandıktan sonra lazy class kaldırılır; geçiş için */
+    transition: opacity 0.3s ease;
+}
+
+/* GPU hızlandırmalı kart animasyonları */
+.list-item,
+.skeleton-card,
+.trial-list-card {
+    will-change: transform;
+    transform: translateZ(0);
+}
+
+/* Print stili: gereksiz öğeleri gizle */
+@media print {
+    #bottom-nav,
+    .skeleton-card,
+    button:not(.print-visible),
+    .nav-item { display: none !important; }
+
+    body { background: #fff !important; color: #000 !important; }
+    .container { box-shadow: none !important; max-width: 100% !important; }
+}
