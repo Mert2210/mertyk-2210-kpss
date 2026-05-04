@@ -13,9 +13,11 @@ const rateLimit = require("express-rate-limit");
 const admin = require("firebase-admin");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const { fisherYatesShuffle, shuffleOptions, getFiltersData } = require("./utils/question-utils");
-const { readJsonFile, writeJsonFile } = require("./services/json-store");
+const { readJsonFile, writeJsonFile, batchWriteJsonFiles } = require("./services/json-store");
 const { sanitizeString, isValidImageDataUrl, isTeacherRole, isAdminRole } = require("./services/security-utils");
 const { calculateEarnedPoints, calculateNextReviewDate } = require("./services/game-rules");
+const { optimizeImageDataUrl } = require("./services/image-optimization");
+const { getMetricsSummary } = require("./services/optimization-metrics");
 
 const app = express();
 const server = http.createServer(app);
@@ -73,30 +75,26 @@ if (serviceAccount) {
 }
 const db = admin.apps.length ? admin.firestore() : null;
 
+/**
+ * Verilen dosya adını önce `public/` altında, bulamazsa proje kök dizininde arar.
+ * Tekrarlanan `fs.existsSync` + `path.join` kalıplarını tek noktada toplar.
+ * @param {string} filename
+ * @returns {string} Tam dosya yolu
+ */
+function resolvePublicFile(filename) {
+    const publicPath = path.join(__dirname, 'public', filename);
+    return fs.existsSync(publicPath) ? publicPath : path.join(__dirname, filename);
+}
+
 app.get('/', staticFileLimiter, (req, res) => {
-    const indexPath = fs.existsSync(path.join(__dirname, 'public', 'index.html')) 
-        ? path.join(__dirname, 'public', 'index.html') 
-        : path.join(__dirname, 'index.html');
-    res.sendFile(indexPath);
+    res.sendFile(resolvePublicFile('index.html'));
 });
 
 // UYGULAMA İKON VE MANIFEST YÖNLENDİRMELERİ
-app.get('/icon-192.png', staticFileLimiter, (req, res) => { 
-    const iconPath = fs.existsSync(path.join(__dirname, 'public', 'icon-192.png')) ? path.join(__dirname, 'public', 'icon-192.png') : path.join(__dirname, 'icon-192.png');
-    res.sendFile(iconPath); 
-});
-app.get('/icon-512.png', staticFileLimiter, (req, res) => { 
-    const iconPath = fs.existsSync(path.join(__dirname, 'public', 'icon-512.png')) ? path.join(__dirname, 'public', 'icon-512.png') : path.join(__dirname, 'icon-512.png');
-    res.sendFile(iconPath); 
-});
-app.get('/logo-square.png', staticFileLimiter, (req, res) => { 
-    const iconPath = fs.existsSync(path.join(__dirname, 'public', 'logo-square.png')) ? path.join(__dirname, 'public', 'logo-square.png') : path.join(__dirname, 'logo-square.png');
-    res.sendFile(iconPath); 
-});
-app.get('/manifest.json', staticFileLimiter, (req, res) => { 
-    const manifestPath = fs.existsSync(path.join(__dirname, 'public', 'manifest.json')) ? path.join(__dirname, 'public', 'manifest.json') : path.join(__dirname, 'manifest.json');
-    res.sendFile(manifestPath); 
-});
+app.get('/icon-192.png', staticFileLimiter, (req, res) => { res.sendFile(resolvePublicFile('icon-192.png')); });
+app.get('/icon-512.png', staticFileLimiter, (req, res) => { res.sendFile(resolvePublicFile('icon-512.png')); });
+app.get('/logo-square.png', staticFileLimiter, (req, res) => { res.sendFile(resolvePublicFile('logo-square.png')); });
+app.get('/manifest.json', staticFileLimiter, (req, res) => { res.sendFile(resolvePublicFile('manifest.json')); });
 
 app.get('/app-config', staticFileLimiter, (req, res) => {
     res.json({
@@ -115,6 +113,14 @@ app.get('/app-config', staticFileLimiter, (req, res) => {
             anonKey: process.env.SUPABASE_ANON_KEY || ""
         }
     });
+});
+
+app.get('/admin/metrics', staticFileLimiter, (req, res) => {
+    const secret = process.env.METRICS_SECRET || "";
+    if (!secret) return res.status(403).json({ error: "Metrik erişimi devre dışı." });
+    const auth = req.headers['authorization'] || "";
+    if (auth !== `Bearer ${secret}`) return res.status(403).json({ error: "Yetkisiz erişim." });
+    res.json(getMetricsSummary());
 });
 
 let tumSorular = [];
@@ -174,6 +180,72 @@ function readClasses() {
 
 function writeClasses(classes) {
     writeJsonFile(CLASSES_FILE, classes);
+}
+
+/**
+ * Soru havuzunu verilen ayar filtrelerine göre süzer.
+ * `startTrial` ve `startGame` içindeki tekrarlanan filtreleme mantığını tek noktada toplar.
+ *
+ * @param {Array} questions  - Filtrelenecek soru dizisi
+ * @param {object} settings  - { deneme, subject, difficulty }
+ * @returns {Array} Filtrelenmiş soru listesi
+ */
+function applyFilter(questions, settings) {
+    const hasDeneme = settings.deneme && settings.deneme !== "HEPSI" &&
+        (!Array.isArray(settings.deneme) || settings.deneme.length > 0);
+    const secilenler = hasDeneme
+        ? (Array.isArray(settings.deneme) ? settings.deneme : [settings.deneme])
+        : null;
+
+    const hasSubject = settings.subject && settings.subject !== "HEPSI" &&
+        (!Array.isArray(settings.subject) || settings.subject.length > 0);
+    const hedefler = hasSubject
+        ? (Array.isArray(settings.subject) ? settings.subject : [settings.subject])
+        : null;
+
+    const zorluk = (settings.difficulty && settings.difficulty !== "HEPSI")
+        ? settings.difficulty
+        : null;
+
+    if (!secilenler && !hedefler && !zorluk) return questions;
+
+    const pool = [];
+    for (let i = 0; i < questions.length; i++) {
+        const q = questions[i];
+        if (secilenler && !secilenler.includes(q.deneme)) continue;
+        if (hedefler && !hedefler.includes((q.ders || "GENEL").trim().toLocaleUpperCase('tr'))) continue;
+        if (zorluk && (q.zorluk || "ORTA").toLocaleUpperCase('tr') !== zorluk) continue;
+        pool.push(q);
+    }
+    return pool;
+}
+
+/**
+ * Onay bekleyen öğretmenlerin listesini Firestore veya Firebase Auth'tan çeker.
+ * `getPendingTeachers` ve `approveTeacher` event handler'larında tekrarlanan
+ * sorgu mantığını tek noktada toplar.
+ *
+ * @returns {Promise<Array<{ email: string, name: string }>>}
+ */
+async function getPendingTeachersList() {
+    const pending = [];
+    if (db) {
+        const snap = await db.collection("teacher_approvals").where("status", "==", "pending").get();
+        snap.docs.forEach(doc => {
+            const data = doc.data();
+            if (data.email && data.name) {
+                pending.push({ email: data.email, name: data.name });
+            }
+        });
+    } else {
+        const listUsersResult = await admin.auth().listUsers(1000);
+        listUsersResult.users.forEach(userRecord => {
+            if (userRecord.displayName && userRecord.displayName.includes("|teacher_pending")) {
+                pending.push({ email: userRecord.email, name: userRecord.displayName.split("|")[0] });
+            }
+        });
+    }
+    return pending;
 }
 
 function currentUser(socket) {
@@ -666,6 +738,8 @@ io.on("connection", (socket) => {
         if (!safeQuestionText || !safeClassCode) return socket.emit("errorMsg", "Soru metni ve sınıf kodu boş olamaz.");
         if (newQ.image && !isValidImageDataUrl(newQ.image)) return socket.emit("errorMsg", "Soru görseli geçersiz veya çok büyük (max 10 MB).");
         if (newQ.solutionImage && !isValidImageDataUrl(newQ.solutionImage)) return socket.emit("errorMsg", "Çözüm görseli geçersiz veya çok büyük (max 10 MB).");
+        if (newQ.image) newQ.image = await optimizeImageDataUrl(newQ.image);
+        if (newQ.solutionImage) newQ.solutionImage = await optimizeImageDataUrl(newQ.solutionImage);
         const classes = readClasses();
         const teacherEmail = sanitizeString(currentUser(socket).email, 200);
         if (!classes[safeClassCode] || !classes[safeClassCode].teacher) {
@@ -966,24 +1040,7 @@ io.on("connection", (socket) => {
         if (!ensureAdmin(socket)) return;
         if(admin.apps.length) {
             try {
-                const pending = [];
-                if (db) {
-                    const snap = await db.collection("teacher_approvals").where("status", "==", "pending").get();
-                    snap.docs.forEach(doc => {
-                        const data = doc.data();
-                        if (data.email && data.name) {
-                            pending.push({ email: data.email, name: data.name });
-                        }
-                    });
-                } else {
-                    const listUsersResult = await admin.auth().listUsers(1000);
-                    listUsersResult.users.forEach(userRecord => {
-                        if (userRecord.displayName && userRecord.displayName.includes("|teacher_pending")) {
-                            pending.push({ email: userRecord.email, name: userRecord.displayName.split("|")[0] });
-                        }
-                    });
-                }
-                socket.emit("pendingTeachersData", pending);
+                socket.emit("pendingTeachersData", await getPendingTeachersList());
             } catch(e) { socket.emit("pendingTeachersData", []); }
         } else { socket.emit("pendingTeachersData", []); }
     });
@@ -1008,24 +1065,7 @@ io.on("connection", (socket) => {
                         }, { merge: true });
                     }
                     
-                    const pending = [];
-                    if (db) {
-                        const snap = await db.collection("teacher_approvals").where("status", "==", "pending").get();
-                        snap.docs.forEach(doc => {
-                            const data = doc.data();
-                            if (data.email && data.name) {
-                                pending.push({ email: data.email, name: data.name });
-                            }
-                        });
-                    } else {
-                        const listUsersResult = await admin.auth().listUsers(1000);
-                        listUsersResult.users.forEach(u => {
-                            if (u.displayName && u.displayName.includes("|teacher_pending")) {
-                                pending.push({ email: u.email, name: u.displayName.split("|")[0] });
-                            }
-                        });
-                    }
-                    socket.emit("pendingTeachersData", pending);
+                    socket.emit("pendingTeachersData", await getPendingTeachersList());
                 }
             } catch(e) {}
         }
@@ -1070,26 +1110,7 @@ io.on("connection", (socket) => {
     });
 
     socket.on("startTrial", (settings) => {
-        // ⚡ Bolt: Prevent event loop blocking and intermediate allocations
-        // 💡 What: Single loop replacement for chained .filter() calls
-        // 🎯 Why: Iterating over large `tumSorular` multiple times caused CPU spikes
-        let pool = [];
-        const hasDeneme = settings.deneme && settings.deneme !== "HEPSI" && (!Array.isArray(settings.deneme) || settings.deneme.length > 0);
-        const secilenler = hasDeneme ? (Array.isArray(settings.deneme) ? settings.deneme : [settings.deneme]) : null;
-
-        const hasSubject = settings.subject && settings.subject !== "HEPSI" && (!Array.isArray(settings.subject) || settings.subject.length > 0);
-        const hedefler = hasSubject ? (Array.isArray(settings.subject) ? settings.subject : [settings.subject]) : null;
-
-        const zorluk = (settings.difficulty && settings.difficulty !== "HEPSI") ? settings.difficulty : null;
-
-        for (let i = 0; i < tumSorular.length; i++) {
-            const q = tumSorular[i];
-            if (secilenler && !secilenler.includes(q.deneme)) continue;
-            if (hedefler && !hedefler.includes((q.ders || "GENEL").trim().toLocaleUpperCase('tr'))) continue;
-            if (zorluk && (q.zorluk || "ORTA").toLocaleUpperCase('tr') !== zorluk) continue;
-            pool.push(q);
-        }
-
+        const pool = applyFilter(tumSorular, settings);
         fisherYatesShuffle(pool);
         const limit = parseInt(settings.count) || 10;
         const trialQuestions = pool.slice(0, limit).map(q => shuffleOptions(q, settings.optionsCount));
@@ -1104,24 +1125,8 @@ io.on("connection", (socket) => {
         // ⚡ Bolt: Prevent event loop blocking and intermediate allocations
         // 💡 What: Single loop replacement for chained .filter() calls
         // 🎯 Why: Iterating over large `tumSorular` multiple times caused CPU spikes
-        let pool = [];
+        const pool = applyFilter(tumSorular, settings);
         const limit = parseInt(settings.count) || 10;
-
-        const hasDeneme = settings.deneme && settings.deneme !== "HEPSI" && (!Array.isArray(settings.deneme) || settings.deneme.length > 0);
-        const secilenler = hasDeneme ? (Array.isArray(settings.deneme) ? settings.deneme : [settings.deneme]) : null;
-
-        const hasSubject = settings.subject && settings.subject !== "HEPSI" && (!Array.isArray(settings.subject) || settings.subject.length > 0);
-        const hedefler = hasSubject ? (Array.isArray(settings.subject) ? settings.subject : [settings.subject]) : null;
-
-        const zorluk = (settings.difficulty && settings.difficulty !== "HEPSI") ? settings.difficulty : null;
-
-        for (let i = 0; i < tumSorular.length; i++) {
-            const q = tumSorular[i];
-            if (secilenler && !secilenler.includes(q.deneme)) continue;
-            if (hedefler && !hedefler.includes((q.ders || "GENEL").trim().toLocaleUpperCase('tr'))) continue;
-            if (zorluk && (q.zorluk || "ORTA").toLocaleUpperCase('tr') !== zorluk) continue;
-            pool.push(q);
-        }
 
         fisherYatesShuffle(pool);
         room.questions = pool.slice(0, limit).map(q => shuffleOptions(q, settings.optionsCount));
