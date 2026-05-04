@@ -116,6 +116,10 @@ app.get('/app-config', staticFileLimiter, (req, res) => {
 });
 
 app.get('/admin/metrics', staticFileLimiter, (req, res) => {
+    const secret = process.env.METRICS_SECRET || "";
+    if (!secret) return res.status(403).json({ error: "Metrik erişimi devre dışı." });
+    const auth = req.headers['authorization'] || "";
+    if (auth !== `Bearer ${secret}`) return res.status(403).json({ error: "Yetkisiz erişim." });
     res.json(getMetricsSummary());
 });
 
