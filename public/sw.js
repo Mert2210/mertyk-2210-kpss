@@ -11,10 +11,12 @@ firebase.initializeApp({
 });
 
 const messaging = firebase.messaging();
+console.log("Service Worker Firebase başlatıldı");
 
 // Uygulama kapalı/arka planda iken gelen data-only (bildirim alanı olmayan) mesajları işler.
 // Bildirim alanı içeren FCM mesajları Firebase SDK tarafından otomatik gösterilir.
 messaging.onBackgroundMessage((payload) => {
+    console.log("Arka plan bildirimi alındı:", payload.notification || payload.data);
     try {
         const notificationPayload = payload.notification || payload.data || {};
         const title = String(notificationPayload.title || 'Gazililer');
