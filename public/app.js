@@ -2514,13 +2514,21 @@ function updateNotificationToggleUI() {
 async function getCurrentFcmToken() {
     if (typeof Notification === "undefined" || !("serviceWorker" in navigator)) return "";
     const vapidKey = await getFirebaseVapidKey();
-    if (!vapidKey) return "";
+    if (!vapidKey) {
+        console.warn("⚠️ VAPID key yok");
+        return "";
+    }
     const serviceWorkerRegistration = await navigator.serviceWorker.ready;
     const token = await getToken(messaging, {
         vapidKey,
         serviceWorkerRegistration
     });
-    if (token) localStorage.setItem(NOTIFICATION_TOKEN_KEY, token);
+    if (token) {
+        localStorage.setItem(NOTIFICATION_TOKEN_KEY, token);
+        console.log("✅ FCM Token başarıyla alındı:", token.slice(0, 8) + "...");
+    } else {
+        console.warn("⚠️ FCM Token alınamadı");
+    }
     return String(token || "");
 }
 
@@ -2566,9 +2574,11 @@ async function subscribeToClassPushNotifications(classCodeRaw, { forcePrompt = f
         if (permission !== "granted") return;
         const token = await getCurrentFcmToken();
         if (!token) return;
+        console.log("Token alındı, sınıfa abone olmaya hazır:", token.slice(0, 8) + "...");
         syncStudentPushSubscription(token);
         if (!classCode) return;
         const previousClassCode = localStorage.getItem(NOTIFICATION_SUBSCRIPTION_CLASS_KEY) || "";
+        console.log("setClassNotificationToken gönderiliyor", { token: token.slice(0, 8) + "...", classCode });
         socket.emit("setClassNotificationToken", {
             token,
             classCode,
@@ -2576,7 +2586,7 @@ async function subscribeToClassPushNotifications(classCodeRaw, { forcePrompt = f
         });
         localStorage.setItem(NOTIFICATION_SUBSCRIPTION_CLASS_KEY, classCode);
     } catch (error) {
-        console.warn("Bildirim aboneliği kurulamadı:", error);
+        console.error("Bildirim aboneliği hatası:", error);
     } finally {
         updateNotificationToggleUI();
     }

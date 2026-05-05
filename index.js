@@ -311,9 +311,10 @@ async function sendPushNotification(topic, title, body) {
     };
     try {
         await admin.messaging().send(message);
+        console.log("✅ Bildirim başarıyla gönderildi:", topic, title, body);
         return true;
     } catch (error) {
-        console.error("⚠️ Bildirim gönderme hatası:", error);
+        console.error("❌ Bildirim gönderme hatası:", error);
         return false;
     }
 }
@@ -575,6 +576,7 @@ io.on("connection", (socket) => {
 
     socket.on("setClassNotificationToken", async ({ token, classCode, previousClassCode }) => {
         if (!admin.apps.length) return;
+        console.log("Bildirim token sunucuda alındı:", typeof token === "string" ? token.slice(0, 8) + "..." : token, classCode);
         const safeToken = sanitizeString(token, 4096);
         const safeClassCode = sanitizeString(classCode, 20).toUpperCase();
         const safePreviousClassCode = sanitizeString(previousClassCode || "", 20).toUpperCase();
@@ -590,9 +592,10 @@ io.on("connection", (socket) => {
                 await admin.messaging().unsubscribeFromTopic([safeToken], safePreviousClassCode);
             }
             await admin.messaging().subscribeToTopic([safeToken], safeClassCode);
+            console.log("Firebase subscribe başarılı:", safeClassCode);
             socket.emit("notificationSubscriptionUpdated", { success: true, classCode: safeClassCode });
         } catch (error) {
-            console.error("⚠️ Bildirim abonelik hatası:", error);
+            console.error("Bildirim abonelik hatası:", error);
             socket.emit("errorMsg", "Bildirim aboneliği güncellenemedi.");
         }
     });
