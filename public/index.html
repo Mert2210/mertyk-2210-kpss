@@ -95,6 +95,13 @@
     <div id="toast-message" style="text-align:left; font-size:0.9rem; font-weight:600;"></div>
 </div>
 
+<div id="auth-loading-overlay" style="position:fixed;inset:0;background:#fff;display:flex;align-items:center;justify-content:center;z-index:9999;">
+    <div style="text-align:center;">
+        <div style="font-size:3.5rem;margin-bottom:8px;">🎓</div>
+        <p style="color:#1e3c72;font-weight:bold;font-size:1.1rem;margin:0;">Yükleniyor...</p>
+    </div>
+</div>
+
 <div class="container">
     
     <div id="screen-auth" class="screen active">
@@ -706,6 +713,7 @@
                 <select id="reminder-interval-unit" aria-label="Hatırlatma aralığı birimi" style="width:auto; min-width:88px;">
                     <option value="days">Gün</option>
                     <option value="hours">Saat</option>
+                    <option value="minutes">Dakika</option>
                 </select>
                 <button id="reminder-interval-save-btn" type="button" class="blue" style="width:auto; min-width:92px;" onclick="window.addReminderInterval()">Ekle</button>
                 <button id="reminder-interval-cancel-btn" type="button" class="outline" style="display:none; width:auto; min-width:92px;" onclick="window.cancelReminderIntervalEdit()">Vazgeç</button>
