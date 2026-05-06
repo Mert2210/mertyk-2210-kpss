@@ -1860,7 +1860,11 @@ function getTopicsForDerslerimSubject(subject) {
     }
     const saved = CLIENT_STORE.getJSON('gazi_subjects_v2', []) || [];
     const row = saved.find(item => String(item?.name || '').trim() === safeSubject);
-    return buildTopicListFromSources(fromBaseCurriculum, fromUserCurriculum, row?.topics || '', fromCustomTopics);
+    const fromLocalNotebook = getLocalNotebookQuestions()
+        .filter(q => String(q?.ders || '').trim() === safeSubject)
+        .map(q => String(q?.konu || q?.deneme || '').trim())
+        .filter(Boolean);
+    return buildTopicListFromSources(fromBaseCurriculum, fromUserCurriculum, row?.topics || '', [...fromCustomTopics, ...fromLocalNotebook]);
 }
 
 function getDerslerimTopicFilterMode() {
@@ -3059,7 +3063,15 @@ onAuthStateChanged(auth, user => {
             syncSocketUserContext(user, role, realName);
             if (isTeacher) socket.emit("getTeacherClass", user.email);
             socket.emit("getFilters", window.myClassCode || "");
-            if (!isTeacher) socket.emit("checkNotebookReviews", realName);
+            if (!isTeacher) {
+                socket.emit("checkNotebookReviews", realName);
+                const now = Date.now();
+                getLocalNotebookQuestions().forEach((q) => {
+                    if (q.id && q.nextReviewDate && q.nextReviewDate > now) {
+                        socket.emit("scheduleLocalReminder", { questionId: q.id, studentName: realName, nextReviewDate: q.nextReviewDate });
+                    }
+                });
+            }
             if (isAdmin) socket.emit("getUserCurriculum");
         }
 
@@ -3603,6 +3615,9 @@ window.uploadStudentQuestion = async (target = 'cloud') => {
         localNotebook.push(q); 
         setLocalNotebookQuestions(localNotebook);
         markTopicAsNew(finalDers, finalTopic);
+        if (socket && socket.connected && q.id && q.nextReviewDate) {
+            socket.emit("scheduleLocalReminder", { questionId: q.id, studentName: q.studentName, nextReviewDate: q.nextReviewDate });
+        }
         alert(`💾 Soru CİHAZINIZA başarıyla kaydedildi!\nİnternetsiz de çözebilirsiniz.`);
     }
     
@@ -3803,7 +3818,11 @@ window.updateReviewDate = (questionId, isLocal = false, selectedDays = null) => 
             const idx = localData.findIndex(x => x.id === questionId); 
             if(idx !== -1) { 
                 localData[idx].nextReviewDate = newDate; 
-                setLocalNotebookQuestions(localData); 
+                setLocalNotebookQuestions(localData);
+                const studentName = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "").trim() || "Gazi Adayı";
+                if (socket && socket.connected) {
+                    socket.emit("scheduleLocalReminder", { questionId, studentName, nextReviewDate: newDate });
+                }
             } 
         }
         alert(`✅ Tamamdır! Bu soru sistem takvimine işlendi.`);

@@ -656,6 +656,27 @@ io.on("connection", (socket) => {
         }
     });
 
+    socket.on("scheduleLocalReminder", ({ questionId, studentName, nextReviewDate }) => {
+        if (!admin.apps.length) return;
+        const safeQuestionId = sanitizeString(questionId, 120);
+        const safeStudentName = sanitizeString(studentName, 100);
+        const safeNextReviewDate = Number(nextReviewDate);
+        if (!safeQuestionId || !safeStudentName || !Number.isFinite(safeNextReviewDate) || safeNextReviewDate <= 0) return;
+        const docId = `local_${safeQuestionId}`;
+        if (scheduledReminders.has(docId)) {
+            clearTimeout(scheduledReminders.get(docId));
+            scheduledReminders.delete(docId);
+        }
+        const delay = Math.max(0, safeNextReviewDate - Date.now());
+        const handle = setTimeout(async () => {
+            scheduledReminders.delete(docId);
+            const topic = buildStudentNotificationTopic(safeStudentName);
+            if (!topic) return;
+            await sendPushNotification(topic, "⏰ Tekrar Zamanı Geldi!", "Cihazınızda tekrar etmeniz gereken soru var.");
+        }, delay);
+        scheduledReminders.set(docId, handle);
+    });
+
     socket.on("saveStudentResult", async (data) => {
         if (!data || typeof data !== "object") return;
         const safeName = sanitizeString(data.name, 120);
