@@ -3819,16 +3819,15 @@ window.updateReviewDate = (questionId, isLocal = false, selectedDays = null) => 
             if(idx !== -1) { 
                 localData[idx].nextReviewDate = newDate; 
                 setLocalNotebookQuestions(localData);
-                const studentName = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "").trim() || "Gazi Adayı";
-                if (socket && socket.connected) {
-                    socket.emit("scheduleLocalReminder", { questionId, studentName, nextReviewDate: newDate });
-                }
             } 
         }
         alert(`✅ Tamamdır! Bu soru sistem takvimine işlendi.`);
         window.goBack('screen-list');
         const studentName = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "").trim() || "Gazi Adayı"; 
         socket.emit("checkNotebookReviews", studentName);
+        if (isLocal && socket && socket.connected) {
+            socket.emit("scheduleLocalReminder", { questionId, studentName, nextReviewDate: newDate });
+        }
     }
 };
 
