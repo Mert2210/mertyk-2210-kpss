@@ -177,6 +177,7 @@ const STUDENT_SAVED_MATERIALS_STORAGE_KEY = 'gazi_student_saved_teacher_material
 const CUSTOM_EXAM_TYPES_STORAGE_KEY = 'gazi_custom_exam_types_v1';
 const CUSTOM_CURRICULUM_STORAGE_KEY = 'gazi_custom_curriculum_v1';
 const LOCAL_NOTEBOOK_STORAGE_KEY = 'gazi_local_notebook';
+const LEGACY_LOCAL_NOTEBOOK_STORAGE_KEYS = ['kpss_local_notebook', 'gazi_local_notebook_v1', 'kpss_student_notebook'];
 const REMINDER_INTERVALS_STORAGE_KEY = 'gazi_reminder_intervals_v1';
 const CUSTOM_EXAM_PREFIX = 'custom_';
 const DEFAULT_CUSTOM_GROUP_NAME = 'Genel';
@@ -425,7 +426,21 @@ window.deleteReminderInterval = (index) => {
 };
 
 function getLocalNotebookQuestions() {
-    const raw = CLIENT_STORE.getJSON(LOCAL_NOTEBOOK_STORAGE_KEY, []);
+    let raw = CLIENT_STORE.getJSON(LOCAL_NOTEBOOK_STORAGE_KEY, []);
+    if (!Array.isArray(raw) || raw.length === 0) {
+        for (const legacyKey of LEGACY_LOCAL_NOTEBOOK_STORAGE_KEYS) {
+            try {
+                const legacyRaw = JSON.parse(localStorage.getItem(legacyKey) || 'null');
+                if (Array.isArray(legacyRaw) && legacyRaw.length > 0) {
+                    raw = legacyRaw;
+                    CLIENT_STORE.setJSON(LOCAL_NOTEBOOK_STORAGE_KEY, legacyRaw);
+                    break;
+                }
+            } catch (error) {
+                console.warn(`Eski cihaz not defteri verisi okunamadı (${legacyKey}):`, error);
+            }
+        }
+    }
     const safeRaw = Array.isArray(raw) ? raw : [];
     const normalized = safeRaw
         .map((row) => {
@@ -452,7 +467,10 @@ function getLocalNotebookQuestions() {
 
 function setLocalNotebookQuestions(list = []) {
     const safeList = Array.isArray(list) ? list : [];
-    CLIENT_STORE.setJSON(LOCAL_NOTEBOOK_STORAGE_KEY, safeList);
+    const saved = CLIENT_STORE.setJSON(LOCAL_NOTEBOOK_STORAGE_KEY, safeList);
+    if (!saved) return false;
+    const persisted = CLIENT_STORE.getJSON(LOCAL_NOTEBOOK_STORAGE_KEY, null);
+    return Array.isArray(persisted);
 }
 
 function getCurrentExamType() {
@@ -3601,7 +3619,10 @@ window.uploadStudentQuestion = async (target = 'cloud') => {
     } else {
         let localNotebook = getLocalNotebookQuestions(); 
         localNotebook.push(q); 
-        setLocalNotebookQuestions(localNotebook);
+        const saved = setLocalNotebookQuestions(localNotebook);
+        if (!saved) {
+            return alert("⚠️ Cihaz depolama alanına kaydedilemedi. Lütfen biraz yer açıp tekrar deneyin veya Buluta Kaydet seçeneğini kullanın.");
+        }
         markTopicAsNew(finalDers, finalTopic);
         alert(`💾 Soru CİHAZINIZA başarıyla kaydedildi!\nİnternetsiz de çözebilirsiniz.`);
     }
@@ -3803,7 +3824,10 @@ window.updateReviewDate = (questionId, isLocal = false, selectedDays = null) => 
             const idx = localData.findIndex(x => x.id === questionId); 
             if(idx !== -1) { 
                 localData[idx].nextReviewDate = newDate; 
-                setLocalNotebookQuestions(localData); 
+                const saved = setLocalNotebookQuestions(localData);
+                if (!saved) {
+                    return alert("⚠️ Cihazdaki tekrar tarihi güncellenemedi. Depolama alanını kontrol edip tekrar deneyin.");
+                }
             } 
         }
         alert(`✅ Tamamdır! Bu soru sistem takvimine işlendi.`);
@@ -3829,7 +3853,10 @@ window.deleteStudentQuestion = (questionId, isLocal) => {
     } else {
         let localData = getLocalNotebookQuestions();
         localData = localData.filter(x => x.id !== questionId);
-        setLocalNotebookQuestions(localData);
+        const saved = setLocalNotebookQuestions(localData);
+        if (!saved) {
+            return alert("⚠️ Cihazdaki soru silinemedi. Depolama alanını kontrol edip tekrar deneyin.");
+        }
         window.updateLocalListCounts();
     }
     window.originalStdQuestions = window.originalStdQuestions.filter(q => q.id !== questionId);
@@ -4643,17 +4670,50 @@ window.downloadPDF = () => {
         list = window.tempStdQuestions || [];
     }
 
-    if(list.length === 0) return alert("Liste boş!"); 
-    const win = window.open('', '', 'height=600,width=800');
-    if (!win) { alert("Tarayıcınız açılır pencereyi engelledi. Lütfen açılır pencerelere izin verip tekrar deneyin."); return; }
-    win.document.write('<html><body style="font-family:sans-serif;"><h2>Gazililer Yanlış Soru Kumbaram</h2><hr>'); 
+    if(list.length === 0) return alert("Liste boş!");
+    const jsPdfApi = window.jspdf && window.jspdf.jsPDF;
+    if (!jsPdfApi) {
+        return alert("PDF oluşturma modülü yüklenemedi. Lütfen sayfayı yenileyip tekrar deneyin.");
+    }
+    const doc = new jsPdfApi({ unit: 'pt', format: 'a4' });
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 40;
+    const maxWidth = pageWidth - (margin * 2);
+    let cursorY = margin;
+    const lineGap = 16;
+    const sectionGap = 12;
+
+    const ensureSpace = (requiredHeight) => {
+        if (cursorY + requiredHeight <= pageHeight - margin) return;
+        doc.addPage();
+        cursorY = margin;
+    };
+
+    doc.setFontSize(14);
+    doc.text('Gazililer Yanlış Soru Kumbaram', margin, cursorY);
+    cursorY += 24;
+    doc.setDrawColor(220, 220, 220);
+    doc.line(margin, cursorY, pageWidth - margin, cursorY);
+    cursorY += 18;
+
+    doc.setFontSize(11);
     list.forEach((q, i) => {
-        const answer = (q.siklar && q.siklar[q.dogru]) ? q.siklar[q.dogru] : 'Bilinmiyor';
-        win.document.write(`<p><b>Soru ${i+1}:</b> ${escapeHtml(q.soru)}<br><span style="color:green;">Cevap: ${escapeHtml(answer)}</span></p>`);
+        const questionText = String(q?.soru || q?.not || 'Görseli inceleyiniz.').trim() || 'Görseli inceleyiniz.';
+        const answer = (q?.siklar && q.siklar[q.dogru]) ? q.siklar[q.dogru] : 'Bilinmiyor';
+        const questionLines = doc.splitTextToSize(`Soru ${i + 1}: ${questionText}`, maxWidth);
+        const answerLines = doc.splitTextToSize(`Cevap: ${String(answer)}`, maxWidth);
+        const requiredHeight = (questionLines.length + answerLines.length) * lineGap + sectionGap;
+        ensureSpace(requiredHeight);
+        doc.setTextColor(0, 0, 0);
+        doc.text(questionLines, margin, cursorY);
+        cursorY += questionLines.length * lineGap;
+        doc.setTextColor(39, 174, 96);
+        doc.text(answerLines, margin, cursorY);
+        cursorY += (answerLines.length * lineGap) + sectionGap;
     });
-    win.document.write('</body></html>'); 
-    win.document.close(); 
-    win.print(); 
+
+    doc.save(`gazililer-kutuphane-${Date.now()}.pdf`);
 };
 
 window.goToLobby = (mode) => {
