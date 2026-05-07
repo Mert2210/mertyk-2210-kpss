@@ -4662,6 +4662,7 @@ window.showLocalList = (type) => {
 };
 
 window.downloadPDF = () => { 
+    const PRINT_DELAY_MS = 250;
     const keys = { 'wrong': 'kpss_wrongs', 'fav': 'kpss_favs', 'blank': 'kpss_blanks', 'report': 'kpss_reports' }; 
     let list = [];
     if (keys[currentListType]) {
@@ -4687,7 +4688,7 @@ window.downloadPDF = () => {
         let y = marginY;
         doc.setFont("helvetica", "bold");
         doc.setFontSize(14);
-        doc.text("Gazililer Yanlis Soru Kumbaram", marginX, y);
+        doc.text("Gazililer Yanlış Soru Kumbaram", marginX, y);
         y += 22;
         doc.setFont("helvetica", "normal");
         doc.setFontSize(11);
@@ -4717,6 +4718,8 @@ window.downloadPDF = () => {
     });
     win.document.write('</body></html>'); 
     win.document.close(); 
+    // Bazı mobil/desktop tarayıcılarda print çağrısı document.close() hemen ardından
+    // tetiklenince diyalog sessizce açılmayabiliyor; kısa gecikme uyumluluğu artırır.
     setTimeout(() => {
         try {
             win.focus();
@@ -4724,7 +4727,7 @@ window.downloadPDF = () => {
         } catch (error) {
             console.warn("PDF yazdırma penceresi açılamadı:", error);
         }
-    }, 250);
+    }, PRINT_DELAY_MS);
 };
 
 window.goToLobby = (mode) => {
