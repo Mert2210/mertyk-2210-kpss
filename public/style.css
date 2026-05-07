@@ -1113,10 +1113,14 @@ body.nav-visible .container {
 }
 
 .plus-icon {
-    display: inline-block;
-    font-size: 1.1rem;
-    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0.7em;
+    font-size: 1.2rem;
+    font-weight: 800;
     line-height: 1;
+    color: currentColor;
 }
 
 .topic-count-badge {

@@ -3754,19 +3754,27 @@ function renderStudentLibraryHTML(data, title) {
     const pendingFilter = window.pendingLibraryFilter;
     let resolvedTopicContext = null;
     if (pendingFilter && typeof pendingFilter === 'object') {
+        const filterSubject = normalizeText(pendingFilter.subject);
+        const filterTopic = normalizeText(pendingFilter.topic);
         const filtered = data.filter((q) => {
-            const sameSubject = String(q?.ders || '').trim() === String(pendingFilter.subject || '').trim();
+            const sameSubject = normalizeText(q?.ders) === filterSubject;
             if (!sameSubject) return false;
-            const filterTopic = String(pendingFilter.topic || '').trim();
             if (!filterTopic) return true;
-            const sameTopic = String(q?.konu || q?.deneme || '').trim() === filterTopic;
-            return sameTopic;
+            const questionTopics = [
+                q?.konu,
+                q?.deneme,
+                q?.denemeName
+            ].map((value) => normalizeText(value));
+            return questionTopics.includes(filterTopic);
         });
+        if (filterSubject && filterTopic) {
+            resolvedTopicContext = {
+                subject: String(pendingFilter.subject || '').trim(),
+                topic: String(pendingFilter.topic || '').trim()
+            };
+        }
         if (filtered.length > 0) {
             renderStudentLibraryListOnly(filtered);
-            if (String(pendingFilter.topic || '').trim()) {
-                resolvedTopicContext = { subject: pendingFilter.subject, topic: pendingFilter.topic };
-            }
         } else {
             renderStudentLibraryListOnly([]);
         }

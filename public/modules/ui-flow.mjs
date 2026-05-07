@@ -93,15 +93,13 @@ export const DEFAULT_REMINDER_INTERVALS = Object.freeze([1, 3, 7, 15]);
 export function formatReminderOptionLabel(daysValue, comparisonEpsilon = 0.001) {
     const safeValue = Number(daysValue);
     if (!Number.isFinite(safeValue) || safeValue <= 0) return '';
+    // UI only exposes integer Saat/Gün seçenekleri; bu yüzden etiketler en yakın tam değere yuvarlanır.
     if (safeValue < 1) {
-        const hours = safeValue * 24;
-        const roundedHours = Math.round(hours);
-        if (roundedHours > 0 && Math.abs(hours - roundedHours) <= comparisonEpsilon) {
-            return `${roundedHours} saat`;
-        }
+        const roundedHours = Math.max(1, Math.round(safeValue * 24));
+        return `${roundedHours} saat`;
     }
-    const text = Number.isInteger(safeValue) ? String(safeValue) : String(safeValue).replace('.', ',');
-    return `${text} gün`;
+    const roundedDays = Math.max(1, Math.round(safeValue));
+    return `${roundedDays} gün`;
 }
 
 export function mergeSavedSubjectsWithDrafts(savedSubjects = [], drafts = []) {
