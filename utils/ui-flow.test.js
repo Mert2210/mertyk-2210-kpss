@@ -195,9 +195,8 @@ test('Hatırlatma etiketleri: saatlik ve günlük seçenekler doğru yazılır',
     assert.equal(formatReminderOptionLabel(3 / 24), '3 saat');
     assert.equal(formatReminderOptionLabel(0.5), '12 saat');
     assert.equal(formatReminderOptionLabel(7), '7 gün');
-    // Tam gün olmayan ancak tam saat de olmayan değerler ondalıklı gün olarak gösterilir;
-    // normalizeReminderIntervals bu tür değerlerin kaydedilmesini önler.
-    assert.equal(formatReminderOptionLabel(1.5), '1,5 gün');
+    assert.equal(formatReminderOptionLabel(0.1), '2 saat');
+    assert.equal(formatReminderOptionLabel(1.5), '2 gün');
 });
 
 test('Profil modu görünürlük kuralları: profilde kaydet görünür, derslerimde gizli', async () => {

@@ -1109,14 +1109,18 @@ body.nav-visible .container {
     padding: 8px 10px;
     font-size: 1rem;
     line-height: 1;
-    color: #fff;
+    color: #fff !important;
 }
 
 .plus-icon {
-    display: inline-block;
-    font-size: 1.1rem;
-    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0.7em;
+    font-size: 1.2rem;
+    font-weight: 800;
     line-height: 1;
+    color: currentColor;
 }
 
 .topic-count-badge {
