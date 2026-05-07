@@ -258,6 +258,10 @@ function normalizeReminderIntervals(list = []) {
             .filter((value) => Number.isFinite(value) && value > 0)
             .map((value) => {
                 if (value >= 1) return Math.round(value);
+                if (value < (1 / 24)) {
+                    const wholeMinutes = Math.round(value * 24 * 60);
+                    return wholeMinutes > 0 ? Number((wholeMinutes / 1440).toFixed(6)) : null;
+                }
                 const wholeHours = Math.round(value * 24);
                 return wholeHours > 0 ? Number((wholeHours / 24).toFixed(4)) : null;
             })
@@ -313,6 +317,7 @@ function getReminderIntervalDaysFromEditor() {
     const amount = parseInt(String(input?.value || ''), 10);
     const unit = String(unitSelect?.value || 'days');
     if (!Number.isInteger(amount) || amount <= 0) return null;
+    if (unit === 'minutes') return Number((amount / 1440).toFixed(6));
     if (unit === 'hours') return Number((amount / 24).toFixed(4));
     return Number(amount);
 }
@@ -324,9 +329,14 @@ function setReminderIntervalEditorFromDays(daysValue) {
     const cancelBtn = document.getElementById('reminder-interval-cancel-btn');
     if (!input || !unitSelect) return;
     const safeDays = Number(daysValue);
+    const minutes = safeDays * 24 * 60;
+    const roundedMinutes = Math.round(minutes);
     const hours = safeDays * 24;
     const roundedHours = Math.round(hours);
-    if (safeDays < 1 && roundedHours > 0 && Math.abs(hours - roundedHours) <= FLOAT_COMPARISON_EPSILON) {
+    if (safeDays < (1 / 24) && roundedMinutes > 0 && Math.abs(minutes - roundedMinutes) <= FLOAT_COMPARISON_EPSILON) {
+        unitSelect.value = 'minutes';
+        input.value = String(roundedMinutes);
+    } else if (safeDays < 1 && roundedHours > 0 && Math.abs(hours - roundedHours) <= FLOAT_COMPARISON_EPSILON) {
         unitSelect.value = 'hours';
         input.value = String(roundedHours);
     } else {
