@@ -2281,6 +2281,25 @@ try {
         }
         const title = String(notificationPayload.title || "Yeni bildirim");
         const body = String(notificationPayload.body || "");
+        if (typeof Notification !== "undefined" && Notification.permission === "granted") {
+            try {
+                navigator.serviceWorker?.getRegistration?.().then((registration) => {
+                    if (registration && typeof registration.showNotification === "function") {
+                        registration.showNotification(title, {
+                            body,
+                            icon: '/icon-192.png',
+                            badge: '/icon-192.png'
+                        });
+                        return;
+                    }
+                    new Notification(title, { body, icon: '/icon-192.png' });
+                }).catch(() => {
+                    try {
+                        new Notification(title, { body, icon: '/icon-192.png' });
+                    } catch (_) {}
+                });
+            } catch (_) {}
+        }
         window.showSoftFeedback(body ? `🔔 ${title} — ${body}` : `🔔 ${title}`);
     });
 } catch (error) {
@@ -4653,7 +4672,44 @@ window.downloadPDF = () => {
 
     if(list.length === 0) return alert("Liste boş!"); 
     const win = window.open('', '', 'height=600,width=800');
-    if (!win) { alert("Tarayıcınız açılır pencereyi engelledi. Lütfen açılır pencerelere izin verip tekrar deneyin."); return; }
+    if (!win) {
+        const jsPdfCtor = window.jspdf?.jsPDF;
+        if (!jsPdfCtor) {
+            alert("PDF oluşturulamadı. Lütfen açılır pencere iznini açın ve tekrar deneyin.");
+            return;
+        }
+        const doc = new jsPdfCtor({ unit: 'pt', format: 'a4' });
+        const pageHeight = doc.internal.pageSize.getHeight();
+        const marginX = 40;
+        const marginY = 42;
+        const lineHeight = 16;
+        const paragraphGap = 10;
+        let y = marginY;
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(14);
+        doc.text("Gazililer Yanlis Soru Kumbaram", marginX, y);
+        y += 22;
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(11);
+        list.forEach((q, i) => {
+            const answer = (q.siklar && q.siklar[q.dogru]) ? q.siklar[q.dogru] : 'Bilinmiyor';
+            const questionLines = doc.splitTextToSize(`Soru ${i + 1}: ${String(q.soru || '')}`, 515);
+            const answerLines = doc.splitTextToSize(`Cevap: ${String(answer)}`, 515);
+            const requiredHeight = (questionLines.length + answerLines.length) * lineHeight + paragraphGap;
+            if (y + requiredHeight > pageHeight - marginY) {
+                doc.addPage();
+                y = marginY;
+            }
+            doc.text(questionLines, marginX, y);
+            y += questionLines.length * lineHeight;
+            doc.setTextColor(0, 128, 0);
+            doc.text(answerLines, marginX, y);
+            doc.setTextColor(0, 0, 0);
+            y += answerLines.length * lineHeight + paragraphGap;
+        });
+        doc.save("gazililer-kumbaram.pdf");
+        return;
+    }
     win.document.write('<html><body style="font-family:sans-serif;"><h2>Gazililer Yanlış Soru Kumbaram</h2><hr>'); 
     list.forEach((q, i) => {
         const answer = (q.siklar && q.siklar[q.dogru]) ? q.siklar[q.dogru] : 'Bilinmiyor';
@@ -4661,7 +4717,14 @@ window.downloadPDF = () => {
     });
     win.document.write('</body></html>'); 
     win.document.close(); 
-    win.print(); 
+    setTimeout(() => {
+        try {
+            win.focus();
+            win.print();
+        } catch (error) {
+            console.warn("PDF yazdırma penceresi açılamadı:", error);
+        }
+    }, 250);
 };
 
 window.goToLobby = (mode) => {
