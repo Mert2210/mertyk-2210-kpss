@@ -258,6 +258,10 @@ function normalizeReminderIntervals(list = []) {
             .filter((value) => Number.isFinite(value) && value > 0)
             .map((value) => {
                 if (value >= 1) return Math.round(value);
+                if (value < (1 / 24)) {
+                    const wholeMinutes = Math.round(value * 24 * 60);
+                    return wholeMinutes > 0 ? Number((wholeMinutes / 1440).toFixed(6)) : null;
+                }
                 const wholeHours = Math.round(value * 24);
                 return wholeHours > 0 ? Number((wholeHours / 24).toFixed(4)) : null;
             })
@@ -313,6 +317,7 @@ function getReminderIntervalDaysFromEditor() {
     const amount = parseInt(String(input?.value || ''), 10);
     const unit = String(unitSelect?.value || 'days');
     if (!Number.isInteger(amount) || amount <= 0) return null;
+    if (unit === 'minutes') return Number((amount / 1440).toFixed(6));
     if (unit === 'hours') return Number((amount / 24).toFixed(4));
     return Number(amount);
 }
@@ -324,9 +329,14 @@ function setReminderIntervalEditorFromDays(daysValue) {
     const cancelBtn = document.getElementById('reminder-interval-cancel-btn');
     if (!input || !unitSelect) return;
     const safeDays = Number(daysValue);
+    const minutes = safeDays * 24 * 60;
+    const roundedMinutes = Math.round(minutes);
     const hours = safeDays * 24;
     const roundedHours = Math.round(hours);
-    if (safeDays < 1 && roundedHours > 0 && Math.abs(hours - roundedHours) <= FLOAT_COMPARISON_EPSILON) {
+    if (safeDays < (1 / 24) && roundedMinutes > 0 && Math.abs(minutes - roundedMinutes) <= FLOAT_COMPARISON_EPSILON) {
+        unitSelect.value = 'minutes';
+        input.value = String(roundedMinutes);
+    } else if (safeDays < 1 && roundedHours > 0 && Math.abs(hours - roundedHours) <= FLOAT_COMPARISON_EPSILON) {
         unitSelect.value = 'hours';
         input.value = String(roundedHours);
     } else {
@@ -2281,6 +2291,30 @@ try {
         }
         const title = String(notificationPayload.title || "Yeni bildirim");
         const body = String(notificationPayload.body || "");
+        if (typeof Notification !== "undefined" && Notification.permission === "granted") {
+            try {
+                navigator.serviceWorker?.getRegistration?.().then((registration) => {
+                    if (registration && typeof registration.showNotification === "function") {
+                        registration.showNotification(title, {
+                            body,
+                            icon: '/icon-192.png',
+                            badge: '/icon-192.png'
+                        });
+                        return;
+                    }
+                    new Notification(title, { body, icon: '/icon-192.png' });
+                }).catch((registrationError) => {
+                    console.warn("Service Worker bildirimi gösterilemedi, Notification fallback deneniyor:", registrationError);
+                    try {
+                        new Notification(title, { body, icon: '/icon-192.png' });
+                    } catch (notificationError) {
+                        console.warn("Foreground Notification fallback hatası:", notificationError);
+                    }
+                });
+            } catch (notificationBootstrapError) {
+                console.warn("Foreground native bildirim başlatılamadı:", notificationBootstrapError);
+            }
+        }
         window.showSoftFeedback(body ? `🔔 ${title} — ${body}` : `🔔 ${title}`);
     });
 } catch (error) {
@@ -4643,6 +4677,7 @@ window.showLocalList = (type) => {
 };
 
 window.downloadPDF = () => { 
+    const PRINT_DELAY_MS = 250;
     const keys = { 'wrong': 'kpss_wrongs', 'fav': 'kpss_favs', 'blank': 'kpss_blanks', 'report': 'kpss_reports' }; 
     let list = [];
     if (keys[currentListType]) {
@@ -4653,7 +4688,44 @@ window.downloadPDF = () => {
 
     if(list.length === 0) return alert("Liste boş!"); 
     const win = window.open('', '', 'height=600,width=800');
-    if (!win) { alert("Tarayıcınız açılır pencereyi engelledi. Lütfen açılır pencerelere izin verip tekrar deneyin."); return; }
+    if (!win) {
+        const jsPdfCtor = window.jspdf?.jsPDF;
+        if (!jsPdfCtor) {
+            alert("PDF oluşturulamadı. Lütfen açılır pencere iznini açın ve tekrar deneyin.");
+            return;
+        }
+        const doc = new jsPdfCtor({ unit: 'pt', format: 'a4' });
+        const pageHeight = doc.internal.pageSize.getHeight();
+        const marginX = 40;
+        const marginY = 42;
+        const lineHeight = 16;
+        const paragraphGap = 10;
+        let y = marginY;
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(14);
+        doc.text("Gazililer Yanlış Soru Kumbaram", marginX, y);
+        y += 22;
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(11);
+        list.forEach((q, i) => {
+            const answer = (q.siklar && q.siklar[q.dogru]) ? q.siklar[q.dogru] : 'Bilinmiyor';
+            const questionLines = doc.splitTextToSize(`Soru ${i + 1}: ${String(q.soru || '')}`, 515);
+            const answerLines = doc.splitTextToSize(`Cevap: ${String(answer)}`, 515);
+            const requiredHeight = (questionLines.length + answerLines.length) * lineHeight + paragraphGap;
+            if (y + requiredHeight > pageHeight - marginY) {
+                doc.addPage();
+                y = marginY;
+            }
+            doc.text(questionLines, marginX, y);
+            y += questionLines.length * lineHeight;
+            doc.setTextColor(0, 128, 0);
+            doc.text(answerLines, marginX, y);
+            doc.setTextColor(0, 0, 0);
+            y += answerLines.length * lineHeight + paragraphGap;
+        });
+        doc.save("gazililer-kumbaram.pdf");
+        return;
+    }
     win.document.write('<html><body style="font-family:sans-serif;"><h2>Gazililer Yanlış Soru Kumbaram</h2><hr>'); 
     list.forEach((q, i) => {
         const answer = (q.siklar && q.siklar[q.dogru]) ? q.siklar[q.dogru] : 'Bilinmiyor';
@@ -4661,7 +4733,17 @@ window.downloadPDF = () => {
     });
     win.document.write('</body></html>'); 
     win.document.close(); 
-    win.print(); 
+    // Bazı mobil/desktop tarayıcılarda print çağrısı document.close() hemen ardından
+    // tetiklenince diyalog sessizce açılmayabiliyor; kısa gecikme uyumluluğu artırır.
+    // Gecikme süresi PRINT_DELAY_MS sabitinden yönetilir.
+    setTimeout(() => {
+        try {
+            win.focus();
+            win.print();
+        } catch (error) {
+            console.warn("PDF yazdırma penceresi açılamadı:", error);
+        }
+    }, PRINT_DELAY_MS);
 };
 
 window.goToLobby = (mode) => {

@@ -187,14 +187,16 @@ test('Hatırlatma rozetleri: zamanı gelen sorular ders bazında sayılır', asy
     });
 });
 
-test('Hatırlatma etiketleri: saatlik ve günlük seçenekler doğru yazılır', async () => {
+test('Hatırlatma etiketleri: dakikalık, saatlik ve günlük seçenekler doğru yazılır', async () => {
     const { formatReminderOptionLabel, DEFAULT_REMINDER_INTERVALS } = await importUiFlow();
 
     assert.deepStrictEqual(DEFAULT_REMINDER_INTERVALS, [1, 3, 7, 15]);
+    assert.equal(formatReminderOptionLabel(1 / 1440), '1 dakika');
+    assert.equal(formatReminderOptionLabel(2 / 1440), '2 dakika');
     assert.equal(formatReminderOptionLabel(1 / 24), '1 saat');
     assert.equal(formatReminderOptionLabel(3 / 24), '3 saat');
-    // Alt saat değerleri için de kesirsiz gösterim korunur (en yakın saat).
-    assert.equal(formatReminderOptionLabel(0.021), '1 saat');
+    // Alt saat değerleri dakikaya çevrilir.
+    assert.equal(formatReminderOptionLabel(0.021), '30 dakika');
     assert.equal(formatReminderOptionLabel(0.5), '12 saat');
     assert.equal(formatReminderOptionLabel(0.99), '24 saat');
     assert.equal(formatReminderOptionLabel(7), '7 gün');
