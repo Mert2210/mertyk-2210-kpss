@@ -93,6 +93,7 @@ export const DEFAULT_REMINDER_INTERVALS = Object.freeze([1, 3, 7, 15]);
 export function formatReminderOptionLabel(daysValue, comparisonEpsilon = 0.001) {
     const safeValue = Number(daysValue);
     if (!Number.isFinite(safeValue) || safeValue <= 0) return '';
+    // UI only exposes integer Saat/Gün seçenekleri; bu yüzden etiketler en yakın tam değere yuvarlanır.
     if (safeValue < 1) {
         const roundedHours = Math.max(1, Math.round(safeValue * 24));
         return `${roundedHours} saat`;

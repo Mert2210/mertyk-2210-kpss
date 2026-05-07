@@ -193,6 +193,7 @@ test('Hatırlatma etiketleri: saatlik ve günlük seçenekler doğru yazılır',
     assert.deepStrictEqual(DEFAULT_REMINDER_INTERVALS, [1, 3, 7, 15]);
     assert.equal(formatReminderOptionLabel(1 / 24), '1 saat');
     assert.equal(formatReminderOptionLabel(3 / 24), '3 saat');
+    // Alt saat değerleri için de kesirsiz gösterim korunur (en yakın saat).
     assert.equal(formatReminderOptionLabel(0.021), '1 saat');
     assert.equal(formatReminderOptionLabel(0.5), '12 saat');
     assert.equal(formatReminderOptionLabel(0.99), '24 saat');
