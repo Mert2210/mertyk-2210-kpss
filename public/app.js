@@ -2293,12 +2293,17 @@ try {
                         return;
                     }
                     new Notification(title, { body, icon: '/icon-192.png' });
-                }).catch(() => {
+                }).catch((registrationError) => {
+                    console.warn("Service Worker bildirimi gösterilemedi, Notification fallback deneniyor:", registrationError);
                     try {
                         new Notification(title, { body, icon: '/icon-192.png' });
-                    } catch (_) {}
+                    } catch (notificationError) {
+                        console.warn("Foreground Notification fallback hatası:", notificationError);
+                    }
                 });
-            } catch (_) {}
+            } catch (notificationBootstrapError) {
+                console.warn("Foreground native bildirim başlatılamadı:", notificationBootstrapError);
+            }
         }
         window.showSoftFeedback(body ? `🔔 ${title} — ${body}` : `🔔 ${title}`);
     });
@@ -4720,6 +4725,7 @@ window.downloadPDF = () => {
     win.document.close(); 
     // Bazı mobil/desktop tarayıcılarda print çağrısı document.close() hemen ardından
     // tetiklenince diyalog sessizce açılmayabiliyor; kısa gecikme uyumluluğu artırır.
+    // Gecikme süresi PRINT_DELAY_MS sabitinden yönetilir.
     setTimeout(() => {
         try {
             win.focus();
