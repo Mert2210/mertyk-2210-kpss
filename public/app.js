@@ -3016,6 +3016,9 @@ async function syncSocketUserContext(user, role, name) {
 }
 
 onAuthStateChanged(auth, user => {
+    const loadingOverlay = document.getElementById('app-loading-overlay');
+    if (loadingOverlay) loadingOverlay.style.display = 'none';
+
     const adminBtn = document.getElementById('admin-report-btn'); 
     const adminApproveBtn = document.getElementById('admin-approve-btn'); 
     const instPanel = document.getElementById('instructor-panel'); 
