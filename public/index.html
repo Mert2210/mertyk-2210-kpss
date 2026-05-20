@@ -22,6 +22,11 @@
 </head>
 <body>
 
+<div id="app-loading-overlay">
+    <div class="app-loading-spinner"></div>
+    <div class="app-loading-text">Yükleniyor...</div>
+</div>
+
 <div id="intro-overlay" style="display:none;">
     <div id="slide-1" class="intro-slide active">
         <div class="intro-icon">📸</div>
@@ -97,7 +102,7 @@
 
 <div class="container">
     
-    <div id="screen-auth" class="screen active">
+    <div id="screen-auth" class="screen">
         <div class="role-toggle">
             <div id="btn-main-student" class="role-btn active" onclick="setMainRole('student')">🧑‍🎓 Öğrenci</div>
             <div id="btn-main-teacher" class="role-btn" onclick="setMainRole('teacher_pending')">👨‍🏫 Öğretmen</div>
@@ -879,6 +884,17 @@ window.__APP_CONFIG_READY__ = fetch('app-config')
     .then((r) => r.ok ? r.json() : {})
     .then((data) => { window.__APP_CONFIG__ = data || {}; return window.__APP_CONFIG__; })
     .catch(() => { window.__APP_CONFIG__ = {}; return {}; });
+// Fallback: if app.js fails to initialize within 15s, show auth screen
+setTimeout(() => {
+    var overlay = document.getElementById('app-loading-overlay');
+    if (overlay && overlay.style.display !== 'none') {
+        overlay.style.display = 'none';
+        var authScreen = document.getElementById('screen-auth');
+        if (authScreen && !authScreen.classList.contains('active')) {
+            authScreen.classList.add('active');
+        }
+    }
+}, 15000);
 </script>
 <script type="module" src="app.js"></script>
 
