@@ -21,9 +21,20 @@ const fallbackFirebaseConfig = {
     measurementId: "G-CMLQJ746WT"
 };
 
-const runtimeConfig = window.__APP_CONFIG__ || {};
+let runtimeConfig = window.__APP_CONFIG__ || {};
+if (window.__APP_CONFIG_READY__) {
+    try {
+        const resolvedConfig = await window.__APP_CONFIG_READY__;
+        if (resolvedConfig && typeof resolvedConfig === 'object') {
+            runtimeConfig = resolvedConfig;
+        }
+    } catch (error) {
+        console.warn("⚠️ Uygulama konfigürasyonu yüklenemedi, varsayılanlar kullanılacak.", error);
+    }
+}
+window.__APP_CONFIG__ = runtimeConfig;
 const runtimeFirebase = runtimeConfig.firebaseConfig || {};
-const _vapidKeyReady = (window.__APP_CONFIG_READY__ || Promise.resolve(window.__APP_CONFIG__ || {}))
+const _vapidKeyReady = Promise.resolve(runtimeConfig)
     .then((cfg) => String((cfg || {}).firebaseVapidKey || "").trim());
 async function getFirebaseVapidKey() { return _vapidKeyReady; }
 const firebaseConfig = runtimeFirebase.apiKey
