@@ -4,7 +4,7 @@ const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
 
-const { readJsonFile, writeJsonFile } = require("./json-store");
+const { readJsonFile, writeJsonFile, batchWriteJsonFiles } = require("./json-store");
 
 function withTempDir(run) {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), "json-store-test-"));
@@ -59,4 +59,27 @@ test("writeJsonFile writes pretty-printed JSON", () => {
         assert.equal(content, `${JSON.stringify(value, null, 2)}`);
         assert.deepStrictEqual(JSON.parse(content), value);
     });
+});
+
+test("batchWriteJsonFiles writes each entry atomically", () => {
+    withTempDir((dir) => {
+        const fileA = path.join(dir, "a.json");
+        const fileB = path.join(dir, "b.json");
+        const entries = [
+            { filePath: fileA, value: { lesson: "Tarih" } },
+            { filePath: fileB, value: { lesson: "Coğrafya", count: 3 } }
+        ];
+
+        batchWriteJsonFiles(entries);
+
+        assert.deepStrictEqual(JSON.parse(fs.readFileSync(fileA, "utf8")), { lesson: "Tarih" });
+        assert.deepStrictEqual(JSON.parse(fs.readFileSync(fileB, "utf8")), { lesson: "Coğrafya", count: 3 });
+    });
+});
+
+test("batchWriteJsonFiles rejects non-array input", () => {
+    assert.throws(
+        () => batchWriteJsonFiles({ filePath: "x.json", value: {} }),
+        /entries must be an array/
+    );
 });
