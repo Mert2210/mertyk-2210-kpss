@@ -5,7 +5,8 @@ const {
     sanitizeString,
     isValidImageDataUrl,
     isTeacherRole,
-    isAdminRole
+    isAdminRole,
+    isValidEmail
 } = require("./security-utils");
 
 test("sanitizeString trims, enforces max length, and rejects non-string values", () => {
@@ -28,4 +29,13 @@ test("role helpers correctly classify teacher/admin permissions", () => {
     assert.equal(isTeacherRole("student"), false);
     assert.equal(isAdminRole("admin"), true);
     assert.equal(isAdminRole("teacher"), false);
+});
+
+test("isValidEmail validates trimmed emails and rejects invalid values", () => {
+    assert.equal(isValidEmail("  user@example.com  "), true);
+    assert.equal(isValidEmail(""), false);
+    assert.equal(isValidEmail(null), false);
+    assert.equal(isValidEmail("invalid-email"), false);
+    assert.equal(isValidEmail("name@domain"), false);
+    assert.equal(isValidEmail("a".repeat(250) + "@x.com"), false);
 });
