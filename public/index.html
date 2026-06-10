@@ -16,9 +16,6 @@
     
     <link rel="stylesheet" href="style.css">
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <script src="socket.io/socket.io.js"></script>
 </head>
 <body>
 
@@ -133,6 +130,9 @@
                 <span class="auth-switch" onclick="handleResetPassword()" style="color:#2980b9; margin:0;">Şifremi Unuttum</span>
                 <span class="auth-switch" onclick="switchAuth('register')" style="margin:0;">Hesap Oluştur</span>
             </div>
+            <button onclick="window.resetAppCacheAndReload()" style="margin-top:12px; background:#f1f5f9; color:#1e3c72; border:1px solid #cbd5e1; font-size:0.85rem;">
+                Uygulama açılmıyorsa önbelleği sıfırla
+            </button>
         </div>
 
         <div id="reg-box" class="auth-form" style="display:none;">
@@ -884,6 +884,31 @@ window.__APP_CONFIG_READY__ = fetch('app-config')
     .then((r) => r.ok ? r.json() : {})
     .then((data) => { window.__APP_CONFIG__ = data || {}; return window.__APP_CONFIG__; })
     .catch(() => { window.__APP_CONFIG__ = {}; return {}; });
+window.__LAZY_SCRIPT_CACHE__ = window.__LAZY_SCRIPT_CACHE__ || {};
+window.loadExternalScript = (url) => {
+    const cached = window.__LAZY_SCRIPT_CACHE__[url];
+    if (cached) return cached;
+    window.__LAZY_SCRIPT_CACHE__[url] = new Promise((resolve, reject) => {
+        const existing = document.querySelector(`script[data-lazy-src="${url}"]`);
+        if (existing) {
+            if (existing.dataset.loaded === "1") return resolve();
+            existing.addEventListener('load', () => resolve(), { once: true });
+            existing.addEventListener('error', () => reject(new Error(`Script yüklenemedi: ${url}`)), { once: true });
+            return;
+        }
+        const s = document.createElement('script');
+        s.src = url;
+        s.defer = true;
+        s.dataset.lazySrc = url;
+        s.onload = () => {
+            s.dataset.loaded = "1";
+            resolve();
+        };
+        s.onerror = () => reject(new Error(`Script yüklenemedi: ${url}`));
+        document.head.appendChild(s);
+    });
+    return window.__LAZY_SCRIPT_CACHE__[url];
+};
 // Fallback: if app.js fails to initialize within 15s, show auth screen
 setTimeout(() => {
     var overlay = document.getElementById('app-loading-overlay');
@@ -896,6 +921,7 @@ setTimeout(() => {
     }
 }, 15000);
 </script>
+<script src="socket.io/socket.io.js"></script>
 <script type="module" src="app.js"></script>
 
 </body>
