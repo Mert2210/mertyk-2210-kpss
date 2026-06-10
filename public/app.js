@@ -9,7 +9,6 @@ import { normalizeTopicFilterMode, getAllowedTopicsForMode, getAllowedTopicsForM
 import { resolveCurrentExamType, getCustomCurriculumGroupsByExamType as getCustomCurriculumGroupsByExamTypeFromMap, getCustomCurriculumSubjectsByExamType as getCustomCurriculumSubjectsByExamTypeFromMap, getCustomCurriculumTopicsByExamTypeAndSubject as getCustomCurriculumTopicsByExamTypeAndSubjectFromMap, getCustomTopicsBySubject as getCustomTopicsBySubjectFromMap, addCustomTopicsForSubject as addCustomTopicsForSubjectInMap, mergeSubjectsForExamType } from "./modules/custom-data.mjs";
 import { buildRelativeResourceUrl, getShareableAppLink, shouldRegisterServiceWorker } from "./modules/app-shell.mjs";
 import { escapeHtml } from "./modules/security.mjs";
-import { compressImageDataUrl, compressImageFile, initLazyImageLoading } from "./utils/image-optimizer.js";
 
 const fallbackFirebaseConfig = { 
     apiKey: "AIzaSyDkZI-LxCOaog4kyb4YSquEK6ZpLNH2pqs", 
@@ -21,12 +20,18 @@ const fallbackFirebaseConfig = {
     measurementId: "G-CMLQJ746WT"
 };
 
+const APP_CONFIG_TIMEOUT_MS = 2000;
 let runtimeConfig = window.__APP_CONFIG__ || {};
 if (window.__APP_CONFIG_READY__) {
     try {
-        const resolvedConfig = await window.__APP_CONFIG_READY__;
+        const timeoutPromise = new Promise((resolve) => {
+            setTimeout(() => resolve(null), APP_CONFIG_TIMEOUT_MS);
+        });
+        const resolvedConfig = await Promise.race([window.__APP_CONFIG_READY__, timeoutPromise]);
         if (resolvedConfig && typeof resolvedConfig === 'object') {
             runtimeConfig = resolvedConfig;
+        } else {
+            console.warn(`⚠️ app-config ${APP_CONFIG_TIMEOUT_MS}ms içinde gelmedi, varsayılan konfigürasyonla devam ediliyor.`);
         }
     } catch (error) {
         console.warn("⚠️ Uygulama konfigürasyonu yüklenemedi, varsayılanlar kullanılacak.", error);
@@ -73,6 +78,75 @@ const CLIENT_STORE = createSafeClientStore(window.localStorage, {
         console.warn(`İstemci depolama hatası (${op}:${key}):`, error);
     }
 });
+
+let imageOptimizerModulePromise;
+function getImageOptimizerModule() {
+    if (!imageOptimizerModulePromise) {
+        imageOptimizerModulePromise = import("./utils/image-optimizer.js");
+    }
+    return imageOptimizerModulePromise;
+}
+async function compressImageFile(file, config) {
+    const mod = await getImageOptimizerModule();
+    return mod.compressImageFile(file, config);
+}
+async function compressImageDataUrl(dataUrl, config) {
+    const mod = await getImageOptimizerModule();
+    return mod.compressImageDataUrl(dataUrl, config);
+}
+function initLazyImageLoading(root) {
+    getImageOptimizerModule()
+        .then((mod) => mod.initLazyImageLoading(root))
+        .catch((error) => console.warn("⚠️ Lazy image loading başlatılamadı:", error));
+}
+
+const CONFETTI_SCRIPT_URL = "https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js";
+const JSPDF_SCRIPT_URL = "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
+function loadExternalScriptFallback(url) {
+    return new Promise((resolve, reject) => {
+        const existing = document.querySelector(`script[src="${url}"]`);
+        if (existing) {
+            if (existing.dataset.loaded === "1") return resolve();
+            existing.addEventListener('load', () => resolve(), { once: true });
+            existing.addEventListener('error', () => reject(new Error(`Script yüklenemedi: ${url}`)), { once: true });
+            return;
+        }
+        const script = document.createElement('script');
+        script.src = url;
+        script.defer = true;
+        script.onload = () => {
+            script.dataset.loaded = "1";
+            resolve();
+        };
+        script.onerror = () => reject(new Error(`Script yüklenemedi: ${url}`));
+        document.head.appendChild(script);
+    });
+}
+function loadExternalScriptSafely(url) {
+    if (typeof window.loadExternalScript === 'function') {
+        return window.loadExternalScript(url);
+    }
+    return loadExternalScriptFallback(url);
+}
+function ensureConfettiReady() {
+    if (typeof window.confetti === 'function') return Promise.resolve();
+    return loadExternalScriptSafely(CONFETTI_SCRIPT_URL);
+}
+async function triggerConfetti(options) {
+    try {
+        await ensureConfettiReady();
+        if (typeof window.confetti === 'function') {
+            window.confetti(options);
+        }
+    } catch (error) {
+        console.warn("⚠️ Konfeti yüklenemedi:", error);
+    }
+}
+async function ensureJsPdfReady() {
+    if (window.jspdf?.jsPDF) return window.jspdf.jsPDF;
+    await loadExternalScriptSafely(JSPDF_SCRIPT_URL);
+    return window.jspdf?.jsPDF || null;
+}
 
 const KPSS_B_COMMON_SUBJECTS = {
     "Türkçe": ["Sözcükte Anlam", "Cümlede Anlam", "Paragraf", "Dil Bilgisi", "Yazım Kuralları", "Noktalama", "Sözel Mantık"],
@@ -2162,6 +2236,24 @@ window.selectTopic = (t) => {
     if (customInput) customInput.value = ""; 
 };
 
+let nonCriticalBootstrapScheduled = false;
+function scheduleNonCriticalBootstrap() {
+    if (nonCriticalBootstrapScheduled) return;
+    nonCriticalBootstrapScheduled = true;
+    const run = () => {
+        setTimeout(() => { window.initEtiketleme(); }, 500);
+        window.restoreDerslerimTheme();
+        updateCourseAddedNavBadge(CLIENT_STORE.getItem(DERSLERIM_COURSE_ADDED_BADGE_STORAGE_KEY, '0') === '1');
+        ensureConfettiReady().catch(() => {});
+        ensureJsPdfReady().catch(() => {});
+    };
+    if (typeof window.requestIdleCallback === 'function') {
+        window.requestIdleCallback(run, { timeout: 1200 });
+        return;
+    }
+    setTimeout(run, 250);
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     const photoSourceSelect = document.getElementById('student-photo-source-select');
     if (photoSourceSelect) {
@@ -2189,9 +2281,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    setTimeout(() => { window.initEtiketleme(); }, 500);
-    window.restoreDerslerimTheme();
-    updateCourseAddedNavBadge(CLIENT_STORE.getItem(DERSLERIM_COURSE_ADDED_BADGE_STORAGE_KEY, '0') === '1');
+    scheduleNonCriticalBootstrap();
 
     const handleEnterPress = (e) => {
         if (e.key === 'Enter') {
@@ -2216,6 +2306,7 @@ window.onload = () => {
     window.updateRegGradeDropdown(); 
     window.renderReminderIntervalSelect();
     checkPWAPrompts();
+    scheduleNonCriticalBootstrap();
 };
 
 function checkPWAPrompts() {
@@ -2247,6 +2338,27 @@ window.closePWAPrompt = (os) => {
     else { 
         document.getElementById('android-pwa-prompt').style.display = 'none'; 
         localStorage.setItem('gazi_android_prompt', 'true'); 
+    }
+};
+
+window.resetAppCacheAndReload = async () => {
+    try {
+        if ('serviceWorker' in navigator) {
+            const regs = await navigator.serviceWorker.getRegistrations();
+            await Promise.all(regs.map((reg) => reg.unregister()));
+        }
+        if ('caches' in window) {
+            const cacheNames = await caches.keys();
+            await Promise.all(cacheNames.map((name) => caches.delete(name)));
+        }
+        localStorage.removeItem('gazi_pwa_prompt_shown');
+        sessionStorage.clear();
+        alert("✅ Önbellek temizlendi. Uygulama yeniden yükleniyor.");
+    } catch (error) {
+        console.warn("⚠️ Önbellek sıfırlama sırasında hata:", error);
+    } finally {
+        const sep = window.location.search ? '&' : '?';
+        window.location.replace(`${window.location.pathname}${window.location.search}${sep}cache_reset=${Date.now()}`);
     }
 };
 
@@ -2385,6 +2497,7 @@ window.showScreen = (id) => {
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         const activeNavId = NAV_ITEM_MAP[id];
         if (activeNavId) document.getElementById(activeNavId)?.classList.add('active');
+        scheduleNonCriticalBootstrap();
     } else {
         nav.style.display = 'none';
         document.body.classList.remove('nav-visible');
@@ -4011,7 +4124,7 @@ window.checkStdAnswer = (btn, selectedIdx, qIndex) => {
     
     if(answerState.isCorrect) { 
         btn.classList.add('correct'); 
-        confetti({ particleCount: 100 }); 
+        triggerConfetti({ particleCount: 100 }); 
     } else { 
         btn.classList.add('wrong'); 
         if(btns[answerState.correctIndex]) btns[answerState.correctIndex].classList.add('correct'); 
@@ -4690,7 +4803,7 @@ window.showLocalList = (type) => {
     showScreen('screen-list'); 
 };
 
-window.downloadPDF = () => { 
+window.downloadPDF = async () => { 
     const PRINT_DELAY_MS = 250;
     const keys = { 'wrong': 'kpss_wrongs', 'fav': 'kpss_favs', 'blank': 'kpss_blanks', 'report': 'kpss_reports' }; 
     let list = [];
@@ -4703,7 +4816,10 @@ window.downloadPDF = () => {
     if(list.length === 0) return alert("Liste boş!"); 
     const win = window.open('', '', 'height=600,width=800');
     if (!win) {
-        const jsPdfCtor = window.jspdf?.jsPDF;
+        let jsPdfCtor = window.jspdf?.jsPDF;
+        if (!jsPdfCtor) {
+            jsPdfCtor = await ensureJsPdfReady();
+        }
         if (!jsPdfCtor) {
             alert("PDF oluşturulamadı. Lütfen açılır pencere iznini açın ve tekrar deneyin.");
             return;
@@ -4819,7 +4935,7 @@ if(socket) {
             </div>`).join('');
         
         document.getElementById('result-board').innerHTML = html; 
-        confetti({ particleCount: 200, spread: 70, origin: { y: 0.6 } });
+        triggerConfetti({ particleCount: 200, spread: 70, origin: { y: 0.6 } });
     });
 }
 
@@ -5070,7 +5186,7 @@ window.finishTrial = () => {
 
     showScreen('screen-result'); 
     document.getElementById('result-board').innerHTML = `<h3 style="color:#333;">Doğru: ${d} | Yanlış: ${y} | Boş: ${b}</h3><h2>Puan: ${s}</h2>`; 
-    confetti({ particleCount: 150 });
+    triggerConfetti({ particleCount: 150 });
     window.updateLocalListCounts();
 };
 
