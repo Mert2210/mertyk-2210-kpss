@@ -51,16 +51,22 @@ const auth = getAuth(app);
 const messaging = getMessaging(app);
 const storage = getStorage(app);
 
-// Use dynamic Supabase configuration from backend, fallback to empty strings to avoid errors if missing (though the client needs valid ones)
-const runtimeSupabase = runtimeConfig.supabaseConfig || {};
-const SUPABASE_URL = runtimeSupabase.url || "";
-const SUPABASE_ANON_KEY = runtimeSupabase.anonKey || "";
+// Supabase client is initialized lazily after the async app-config fetch resolves.
 let supabase = null;
-if (SUPABASE_URL && SUPABASE_ANON_KEY) {
-    supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-} else {
-    console.warn("⚠️ Supabase konfigürasyonu eksik, görsel yükleme özellikleri devre dışı kalabilir.");
-}
+const _supabaseReady = (window.__APP_CONFIG_READY__ || Promise.resolve(window.__APP_CONFIG__ || {}))
+    .then((cfg) => {
+        const sb = (cfg || {}).supabaseConfig || {};
+        const url = String(sb.url || "").trim();
+        const anonKey = String(sb.anonKey || "").trim();
+        if (url && anonKey) {
+            supabase = createClient(url, anonKey);
+        } else {
+            console.warn("⚠️ Supabase konfigürasyonu eksik, görsel yükleme özellikleri devre dışı kalabilir.");
+        }
+    })
+    .catch((err) => {
+        console.warn("⚠️ Supabase başlatılamadı:", err);
+    });
 
 const ROOT_ADMIN_EMAIL = "kayamert319@gmail.com";
 const APP_STATE = {
@@ -3348,6 +3354,7 @@ async function uploadImageDataUrlIfNeeded(dataUrl, folder) {
     const uniqueId = generateUniqueId();
     const fileName = `${folder}/${uniqueId}.${ext}`;
 
+    await _supabaseReady;
     if (!supabase) {
         console.error("Supabase yükleme hatası: Konfigürasyon eksik.");
         throw new Error("Görsel yüklenirken bir hata oluştu: Supabase konfigürasyonu eksik.");
