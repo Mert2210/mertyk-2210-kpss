@@ -787,9 +787,16 @@ io.on("connection", (socket) => {
                 socket.emit("teacherLibraryData", snap.docs.map((doc) => normalizeQuestionForClient(doc.data(), doc.id)));
             } catch(e) { socket.emit("teacherLibraryData", []); }
         } else {
-            const list = tumSorular
-                .filter(q => q.classCode === classCode)
-                .map((q, index) => normalizeQuestionForClient(q, `${classCode}-${index}`));
+            // ⚡ Bolt: Prevent event loop blocking and intermediate allocations
+            // 💡 What: Single loop replacement for chained .filter().map() calls
+            // 🎯 Why: Iterating over large `tumSorular` multiple times caused CPU spikes
+            const list = [];
+            let matchCount = 0;
+            for (let i = 0; i < tumSorular.length; i++) {
+                if (tumSorular[i].classCode === classCode) {
+                    list.push(normalizeQuestionForClient(tumSorular[i], `${classCode}-${matchCount++}`));
+                }
+            }
             socket.emit("teacherLibraryData", list);
         }
     });
@@ -803,9 +810,16 @@ io.on("connection", (socket) => {
                 socket.emit("teacherHistoryData", snap.docs.map((doc) => normalizeQuestionForClient(doc.data(), doc.id)));
             } catch(e) { socket.emit("teacherHistoryData", []); }
         } else {
-            const list = tumSorular
-                .filter(q => q.classCode === safeClassCode)
-                .map((q, index) => normalizeQuestionForClient(q, `${safeClassCode}-${index}`));
+            // ⚡ Bolt: Prevent event loop blocking and intermediate allocations
+            // 💡 What: Single loop replacement for chained .filter().map() calls
+            // 🎯 Why: Iterating over large `tumSorular` multiple times caused CPU spikes
+            const list = [];
+            let matchCount = 0;
+            for (let i = 0; i < tumSorular.length; i++) {
+                if (tumSorular[i].classCode === safeClassCode) {
+                    list.push(normalizeQuestionForClient(tumSorular[i], `${safeClassCode}-${matchCount++}`));
+                }
+            }
             socket.emit("teacherHistoryData", list.reverse());
         }
     });
@@ -817,9 +831,16 @@ io.on("connection", (socket) => {
                 socket.emit("classQuestionsData", snap.docs.map((doc) => normalizeQuestionForClient(doc.data(), doc.id)));
             } catch(e) { socket.emit("classQuestionsData", []); }
         } else {
-            const list = tumSorular
-                .filter(q => q.classCode === classCode)
-                .map((q, index) => normalizeQuestionForClient(q, `${classCode}-${index}`));
+            // ⚡ Bolt: Prevent event loop blocking and intermediate allocations
+            // 💡 What: Single loop replacement for chained .filter().map() calls
+            // 🎯 Why: Iterating over large `tumSorular` multiple times caused CPU spikes
+            const list = [];
+            let matchCount = 0;
+            for (let i = 0; i < tumSorular.length; i++) {
+                if (tumSorular[i].classCode === classCode) {
+                    list.push(normalizeQuestionForClient(tumSorular[i], `${classCode}-${matchCount++}`));
+                }
+            }
             socket.emit("classQuestionsData", list);
         }
     });
