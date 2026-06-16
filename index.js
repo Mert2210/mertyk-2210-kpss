@@ -266,6 +266,15 @@ function ensureTeacher(socket) {
     return true;
 }
 
+function ensureAuthenticated(socket) {
+    const user = currentUser(socket);
+    if (!user.isVerified) {
+        socket.emit("errorMsg", "Bu işlem için giriş yapmanız gerekir.");
+        return false;
+    }
+    return true;
+}
+
 function ensureAdmin(socket) {
     const user = currentUser(socket);
     if (!isAdminRole(user.role)) {
@@ -1080,9 +1089,38 @@ io.on("connection", (socket) => {
     });
 
     socket.on("reportQuestion", (qObj) => {
+        if (!ensureAuthenticated(socket)) return;
         if (!qObj || typeof qObj !== 'object') return;
+
+        const safeQObj = {
+            id: sanitizeString(qObj.id, 120),
+            soru: sanitizeString(qObj.soru, 1000),
+            dogru: sanitizeString(qObj.dogru, 50)
+        };
+
+        if (Array.isArray(qObj.siklar)) {
+            safeQObj.siklar = qObj.siklar.map(s => sanitizeString(s, 200)).slice(0, 10);
+        } else if (typeof qObj.siklar === 'object' && qObj.siklar !== null) {
+            safeQObj.siklar = {};
+            Object.keys(qObj.siklar).slice(0, 10).forEach(k => {
+                safeQObj.siklar[sanitizeString(k, 10)] = sanitizeString(qObj.siklar[k], 200);
+            });
+        }
+
         let reports = readJsonFile(REPORTS_FILE, []);
-        reports.push({ ...qObj, reportedAt: new Date().toLocaleString('tr-TR'), reportedBySocket: socket.id });
+        reports.push({
+            ...safeQObj,
+            reportedAt: new Date().toLocaleString('tr-TR'),
+            reportedBySocket: socket.id,
+            reportedByUid: currentUser(socket).uid || "unknown",
+            reportedByEmail: currentUser(socket).email || "unknown"
+        });
+
+        // Sınırlandırma: En fazla 500 rapor tutulur, eski raporlar silinir.
+        if (reports.length > 500) {
+            reports = reports.slice(-500);
+        }
+
         writeJsonFile(REPORTS_FILE, reports);
     });
 
