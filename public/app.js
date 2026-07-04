@@ -3623,19 +3623,17 @@ window.uploadQuestion = async () => {
         ]);
     } catch (err) {
         console.error("Soru/çözüm görselleri Storage'a yüklenemedi:", err);
-        if (err.code === "SUPABASE_MISSING") {
-            const continueWithBase64 = confirm("⚠️ Bulut (Supabase) depolama alanı aktif değil. Görseller sıkıştırılarak metin halinde doğrudan veritabanına eklenecek (Kötü performans veya kota sorunu yaratabilir). Devam edilsin mi?");
-            if (!continueWithBase64) return;
-            questionImageUrl = uploadedImageBase64;
-            solutionImageUrl = uploadedSolutionBase64;
-        } else if (isStorageRetryLimitExceededError(err)) {
+        if (isStorageRetryLimitExceededError(err)) {
             const continueWithoutImages = confirm(STORAGE_UPLOAD_CONTINUE_WITHOUT_IMAGE_PROMPT);
             if (!continueWithoutImages) return;
             questionImageUrl = null;
             solutionImageUrl = null;
         } else {
             const errDetail = err && err.message ? ` (${err.message})` : '';
-            return alert(`⚠️ Soru veya çözüm görseli yüklenemedi${errDetail}. Lütfen tekrar deneyin.`);
+            const continueWithBase64 = confirm(`⚠️ Bulut yükleme başarısız oldu${errDetail}. Görseller sıkıştırılarak metin halinde eklenecek (Devam edilsin mi?):`);
+            if (!continueWithBase64) return;
+            questionImageUrl = uploadedImageBase64;
+            solutionImageUrl = uploadedSolutionBase64;
         }
     }
 
@@ -3734,13 +3732,7 @@ window.uploadStudentQuestion = async (target = 'cloud') => {
         } catch (err) {
             console.error("Öğrenci soru/çözüm/kaynak görselleri Storage'a yüklenemedi:", err);
             
-            if (err.code === "SUPABASE_MISSING") {
-                alert("⚠️ Bulut depolama alanı şu an aktif değil. Görseller atlanarak otomatik olarak 'Cihaza Kaydet' seçeneğiyle devam ediliyor...");
-                target = 'local';
-                questionImageForSave = stdUploadedImageBase64;
-                solutionImageForSave = stdSolutionBase64;
-                sourceImageForSave = stdSourceImageBase64;
-            } else if (isStorageRetryLimitExceededError(err) && hasTextContent) {
+            if (isStorageRetryLimitExceededError(err) && hasTextContent) {
                 const continueWithoutImages = confirm(STORAGE_UPLOAD_CONTINUE_WITHOUT_IMAGE_PROMPT);
                 if (!continueWithoutImages) return;
                 questionImageForSave = null;
@@ -3750,7 +3742,11 @@ window.uploadStudentQuestion = async (target = 'cloud') => {
                 return alert(`⚠️ ${STORAGE_UPLOAD_TIMEOUT_REASON} Lütfen tekrar deneyin veya Cihaza Kaydet seçeneğini kullanın.`);
             } else {
                 const errDetail = err && err.message ? ` (${err.message})` : '';
-                return alert(`⚠️ Soru, çözüm veya kaynak görseli buluta yüklenemedi${errDetail}. Lütfen tekrar deneyin.`);
+                alert(`⚠️ Bulut yükleme hatası${errDetail}. Otomatik olarak 'Cihaza Kaydet' moduna geçiliyor...`);
+                target = 'local';
+                questionImageForSave = stdUploadedImageBase64;
+                solutionImageForSave = stdSolutionBase64;
+                sourceImageForSave = stdSourceImageBase64;
             }
         }
     }
