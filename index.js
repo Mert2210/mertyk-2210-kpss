@@ -875,11 +875,11 @@ io.on("connection", (socket) => {
                         .get();
                     const targetDoc = snap.docs.find((doc) => {
                         const row = doc.data() || {};
-                        return sanitizeString(row.soru, 10000) === safeQuestionText;
-                    });
-                    if (targetDoc) await targetDoc.ref.delete();
-                }
-            } catch (e) {}
+                if (targetDoc) await targetDoc.ref.delete();
+            }
+        } catch (e) {
+            socket.emit("errorMsg", "Soru silinirken sunucu hatası oluştu: " + e.message);
+        }
         }
 
         socket.emit("teacherQuestionDeleted", { success: true });
@@ -903,7 +903,9 @@ io.on("connection", (socket) => {
                 reminderSentAt: null,
                 createdAt: admin.firestore.FieldValue.serverTimestamp()
             });
-        } catch (e) {}
+        } catch (e) {
+            socket.emit("errorMsg", "Buluta kaydetme başarısız oldu: " + e.message);
+        }
     });
 
     socket.on("checkNotebookReviews", async (studentName) => {
@@ -915,7 +917,7 @@ io.on("connection", (socket) => {
                     .where("nextReviewDate", "<=", now)
                     .get();
                 socket.emit("notebookReviewsCount", snap.size);
-            } catch(e) {}
+            } catch(e) { socket.emit("errorMsg", "Hatırlatma sayısı alınamadı: " + e.message); }
         }
     });
 
@@ -933,7 +935,7 @@ io.on("connection", (socket) => {
                     library.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
                 }
                 socket.emit("studentLibraryData", library);
-            } catch(e) { socket.emit("studentLibraryData", []); }
+            } catch(e) { socket.emit("errorMsg", "Kütüphane verisi alınamadı: " + e.message); }
         } else { socket.emit("studentLibraryData", []); }
     });
 
@@ -944,7 +946,9 @@ io.on("connection", (socket) => {
             try {
                 const newDate = calculateNextReviewDate(safeDays);
                 await db.collection("student_questions").doc(questionId).update({ nextReviewDate: newDate, reminderSentAt: null });
-            } catch(e) {}
+            } catch(e) {
+                socket.emit("errorMsg", "Tarih güncellenemedi: " + e.message);
+            }
         }
     });
 
