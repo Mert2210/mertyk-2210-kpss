@@ -14,7 +14,7 @@ const admin = require("firebase-admin");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const { fisherYatesShuffle, shuffleOptions, getFiltersData } = require("./utils/question-utils");
 const { readJsonFile, writeJsonFile, batchWriteJsonFiles } = require("./services/json-store");
-const { sanitizeString, isValidImageDataUrl, isTeacherRole, isAdminRole } = require("./services/security-utils");
+const { sanitizeString, isValidImageDataUrl, isTeacherRole, isAdminRole, sanitizeQuestionReport } = require("./services/security-utils");
 const { calculateEarnedPoints, calculateNextReviewDate } = require("./services/game-rules");
 const { optimizeImageDataUrl } = require("./services/image-optimization");
 const { getMetricsSummary } = require("./services/optimization-metrics");
@@ -266,6 +266,15 @@ function ensureTeacher(socket) {
     return true;
 }
 
+function ensureAuthenticated(socket) {
+    const user = currentUser(socket);
+    if (!user.isVerified) {
+        socket.emit("errorMsg", "Bu işlem için giriş yapmanız gerekir.");
+        return false;
+    }
+    return true;
+}
+
 function ensureAdmin(socket) {
     const user = currentUser(socket);
     if (!isAdminRole(user.role)) {
@@ -300,6 +309,19 @@ function normalizeQuestionForClient(question, fallbackId = "") {
     const safeQuestion = question && typeof question === "object" ? question : {};
     const id = sanitizeString(safeQuestion.id, 120) || sanitizeString(fallbackId, 120) || generateUniqueQuestionId();
     return { ...safeQuestion, id };
+}
+
+function buildClassQuestionList(classCode) {
+    const list = [];
+    let matchCount = 0;
+    for (let i = 0; i < tumSorular.length; i++) {
+        const question = tumSorular[i];
+        if (question.classCode === classCode) {
+            list.push(normalizeQuestionForClient(question, `${classCode}-${matchCount}`));
+            matchCount++;
+        }
+    }
+    return list;
 }
 
 // 🚨 BİLDİRİM (PUSH) GÖNDERME FONKSİYONU 🚨
@@ -787,10 +809,7 @@ io.on("connection", (socket) => {
                 socket.emit("teacherLibraryData", snap.docs.map((doc) => normalizeQuestionForClient(doc.data(), doc.id)));
             } catch(e) { socket.emit("teacherLibraryData", []); }
         } else {
-            const list = tumSorular
-                .filter(q => q.classCode === classCode)
-                .map((q, index) => normalizeQuestionForClient(q, `${classCode}-${index}`));
-            socket.emit("teacherLibraryData", list);
+            socket.emit("teacherLibraryData", buildClassQuestionList(classCode));
         }
     });
 
@@ -803,9 +822,7 @@ io.on("connection", (socket) => {
                 socket.emit("teacherHistoryData", snap.docs.map((doc) => normalizeQuestionForClient(doc.data(), doc.id)));
             } catch(e) { socket.emit("teacherHistoryData", []); }
         } else {
-            const list = tumSorular
-                .filter(q => q.classCode === safeClassCode)
-                .map((q, index) => normalizeQuestionForClient(q, `${safeClassCode}-${index}`));
+            const list = buildClassQuestionList(safeClassCode);
             socket.emit("teacherHistoryData", list.reverse());
         }
     });
@@ -817,10 +834,7 @@ io.on("connection", (socket) => {
                 socket.emit("classQuestionsData", snap.docs.map((doc) => normalizeQuestionForClient(doc.data(), doc.id)));
             } catch(e) { socket.emit("classQuestionsData", []); }
         } else {
-            const list = tumSorular
-                .filter(q => q.classCode === classCode)
-                .map((q, index) => normalizeQuestionForClient(q, `${classCode}-${index}`));
-            socket.emit("classQuestionsData", list);
+            socket.emit("classQuestionsData", buildClassQuestionList(classCode));
         }
     });
 
@@ -1080,9 +1094,18 @@ io.on("connection", (socket) => {
     });
 
     socket.on("reportQuestion", (qObj) => {
-        if (!qObj || typeof qObj !== 'object') return;
+        if (!ensureAuthenticated(socket)) return;
+        const safeReport = sanitizeQuestionReport(qObj);
+        if (!safeReport) return;
         let reports = readJsonFile(REPORTS_FILE, []);
-        reports.push({ ...qObj, reportedAt: new Date().toLocaleString('tr-TR'), reportedBySocket: socket.id });
+        reports.push({
+            ...safeReport,
+            reportedAt: new Date().toLocaleString('tr-TR'),
+            reportedBySocket: socket.id,
+            reportedByUid: currentUser(socket).uid || "unknown",
+            reportedByEmail: currentUser(socket).email || "unknown"
+        });
+        reports = reports.slice(-500);
         writeJsonFile(REPORTS_FILE, reports);
     });
 
