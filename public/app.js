@@ -2675,7 +2675,8 @@ async function getCurrentFcmToken() {
     if (typeof Notification === "undefined" || !("serviceWorker" in navigator)) return "";
     const vapidKey = await getFirebaseVapidKey();
     if (!vapidKey) {
-        console.warn("⚠️ VAPID key yok");
+        console.error("❌ FIREBASE_VAPID_PUBLIC_KEY eksik! Sunucudaki app-config dönmedi veya ortam değişkeni ayarlanmamış.");
+        window.showSoftFeedback?.("⚠️ Bildirim sistemi yapılandırma hatası (VAPID eksik). Lütfen yöneticinize bildirin.");
         return "";
     }
     const serviceWorkerRegistration = await navigator.serviceWorker.ready;
@@ -2752,6 +2753,8 @@ async function subscribeToClassPushNotifications(classCodeRaw, { forcePrompt = f
     }
 }
 
+
+
 async function promptNotificationsOnFirstLaunch() {
     if (CLIENT_STORE.getItem(NOTIFICATION_PROMPT_SEEN_KEY, '')) return;
     CLIENT_STORE.setItem(NOTIFICATION_PROMPT_SEEN_KEY, '1');
@@ -2785,12 +2788,24 @@ window.handleNotificationToggleChange = async () => {
     setNotificationsEnabled(isEnabled);
     if (isEnabled) {
         if (status) status.textContent = "Bildirimler açık.";
-        // iOS Safari requires requestPermission to be called directly within
-        // a user gesture handler (no await before it). Permission is requested
-        // here explicitly, so forcePrompt is set to false in the call below.
-        if (typeof Notification !== "undefined" && Notification.permission === "default") {
-            await Notification.requestPermission();
+        
+        console.log("🔔 Bildirimler açıldı, debug başlıyor...");
+        const vapidKey = await getFirebaseVapidKey();
+        console.log("1. VAPID Key Durumu:", vapidKey ? "Mevcut (Uzunluk: " + vapidKey.length + ")" : "EKSİK VEYA BOŞ!");
+        
+        if (typeof Notification !== "undefined") {
+            let permission = Notification.permission;
+            console.log("2. Mevcut Tarayıcı İzni:", permission);
+            if (permission === "default") {
+                console.log("3. İzin isteniyor...");
+                permission = await Notification.requestPermission();
+                console.log("4. Yeni İzin Durumu:", permission);
+            }
         }
+        
+        const token = await getCurrentFcmToken();
+        console.log("5. FCM Token Sonucu:", token ? "Başarılı (" + token.slice(0, 10) + "...)" : "ALINAMADI!");
+
         await subscribeToClassPushNotifications(getPreferredNotificationClassCode(), { forcePrompt: false });
         if (isGodModeUser()) await subscribeAdminPushNotifications();
     } else {
@@ -5322,5 +5337,30 @@ document.addEventListener('keydown', (e) => {
                 btns[keyMap[key]].click();
             }
         }
+    }
+});
+
+
+// --- UX ENHANCEMENTS ---
+document.addEventListener('click', function(e) {
+    const btn = e.target.closest('button, .nav-item, .chip');
+    if (btn) {
+        const rect = btn.getBoundingClientRect();
+        const ripple = document.createElement('span');
+        const diameter = Math.max(btn.clientWidth, btn.clientHeight);
+        const radius = diameter / 2;
+        ripple.style.width = ripple.style.height = ${diameter}px;
+        ripple.style.left = ${e.clientX - rect.left - radius}px;
+        ripple.style.top = ${e.clientY - rect.top - radius}px;
+        ripple.style.position = 'absolute';
+        ripple.style.background = 'rgba(255, 255, 255, 0.4)';
+        ripple.style.borderRadius = '50%';
+        ripple.style.transform = 'scale(0)';
+        ripple.style.animation = 'ripple-animation 0.6s linear';
+        ripple.style.pointerEvents = 'none';
+        if (getComputedStyle(btn).position === 'static') btn.style.position = 'relative';
+        btn.style.overflow = 'hidden';
+        btn.appendChild(ripple);
+        setTimeout(() => ripple.remove(), 600);
     }
 });
