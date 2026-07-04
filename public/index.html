@@ -809,7 +809,7 @@
         </div>
 
         <div class="ui-question-block">
-            <button onclick="reportQuestion()" class="ui-absolute-icon-btn report" title="Hatalı Soru Bildir">🚨</button>
+            <button onclick="reportQuestion()" class="ui-absolute-icon-btn report" title="Hatalı Soru Bildir" aria-label="Hatalı Soru Bildir">🚨</button>
             <button id="btn-fav-current" onclick="toggleFavCurrent()" class="ui-absolute-icon-btn fav" aria-label="Favorilere Ekle">☆</button>
             
             <img id="q-image-display" src="" style="width:100%; border-radius:10px; margin-top:30px; display:none;">
@@ -844,7 +844,7 @@
                     <span class="library-modal-slider"></span>
                 </label>
             </div>
-            <button type="button" class="library-modal-close" onclick="window.closeLibraryModal()">✕</button>
+            <button type="button" class="library-modal-close" aria-label="Kapat" onclick="window.closeLibraryModal()">✕</button>
         </div>
         <div id="library-modal-content" class="library-modal-content gpu-transition"></div>
     </div>

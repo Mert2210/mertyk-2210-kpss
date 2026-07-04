@@ -17,6 +17,32 @@ function isAdminRole(role) {
     return role === "admin";
 }
 
+function sanitizeQuestionReport(value) {
+    if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+
+    const report = {
+        id: sanitizeString(value.id, 120),
+        soru: sanitizeString(value.soru || value.not, 1000),
+        dogru: sanitizeString(String(value.dogru ?? ""), 50)
+    };
+
+    if (Array.isArray(value.siklar)) {
+        report.siklar = value.siklar
+            .slice(0, 10)
+            .map((option) => sanitizeString(String(option ?? ""), 200));
+    } else if (value.siklar && typeof value.siklar === "object") {
+        report.siklar = {};
+        Object.keys(value.siklar).slice(0, 10).forEach((key) => {
+            const safeKey = sanitizeString(String(key), 10);
+            if (safeKey) {
+                report.siklar[safeKey] = sanitizeString(String(value.siklar[key] ?? ""), 200);
+            }
+        });
+    }
+
+    return report;
+}
+
 /**
  * E-posta adresinin temel format geçerliliğini kontrol eder.
  * Gerçek teslimat edilebilirliğini doğrulamaz; yalnızca açık hatalı
@@ -36,5 +62,6 @@ module.exports = {
     isValidImageDataUrl,
     isTeacherRole,
     isAdminRole,
+    sanitizeQuestionReport,
     isValidEmail
 };
