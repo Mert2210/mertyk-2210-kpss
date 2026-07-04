@@ -3354,7 +3354,9 @@ async function uploadImageDataUrlIfNeeded(dataUrl, folder) {
 
     if (!supabase) {
         console.error("Supabase yükleme hatası: Konfigürasyon eksik.");
-        throw new Error("Görsel yüklenirken bir hata oluştu: Supabase konfigürasyonu eksik.");
+        const err = new Error("Görsel yüklenirken bir hata oluştu: Supabase konfigürasyonu eksik.");
+        err.code = "SUPABASE_MISSING";
+        throw err;
     }
 
     // Convert Data URL to Blob
@@ -3621,7 +3623,12 @@ window.uploadQuestion = async () => {
         ]);
     } catch (err) {
         console.error("Soru/çözüm görselleri Storage'a yüklenemedi:", err);
-        if (isStorageRetryLimitExceededError(err)) {
+        if (err.code === "SUPABASE_MISSING") {
+            const continueWithBase64 = confirm("⚠️ Bulut (Supabase) depolama alanı aktif değil. Görseller sıkıştırılarak metin halinde doğrudan veritabanına eklenecek (Kötü performans veya kota sorunu yaratabilir). Devam edilsin mi?");
+            if (!continueWithBase64) return;
+            questionImageUrl = uploadedImageBase64;
+            solutionImageUrl = uploadedSolutionBase64;
+        } else if (isStorageRetryLimitExceededError(err)) {
             const continueWithoutImages = confirm(STORAGE_UPLOAD_CONTINUE_WITHOUT_IMAGE_PROMPT);
             if (!continueWithoutImages) return;
             questionImageUrl = null;
@@ -3726,7 +3733,14 @@ window.uploadStudentQuestion = async (target = 'cloud') => {
             ]);
         } catch (err) {
             console.error("Öğrenci soru/çözüm/kaynak görselleri Storage'a yüklenemedi:", err);
-            if (isStorageRetryLimitExceededError(err) && hasTextContent) {
+            
+            if (err.code === "SUPABASE_MISSING") {
+                alert("⚠️ Bulut depolama alanı şu an aktif değil. Görseller atlanarak otomatik olarak 'Cihaza Kaydet' seçeneğiyle devam ediliyor...");
+                target = 'local';
+                questionImageForSave = stdUploadedImageBase64;
+                solutionImageForSave = stdSolutionBase64;
+                sourceImageForSave = stdSourceImageBase64;
+            } else if (isStorageRetryLimitExceededError(err) && hasTextContent) {
                 const continueWithoutImages = confirm(STORAGE_UPLOAD_CONTINUE_WITHOUT_IMAGE_PROMPT);
                 if (!continueWithoutImages) return;
                 questionImageForSave = null;
@@ -5088,6 +5102,17 @@ if(socket) {
     socket.on('answerResult', data => { 
         if (!roomSolvedIndices.has(currentQIndex)) roomSolvedIndices.add(currentQIndex);
         renderQuestionMap(roomTotalQuestions, currentQIndex, roomSolvedIndices);
+        
+        const btns = document.querySelectorAll('#opts-area .opt-btn');
+        if (data.selectedIndex >= 0 && data.selectedIndex < btns.length) {
+            const btn = btns[data.selectedIndex];
+            if (data.correct) {
+                btn.classList.add('correct');
+            } else {
+                btn.classList.add('wrong');
+            }
+        }
+
         if(!data.correct) { 
             if(data.selectedIndex === -1) saveToLocal('kpss_blanks', currentQObject); 
             else saveToLocal('kpss_wrongs', currentQObject); 
@@ -5281,3 +5306,23 @@ function renderNavigator(total, curr, mode) {
         : roomSolvedIndices;
     renderQuestionMap(total, curr, solved);
 }
+
+// Soru çözme klavye kısayolları (A, B, C, D, E)
+document.addEventListener('keydown', (e) => {
+    const screenGame = document.getElementById('screen-game');
+    if (screenGame && screenGame.style.display !== 'none') {
+        const btns = document.querySelectorAll('#opts-area .opt-btn');
+        if (btns.length === 0) return;
+        
+        const keyMap = { 'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 4 };
+        const key = e.key.toLowerCase();
+        
+        if (keyMap[key] !== undefined && btns[keyMap[key]]) {
+            const alreadySelected = document.querySelector('#opts-area .opt-btn.selected');
+            const hasResult = document.querySelector('#opts-area .opt-btn.correct, #opts-area .opt-btn.wrong');
+            if (!alreadySelected && !hasResult) {
+                btns[keyMap[key]].click();
+            }
+        }
+    }
+});
