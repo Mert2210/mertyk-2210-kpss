@@ -1268,7 +1268,7 @@ window.saveStudentQuestionWithPreference = () => {
 
 function getReadySources() {
     try {
-        const parsed = JSON.parse(localStorage.getItem(READY_SOURCES_STORAGE_KEY)) || [];
+        const parsed = CLIENT_STORE.getJSON(READY_SOURCES_STORAGE_KEY, []);
         return Array.isArray(parsed) ? parsed : [];
     } catch (e) {
         return [];
@@ -2140,11 +2140,11 @@ window.renderExams = (fromMemory = false) => {
     const container = document.getElementById('box-exams');
     if (!container) return;
     const exams = Object.keys(window.mufredat);
-    container.innerHTML = exams.map(ex => `<div class="chip ${window.secilenSinav === ex ? 'active' : ''}" onclick="window.selectExam('${ex}')">${ex}</div>`).join('');
+    container.innerHTML = exams.map(ex => `<div class="chip ${window.secilenSinav === ex ? 'active' : ''}" onclick="window.selectExam('${ex}', false, event)">${ex}</div>`).join('');
     if(fromMemory && window.secilenSinav) window.selectExam(window.secilenSinav, true);
 };
 
-window.selectExam = (ex, fromMemory = false) => {
+window.selectExam = (ex, fromMemory = false, ev = null) => {
     window.secilenSinav = ex;
     if(!fromMemory) { window.secilenGrup = ""; window.secilenDers = ""; window.secilenKonu = ""; 
         const memBadge = document.getElementById('mem-badge');
@@ -2152,7 +2152,7 @@ window.selectExam = (ex, fromMemory = false) => {
     }
     
     document.querySelectorAll('#box-exams .chip').forEach(c => c.classList.remove('active'));
-    if(event && event.target) event.target.classList.add('active');
+    if(ev && ev.target) ev.target.classList.add('active');
     
     window.renderGroups(fromMemory);
 };
@@ -2166,7 +2166,7 @@ window.renderGroups = (fromMemory = false) => {
     
     const groups = Object.keys(window.mufredat[window.secilenSinav]);
     area.style.display = 'block';
-    container.innerHTML = groups.map(g => `<div class="chip ${window.secilenGrup === g ? 'active' : ''}" onclick="window.selectGroup('${g}')">${g}</div>`).join('');
+    container.innerHTML = groups.map(g => `<div class="chip ${window.secilenGrup === g ? 'active' : ''}" onclick="window.selectGroup('${g}', false, event)">${g}</div>`).join('');
     
     if(fromMemory && window.secilenGrup) window.selectGroup(window.secilenGrup, true);
     else {
@@ -2175,12 +2175,12 @@ window.renderGroups = (fromMemory = false) => {
     }
 };
 
-window.selectGroup = (g, fromMemory = false) => {
+window.selectGroup = (g, fromMemory = false, ev = null) => {
     window.secilenGrup = g;
     if(!fromMemory) { window.secilenDers = ""; window.secilenKonu = ""; }
     
     document.querySelectorAll('#box-kpss-group .chip').forEach(c => c.classList.remove('active'));
-    if(event && event.target) event.target.classList.add('active');
+    if(ev && ev.target) ev.target.classList.add('active');
 
     window.renderSubjects(fromMemory);
 };
@@ -2194,7 +2194,7 @@ window.renderSubjects = (fromMemory = false) => {
     
     const subjects = Object.keys(window.mufredat[window.secilenSinav][window.secilenGrup]);
     area.style.display = 'block';
-    container.innerHTML = subjects.map(s => `<div class="chip ${window.secilenDers === s ? 'active' : ''}" onclick="window.selectSubject('${s}')">${s}</div>`).join('');
+    container.innerHTML = subjects.map(s => `<div class="chip ${window.secilenDers === s ? 'active' : ''}" onclick="window.selectSubject('${s}', false, event)">${s}</div>`).join('');
     
     if(fromMemory && window.secilenDers) window.selectSubject(window.secilenDers, true);
     else {
@@ -2203,12 +2203,12 @@ window.renderSubjects = (fromMemory = false) => {
     }
 };
 
-window.selectSubject = (s, fromMemory = false) => {
+window.selectSubject = (s, fromMemory = false, ev = null) => {
     window.secilenDers = s;
     if(!fromMemory) window.secilenKonu = "";
     
     document.querySelectorAll('#box-dersler .chip').forEach(c => c.classList.remove('active'));
-    if(event && event.target) event.target.classList.add('active');
+    if(ev && ev.target) ev.target.classList.add('active');
 
     window.renderTopics(fromMemory);
 };
@@ -3776,6 +3776,7 @@ window.uploadStudentQuestion = async (target = 'cloud') => {
     if (stdSolutionPreview) stdSolutionPreview.style.display = "none";
     stdUploadedImageBase64 = null; 
     stdSolutionBase64 = null;
+    stdSourceImageBase64 = null;
     if (customKonuInput) customKonuInput.value = "";
     window.updateLocalListCounts();
     } finally {
@@ -3985,8 +3986,10 @@ window.updateReviewDate = (questionId, isLocal = false, selectedDays = null) => 
         }
         alert(`✅ Tamamdır! Bu soru sistem takvimine işlendi.`);
         window.goBack('screen-list');
-        const studentName = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "").trim() || "Gazi Adayı"; 
-        socket.emit("checkNotebookReviews", studentName);
+        if (!isLocal) {
+            const studentName = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "").trim() || "Gazi Adayı"; 
+            socket.emit("checkNotebookReviews", studentName);
+        }
     }
 };
 
