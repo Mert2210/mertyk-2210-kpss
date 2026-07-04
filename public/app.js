@@ -3130,13 +3130,15 @@ async function syncSocketUserContext(user, role, name) {
         socket.emit("setUserContext", {
             idToken,
             fallbackRole: role || "student",
-            fallbackName: name || "Kullanıcı"
+            fallbackName: name || "Kullanıcı",
+            fallbackEmail: user ? user.email : ""
         });
     } catch (e) {
         socket.emit("setUserContext", {
             idToken: null,
             fallbackRole: role || "student",
-            fallbackName: name || "Kullanıcı"
+            fallbackName: name || "Kullanıcı",
+            fallbackEmail: user ? user.email : ""
         });
     }
 }
@@ -4699,9 +4701,6 @@ window.joinClass = () => {
     const name = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "").trim() || "Gazi Adayı"; 
     if(!code) return alert("Sınıf kodu girin!"); 
     socket.emit("joinClass", { code, studentName: name }); 
-    CLIENT_STORE.setItem("gazi_class_code", code); 
-    const teacherQPanel = document.getElementById('gelisim-teacher-questions-panel');
-    if (teacherQPanel) teacherQPanel.style.display = 'block';
 };
 
 if(socket) socket.on("classJoined", (res) => { 

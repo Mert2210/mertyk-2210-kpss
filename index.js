@@ -463,10 +463,30 @@ io.on("connection", (socket) => {
         }
     });
 
-    socket.on("setUserContext", async ({ idToken, fallbackName, fallbackRole }) => {
+    socket.on("setUserContext", async ({ idToken, fallbackName, fallbackRole, fallbackEmail }) => {
         const safeName = sanitizeString(fallbackName, 120) || "Kullanıcı";
         const safeFallbackRole = String(fallbackRole || "").trim() === "teacher" ? "teacher" : "student";
-        socket.data.user = { name: safeName, role: safeFallbackRole, isVerified: false, isAdmin: false, email: "" };
+        const safeFallbackEmail = String(fallbackEmail || "").trim().toLowerCase();
+        
+        // Eğer Firebase çalışmıyorsa veya kapalıysa, en azından yetkili e-postaların Admin olarak tanınmasını sağla.
+        const isAdminFallback = ADMIN_EMAILS.includes(safeFallbackEmail);
+        
+        let currentRole = safeFallbackRole;
+        if (isAdminFallback) {
+            currentRole = "admin";
+        } else if (currentRole === "teacher") {
+            // Güvenlik Zafiyeti Koruması (Fake Teacher):
+            // Firebase token doğrulaması yapılmadan kimseye doğrudan 'teacher' yetkisi verme.
+            currentRole = "teacher_pending";
+        }
+
+        socket.data.user = { 
+            name: safeName, 
+            role: currentRole, 
+            isVerified: false, 
+            isAdmin: isAdminFallback, 
+            email: safeFallbackEmail 
+        };
 
         if (!idToken || !admin.apps.length) return;
         try {
@@ -887,6 +907,7 @@ io.on("connection", (socket) => {
     });
 
     socket.on("addStudentQuestion", async (q) => {
+        if (!ensureAuthenticated(socket)) return;
         if (!db) {
             socket.emit("errorMsg", "Veritabanı bağlantısı yok. Lütfen Cihaza Kaydet seçeneğini kullanın.");
             return;
@@ -940,6 +961,7 @@ io.on("connection", (socket) => {
     });
 
     socket.on("updateReviewDate", async ({ questionId, additionalDays }) => {
+        if (!ensureAuthenticated(socket)) return;
         const safeDays = Number(additionalDays);
         if (!Number.isFinite(safeDays) || safeDays <= 0) return socket.emit("errorMsg", "Geçerli bir erteleme süresi seçin.");
         if(db && questionId) {
@@ -953,6 +975,7 @@ io.on("connection", (socket) => {
     });
 
     socket.on("deleteStudentQuestion", async ({ questionId, studentName }) => {
+        if (!ensureAuthenticated(socket)) return;
         if(db && questionId && studentName) {
             try {
                 const docRef = db.collection("student_questions").doc(questionId);
