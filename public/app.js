@@ -2751,10 +2751,29 @@ async function subscribeToClassPushNotifications(classCodeRaw, { forcePrompt = f
     } finally {
         updateNotificationToggleUI();
     }
-}
-
-
-
+}// --- UX ENHANCEMENTS ---
+document.addEventListener('click', function(e) {
+    const btn = e.target.closest('button, .nav-item, .chip');
+    if (btn) {
+        const rect = btn.getBoundingClientRect();
+        const ripple = document.createElement('span');
+        const diameter = Math.max(btn.clientWidth, btn.clientHeight);
+        const radius = diameter / 2;
+        ripple.style.width = ripple.style.height = `${diameter}px`;
+        ripple.style.left = `${e.clientX - rect.left - radius}px`;
+        ripple.style.top = `${e.clientY - rect.top - radius}px`;
+        ripple.style.position = 'absolute';
+        ripple.style.background = 'rgba(255, 255, 255, 0.4)';
+        ripple.style.borderRadius = '50%';
+        ripple.style.transform = 'scale(0)';
+        ripple.style.animation = 'ripple-animation 0.6s linear';
+        ripple.style.pointerEvents = 'none';
+        if (getComputedStyle(btn).position === 'static') btn.style.position = 'relative';
+        btn.style.overflow = 'hidden';
+        btn.appendChild(ripple);
+        setTimeout(() => ripple.remove(), 600);
+    }
+});
 async function promptNotificationsOnFirstLaunch() {
     if (CLIENT_STORE.getItem(NOTIFICATION_PROMPT_SEEN_KEY, '')) return;
     CLIENT_STORE.setItem(NOTIFICATION_PROMPT_SEEN_KEY, '1');
@@ -5341,26 +5360,4 @@ document.addEventListener('keydown', (e) => {
 });
 
 
-// --- UX ENHANCEMENTS ---
-document.addEventListener('click', function(e) {
-    const btn = e.target.closest('button, .nav-item, .chip');
-    if (btn) {
-        const rect = btn.getBoundingClientRect();
-        const ripple = document.createElement('span');
-        const diameter = Math.max(btn.clientWidth, btn.clientHeight);
-        const radius = diameter / 2;
-        ripple.style.width = ripple.style.height = ${diameter}px;
-        ripple.style.left = ${e.clientX - rect.left - radius}px;
-        ripple.style.top = ${e.clientY - rect.top - radius}px;
-        ripple.style.position = 'absolute';
-        ripple.style.background = 'rgba(255, 255, 255, 0.4)';
-        ripple.style.borderRadius = '50%';
-        ripple.style.transform = 'scale(0)';
-        ripple.style.animation = 'ripple-animation 0.6s linear';
-        ripple.style.pointerEvents = 'none';
-        if (getComputedStyle(btn).position === 'static') btn.style.position = 'relative';
-        btn.style.overflow = 'hidden';
-        btn.appendChild(ripple);
-        setTimeout(() => ripple.remove(), 600);
-    }
-});
+

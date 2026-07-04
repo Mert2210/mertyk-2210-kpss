@@ -55,7 +55,7 @@ app.use(cors({ origin: corsOriginHandler }));
 
 const io = new Server(server, {
     cors: { origin: corsOriginHandler, methods: ["GET", "POST"] },
-    transports: ["polling", "websocket"]
+    transports: ["polling", "websocket"], maxHttpBufferSize: 5e7
 });
 
 app.use(express.static(path.join(__dirname, "public")));
