@@ -1286,7 +1286,7 @@ function saveReadySource(name, image = null) {
     if (idx >= 0) current[idx] = payload;
     else current.unshift(payload);
     const sorted = [...current].sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0)).slice(0, MAX_READY_SOURCES);
-    localStorage.setItem(READY_SOURCES_STORAGE_KEY, JSON.stringify(sorted));
+    CLIENT_STORE.setItem(READY_SOURCES_STORAGE_KEY, JSON.stringify(sorted));
 }
 
 const EXAM_TYPE_SUBJECT_MAP = {
@@ -2319,11 +2319,11 @@ function checkPWAPrompts() {
         if (isIOS && isChromeIOS) {
             document.getElementById('ios-chrome-prompt').style.display = 'flex';
         } else if (isIOS && !isChromeIOS) {
-            if(!localStorage.getItem('gazi_ios_prompt')) { 
+            if(!CLIENT_STORE.getItem('gazi_ios_prompt')) { 
                 document.getElementById('ios-pwa-prompt').style.display = 'block'; 
             }
         } else if (isAndroid) {
-            if(!localStorage.getItem('gazi_android_prompt')) { 
+            if(!CLIENT_STORE.getItem('gazi_android_prompt')) { 
                 document.getElementById('android-pwa-prompt').style.display = 'block'; 
             }
         }
@@ -2333,11 +2333,11 @@ function checkPWAPrompts() {
 window.closePWAPrompt = (os) => {
     if(os === 'ios') { 
         document.getElementById('ios-pwa-prompt').style.display = 'none'; 
-        localStorage.setItem('gazi_ios_prompt', 'true'); 
+        CLIENT_STORE.setItem('gazi_ios_prompt', 'true'); 
     } 
     else { 
         document.getElementById('android-pwa-prompt').style.display = 'none'; 
-        localStorage.setItem('gazi_android_prompt', 'true'); 
+        CLIENT_STORE.setItem('gazi_android_prompt', 'true'); 
     }
 };
 
@@ -2351,7 +2351,7 @@ window.resetAppCacheAndReload = async () => {
             const cacheNames = await caches.keys();
             await Promise.all(cacheNames.map((name) => caches.delete(name)));
         }
-        localStorage.removeItem('gazi_pwa_prompt_shown');
+        CLIENT_STORE.removeItem('gazi_pwa_prompt_shown');
         sessionStorage.clear();
         alert("✅ Önbellek temizlendi. Uygulama yeniden yükleniyor.");
     } catch (error) {
@@ -2377,7 +2377,7 @@ window.finishIntro = () => {
     document.getElementById('intro-overlay').style.opacity = '0';
     setTimeout(() => { 
         document.getElementById('intro-overlay').style.display = 'none'; 
-        localStorage.setItem('gazi_intro_seen', 'true'); 
+        CLIENT_STORE.setItem('gazi_intro_seen', 'true'); 
         const onboardingDone = CLIENT_STORE.getItem('gazi_onboarding_done', '');
         if (onboardingDone) window.openSettingsPanel();
         else window.openFirstRunOnboarding();
@@ -2461,11 +2461,11 @@ const NAV_ITEM_MAP = {
     'screen-reminder-options': 'nav-profil',
     'screen-teacher': 'nav-ogretmen',
 };
-let activeNavRole = localStorage.getItem('gazi_nav_role') === ROLE_TEACHER ? ROLE_TEACHER : ROLE_STUDENT;
+let activeNavRole = CLIENT_STORE.getItem('gazi_nav_role') === ROLE_TEACHER ? ROLE_TEACHER : ROLE_STUDENT;
 
 window.applyRoleBasedBottomNav = (role = ROLE_STUDENT) => {
     activeNavRole = role === ROLE_TEACHER ? ROLE_TEACHER : ROLE_STUDENT;
-    localStorage.setItem('gazi_nav_role', activeNavRole);
+    CLIENT_STORE.setItem('gazi_nav_role', activeNavRole);
     document.querySelectorAll('.student-only').forEach((el) => {
         el.style.display = activeNavRole === ROLE_STUDENT ? 'flex' : 'none';
     });
@@ -2503,7 +2503,7 @@ window.showScreen = (id) => {
     } else {
         nav.style.display = 'none';
         document.body.classList.remove('nav-visible');
-        const savedEmail = localStorage.getItem('gazi_last_email') || '';
+        const savedEmail = CLIENT_STORE.getItem('gazi_last_email') || '';
         const emailInput = document.getElementById('login-email');
         if (emailInput && savedEmail) emailInput.value = savedEmail;
     }
@@ -2596,7 +2596,7 @@ window.showSoftFeedback = (message) => {
 };
 
 window.toggleDropdown = (id) => document.getElementById(id).classList.toggle('show');
-window.myClassCode = localStorage.getItem("gazi_class_code") || "";
+window.myClassCode = CLIENT_STORE.getItem("gazi_class_code") || "";
 const NOTIFICATION_SUBSCRIPTION_CLASS_KEY = "gazi_notification_class_code";
 const NOTIFICATION_ENABLED_KEY = "gazi_notifications_enabled";
 const NOTIFICATION_PROMPT_SEEN_KEY = "gazi_notification_prompt_seen";
@@ -2613,7 +2613,7 @@ function setNotificationsEnabled(enabled) {
 }
 
 function getPreferredNotificationClassCode() {
-    return String(window.myClassCode || localStorage.getItem("gazi_class_code") || "").trim().toUpperCase();
+    return String(window.myClassCode || CLIENT_STORE.getItem("gazi_class_code") || "").trim().toUpperCase();
 }
 
 function getCurrentStudentNotificationName() {
@@ -2629,18 +2629,18 @@ function syncStudentPushSubscription(token) {
     const safeToken = String(token || "").trim();
     const studentName = getCurrentStudentNotificationName();
     if (!socket || !safeToken || !studentName) return;
-    const previousStudentName = String(localStorage.getItem(NOTIFICATION_SUBSCRIPTION_STUDENT_KEY) || "").trim();
+    const previousStudentName = String(CLIENT_STORE.getItem(NOTIFICATION_SUBSCRIPTION_STUDENT_KEY) || "").trim();
     socket.emit("setStudentNotificationToken", { token: safeToken, studentName, previousStudentName });
-    localStorage.setItem(NOTIFICATION_SUBSCRIPTION_STUDENT_KEY, studentName);
+    CLIENT_STORE.setItem(NOTIFICATION_SUBSCRIPTION_STUDENT_KEY, studentName);
 }
 
 function clearStudentPushSubscription() {
     if (!socket) return;
-    const token = String(localStorage.getItem(NOTIFICATION_TOKEN_KEY) || "").trim();
-    const studentName = String(localStorage.getItem(NOTIFICATION_SUBSCRIPTION_STUDENT_KEY) || getCurrentStudentNotificationName()).trim();
+    const token = String(CLIENT_STORE.getItem(NOTIFICATION_TOKEN_KEY) || "").trim();
+    const studentName = String(CLIENT_STORE.getItem(NOTIFICATION_SUBSCRIPTION_STUDENT_KEY) || getCurrentStudentNotificationName()).trim();
     if (!token || !studentName) return;
     socket.emit("clearStudentNotificationToken", { token, studentName });
-    localStorage.removeItem(NOTIFICATION_SUBSCRIPTION_STUDENT_KEY);
+    CLIENT_STORE.removeItem(NOTIFICATION_SUBSCRIPTION_STUDENT_KEY);
 }
 
 function updateNotificationToggleUI() {
@@ -2684,7 +2684,7 @@ async function getCurrentFcmToken() {
         serviceWorkerRegistration
     });
     if (token) {
-        localStorage.setItem(NOTIFICATION_TOKEN_KEY, token);
+        CLIENT_STORE.setItem(NOTIFICATION_TOKEN_KEY, token);
         console.log("✅ FCM Token başarıyla alındı:", token.slice(0, 8) + "...");
     } else {
         console.warn("⚠️ FCM Token alınamadı");
@@ -2695,7 +2695,7 @@ async function getCurrentFcmToken() {
 async function clearClassPushSubscription(classCodeRaw) {
     const classCode = String(classCodeRaw || "").trim().toUpperCase();
     if (!classCode || !socket) return;
-    const token = String(localStorage.getItem(NOTIFICATION_TOKEN_KEY) || "").trim();
+    const token = String(CLIENT_STORE.getItem(NOTIFICATION_TOKEN_KEY) || "").trim();
     if (!token) return;
     socket.emit("clearClassNotificationToken", { token, classCode });
 }
@@ -2716,7 +2716,7 @@ async function subscribeAdminPushNotifications() {
 
 function clearAdminPushSubscription() {
     if (!socket) return;
-    const token = String(localStorage.getItem(NOTIFICATION_TOKEN_KEY) || "").trim();
+    const token = String(CLIENT_STORE.getItem(NOTIFICATION_TOKEN_KEY) || "").trim();
     if (!token) return;
     socket.emit("clearAdminNotificationToken", { token });
 }
@@ -2737,14 +2737,14 @@ async function subscribeToClassPushNotifications(classCodeRaw, { forcePrompt = f
         console.log("Token alındı, sınıfa abone olmaya hazır:", token.slice(0, 8) + "...");
         syncStudentPushSubscription(token);
         if (!classCode) return;
-        const previousClassCode = localStorage.getItem(NOTIFICATION_SUBSCRIPTION_CLASS_KEY) || "";
+        const previousClassCode = CLIENT_STORE.getItem(NOTIFICATION_SUBSCRIPTION_CLASS_KEY) || "";
         console.log("setClassNotificationToken gönderiliyor", { token: token.slice(0, 8) + "...", classCode });
         socket.emit("setClassNotificationToken", {
             token,
             classCode,
             previousClassCode
         });
-        localStorage.setItem(NOTIFICATION_SUBSCRIPTION_CLASS_KEY, classCode);
+        CLIENT_STORE.setItem(NOTIFICATION_SUBSCRIPTION_CLASS_KEY, classCode);
     } catch (error) {
         console.error("Bildirim aboneliği hatası:", error);
     } finally {
@@ -2794,10 +2794,10 @@ window.handleNotificationToggleChange = async () => {
         await subscribeToClassPushNotifications(getPreferredNotificationClassCode(), { forcePrompt: false });
         if (isGodModeUser()) await subscribeAdminPushNotifications();
     } else {
-        await clearClassPushSubscription(localStorage.getItem(NOTIFICATION_SUBSCRIPTION_CLASS_KEY) || getPreferredNotificationClassCode());
+        await clearClassPushSubscription(CLIENT_STORE.getItem(NOTIFICATION_SUBSCRIPTION_CLASS_KEY) || getPreferredNotificationClassCode());
         clearStudentPushSubscription();
         if (isGodModeUser()) clearAdminPushSubscription();
-        localStorage.removeItem(NOTIFICATION_SUBSCRIPTION_CLASS_KEY);
+        CLIENT_STORE.removeItem(NOTIFICATION_SUBSCRIPTION_CLASS_KEY);
     }
     updateNotificationToggleUI();
 };
@@ -2986,7 +2986,7 @@ window.handleLogin = async () => {
     try {
         const email = document.getElementById('login-email').value.trim();
         await signInWithEmailAndPassword(auth, email, document.getElementById('login-pass').value);
-        localStorage.setItem('gazi_last_email', email);
+        CLIENT_STORE.setItem('gazi_last_email', email);
     } catch(e) { 
         if (e.code === 'auth/user-not-found') {
             alert("❌ Kullanıcı bulunamadı.");
@@ -3032,11 +3032,11 @@ window.handleRegister = async () => {
         await sendEmailVerification(res.user);
         
         if(selectedRole === 'student') { 
-            localStorage.setItem('gazi_exam_type', regExamType); 
-            if(regGrade) localStorage.setItem('gazi_grade', regGrade); 
+            CLIENT_STORE.setItem('gazi_exam_type', regExamType); 
+            if(regGrade) CLIENT_STORE.setItem('gazi_grade', regGrade); 
         } else if (selectedRole === 'teacher_pending') { 
             const selectedExams = Array.from(document.querySelectorAll('.t-exam-cb:checked')).map(cb => cb.value); 
-            localStorage.setItem('gazi_teacher_exams', JSON.stringify(selectedExams)); 
+            CLIENT_STORE.setItem('gazi_teacher_exams', JSON.stringify(selectedExams)); 
         }
 
         alert("✅ Kayıt başarılı! Lütfen doğrulama maili için Gelen Kutunuzu ve SPAM (Gereksiz) klasörünü kontrol etmeyi unutmayın!");
@@ -3130,13 +3130,15 @@ async function syncSocketUserContext(user, role, name) {
         socket.emit("setUserContext", {
             idToken,
             fallbackRole: role || "student",
-            fallbackName: name || "Kullanıcı"
+            fallbackName: name || "Kullanıcı",
+            fallbackEmail: user ? user.email : ""
         });
     } catch (e) {
         socket.emit("setUserContext", {
             idToken: null,
             fallbackRole: role || "student",
-            fallbackName: name || "Kullanıcı"
+            fallbackName: name || "Kullanıcı",
+            fallbackEmail: user ? user.email : ""
         });
     }
 }
@@ -3206,7 +3208,7 @@ onAuthStateChanged(auth, user => {
             NAV_ITEM_MAP['screen-settings'] = 'nav-ev';
         }
 
-        const stdClassCode = localStorage.getItem("gazi_class_code");
+        const stdClassCode = CLIENT_STORE.getItem("gazi_class_code");
         if (!isTeacher) {
             if (stdClassCode) {
                 document.getElementById('class-code-input').value = stdClassCode;
@@ -3228,16 +3230,16 @@ onAuthStateChanged(auth, user => {
 
         if (isTeacher) {
             try {
-                const cachedClasses = JSON.parse(localStorage.getItem('gazi_teacher_classes'));
+                const cachedClasses = JSON.parse(CLIENT_STORE.getItem('gazi_teacher_classes'));
                 if (cachedClasses && cachedClasses.length > 0) {
                     renderTeacherClasses(cachedClasses);
                 }
             } catch(e) {
-                localStorage.removeItem('gazi_teacher_classes');
+                CLIENT_STORE.removeItem('gazi_teacher_classes');
             }
         }
 
-        const savedSubjects = JSON.parse(localStorage.getItem('gazi_subjects_v2')) || [];
+        const savedSubjects = JSON.parse(CLIENT_STORE.getItem('gazi_subjects_v2')) || [];
         const dersSelect = document.getElementById('std-q-ders');
         if(dersSelect) { 
             dersSelect.innerHTML = savedSubjects.length > 0 
@@ -3803,10 +3805,12 @@ window.fetchStudentLibrary = (source = 'cloud', onlyReviews = false) => {
         localData = localData.map(q => ({ ...q, _source: 'local' }));
         if (socket && socket.connected) {
             window._pendingLocalForMerge = localData;
+            window._isLibraryFetchTimedOut = false;
             const studentName = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "").trim() || "Gazi Adayı";
             socket.emit("getStudentLibrary", { studentName: studentName, onlyReviews: onlyReviews });
             // Timeout: Sunucu 5 saniye içinde yanıt vermezse sadece cihaz verilerini göster
             window._libraryMergeTimeout = setTimeout(() => {
+                window._isLibraryFetchTimedOut = true;
                 if (window._pendingLocalForMerge !== undefined) {
                     const fallbackLocal = window._pendingLocalForMerge || [];
                     window._pendingLocalForMerge = undefined;
@@ -4270,6 +4274,10 @@ window.fetchClassQuestions = () => {
 
 if(socket) {
     socket.on("studentLibraryData", (data) => {
+        if (window._isLibraryFetchTimedOut) {
+            console.warn("Geç gelen bulut verisi reddedildi (Stale Sync Lock).");
+            return;
+        }
         if (window._libraryMergeTimeout) {
             clearTimeout(window._libraryMergeTimeout);
             window._libraryMergeTimeout = null;
@@ -4572,7 +4580,7 @@ window.filterLibraryByTeacherExams = () => {
 if(socket) {
     socket.on("teacherClassesData", (classes) => {
         if(classes.length > 0) {
-            localStorage.setItem('gazi_teacher_classes', JSON.stringify(classes));
+            CLIENT_STORE.setItem('gazi_teacher_classes', JSON.stringify(classes));
         }
         renderTeacherClasses(classes);
     });
@@ -4675,14 +4683,14 @@ if(socket) {
         const generatedCodeEl = document.getElementById('generated-code');
         if (generatedCodeEl) generatedCodeEl.innerText = "KODUNUZ: " + code;
         window.myClassCode = code; 
-        localStorage.setItem("gazi_class_code", code); 
+        CLIENT_STORE.setItem("gazi_class_code", code); 
         socket.emit("getFilters", window.myClassCode); 
     }); 
     socket.on("teacherClassFound", (code) => { 
         const generatedCodeEl = document.getElementById('generated-code');
         if (generatedCodeEl) generatedCodeEl.innerText = "KODUNUZ: " + code;
         window.myClassCode = code; 
-        localStorage.setItem("gazi_class_code", code); 
+        CLIENT_STORE.setItem("gazi_class_code", code); 
         socket.emit("getFilters", window.myClassCode); 
     }); 
 }
@@ -4693,15 +4701,12 @@ window.joinClass = () => {
     const name = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "").trim() || "Gazi Adayı"; 
     if(!code) return alert("Sınıf kodu girin!"); 
     socket.emit("joinClass", { code, studentName: name }); 
-    localStorage.setItem("gazi_class_code", code); 
-    const teacherQPanel = document.getElementById('gelisim-teacher-questions-panel');
-    if (teacherQPanel) teacherQPanel.style.display = 'block';
 };
 
 if(socket) socket.on("classJoined", (res) => { 
     if(res.success) { 
         window.myClassCode = res.code; 
-        localStorage.setItem("gazi_class_code", res.code); 
+        CLIENT_STORE.setItem("gazi_class_code", res.code); 
         socket.emit("getFilters", window.myClassCode); 
         subscribeToClassPushNotifications(res.code, { forcePrompt: true });
         alert("✅ Sınıfa katıldın!"); 
@@ -4715,7 +4720,7 @@ if(socket) socket.on("classJoined", (res) => {
 if(socket) socket.on("notificationSubscriptionUpdated", (res) => {
     if (!res || res.success !== true) return;
     if (res.classCode) {
-        localStorage.setItem(NOTIFICATION_SUBSCRIPTION_CLASS_KEY, String(res.classCode).trim().toUpperCase());
+        CLIENT_STORE.setItem(NOTIFICATION_SUBSCRIPTION_CLASS_KEY, String(res.classCode).trim().toUpperCase());
     }
 });
 
@@ -4737,21 +4742,21 @@ if(socket) socket.on("receiveGlobalAlert", (data) => {
 });
 
 function saveToLocal(key, qObj) { 
-    let list = JSON.parse(localStorage.getItem(key)) || []; 
+    let list = JSON.parse(CLIENT_STORE.getItem(key)) || []; 
     if(!list.find(x => x.soru === qObj.soru)) { 
         list.push(qObj); 
-        localStorage.setItem(key, JSON.stringify(list)); 
+        CLIENT_STORE.setItem(key, JSON.stringify(list)); 
     } 
 }
 
 function removeFromLocal(key, qObj) { 
-    let list = JSON.parse(localStorage.getItem(key)) || []; 
+    let list = JSON.parse(CLIENT_STORE.getItem(key)) || []; 
     list = list.filter(x => x.soru !== qObj.soru); 
-    localStorage.setItem(key, JSON.stringify(list)); 
+    CLIENT_STORE.setItem(key, JSON.stringify(list)); 
 }
 
 function checkIsFav(qObj) { 
-    return (JSON.parse(localStorage.getItem('kpss_favs')) || []).some(x => x.soru === qObj.soru); 
+    return (JSON.parse(CLIENT_STORE.getItem('kpss_favs')) || []).some(x => x.soru === qObj.soru); 
 }
 
 window.toggleFavCurrent = () => { 
@@ -4792,7 +4797,7 @@ window.updateLocalListCounts = () => {
     const keys = { 'wrong': 'kpss_wrongs', 'fav': 'kpss_favs', 'blank': 'kpss_blanks', 'report': 'kpss_reports' };
     Object.entries(keys).forEach(([type, key]) => {
         const el = document.getElementById('count-' + type);
-        if (el) el.innerText = (JSON.parse(localStorage.getItem(key)) || []).length;
+        if (el) el.innerText = (JSON.parse(CLIENT_STORE.getItem(key)) || []).length;
     });
     const localNB = getLocalNotebookQuestions().length;
     const btnLocal = document.getElementById('btn-local-open');
@@ -4809,7 +4814,7 @@ window.showLocalList = (type) => {
     currentListType = type; 
     const keys = { 'wrong': 'kpss_wrongs', 'fav': 'kpss_favs', 'blank': 'kpss_blanks', 'report': 'kpss_reports' }; 
     const titles = { 'wrong': '❌ Yanlışlarım', 'fav': '⭐ Favorilerim', 'blank': '⬜ Boş Bıraktıklarım', 'report': '🚨 Hatalı Bildirdiklerim' }; 
-    const list = JSON.parse(localStorage.getItem(keys[type])) || []; 
+    const list = JSON.parse(CLIENT_STORE.getItem(keys[type])) || []; 
     window.tempStdQuestions = list;
     document.getElementById('list-title').innerText = `${titles[type]} (${list.length})`; 
     const contentDiv = document.getElementById('list-content'); 
@@ -4823,7 +4828,7 @@ window.downloadPDF = async () => {
     const keys = { 'wrong': 'kpss_wrongs', 'fav': 'kpss_favs', 'blank': 'kpss_blanks', 'report': 'kpss_reports' }; 
     let list = [];
     if (keys[currentListType]) {
-        list = JSON.parse(localStorage.getItem(keys[currentListType])) || [];
+        list = JSON.parse(CLIENT_STORE.getItem(keys[currentListType])) || [];
     } else {
         list = window.tempStdQuestions || [];
     }

@@ -463,10 +463,30 @@ io.on("connection", (socket) => {
         }
     });
 
-    socket.on("setUserContext", async ({ idToken, fallbackName, fallbackRole }) => {
+    socket.on("setUserContext", async ({ idToken, fallbackName, fallbackRole, fallbackEmail }) => {
         const safeName = sanitizeString(fallbackName, 120) || "Kullanıcı";
         const safeFallbackRole = String(fallbackRole || "").trim() === "teacher" ? "teacher" : "student";
-        socket.data.user = { name: safeName, role: safeFallbackRole, isVerified: false, isAdmin: false, email: "" };
+        const safeFallbackEmail = String(fallbackEmail || "").trim().toLowerCase();
+        
+        // Eğer Firebase çalışmıyorsa veya kapalıysa, en azından yetkili e-postaların Admin olarak tanınmasını sağla.
+        const isAdminFallback = ADMIN_EMAILS.includes(safeFallbackEmail);
+        
+        let currentRole = safeFallbackRole;
+        if (isAdminFallback) {
+            currentRole = "admin";
+        } else if (currentRole === "teacher") {
+            // Güvenlik Zafiyeti Koruması (Fake Teacher):
+            // Firebase token doğrulaması yapılmadan kimseye doğrudan 'teacher' yetkisi verme.
+            currentRole = "teacher_pending";
+        }
+
+        socket.data.user = { 
+            name: safeName, 
+            role: currentRole, 
+            isVerified: false, 
+            isAdmin: isAdminFallback, 
+            email: safeFallbackEmail 
+        };
 
         if (!idToken || !admin.apps.length) return;
         try {
@@ -875,11 +895,11 @@ io.on("connection", (socket) => {
                         .get();
                     const targetDoc = snap.docs.find((doc) => {
                         const row = doc.data() || {};
-                        return sanitizeString(row.soru, 10000) === safeQuestionText;
-                    });
-                    if (targetDoc) await targetDoc.ref.delete();
-                }
-            } catch (e) {}
+                if (targetDoc) await targetDoc.ref.delete();
+            }
+        } catch (e) {
+            socket.emit("errorMsg", "Soru silinirken sunucu hatası oluştu: " + e.message);
+        }
         }
 
         socket.emit("teacherQuestionDeleted", { success: true });
@@ -887,6 +907,7 @@ io.on("connection", (socket) => {
     });
 
     socket.on("addStudentQuestion", async (q) => {
+        if (!ensureAuthenticated(socket)) return;
         if (!db) {
             socket.emit("errorMsg", "Veritabanı bağlantısı yok. Lütfen Cihaza Kaydet seçeneğini kullanın.");
             return;
@@ -903,7 +924,9 @@ io.on("connection", (socket) => {
                 reminderSentAt: null,
                 createdAt: admin.firestore.FieldValue.serverTimestamp()
             });
-        } catch (e) {}
+        } catch (e) {
+            socket.emit("errorMsg", "Buluta kaydetme başarısız oldu: " + e.message);
+        }
     });
 
     socket.on("checkNotebookReviews", async (studentName) => {
@@ -915,7 +938,7 @@ io.on("connection", (socket) => {
                     .where("nextReviewDate", "<=", now)
                     .get();
                 socket.emit("notebookReviewsCount", snap.size);
-            } catch(e) {}
+            } catch(e) { socket.emit("errorMsg", "Hatırlatma sayısı alınamadı: " + e.message); }
         }
     });
 
@@ -933,22 +956,26 @@ io.on("connection", (socket) => {
                     library.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
                 }
                 socket.emit("studentLibraryData", library);
-            } catch(e) { socket.emit("studentLibraryData", []); }
+            } catch(e) { socket.emit("errorMsg", "Kütüphane verisi alınamadı: " + e.message); }
         } else { socket.emit("studentLibraryData", []); }
     });
 
     socket.on("updateReviewDate", async ({ questionId, additionalDays }) => {
+        if (!ensureAuthenticated(socket)) return;
         const safeDays = Number(additionalDays);
         if (!Number.isFinite(safeDays) || safeDays <= 0) return socket.emit("errorMsg", "Geçerli bir erteleme süresi seçin.");
         if(db && questionId) {
             try {
                 const newDate = calculateNextReviewDate(safeDays);
                 await db.collection("student_questions").doc(questionId).update({ nextReviewDate: newDate, reminderSentAt: null });
-            } catch(e) {}
+            } catch(e) {
+                socket.emit("errorMsg", "Tarih güncellenemedi: " + e.message);
+            }
         }
     });
 
     socket.on("deleteStudentQuestion", async ({ questionId, studentName }) => {
+        if (!ensureAuthenticated(socket)) return;
         if(db && questionId && studentName) {
             try {
                 const docRef = db.collection("student_questions").doc(questionId);
