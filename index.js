@@ -887,7 +887,10 @@ io.on("connection", (socket) => {
     });
 
     socket.on("addStudentQuestion", async (q) => {
-        if (!db) return;
+        if (!db) {
+            socket.emit("errorMsg", "Veritabanı bağlantısı yok. Lütfen Cihaza Kaydet seçeneğini kullanın.");
+            return;
+        }
         try {
             const payload = q && typeof q === "object" ? q : {};
             const safeStudentName = sanitizeString(payload.studentName, 100);

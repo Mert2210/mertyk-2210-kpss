@@ -2488,7 +2488,9 @@ window.showScreen = (id) => {
         window.previousScreen = window.currentScreen;
     }
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); 
-    document.getElementById(id).classList.add('active');
+    const targetEl = document.getElementById(id);
+    if (!targetEl) { console.warn('showScreen: element not found:', id); return; }
+    targetEl.classList.add('active');
     window.currentScreen = id;
     const nav = document.getElementById('bottom-nav');
     if (id !== 'screen-auth') {
@@ -3702,12 +3704,11 @@ window.uploadStudentQuestion = async (target = 'cloud') => {
     const memBadge = document.getElementById('mem-badge');
     if (memBadge) memBadge.style.display = "inline-block";
 
-    const saveBtn = document.getElementById('student-save-btn');
+    const saveCloudBtn = document.getElementById('student-save-cloud-btn');
+    const saveLocalBtn = document.getElementById('student-save-local-btn');
     window.isStudentUploadInProgress = true;
-    if (saveBtn) {
-        saveBtn.disabled = true;
-        saveBtn.textContent = '⏳ Kaydediliyor...';
-    }
+    if (saveCloudBtn) { saveCloudBtn.disabled = true; saveCloudBtn.textContent = '⏳...'; }
+    if (saveLocalBtn) { saveLocalBtn.disabled = true; saveLocalBtn.textContent = '⏳...'; }
     try {
     let questionImageForSave = stdUploadedImageBase64;
     let solutionImageForSave = stdSolutionBase64;
@@ -3779,10 +3780,8 @@ window.uploadStudentQuestion = async (target = 'cloud') => {
     window.updateLocalListCounts();
     } finally {
         window.isStudentUploadInProgress = false;
-        if (saveBtn) {
-            saveBtn.disabled = false;
-            window.updateStudentSaveTargetLabel();
-        }
+        if (saveCloudBtn) { saveCloudBtn.disabled = false; saveCloudBtn.textContent = '☁️ Buluta Kaydet'; }
+        if (saveLocalBtn) { saveLocalBtn.disabled = false; saveLocalBtn.textContent = '💾 Cihaza Kaydet'; }
     }
 };
 
@@ -3801,10 +3800,19 @@ window.fetchStudentLibrary = (source = 'cloud', onlyReviews = false) => {
             localData = [...localData].reverse();
         }
         localData = localData.map(q => ({ ...q, _source: 'local' }));
-        if (socket) {
+        if (socket && socket.connected) {
             window._pendingLocalForMerge = localData;
             const studentName = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "").trim() || "Gazi Adayı";
             socket.emit("getStudentLibrary", { studentName: studentName, onlyReviews: onlyReviews });
+            // Timeout: Sunucu 5 saniye içinde yanıt vermezse sadece cihaz verilerini göster
+            window._libraryMergeTimeout = setTimeout(() => {
+                if (window._pendingLocalForMerge !== undefined) {
+                    const fallbackLocal = window._pendingLocalForMerge || [];
+                    window._pendingLocalForMerge = undefined;
+                    console.warn('fetchStudentLibrary: Sunucu yanıt vermedi, sadece cihaz verileri gösteriliyor.');
+                    renderStudentLibraryHTML(fallbackLocal, "💾 Cihaz Hata Defterim (Bulut bağlantısı zaman aşımı)");
+                }
+            }, 5000);
         } else {
             renderStudentLibraryHTML(localData, "💾 Cihaz Hata Defterim");
         }
@@ -4259,6 +4267,10 @@ window.fetchClassQuestions = () => {
 
 if(socket) {
     socket.on("studentLibraryData", (data) => {
+        if (window._libraryMergeTimeout) {
+            clearTimeout(window._libraryMergeTimeout);
+            window._libraryMergeTimeout = null;
+        }
         if (window._pendingLocalForMerge !== undefined) {
             const local = window._pendingLocalForMerge || [];
             window._pendingLocalForMerge = undefined;

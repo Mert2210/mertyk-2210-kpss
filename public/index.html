@@ -340,23 +340,9 @@
         <div class="ui-panel-warm" style="padding:15px; border-radius:12px; text-align:left;">
             <h4 class="ui-mini-title">➕ Yapamadığın Soruyu Ekle</h4>
             
-            <div style="margin-bottom:10px;">
-                <select id="student-photo-source-select" style="display:none;">
-                    <option value="camera">Kameradan Ekle</option>
-                    <option value="gallery">Fotoğraf Ekle</option>
-                    <option value="file">Dosya Seç</option>
-                </select>
-                <details id="student-photo-picker" class="action-picker action-picker-green">
-                    <summary>
-                        <span id="student-photo-add-btn-label">➕ Soru Ekle (Kameradan Ekle)</span>
-                        <span>▼</span>
-                    </summary>
-                    <div class="action-picker-options">
-                        <button type="button" onclick="window.selectStudentPhotoSource('camera')">📷 Kameradan Ekle</button>
-                        <button type="button" onclick="window.selectStudentPhotoSource('gallery')">🖼️ Fotoğraf Ekle</button>
-                        <button type="button" onclick="window.selectStudentPhotoSource('file')">📂 Dosya Seç</button>
-                    </div>
-                </details>
+            <div style="margin-bottom:10px; display:flex; gap:6px;">
+                <button type="button" class="green" style="flex:1; font-size:0.85rem; padding:10px;" onclick="document.getElementById('std-img-upload-camera').click()">📷 Fotoğraf Çek</button>
+                <button type="button" class="outline" style="flex:1; font-size:0.85rem; padding:10px; border-color:#27ae60; color:#27ae60;" onclick="document.getElementById('std-img-upload-file-picker').click()">🖼️ Galeriden Seç</button>
             </div>
             
             <input type="file" id="std-img-upload-camera" accept="image/*" capture="environment" multiple style="display:none;" onchange="processStudentImageUpload(event, 'image')">
@@ -375,22 +361,10 @@
             
             <div style="background: #e8f4f8; padding: 12px; border-radius: 8px; margin-bottom:10px; border: 1px dashed #3498db;">
                 <label style="font-size:0.75rem; font-weight:bold; color:#1e3c72; margin-bottom:5px; display:block;">✏️ ÇÖZÜM EKLE (İsteğe Bağlı)</label>
-                <select id="student-solution-source-select" style="display:none;">
-                    <option value="camera">Kameradan Ekle</option>
-                    <option value="gallery">Fotoğraf Ekle</option>
-                    <option value="file">Dosya Seç</option>
-                </select>
-                <details id="student-solution-picker" class="action-picker action-picker-blue">
-                    <summary>
-                        <span id="student-solution-add-btn-label">🧩 Çözüm Ekle (Kameradan Ekle)</span>
-                        <span>▼</span>
-                    </summary>
-                    <div class="action-picker-options">
-                        <button type="button" onclick="window.selectStudentSolutionSource('camera')">📷 Kameradan Ekle</button>
-                        <button type="button" onclick="window.selectStudentSolutionSource('gallery')">🖼️ Fotoğraf Ekle</button>
-                        <button type="button" onclick="window.selectStudentSolutionSource('file')">📂 Dosya Seç</button>
-                    </div>
-                </details>
+                <div style="margin-bottom:10px; display:flex; gap:6px;">
+                    <button type="button" class="blue" style="flex:1; font-size:0.85rem; padding:10px;" onclick="document.getElementById('std-solution-upload-camera').click()">📷 Çözüm Çek</button>
+                    <button type="button" class="outline" style="flex:1; font-size:0.85rem; padding:10px; border-color:#3498db; color:#3498db;" onclick="document.getElementById('std-solution-upload-file-picker').click()">🖼️ Galeriden Seç</button>
+                </div>
                 <input type="file" id="std-solution-upload-camera" accept="image/*" capture="environment" multiple style="display:none;" onchange="processStudentImageUpload(event, 'solution')">
                 <input type="file" id="std-solution-upload-file" accept="image/*" multiple style="display:none;" onchange="processStudentImageUpload(event, 'solution')">
                 <input type="file" id="std-solution-upload-file-picker" accept="image/*" multiple style="display:none;" onchange="processStudentImageUpload(event, 'solution')">
@@ -410,23 +384,10 @@
                 </select>
             </div>
 
-            <div style="margin-bottom:8px;">
-                <select id="student-save-target-select" style="display:none;">
-                    <option value="cloud">Bulut</option>
-                    <option value="local">Cihaz</option>
-                </select>
-                <details id="student-save-picker" class="action-picker action-picker-blue">
-                    <summary>
-                        <span id="student-save-target-label">💾 Kayıt Hedefi: Bulut</span>
-                        <span>▼</span>
-                    </summary>
-                    <div class="action-picker-options">
-                        <button type="button" onclick="window.selectStudentSaveTarget('cloud')">☁️ Bulut</button>
-                        <button type="button" onclick="window.selectStudentSaveTarget('local')">💾 Cihaz</button>
-                    </div>
-                </details>
+            <div style="display:flex; gap:8px; margin-bottom:10px;">
+                <button type="button" id="student-save-cloud-btn" onclick="window.uploadStudentQuestion('cloud')" class="blue" style="flex:1; padding:15px; font-size:0.92rem;">☁️ Buluta Kaydet</button>
+                <button type="button" id="student-save-local-btn" onclick="window.uploadStudentQuestion('local')" class="outline" style="flex:1; padding:15px; font-size:0.92rem; border-color:#3498db; color:#3498db; background:#fff;">💾 Cihaza Kaydet</button>
             </div>
-            <button id="student-save-btn" onclick="window.saveStudentQuestionWithPreference()" class="blue" style="width:100%; padding:15px; font-size:0.92rem;">☁️ Buluta Kaydet</button>
         </div>
     </div>
 
