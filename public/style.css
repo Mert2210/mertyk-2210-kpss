@@ -903,10 +903,13 @@ input[type="checkbox"] { width: auto !important; margin: 0 10px 0 0 !important; 
     left: 50%;
     transform: translateX(-50%);
     width: 95%;
-    max-width: 480px;
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    max-width: 500px;
+    background: #fff;
+    display: flex;
+    justify-content: space-around;
+    padding: 10px 0;
+    padding-bottom: calc(10px + env(safe-area-inset-bottom));
+    box-shadow: 0 -4px 15px rgba(0,0,0,0.1);
     border-top: 1px solid rgba(255, 255, 255, 0.5);
     border-radius: 20px 20px 0 0;
     display: flex;
@@ -1841,12 +1844,12 @@ body.soft-dark-theme .outline:hover {
 
 /* Ekran geçişi (fade-in) */
 @keyframes fade-in {
-    from { opacity: 0; transform: translateY(8px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from { opacity: 0; transform: translateY(20px) scale(0.98); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .screen.active {
-    animation: fade-in 0.22s ease-out both;
+    animation: fade-in 0.35s cubic-bezier(0.25, 0.8, 0.25, 1) both;
 }
 
 /* Lazy-loaded görseller: yüklenene kadar soluk, yüklenince belir */
