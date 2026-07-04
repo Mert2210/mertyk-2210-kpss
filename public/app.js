@@ -5108,8 +5108,10 @@ if(socket) {
             const btn = btns[data.selectedIndex];
             if (data.correct) {
                 btn.classList.add('correct');
+                if (navigator.vibrate) navigator.vibrate(50);
             } else {
                 btn.classList.add('wrong');
+                if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
             }
         }
 

@@ -330,6 +330,10 @@ async function sendPushNotification(topic, title, body) {
     const safeTitle = String(title || "");
     const safeBody = String(body || "");
     const message = {
+        notification: {
+            title: safeTitle,
+            body: safeBody
+        },
         data: {
             title: safeTitle,
             body: safeBody
@@ -895,9 +899,11 @@ io.on("connection", (socket) => {
                         .get();
                     const targetDoc = snap.docs.find((doc) => {
                         const row = doc.data() || {};
-                if (targetDoc) await targetDoc.ref.delete();
-            }
-        } catch (e) {
+                        return row.soru === safeQuestionText;
+                    });
+                    if (targetDoc) await targetDoc.ref.delete();
+                }
+            } catch (e) {
             socket.emit("errorMsg", "Soru silinirken sunucu hatası oluştu: " + e.message);
         }
         }
