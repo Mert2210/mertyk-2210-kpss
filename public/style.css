@@ -81,7 +81,8 @@ button.gold { background: #f1c40f; color:#333; }
 button.blue { background: var(--color-info); }
 
 .ui-btn-compact { min-height: 44px; padding: 8px 10px; font-size: 0.84rem; }
-.ui-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); padding: var(--space-3); }
+.ui-card { background: rgba(255, 255, 255, 0.98); border: 1px solid rgba(220, 230, 240, 0.8); border-radius: var(--radius-lg); box-shadow: 0 4px 15px rgba(30, 60, 114, 0.08); padding: var(--space-4); margin-bottom: 12px; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+.ui-card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(30, 60, 114, 0.12); }
 .ui-input { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-sm); }
 .ui-badge {
     display: inline-flex;
@@ -356,27 +357,29 @@ input[type="checkbox"] { width: auto !important; margin: 0 10px 0 0 !important; 
 }
 
 .ui-alert-grid {
-    display: flex;
-    gap: var(--space-2);
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
     margin-bottom: var(--space-4);
 }
 
 .ui-alert-card {
-    flex: 1;
+    padding: var(--space-4);
+    border-radius: var(--radius-lg);
     color: #fff;
-    padding: 12px;
-    border-radius: var(--radius-md);
     cursor: pointer;
-    box-shadow: var(--shadow-sm);
-    transition: transform 0.12s ease, box-shadow 0.2s ease;
     text-align: left;
-    border: 1px solid transparent;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
-.ui-alert-card:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
-.ui-alert-card b { display: inline-block; font-size: 1.02rem; line-height: 1.35; margin-bottom: 2px; }
-.ui-alert-card small { line-height: 1.35; display: inline-block; }
-.ui-alert-card-danger { background: var(--color-danger); box-shadow: 0 4px 10px rgba(231,76,60,0.28); }
-.ui-alert-card-warning { background: var(--color-warning); box-shadow: 0 4px 10px rgba(243,156,18,0.3); }
+.ui-alert-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
+.ui-alert-card b { display: inline-block; font-size: 1.1rem; line-height: 1.35; margin-bottom: 4px; font-weight: 800; }
+.ui-alert-card small { line-height: 1.4; display: inline-block; font-size: 0.85rem; opacity: 0.9; }
+.ui-alert-card-danger { background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); box-shadow: 0 4px 15px rgba(231,76,60,0.3); }
+.ui-alert-card-warning { background: linear-gradient(135deg, #f39c12 0%, #d35400 100%); box-shadow: 0 4px 15px rgba(243,156,18,0.3); }
 
 .ui-panel-soft {
     background: #e8f4f8;
@@ -890,15 +893,17 @@ input[type="checkbox"] { width: auto !important; margin: 0 10px 0 0 !important; 
     transform: translateX(-50%);
     width: 95%;
     max-width: 480px;
-    background: #fff;
-    border-top: 1px solid #e0e0e0;
-    border-radius: 16px 16px 0 0;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 20px 20px 0 0;
     display: flex;
     justify-content: space-around;
     align-items: center;
-    padding: 6px 0;
-    padding-bottom: calc(6px + env(safe-area-inset-bottom));
-    box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+    padding: 8px 0;
+    padding-bottom: calc(8px + env(safe-area-inset-bottom));
+    box-shadow: 0 -8px 25px rgba(30, 60, 114, 0.12);
     z-index: 9000;
     box-sizing: border-box;
 }
