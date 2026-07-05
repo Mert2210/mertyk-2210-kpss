@@ -1,4 +1,4 @@
-importScripts('https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js');
+﻿importScripts('https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/10.8.1/firebase-messaging-compat.js');
 
 firebase.initializeApp({
@@ -33,34 +33,7 @@ messaging.onBackgroundMessage((payload) => {
     }
 });
 
-// iOS Safari PWA (16.4+), standart Web Push (VAPID) push olayını doğrudan tetikler.
-// Firebase SDK bu olayı içsel olarak yönetir; ancak iOS uyumluluğu için
-// Firebase'in yakalayamadığı push olaylarını aşağıdaki işleyici devralır.
-self.addEventListener('push', (event) => {
-    // Firebase SDK push olaylarını diğer platformlarda (Android/Chrome) dahili olarak
-    // yönetir. Bu işleyici yalnızca iOS Safari için devreye girer.
-    const ua = (self.navigator && self.navigator.userAgent) || '';
-    const isIOS = /iPad|iPhone|iPod/.test(ua);
-    if (!isIOS) return;
 
-    if (!event.data) return;
-    let payload = {};
-    try { payload = event.data.json(); } catch (_) {
-        payload = { notification: { title: 'Gazililer', body: event.data.text() } };
-    }
-    const notificationPayload = payload.notification || payload.data || {};
-    const title = String(notificationPayload.title || 'Gazililer');
-    const body = String(notificationPayload.body || 'Yeni bir bildirim var.');
-    const url = String(notificationPayload.click_action || payload.fcmOptions?.link || notificationPayload.link || '/');
-    event.waitUntil(
-        self.registration.showNotification(title, {
-            body,
-            icon: '/icon-192.png',
-            badge: '/icon-192.png',
-            data: { url }
-        })
-    );
-});
 
 self.OFFLINE_HTML = '<!doctype html><html lang="tr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Çevrimdışı</title></head><body><h3>Çevrimdışısınız</h3><p>Lütfen internet bağlantınızı kontrol edin.</p></body></html>';
 
@@ -137,3 +110,4 @@ self.addEventListener('notificationclick', (event) => {
         })
     );
 });
+
