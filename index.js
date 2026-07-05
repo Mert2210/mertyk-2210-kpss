@@ -1,4 +1,4 @@
-/* ==========================================================================
+﻿/* ==========================================================================
    GAZİLİLER YANLIŞ SORU KUMBARAM - SUNUCU DOSYASI (SERVER) - FINAL MASTER V3
    ========================================================================== */
 
@@ -112,7 +112,7 @@ app.get('/app-config', staticFileLimiter, (req, res) => {
             appId: process.env.FIREBASE_APP_ID || "",
             measurementId: process.env.FIREBASE_MEASUREMENT_ID || ""
         },
-        firebaseVapidKey: process.env.FIREBASE_VAPID_PUBLIC_KEY || "",
+        firebaseVapidKey: process.env.FIREBASE_VAPID_PUBLIC_KEY || "BJuaUOLXVkx1shY_iLGM9NcVW0vOwdKemB0bBdDCVZ69wZOK-7sH-CoNtpwjrddrSvWawFISCDg9SRLIhRaj8kI",
         supabaseConfig: {
             url: process.env.SUPABASE_URL || "",
             anonKey: process.env.SUPABASE_ANON_KEY || ""

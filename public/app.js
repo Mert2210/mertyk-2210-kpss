@@ -1,4 +1,4 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+﻿import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, updateProfile, updatePassword, EmailAuthProvider, reauthenticateWithCredential, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInAnonymously, signOut, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, sendEmailVerification, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-messaging.js";
 import { getStorage, ref as storageRef, uploadString, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
@@ -547,7 +547,7 @@ function getLocalNotebookQuestions() {
 
 function setLocalNotebookQuestions(list = []) {
     const safeList = Array.isArray(list) ? list : [];
-    CLIENT_STORE.setJSON(LOCAL_NOTEBOOK_STORAGE_KEY, safeList);
+    return CLIENT_STORE.setJSON(LOCAL_NOTEBOOK_STORAGE_KEY, safeList);
 }
 
 function getCurrentExamType() {
@@ -3375,46 +3375,35 @@ async function uploadImageDataUrlIfNeeded(dataUrl, folder) {
     if (/^https?:\/\//.test(dataUrl)) return dataUrl;
     if (!/^data:image\/(jpeg|png|gif|webp);base64,/.test(dataUrl)) return null;
 
-    // Proper compression: uses IMAGE_OPTIMIZATION_CONFIG (maxWidth, targetBytes,
-    // multi-attempt quality reduction, correct WebP support detection + JPEG fallback).
-    // Replaces the previous single-pass canvas.toDataURL('image/webp', 0.8) which
-    // could silently fall back to full-quality PNG on unsupported browsers, making
-    // the file larger instead of smaller.
     const finalDataUrl = await compressImageDataUrl(dataUrl, IMAGE_OPTIMIZATION_CONFIG);
     const ext = getImageExtensionFromDataUrl(finalDataUrl);
-
     const uniqueId = generateUniqueId();
-    const fileName = `${folder}/${uniqueId}.${ext}`;
+    const fileName = ${folder}/${uniqueId}.;
 
-    if (!supabase) {
-        console.error("Supabase yükleme hatası: Konfigürasyon eksik.");
-        const err = new Error("Görsel yüklenirken bir hata oluştu: Supabase konfigürasyonu eksik.");
-        err.code = "SUPABASE_MISSING";
-        throw err;
+    let supabaseFailed = false;
+    if (supabase) {
+        const blob = base64ToBlob(finalDataUrl);
+        const { data, error } = await supabase.storage.from('soru-fotograflari').upload(fileName, blob, { contentType: blob.type, upsert: false });
+        if (error) {
+            console.error("Supabase yukleme hatasi:", error);
+            supabaseFailed = true;
+        } else {
+            const { data: publicUrlData } = supabase.storage.from('soru-fotograflari').getPublicUrl(fileName);
+            return publicUrlData.publicUrl;
+        }
     }
 
-    // Convert Data URL to Blob
-    const blob = base64ToBlob(finalDataUrl);
-
-    // Upload to Supabase Storage
-    const { data, error } = await supabase.storage
-        .from('soru-fotograflari')
-        .upload(fileName, blob, {
-            contentType: blob.type,
-            upsert: false
-        });
-
-    if (error) {
-        console.error("Supabase yükleme hatası:", error);
-        throw new Error("Görsel yüklenirken bir hata oluştu: " + error.message);
+    if (!supabase || supabaseFailed) {
+        try {
+            const fileRef = storageRef(storage, fileName);
+            await uploadString(fileRef, finalDataUrl, 'data_url');
+            const downloadURL = await getDownloadURL(fileRef);
+            return downloadURL;
+        } catch (firebaseError) {
+            console.error("Firebase Storage yukleme hatasi:", firebaseError);
+            throw new Error("Gorsel buluta yuklenemedi: " + firebaseError.message);
+        }
     }
-
-    // Get public URL
-    const { data: publicUrlData } = supabase.storage
-        .from('soru-fotograflari')
-        .getPublicUrl(fileName);
-
-    return publicUrlData.publicUrl;
 }
 
 let socket; 
@@ -3809,9 +3798,9 @@ window.uploadStudentQuestion = async (target = 'cloud') => {
     } else {
         let localNotebook = getLocalNotebookQuestions(); 
         localNotebook.push(q); 
-        setLocalNotebookQuestions(localNotebook);
-        markTopicAsNew(finalDers, finalTopic);
-        alert(`💾 Soru CİHAZINIZA başarıyla kaydedildi!\nİnternetsiz de çözebilirsiniz.`);
+        const success = setLocalNotebookQuestions(localNotebook);
+        if (success) { markTopicAsNew(finalDers, finalTopic); alert(💾 Soru CİHAZINIZA başarıyla kaydedildi!\nİnternetsiz de çözebilirsiniz.); }
+        else { alert(❌ Cihaza kaydedilemedi! Kota aşıldı. Lütfen eski soruları silin veya boyutu küçültün.); }
     }
     
     document.getElementById('std-q-text').value = ""; 
@@ -4868,7 +4857,6 @@ window.showLocalList = (type) => {
 };
 
 window.downloadPDF = async () => { 
-    const PRINT_DELAY_MS = 250;
     const keys = { 'wrong': 'kpss_wrongs', 'fav': 'kpss_favs', 'blank': 'kpss_blanks', 'report': 'kpss_reports' }; 
     let list = [];
     if (keys[currentListType]) {
@@ -4878,66 +4866,34 @@ window.downloadPDF = async () => {
     }
 
     if(list.length === 0) return alert("Liste boş!"); 
-    const win = window.open('', '', 'height=600,width=800');
+    const win = window.open('', '', 'height=800,width=800');
     if (!win) {
-        let jsPdfCtor = window.jspdf?.jsPDF;
-        if (!jsPdfCtor) {
-            jsPdfCtor = await ensureJsPdfReady();
-        }
-        if (!jsPdfCtor) {
-            alert("PDF oluşturulamadı. Lütfen açılır pencere iznini açın ve tekrar deneyin.");
-            return;
-        }
-        const doc = new jsPdfCtor({ unit: 'pt', format: 'a4' });
-        const pageHeight = doc.internal.pageSize.getHeight();
-        const marginX = 40;
-        const marginY = 42;
-        const lineHeight = 16;
-        const paragraphGap = 10;
-        let y = marginY;
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(14);
-        doc.text("Gazililer Yanlış Soru Kumbaram", marginX, y);
-        y += 22;
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(11);
-        list.forEach((q, i) => {
-            const answer = (q.siklar && q.siklar[q.dogru]) ? q.siklar[q.dogru] : 'Bilinmiyor';
-            const questionLines = doc.splitTextToSize(`Soru ${i + 1}: ${String(q.soru || '')}`, 515);
-            const answerLines = doc.splitTextToSize(`Cevap: ${String(answer)}`, 515);
-            const requiredHeight = (questionLines.length + answerLines.length) * lineHeight + paragraphGap;
-            if (y + requiredHeight > pageHeight - marginY) {
-                doc.addPage();
-                y = marginY;
-            }
-            doc.text(questionLines, marginX, y);
-            y += questionLines.length * lineHeight;
-            doc.setTextColor(0, 128, 0);
-            doc.text(answerLines, marginX, y);
-            doc.setTextColor(0, 0, 0);
-            y += answerLines.length * lineHeight + paragraphGap;
-        });
-        doc.save("gazililer-kumbaram.pdf");
+        alert("PDF oluşturulamadı. Lütfen tarayıcınızın açılır pencere (pop-up) engelleyicisini kapatın ve tekrar deneyin.");
         return;
     }
-    win.document.write('<html><body style="font-family:sans-serif;"><h2>Gazililer Yanlış Soru Kumbaram</h2><hr>'); 
+    
+    let html = '<html><head><title>Gazililer Hata Defteri</title>';
+    html += '<style>body { font-family: sans-serif; padding: 20px; } .q-container { border-bottom: 2px solid #ccc; padding-bottom: 20px; margin-bottom: 20px; page-break-inside: avoid; } img { max-width: 100%; max-height: 400px; margin-top: 10px; display: block; border-radius: 8px; }</style>';
+    html += '</head><body><h2>Gazililer Hata Defteri</h2><hr>';
+    
     list.forEach((q, i) => {
-        const answer = (q.siklar && q.siklar[q.dogru]) ? q.siklar[q.dogru] : 'Bilinmiyor';
-        win.document.write(`<p><b>Soru ${i+1}:</b> ${escapeHtml(q.soru)}<br><span style="color:green;">Cevap: ${escapeHtml(answer)}</span></p>`);
+        const answer = (q.siklar && q.siklar[q.dogru]) ? q.siklar[q.dogru] : (q.dogru || 'Bilinmiyor');
+        html += '<div class="q-container">';
+        html += '<p><b>Soru ' + (i+1) + ':</b> ' + (q.soru ? q.soru : '') + '</p>';
+        if (q.image) html += '<img src="' + q.image + '">';
+        html += '<p style="color:green;"><b>Cevap:</b> ' + answer + '</p>';
+        if (q.solutionText) html += '<p style="color:blue;"><b>Çözüm Notu:</b> ' + q.solutionText + '</p>';
+        if (q.solutionImage) html += '<p style="color:blue;"><b>Çözüm Görseli:</b></p><img src="' + q.solutionImage + '">';
+        html += '</div>';
     });
-    win.document.write('</body></html>'); 
-    win.document.close(); 
-    // Bazı mobil/desktop tarayıcılarda print çağrısı document.close() hemen ardından
-    // tetiklenince diyalog sessizce açılmayabiliyor; kısa gecikme uyumluluğu artırır.
-    // Gecikme süresi PRINT_DELAY_MS sabitinden yönetilir.
-    setTimeout(() => {
-        try {
-            win.focus();
-            win.print();
-        } catch (error) {
-            console.warn("PDF yazdırma penceresi açılamadı:", error);
-        }
-    }, PRINT_DELAY_MS);
+    
+    html += '<script>';
+    html += 'window.onload = function() { setTimeout(function() { window.print(); window.close(); }, 1000); }';
+    html += '</script>';
+    html += '</body></html>';
+    
+    win.document.write(html);
+    win.document.close();
 };
 
 window.goToLobby = (mode) => {

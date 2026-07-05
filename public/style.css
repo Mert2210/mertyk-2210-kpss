@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+﻿@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 * { box-sizing: border-box; }
 
@@ -1042,7 +1042,7 @@ input[type="checkbox"] { width: auto !important; margin: 0 10px 0 0 !important; 
 }
 
 .nav-home .nav-icon {
-    font-size: 1.9rem;
+    font-size: 1.5rem;
     background: #1e3c72;
     color: white;
     width: 48px;
