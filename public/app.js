@@ -1,4 +1,4 @@
-﻿import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, updateProfile, updatePassword, EmailAuthProvider, reauthenticateWithCredential, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInAnonymously, signOut, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, sendEmailVerification, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-messaging.js";
 import { getStorage, ref as storageRef, uploadString, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
@@ -3378,7 +3378,7 @@ async function uploadImageDataUrlIfNeeded(dataUrl, folder) {
     const finalDataUrl = await compressImageDataUrl(dataUrl, IMAGE_OPTIMIZATION_CONFIG);
     const ext = getImageExtensionFromDataUrl(finalDataUrl);
     const uniqueId = generateUniqueId();
-    const fileName = ${folder}/${uniqueId}.;
+    const fileName = `${folder}/${uniqueId}.${ext}`;
 
     let supabaseFailed = false;
     if (supabase) {
