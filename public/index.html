@@ -435,14 +435,23 @@
                         <option value="">--- Sınıf Seçin ---</option>
                     </select>
 
-                    <div style="display:flex; gap:5px; margin-bottom:5px;">
-                        <button onclick="fetchTeacherReports()" class="outline" style="flex:1; font-size:0.75rem; border-color:#fff; color:#fff; padding:8px;">📊 Başarı İstihbaratı</button>
-                        <button onclick="fetchClassMistakes()" class="outline" style="flex:1; font-size:0.75rem; border-color:#e74c3c; color:#e74c3c; background:rgba(255,255,255,0.9); padding:8px;">📉 Yanlış Analizi</button>
-                    </div>
-
-                    <div style="display:flex; gap:5px; margin-bottom:5px;">
-                        <button onclick="fetchTeacherHistory()" class="outline" style="flex:1; font-size:0.75rem; border-color:#f39c12; color:#f39c12; background:rgba(255,255,255,0.9); padding:8px;">🕒 Soru Gönderme Geçmişi</button>
-                        <button onclick="fetchClassPerformanceSummary()" class="outline" style="flex:1; font-size:0.75rem; border-color:#8e44ad; color:#8e44ad; background:rgba(255,255,255,0.9); padding:8px;">📈 Sınıf Performans Özeti</button>
+                    <div class="teacher-grid">
+                        <div class="teacher-tile" onclick="fetchTeacherReports()">
+                            <span class="teacher-tile-icon">📊</span>
+                            <span class="teacher-tile-text">Başarı İstihbaratı</span>
+                        </div>
+                        <div class="teacher-tile" onclick="fetchClassMistakes()">
+                            <span class="teacher-tile-icon">📉</span>
+                            <span class="teacher-tile-text">Yanlış Analizi</span>
+                        </div>
+                        <div class="teacher-tile" onclick="fetchTeacherHistory()">
+                            <span class="teacher-tile-icon">🕒</span>
+                            <span class="teacher-tile-text">Soru Geçmişi</span>
+                        </div>
+                        <div class="teacher-tile" onclick="fetchClassPerformanceSummary()">
+                            <span class="teacher-tile-icon">📈</span>
+                            <span class="teacher-tile-text">Sınıf Özeti</span>
+                        </div>
                     </div>
                     
                     <button onclick="fetchMyLibrary()" class="outline" style="font-size:0.85rem; margin-bottom:5px; width:100%; border-color:#27ae60; color:#27ae60; background:rgba(255,255,255,0.9);">📚 Soru Kütüphanem</button>
@@ -542,7 +551,9 @@
             </div>
 
             <button id="profile-save-btn" onclick="saveProfileSettings()" class="green" style="margin-top:20px; width:100%; padding:15px; font-size:1.1rem; border-radius:10px;">💾 Masamı ve Ayarlarımı Kaydet</button>
-            <button onclick="openSecureLogoutScreen()" class="outline" style="margin-top:10px; width:100%; padding:12px; border-color:#c0392b; color:#c0392b;">🔐 Güvenli Çıkış Ekranı</button>
+            <div style="margin-top:30px; border-top:1px solid #eee; padding-top:20px;">
+                <button onclick="openSecureLogoutScreen()" class="outline red-border" style="width:100%; padding:12px; font-weight:bold;">🚪 Çıkış Yap</button>
+            </div>
         </div>
     </div>
 
