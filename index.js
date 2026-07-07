@@ -643,6 +643,7 @@ io.on("connection", (socket) => {
                 await admin.messaging().unsubscribeFromTopic([safeToken], safePreviousClassCode);
             }
             await admin.messaging().subscribeToTopic([safeToken], safeClassCode);
+            await admin.messaging().subscribeToTopic([safeToken], "gazililer_global");
             console.log("Firebase subscribe başarılı:", safeClassCode);
             socket.emit("notificationSubscriptionUpdated", { success: true, classCode: safeClassCode });
             
@@ -692,6 +693,7 @@ io.on("connection", (socket) => {
                 await admin.messaging().unsubscribeFromTopic([safeToken], previousTopic);
             }
             await admin.messaging().subscribeToTopic([safeToken], studentTopic);
+            await admin.messaging().subscribeToTopic([safeToken], "gazililer_global");
             socket.emit("notificationStudentSubscriptionUpdated", { success: true, studentTopic });
         } catch (error) {
             console.error("⚠️ Öğrenci bildirim abonelik hatası:", error);
@@ -1313,6 +1315,28 @@ function sendQuestionToRoom(roomCode) {
 }
 
 const PORT = process.env.PORT || 3000;
+
+// --- GÜNLÜK TOPLU BİLDİRİM (CRON JOB YERİNE setInterval) ---
+let lastDailyPushDate = "";
+setInterval(() => {
+    const now = new Date();
+    // Saat kontrolü: Türkiye saati (UTC+3) ile 20:00 (Yani UTC saati ile 17:00'ye denk geliyor, ama sunucu yerel saatini veya toLocaleString kullanabiliriz)
+    const options = { timeZone: 'Europe/Istanbul', hour: '2-digit', minute: '2-digit', hour12: false };
+    const trTimeStr = now.toLocaleTimeString('tr-TR', options);
+    const currentDateStr = now.toLocaleDateString('tr-TR', { timeZone: 'Europe/Istanbul' });
+    
+    // Saat 20:00 (Akşam 8) olduğunda ve bugün henüz gönderilmediyse
+    if (trTimeStr === "20:00" && lastDailyPushDate !== currentDateStr) {
+        lastDailyPushDate = currentDateStr;
+        sendPushNotification(
+            "gazililer_global", 
+            "📚 Hatırlatma Zamanı!", 
+            "Kumbaranda biriken güncel yanlışların var. Günü geçen yanlışlarını tekrar etme vakti!"
+        ).catch(e => console.error("Günlük bildirim hatası:", e));
+        console.log("✅ Günlük (20:00) toplu bildirim tetiklendi.");
+    }
+}, 60000); // Her dakika kontrol et
+
 server.listen(PORT);
 
 if (db && admin.apps.length) {

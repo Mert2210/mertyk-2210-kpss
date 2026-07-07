@@ -3297,6 +3297,20 @@ onAuthStateChanged(auth, user => {
 
         if (!isTeacher) {
             promptNotificationsOnFirstLaunch();
+            
+            // Auto-onboarding for missing subjects
+            setTimeout(() => {
+                const savedSubjects = CLIENT_STORE.getItem("gazi_student_subjects");
+                let hasSubjects = false;
+                try {
+                    hasSubjects = savedSubjects && JSON.parse(savedSubjects).length > 0;
+                } catch(e) {}
+                
+                if (!hasSubjects) {
+                    window.openSubjectSelectionPanel();
+                    alert("👋 Uygulamaya hoş geldin! Kütüphaneni oluşturabilmemiz için lütfen önce sorumlu olduğun dersleri seç.");
+                }
+            }, 1000);
         }
 
         if (!isTeacher) {
@@ -3633,7 +3647,7 @@ window.processStudentImageUpload = async (e, type = 'image') => {
     }
 };
 
-window.uploadQuestion = async () => {
+window.uploadQuestion = async (isForClass = false) => {
     if(!socket) return alert("Sunucuya bağlanılamadı!");
     
     const qDers = document.getElementById('new-q-ders').value.trim(); 
@@ -3693,7 +3707,11 @@ window.uploadQuestion = async () => {
     document.getElementById('img-preview-solution').style.display = "none"; 
     uploadedSolutionBase64 = null;
     
-    alert(`✅ Soru (ve varsa çözümü) kütüphanenize eklendi!`);
+        if (isForClass) {
+        alert(`✅ Soru (ve varsa çözümü) ${window.myClassCode} sınıfına başarıyla gönderildi!`);
+    } else {
+        alert(`✅ Soru (ve varsa çözümü) kütüphanenize eklendi!`);
+    }
 };
 
 // 🚨 YENİ GÜNCELLENMİŞ ÖĞRENCİ SORU YÜKLEME KODU (HAFIZALI) 🚨
@@ -4599,7 +4617,7 @@ window.uploadQuestionToNamedClass = () => {
     const selectedClass = document.getElementById('target-class-select').value; 
     if(!selectedClass) return alert("Lütfen önce soruyu göndereceğiniz sınıfı seçin!"); 
     window.myClassCode = selectedClass; 
-    window.uploadQuestion(); 
+    window.uploadQuestion(true); 
 };
 
 window.onTeacherDashClassChange = (classCode) => {
