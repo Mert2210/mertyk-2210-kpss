@@ -2682,19 +2682,6 @@ function updateNotificationToggleUI() {
         status.style.color = "#f39c12";
     }
 }
-    const permission = Notification.permission;
-    switch (permission) {
-        case "granted":
-            status.textContent = "Bildirimler açık.";
-            return;
-        case "denied":
-            status.textContent = "Tarayıcı bildirimi engelliyor. Tarayıcı ayarından açabilirsiniz.";
-            return;
-        case "default":
-            status.textContent = "Bildirim izni bekleniyor. Açmak için anahtara dokunun.";
-            return;
-    }
-}
 
 async function getCurrentFcmToken() {
     if (typeof Notification === "undefined" || !("serviceWorker" in navigator)) return "";
