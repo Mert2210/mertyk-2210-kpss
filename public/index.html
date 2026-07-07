@@ -421,6 +421,11 @@
                     <div id="instructor-my-classes-list" style="max-height:120px; overflow-y:auto; background:rgba(0,0,0,0.2); border-radius:8px; padding:6px; font-size:0.78rem; text-align:left; color:#fff;">
                         Sınıflar yükleniyor...
                     </div>
+                    <div style="display:flex; gap:6px; margin-top:10px;">
+                        <input id="new-class-name-instructor" type="text" placeholder="Yeni sınıf adı (örn: 12A Fen)" style="margin:0; flex:2; background:rgba(255,255,255,0.9); color:#1e3c72; border-radius:8px;">
+                        <button onclick="createNewNamedClassFromInstructor()" style="width:auto; padding:8px 10px; background:#f1c40f; border:none; color:#1e3c72; font-weight:bold; border-radius:8px; cursor:pointer;">➕ Sınıf</button>
+                    </div>
+                    <small id="generated-code-instructor" style="display:block; color:#f1c40f; font-weight:bold; margin-top:6px;"></small>
                 </div>
             </div>
 
@@ -604,33 +609,42 @@
 
     <div id="screen-gelisim" class="screen">
         <h2 style="color:#1e3c72; margin-top:0;">📊 Gelişim & Takip</h2>
-        <button onclick="fetchMyStats()" class="blue" style="margin-bottom:15px; width:100%; padding:15px; font-size:1rem;">📊 Gelişim Raporum (Karnem)</button>
-        <div class="content-card" style="background: rgba(0,0,0,0.03); padding: 15px; border-radius: 10px;">
-            <h4 style="margin: 0 0 10px 0; text-align: left; color:#333;">Yerel İzleme Listelerim</h4>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
-                <button onclick="showLocalList('wrong')" class="red" style="font-size:0.85rem;" id="btn-local-wrong">❌ Yanlışlar (<span id="count-wrong">0</span>)</button>
-                <button onclick="showLocalList('fav')" class="gold" style="font-size:0.85rem;" id="btn-local-fav">⭐ Favoriler (<span id="count-fav">0</span>)</button>
-                <button onclick="showLocalList('blank')" class="outline" style="font-size:0.85rem;" id="btn-local-blank">⬜ Boşlar (<span id="count-blank">0</span>)</button>
-                <button onclick="showLocalList('report')" class="outline" style="font-size:0.85rem; border-color:#c0392b; color:#c0392b;" id="btn-local-report">🚨 Hatalı Sorular (<span id="count-report">0</span>)</button>
-                <button id="admin-report-btn" onclick="fetchAdminReports()" class="red" style="grid-column: span 2; font-size:0.85rem; background:#000; margin-top:5px; display:none;">👑 Tüm Hata Raporlarını Oku</button>
-                <button id="admin-approve-btn" onclick="fetchPendingTeachers()" class="orange" style="grid-column: span 2; font-size:0.85rem; margin-top:5px; display:none;">👨‍🏫 Öğretmen Onay Bekleyenler</button>
+        <button onclick="fetchMyStats()" class="blue" style="margin-bottom:15px; width:100%; padding:15px; font-size:1rem; border-radius:12px; box-shadow:0 4px 10px rgba(52,152,219,0.3);">📊 Gelişim Raporum (Karnem)</button>
+        
+        <div class="content-card" style="background: rgba(255,255,255,0.8); padding: 15px; border-radius: 12px; border:1px solid rgba(0,0,0,0.05); box-shadow:0 4px 15px rgba(0,0,0,0.05);">
+            <h4 style="margin: 0 0 10px 0; text-align: left; color:#1e3c72;">📌 İzleme Listelerim</h4>
+            <div class="teacher-grid">
+                <div class="teacher-tile" onclick="showLocalList('wrong')" id="btn-local-wrong" style="background:#ffeaa7; color:#d35400; border:none;">
+                    <span class="teacher-tile-icon">❌</span>
+                    <span class="teacher-tile-text">Yanlışlar (<span id="count-wrong">0</span>)</span>
+                </div>
+                <div class="teacher-tile" onclick="showLocalList('fav')" id="btn-local-fav" style="background:#fff200; color:#b7950b; border:none;">
+                    <span class="teacher-tile-icon">⭐</span>
+                    <span class="teacher-tile-text">Favoriler (<span id="count-fav">0</span>)</span>
+                </div>
+                <div class="teacher-tile" onclick="showLocalList('blank')" id="btn-local-blank" style="background:#ecf0f1; color:#7f8c8d; border:none;">
+                    <span class="teacher-tile-icon">⬜</span>
+                    <span class="teacher-tile-text">Boşlar (<span id="count-blank">0</span>)</span>
+                </div>
+                <div class="teacher-tile" onclick="showLocalList('report')" id="btn-local-report" style="background:#ffdddd; color:#c0392b; border:none;">
+                    <span class="teacher-tile-icon">🚨</span>
+                    <span class="teacher-tile-text">Hatalı (<span id="count-report">0</span>)</span>
+                </div>
+            </div>
+            
+            <div style="margin-top:10px; display:flex; flex-direction:column; gap:5px;">
+                <button id="admin-report-btn" onclick="fetchAdminReports()" class="outline" style="font-size:0.75rem; border-color:#000; color:#000; display:none;">👑 Tüm Hata Raporlarını Oku</button>
+                <button id="admin-approve-btn" onclick="fetchPendingTeachers()" class="outline" style="font-size:0.75rem; border-color:#e67e22; color:#e67e22; display:none;">👨‍🏫 Öğretmen Onay Bekleyenler</button>
             </div>
         </div>
 
-        <!-- Deneme & Oda (öğrenci için) -->
         <div id="gelisim-game-panel" class="student-only" style="display:none; margin-top:15px;">
-            <div class="content-card" style="background:rgba(0,0,0,0.03); padding:15px; border-radius:10px;">
-                <h4 style="margin:0 0 10px 0; text-align:left; color:#333;">🎮 Deneme & Yarışma</h4>
-                <button onclick="goToLobby('trial')" class="purple" style="width:100%; margin-bottom:10px;">📝 Hızlı Deneme (Offline)</button>
-                <button onclick="goToLobby('room')" class="orange" style="width:100%;">🏠 Oda Kur / Katıl</button>
-            </div>
-        </div>
-
-        <!-- Hocamın Gönderdiği Sorular (öğrenci için, sınıf kodu varsa) -->
-        <div id="gelisim-teacher-questions-panel" class="student-only" style="display:none; margin-top:15px;">
-            <div class="content-card" style="background:rgba(0,0,0,0.03); padding:15px; border-radius:10px;">
-                <h4 style="margin:0 0 10px 0; text-align:left; color:#1e3c72;">👨‍🏫 Hocamın Gönderdiği Sorular</h4>
-                <button onclick="fetchClassQuestions()" class="green" style="width:100%; padding:12px; font-size:0.95rem;">📋 Soruları Listele</button>
+            <div class="content-card" style="background:rgba(255,255,255,0.8); padding:15px; border-radius:12px; border:1px solid rgba(0,0,0,0.05); box-shadow:0 4px 15px rgba(0,0,0,0.05);">
+                <h4 style="margin:0 0 10px 0; text-align:left; color:#1e3c72;">🎮 Deneme & Yarışma</h4>
+                <div style="display:flex; gap:8px;">
+                    <button onclick="goToLobby('trial')" class="purple" style="flex:1; padding:12px;">📝 Hızlı Deneme</button>
+                    <button onclick="goToLobby('room')" class="orange" style="flex:1; padding:12px;">🏠 Oda Kur / Katıl</button>
+                </div>
             </div>
         </div>
     </div>
