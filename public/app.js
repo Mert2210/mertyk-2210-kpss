@@ -3341,6 +3341,25 @@ onAuthStateChanged(auth, user => {
     }
 });
 
+window.shareApp = async () => {
+    const url = getShareableAppLink(window.location);
+    if (navigator.share) {
+        try {
+            await navigator.share({
+                title: 'Gazi KPSS Genel Kültür Soru Havuzu',
+                text: 'Yeni nesil eğitim uygulamasına katıl, sınıf kodunla soruları çöz!',
+                url: url
+            });
+        } catch(e) {
+            console.log("Paylaşım iptal edildi veya desteklenmiyor.");
+        }
+    } else {
+        navigator.clipboard.writeText(url).then(() => {
+            alert("🔗 Link kopyalandı! İstediğiniz kişiye gönderebilirsiniz.");
+        });
+    }
+};
+
 window.logout = () => signOut(auth).then(() => location.reload());
 
 function safeImageSrc(src) {
