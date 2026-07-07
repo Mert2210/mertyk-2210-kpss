@@ -3799,8 +3799,8 @@ window.uploadStudentQuestion = async (target = 'cloud') => {
         let localNotebook = getLocalNotebookQuestions(); 
         localNotebook.push(q); 
         const success = setLocalNotebookQuestions(localNotebook);
-        if (success) { markTopicAsNew(finalDers, finalTopic); alert(💾 Soru CİHAZINIZA başarıyla kaydedildi!\nİnternetsiz de çözebilirsiniz.); }
-        else { alert(❌ Cihaza kaydedilemedi! Kota aşıldı. Lütfen eski soruları silin veya boyutu küçültün.); }
+        if (success) { markTopicAsNew(finalDers, finalTopic); alert(`💾 Soru CİHAZINIZA başarıyla kaydedildi!\nİnternetsiz de çözebilirsiniz.`); }
+        else { alert(`❌ Cihaza kaydedilemedi! Kota aşıldı. Lütfen eski soruları silin veya boyutu küçültün.`); }
     }
     
     document.getElementById('std-q-text').value = ""; 
