@@ -1439,6 +1439,7 @@ body.full-dark-theme textarea {
     border-color: #33445d !important;
 }
 body.full-dark-theme .content-card,
+body.full-dark-theme .auth-form,
 body.full-dark-theme .list-item,
 body.full-dark-theme .filter-section,
 body.full-dark-theme #lobby-settings,
@@ -1616,6 +1617,7 @@ body.soft-dark-theme textarea {
     border-color: #3d536e !important;
 }
 body.soft-dark-theme .content-card,
+body.soft-dark-theme .auth-form,
 body.soft-dark-theme .list-item,
 body.soft-dark-theme .filter-section,
 body.soft-dark-theme #lobby-settings,
