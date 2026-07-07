@@ -123,3 +123,12 @@
 .outline.red-border { border-color: #e74c3c; color: #e74c3c; background: transparent; }
 .outline.red-border:hover { background: #e74c3c; color: #fff; }
 
+
+/* Pill Checkbox Styles for Teacher Send Question Form */
+.pill-checkbox { display: inline-block; cursor: pointer; }
+.pill-checkbox input { display: none; }
+.pill-checkbox span { display: inline-block; padding: 6px 12px; background: rgba(52, 152, 219, 0.1); border: 1px solid rgba(52, 152, 219, 0.3); border-radius: 20px; color: #3498db; transition: all 0.2s; font-weight: 600; }
+.pill-checkbox input:checked + span { background: #3498db; color: #fff; border-color: #3498db; box-shadow: 0 2px 5px rgba(52, 152, 219, 0.3); }
+.pill-checkbox:hover span { background: rgba(52, 152, 219, 0.2); }
+.pill-checkbox input:checked:hover + span { background: #2980b9; }
+

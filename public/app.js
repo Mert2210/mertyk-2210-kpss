@@ -5353,3 +5353,13 @@ window.switchDashboardTab = function(tabName) {
     document.getElementById('tab-btn-' + tabName).classList.add('active');
     document.getElementById('tab-' + tabName).classList.add('active');
 };
+
+window.createNewNamedClassFromInstructor = () => {
+    const className = document.getElementById('new-class-name-instructor').value.trim();
+    if(!className) return alert("L�tfen bir s�n�f ad� girin!");
+    const auth = window.getAuth ? window.getAuth() : null;
+    const email = (auth && auth.currentUser) ? auth.currentUser.email : APP_STATE.currentUser.email;
+    if(typeof socket !== 'undefined' && socket) socket.emit("createNamedClass", { teacherEmail: email, className });
+    document.getElementById('new-class-name-instructor').value = "";
+};
+
