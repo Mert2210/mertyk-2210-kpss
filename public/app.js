@@ -3221,7 +3221,9 @@ onAuthStateChanged(auth, user => {
         
         if (instPanel) instPanel.style.display = isTeacher ? "block" : "none";
         if (teacherMainPanel) teacherMainPanel.style.display = isTeacher ? "block" : "none";
-        if (studentArea) studentArea.style.display = isTeacher ? "none" : "block"; 
+        if (studentArea) studentArea.style.display = isTeacher ? "none" : "block";
+        const studentTabs = document.getElementById("student-tabs-container");
+        if (studentTabs) studentTabs.style.display = isTeacher ? "none" : "block"; 
         if (studentLibPanel) studentLibPanel.style.display = isTeacher ? "none" : "block";
         if (savedLibraryPanel) savedLibraryPanel.style.display = isTeacher ? "none" : "block";
         if (mainQuickActions) mainQuickActions.style.display = isTeacher ? "none" : "flex";
@@ -3464,13 +3466,20 @@ if(socket) {
         const safeMsg = typeof msg === "string" && msg.trim() ? msg : DEFAULT_ERROR_MESSAGE;
         const role = String(APP_STATE.currentUser?.role || '').trim();
         const isPrivilegedUser = role === "teacher" || role === "admin";
-        if (safeMsg.includes("öğretmen yetkisi gerekir") && isPrivilegedUser) {
+        
+        // Ignore teacher privilege warnings silently
+        if (safeMsg.includes("öğretmen yetkisi gerekir")) {
             return;
         }
-        if (safeMsg.includes("öğretmen yetkisi gerekir") && !isPrivilegedUser) {
-            alert("⚠️ Bu işlem için öğretmen yetkisi gerekir.");
+
+        // Ignore invalid class code and clear it from local storage so it's empty
+        if (safeMsg.includes("geçersiz sınıf kodu")) {
+            CLIENT_STORE.removeItem('studentClassCode');
+            const classInput = document.getElementById('class-code-input');
+            if (classInput) classInput.value = "";
             return;
         }
+
         alert(`⚠️ ${safeMsg}`);
     });
     socket.on("userCurriculumData", (payload) => {
@@ -5317,3 +5326,12 @@ document.addEventListener('keydown', (e) => {
 
 
 
+
+
+window.switchDashboardTab = function(tabName) {
+    document.querySelectorAll('.modern-tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.modern-tab-content').forEach(content => content.classList.remove('active'));
+    
+    document.getElementById('tab-btn-' + tabName).classList.add('active');
+    document.getElementById('tab-' + tabName).classList.add('active');
+};

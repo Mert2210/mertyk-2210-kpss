@@ -1,0 +1,116 @@
+/* Modern UI Refactoring */
+
+/* Tabs Navigation */
+.modern-tabs {
+    display: flex;
+    gap: 8px;
+    background: rgba(240, 244, 248, 0.6);
+    padding: 6px;
+    border-radius: 14px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(255,255,255,0.4);
+}
+.modern-tab-btn {
+    flex: 1;
+    padding: 10px 14px;
+    background: transparent;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    box-shadow: none;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.modern-tab-btn:hover {
+    color: var(--color-primary);
+    background: rgba(255,255,255,0.5);
+    transform: none;
+    box-shadow: none;
+}
+.modern-tab-btn.active {
+    background: white;
+    color: var(--color-primary);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+.modern-tab-content {
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+.modern-tab-content.active {
+    display: block;
+}
+
+/* Accordion for Settings/Secondary actions */
+.accordion {
+    margin-bottom: 15px;
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    background: rgba(255,255,255,0.6);
+    overflow: hidden;
+}
+.accordion-header {
+    padding: 14px 16px;
+    background: transparent;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--color-primary);
+    transition: background 0.2s;
+    user-select: none;
+}
+.accordion-header:hover {
+    background: rgba(255,255,255,0.8);
+}
+.accordion-header svg {
+    transition: transform 0.3s;
+    width: 20px;
+    height: 20px;
+}
+.accordion.open .accordion-header svg {
+    transform: rotate(180deg);
+}
+.accordion-body {
+    padding: 0 16px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+}
+.accordion.open .accordion-body {
+    padding: 16px;
+    max-height: 1500px;
+}
+
+/* General Layout Polishing */
+.ui-card {
+    border: 1px solid rgba(255, 255, 255, 0.4) !important;
+    background: rgba(255, 255, 255, 0.65) !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 16px !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03) !important;
+    padding: 20px !important;
+}
+.ui-card:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.06) !important;
+}
+
+#dash-reminders {
+    background: linear-gradient(135deg, rgba(255,243,205,0.9), rgba(255,235,170,0.9));
+    border: 1px solid #ffeeba;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
