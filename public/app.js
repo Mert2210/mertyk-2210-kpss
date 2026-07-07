@@ -3221,7 +3221,9 @@ onAuthStateChanged(auth, user => {
         
         if (instPanel) instPanel.style.display = isTeacher ? "block" : "none";
         if (teacherMainPanel) teacherMainPanel.style.display = isTeacher ? "block" : "none";
-        if (studentArea) studentArea.style.display = isTeacher ? "none" : "block"; 
+        if (studentArea) studentArea.style.display = isTeacher ? "none" : "block";
+        const studentTabs = document.getElementById("student-tabs-container");
+        if (studentTabs) studentTabs.style.display = isTeacher ? "none" : "block"; 
         if (studentLibPanel) studentLibPanel.style.display = isTeacher ? "none" : "block";
         if (savedLibraryPanel) savedLibraryPanel.style.display = isTeacher ? "none" : "block";
         if (mainQuickActions) mainQuickActions.style.display = isTeacher ? "none" : "flex";
@@ -5324,3 +5326,12 @@ document.addEventListener('keydown', (e) => {
 
 
 
+
+
+window.switchDashboardTab = function(tabName) {
+    document.querySelectorAll('.modern-tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.modern-tab-content').forEach(content => content.classList.remove('active'));
+    
+    document.getElementById('tab-btn-' + tabName).classList.add('active');
+    document.getElementById('tab-' + tabName).classList.add('active');
+};
