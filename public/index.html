@@ -75,7 +75,7 @@
     <button onclick="copyLinkAndAlert()" class="outline" style="border-color:#fff; color:#fff; font-size:1rem; padding:10px 20px; margin-top:20px;">🔗 Site Linkini Kopyala</button>
 </div>
 
-<div id="ios-pwa-prompt" style="display:none; position:fixed; bottom:20px; left:50%; transform:translateX(-50%); width:90%; max-width:400px;  padding:20px; border-radius:15px; box-shadow:0 15px 40px rgba(0,0,0,0.4); z-index:99999; border:3px solid #3498db; text-align:center;">
+<div id="ios-pwa-prompt" style="display:none; position:fixed; bottom:20px; left:50%; transform:translateX(-50%); width:90%; max-width:400px;  padding:20px; border-radius:15px; box-shadow:0 15px 40px rgba(0,0,0,0.4); z-index:99999; border:3px solid #3498db; text-align:center; background:var(--card-bg, #ffffff);">
     <h3 style="margin-top:0; color:#1e3c72; margin-bottom:10px;">🍏 Uygulamayı İndirin</h3>
     <p style="font-size:0.9rem; color:#444; margin-bottom:15px; line-height:1.4;">Bildirimleri almak ve tam ekran kullanmak için alt menüdeki <b>Paylaş</b> butonuna basıp <b>"Ana Ekrana Ekle"</b> diyerek kurulumu tamamlayın.</p>
     <div style="background:#f1f2f6; padding:10px; border-radius:8px; display:inline-block; margin-bottom:15px;">
@@ -84,7 +84,7 @@
     <button onclick="closePWAPrompt('ios')" class="outline" style="width:100%; font-size:0.85rem; padding:10px;">Anladım, Sonra Yapacağım</button>
 </div>
 
-<div id="android-pwa-prompt" style="display:none; position:fixed; bottom:20px; left:50%; transform:translateX(-50%); width:90%; max-width:400px;  padding:20px; border-radius:15px; box-shadow:0 15px 40px rgba(0,0,0,0.4); z-index:99999; border:3px solid #27ae60; text-align:center;">
+<div id="android-pwa-prompt" style="display:none; position:fixed; bottom:20px; left:50%; transform:translateX(-50%); width:90%; max-width:400px;  padding:20px; border-radius:15px; box-shadow:0 15px 40px rgba(0,0,0,0.4); z-index:99999; border:3px solid #27ae60; text-align:center; background:var(--card-bg, #ffffff);">
     <h3 style="margin-top:0; color:#1e3c72; margin-bottom:10px;">🤖 Uygulamayı İndirin</h3>
     <p style="font-size:0.9rem; color:#444; margin-bottom:15px; line-height:1.4;">Bildirimleri almak ve tam ekran kullanmak için sağ üstteki <b>Menü</b> butonuna basıp <b>"Ana Ekrana Ekle"</b> diyerek kurulumu tamamlayın.</p>
     <div style="background:#f1f2f6; padding:10px; border-radius:8px; display:inline-block; margin-bottom:15px;">
@@ -489,15 +489,15 @@
                 <button id="derslerim-theme-toggle-btn" type="button" class="outline derslerim-theme-toggle-btn" aria-label="Gece modunu aç veya kapat" onclick="window.toggleDerslerimTheme()">
                     🌙 Gece Modu: Kapalı
                 </button>
-                <div style="margin-top:12px; padding:12px; border:1px solid #d7e3f3; border-radius:10px; background:#f8fbff;">
-                    <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
-                        <strong style="color:#1e3c72;">🔔 Bildirimler</strong>
+                <div style="margin-top:12px; padding:12px 5px; border-bottom:1px solid rgba(0,0,0,0.05); display:flex; flex-direction:column; gap:5px;">
+                    <div style="display:flex; align-items:center; justify-content:space-between;">
+                        <strong style="color:var(--text-color, #1e3c72); font-size:1.1rem;">🔔 Bildirimler</strong>
                         <label class="library-modal-switch" aria-label="Bildirimleri aç veya kapat">
                             <input id="profile-notification-toggle" type="checkbox" onchange="window.handleNotificationToggleChange()">
                             <span class="library-modal-slider"></span>
                         </label>
                     </div>
-                    <small id="profile-notification-status" style="display:block; margin-top:8px; color:#4b5563;">Bildirimler açık.</small>
+                    <small id="profile-notification-status" style="display:none; margin-top:5px; color:#e74c3c;"></small>
                 </div>
                 <button type="button" class="outline" style="margin-top:10px; border-color:#8e44ad; color:#8e44ad;" onclick="window.openReminderOptionsScreen()">🔔 Hatırlatma Seçenekleri</button>
             </div>
