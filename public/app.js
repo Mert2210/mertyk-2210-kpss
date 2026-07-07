@@ -2664,28 +2664,18 @@ function updateNotificationToggleUI() {
     
     if (typeof Notification === "undefined") {
         status.textContent = "Bu cihazda bildirim desteği yok.";
+        status.style.display = "block";
         return;
     }
     
     if (permission === "denied") {
         status.textContent = "Tarayıcı bildirimleri engelliyor (Cihaz ayarlarından izin verin).";
         status.style.color = "#e74c3c";
+        status.style.display = "block";
         return;
     }
     
-    if (!enabled) {
-        status.textContent = "Bildirimler kapalı.";
-        status.style.color = "#7f8c8d";
-        return;
-    }
-    
-    if (permission === "granted") {
-        status.textContent = "Bildirimler açık ve sisteme bağlı.";
-        status.style.color = "#27ae60";
-    } else {
-        status.textContent = "Bildirim izni bekleniyor. Açmak için anahtara dokunun.";
-        status.style.color = "#f39c12";
-    }
+    status.style.display = "none";
 }
 
 async function getCurrentFcmToken() {
