@@ -3035,15 +3035,15 @@ window.handleLogin = async () => {
         CLIENT_STORE.setItem('gazi_last_email', email);
     } catch(e) { 
         if (e.code === 'auth/user-not-found') {
-            alert("❌ Kullanıcı bulunamadı.");
+            alert("❌ Sistemimizde bu e-posta adresiyle eşleşen bir hesap bulunamadı.");
         } else if (e.code === 'auth/wrong-password') {
-            alert("❌ Şifreniz yanlış.");
+            alert("❌ Girdiğiniz şifre hatalı. Lütfen kontrol edip tekrar deneyiniz.");
         } else if (e.code === 'auth/invalid-email') {
-            alert("❌ Geçersiz e-posta adresi.");
+            alert("❌ Lütfen geçerli bir e-posta adresi girdiğinizden emin olunuz.");
         } else if (e.code === 'auth/invalid-credential') {
-            alert("❌ E-posta veya şifre hatalı.");
+            alert("❌ E-posta adresiniz veya şifreniz hatalı. Lütfen bilgilerinizi kontrol ediniz.");
         } else {
-            alert("❌ Giriş Başarısız: E-posta veya şifre hatalı.");
+            alert("❌ Giriş Başarısız: Bilgilerinizi kontrol edip tekrar deneyiniz.");
         }
     } finally {
         if (loginBtn) {
@@ -3059,7 +3059,7 @@ window.handleRegister = async () => {
     const p1 = document.getElementById('reg-pass').value; 
     const p2 = document.getElementById('reg-pass-confirm').value;
     
-    if(p1 !== p2) return alert("❌ Şifreler uymuyor!");
+    if(p1 !== p2) return alert("❌ Girdiğiniz şifreler birbiriyle uyuşmuyor. Lütfen tekrar kontrol ediniz.");
     
     const regBtn = document.getElementById('reg-btn');
     let originalText = '';
@@ -3085,16 +3085,16 @@ window.handleRegister = async () => {
             CLIENT_STORE.setItem('gazi_teacher_exams', JSON.stringify(selectedExams)); 
         }
 
-        alert("✅ Kayıt başarılı! Lütfen doğrulama maili için Gelen Kutunuzu ve SPAM (Gereksiz) klasörünü kontrol etmeyi unutmayın!");
+        alert("✅ Kaydınız başarıyla oluşturuldu! Hesabınızı aktifleştirmek için lütfen doğrulama e-postasını (Gelen Kutusu veya Spam klasöründe) kontrol ediniz.");
         await signOut(auth); 
         location.reload(); 
     } catch(e) { 
         if (e.code === 'auth/email-already-in-use') {
-            alert("❌ Bu e-posta zaten kullanımda.");
+            alert("❌ Bu e-posta adresi sistemimizde zaten kayıtlı. Lütfen giriş yapmayı deneyiniz.");
         } else if (e.code === 'auth/weak-password') {
             alert("❌ Şifre çok zayıf (en az 6 karakter olmalı).");
         } else if (e.code === 'auth/invalid-email') {
-            alert("❌ Geçersiz e-posta adresi.");
+            alert("❌ Lütfen geçerli bir e-posta adresi girdiğinizden emin olunuz.");
         } else {
             alert("❌ Kayıt Hatası: İşlem tamamlanamadı.");
         }
@@ -3534,7 +3534,7 @@ if(socket) {
 }
 
 window.fetchMyStats = () => { 
-    if(!socket) return alert("Sunucuya bağlanılamadı!"); 
+    if(!socket) return alert("⚠️ Sunucu ile bağlantı kurulamadı. Lütfen internet bağlantınızı kontrol edip tekrar deneyiniz."); 
     const name = document.getElementById('display-user').innerText.replace("Hoş Geldin, ", "").trim() || "Gazi Adayı"; 
     socket.emit("getMyStats", name); 
 };
@@ -3613,7 +3613,7 @@ window.processImageUpload = async (e, type = 'question') => {
         document.getElementById(previewId).style.display = 'none';
         if (type === 'question') uploadedImageBase64 = null;
         else uploadedSolutionBase64 = null;
-        alert("⚠️ Görsel optimize edilemedi. Lütfen farklı bir görsel deneyin.");
+        alert("⚠️ Yüklediğiniz görsel optimize edilemedi. Lütfen farklı veya daha düşük boyutlu bir görsel seçerek tekrar deneyiniz.");
     }
 };
 
@@ -3678,12 +3678,12 @@ window.processStudentImageUpload = async (e, type = 'image') => {
             const solutionPreview = document.getElementById('std-solution-preview');
             if (solutionPreview) solutionPreview.style.display = 'none';
         }
-        alert("⚠️ Görsel optimize edilemedi. Lütfen farklı bir görsel deneyin.");
+        alert("⚠️ Yüklediğiniz görsel optimize edilemedi. Lütfen farklı veya daha düşük boyutlu bir görsel seçerek tekrar deneyiniz.");
     }
 };
 
 window.uploadQuestion = async (isForClass = false) => {
-    if(!socket) return alert("Sunucuya bağlanılamadı!");
+    if(!socket) return alert("⚠️ Sunucu ile bağlantı kurulamadı. Lütfen internet bağlantınızı kontrol edip tekrar deneyiniz.");
     
     const qDers = document.getElementById('new-q-ders').value.trim(); 
     const qKonu = document.getElementById('new-q-deneme').value.trim();
@@ -3692,7 +3692,7 @@ window.uploadQuestion = async (isForClass = false) => {
     const qDogru = parseInt(document.getElementById('new-q-correct').value) || 0; 
     const qSolText = document.getElementById('new-q-sol-text').value.trim();
     
-    if(!qDers || !qKonu) return alert("Lütfen Ders ve Konu alanlarını doldurun!"); 
+    if(!qDers || !qKonu) return alert("⚠️ İşleme devam edebilmek için lütfen 'Ders' ve 'Konu' seçimlerinizi eksiksiz tamamlayınız."); 
     if(!window.myClassCode) return alert("⚠️ Lütfen önce bir sınıf seçin veya oluşturun!");
     
     let questionImageUrl = null;
@@ -3767,7 +3767,7 @@ window.uploadStudentQuestion = async (target = 'cloud') => {
     const qKitap = stdQKitap ? stdQKitap.value.trim() : ""; 
     const finalBook = qKitap;
     
-    if(!finalTopic || !finalDers) return alert("Komutanım, lütfen önce Kütüphane/Ders seçimini tamamlayın!");
+    if(!finalTopic || !finalDers) return alert("⚠️ Lütfen işleme başlamadan önce eklenecek kütüphane veya ders seçimini gerçekleştiriniz.");
     
     const qText = document.getElementById('std-q-text').value.trim(); 
     const qSolText = document.getElementById('std-q-sol-text').value.trim(); 
@@ -3778,7 +3778,7 @@ window.uploadStudentQuestion = async (target = 'cloud') => {
     CLIENT_STORE.setItem('gazi_last_reminder_days', String(reminderDays));
     const nextReviewDate = Date.now() + (reminderDays * 24 * 60 * 60 * 1000); 
 
-    if(!stdUploadedImageBase64 && !qText) return alert("Lütfen bir fotoğraf yükleyin veya kendinize bir not yazın!");
+    if(!stdUploadedImageBase64 && !qText) return alert("⚠️ Lütfen soru kaydetmeden önce bir görsel ekleyiniz veya metin alanına bir içerik yazınız.");
 
     if(customKonu && !smartTopicContext && finalDers !== "Genel Ders") {
         addCustomTopicsForSubject(finalDers, [customKonu]);
@@ -4393,7 +4393,7 @@ if(socket) {
         }
     });
     socket.on("classQuestionsData", (data) => { 
-        if(data.length === 0) return alert("Bu sınıfa henüz öğretmen tarafından soru eklenmemiş."); 
+        if(data.length === 0) return alert("ℹ️ Bu sınıfa yönetici/öğretmen tarafından henüz herhangi bir içerik eklenmemiştir."); 
         window.latestFetchedClassCode = String(document.getElementById('class-code-input')?.value || '').trim().toUpperCase();
         window.latestFetchedClassQuestions = data;
         window.tempStdQuestions = data; 
@@ -4626,7 +4626,7 @@ window.deleteTeacherLibraryQuestion = (index) => {
 window.fetchTeacherReports = () => { 
     if(socket) { 
         const code = document.getElementById('report-class-select').value; 
-        if(!code) return alert("Lütfen rapor almak istediğiniz sınıfı seçin!"); 
+        if(!code) return alert("⚠️ Rapor oluşturabilmek için lütfen listeden bir sınıf seçiniz."); 
         socket.emit("getTeacherReports", code.toUpperCase()); 
     } 
 };
@@ -4634,7 +4634,7 @@ window.fetchTeacherReports = () => {
 window.fetchClassMistakes = () => { 
     if(socket) { 
         const code = document.getElementById('report-class-select').value; 
-        if(!code) return alert("Lütfen rapor almak istediğiniz sınıfı seçin!"); 
+        if(!code) return alert("⚠️ Rapor oluşturabilmek için lütfen listeden bir sınıf seçiniz."); 
         socket.emit("getClassMistakes", code.toUpperCase()); 
     } 
 };
