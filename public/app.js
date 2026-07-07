@@ -2653,6 +2653,11 @@ function updateNotificationToggleUI() {
         toggle.checked = enabled && permission !== "denied";
         if (permission === "denied") {
             toggle.checked = false;
+            toggle.disabled = true; // Telefon ayarlarindan kapatildiysa butonu dondur
+            toggle.style.opacity = '0.5';
+        } else {
+            toggle.disabled = false;
+            toggle.style.opacity = '1';
         }
     }
     if (!status) return;
@@ -5451,3 +5456,11 @@ window.filterLibraryTopics = (query) => {
         }
     });
 };
+
+
+// Uygulamaya geri donuldugunde bildirim izinlerini telefonla senkronize et
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+        updateNotificationToggleUI();
+    }
+});
