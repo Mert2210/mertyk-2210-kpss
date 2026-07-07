@@ -3300,13 +3300,8 @@ onAuthStateChanged(auth, user => {
             
             // Auto-onboarding for missing subjects
             setTimeout(() => {
-                const savedSubjects = CLIENT_STORE.getItem("gazi_student_subjects");
-                let hasSubjects = false;
-                try {
-                    hasSubjects = savedSubjects && JSON.parse(savedSubjects).length > 0;
-                } catch(e) {}
-                
-                if (!hasSubjects) {
+                const isDone = CLIENT_STORE.getItem("gazi_onboarding_done") === 'true';
+                if (!isDone) {
                     window.openSubjectSelectionPanel();
                     alert("👋 Uygulamaya hoş geldin! Kütüphaneni oluşturabilmemiz için lütfen önce sorumlu olduğun dersleri seç.");
                 }
@@ -3482,7 +3477,7 @@ if(socket) {
         const isPrivilegedUser = role === "teacher" || role === "admin";
         
         // Ignore teacher privilege warnings silently
-        if (safeMsg.includes("öğretmen yetkisi gerekir")) {
+        if (safeMsg.toLowerCase().includes("yetki") || safeMsg.toLowerCase().includes("yetkisi")) {
             return;
         }
 
@@ -3925,10 +3920,10 @@ function renderStudentLibraryListOnly(data) {
     } else {
         const titleIsLocal = document.getElementById('list-title').innerText.includes("Cihaz");
         div.innerHTML = data.map((q, i) => {
-            const isLocalQuestion = q._source ? q._source === 'local' : titleIsLocal;
+                        const isLocalQuestion = q._source ? q._source === 'local' : titleIsLocal;
             const cloudBadge = !isLocalQuestion
-                ? `<span class="cloud-badge" title="Bu soru buluta kaydetilmiştir, internet bağlantısı gerektirir">☁️ ℹ️</span>`
-                : '';
+                ? `<span class="cloud-badge" title="Bulut Kaydı" style="background:rgba(52, 152, 219, 0.15); color:#3498db; padding:4px 8px; border-radius:12px; font-size:0.75rem; font-weight:bold;">☁️ Bulut</span>`
+                : `<span class="local-badge" title="Cihaz Kaydı" style="background:rgba(46, 204, 113, 0.15); color:#2ecc71; padding:4px 8px; border-radius:12px; font-size:0.75rem; font-weight:bold;">📱 Cihaz</span>`;
             const kitapText = typeof q.kitap === 'string' ? q.kitap.trim() : '';
             const showKitap = !!kitapText && kitapText.toLowerCase() !== LEGACY_EMPTY_BOOK_TEXT;
             return `
@@ -4143,6 +4138,9 @@ window.renderTrialQuestionList = () => {
         const questionText = String(q?.soru || q?.not || "Görseli inceleyiniz.");
         return `
             <article class="trial-list-card">
+                ${q?._source === 'local' 
+                    ? `<span class="local-badge" title="Cihaz Kaydı" style="background:rgba(46, 204, 113, 0.15); color:#2ecc71; padding:4px 8px; border-radius:12px; font-size:0.75rem; font-weight:bold; display:inline-block; margin-bottom:8px; width:fit-content;">📱 Cihaz</span>` 
+                    : `<span class="cloud-badge" title="Bulut Kaydı" style="background:rgba(52, 152, 219, 0.15); color:#3498db; padding:4px 8px; border-radius:12px; font-size:0.75rem; font-weight:bold; display:inline-block; margin-bottom:8px; width:fit-content;">☁️ Bulut</span>`}
                 <h4 class="trial-list-title">${i + 1}. ${escapeHtml(questionText)}</h4>
                 ${q?.image ? `<img src="${safeImageSrc(q.image)}" class="trial-list-image" alt="Soru görseli">` : ''}
                 <div class="trial-list-options">
