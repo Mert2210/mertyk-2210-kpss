@@ -75,7 +75,7 @@
     <button onclick="copyLinkAndAlert()" class="outline" style="border-color:#fff; color:#fff; font-size:1rem; padding:10px 20px; margin-top:20px;">🔗 Site Linkini Kopyala</button>
 </div>
 
-<div id="ios-pwa-prompt" style="display:none; position:fixed; bottom:20px; left:50%; transform:translateX(-50%); width:90%; max-width:400px; background:#fff; padding:20px; border-radius:15px; box-shadow:0 15px 40px rgba(0,0,0,0.4); z-index:99999; border:3px solid #3498db; text-align:center;">
+<div id="ios-pwa-prompt" style="display:none; position:fixed; bottom:20px; left:50%; transform:translateX(-50%); width:90%; max-width:400px;  padding:20px; border-radius:15px; box-shadow:0 15px 40px rgba(0,0,0,0.4); z-index:99999; border:3px solid #3498db; text-align:center;">
     <h3 style="margin-top:0; color:#1e3c72; margin-bottom:10px;">🍏 Uygulamayı İndirin</h3>
     <p style="font-size:0.9rem; color:#444; margin-bottom:15px; line-height:1.4;">Bildirimleri almak ve tam ekran kullanmak için alt menüdeki <b>Paylaş</b> butonuna basıp <b>"Ana Ekrana Ekle"</b> diyerek kurulumu tamamlayın.</p>
     <div style="background:#f1f2f6; padding:10px; border-radius:8px; display:inline-block; margin-bottom:15px;">
@@ -84,7 +84,7 @@
     <button onclick="closePWAPrompt('ios')" class="outline" style="width:100%; font-size:0.85rem; padding:10px;">Anladım, Sonra Yapacağım</button>
 </div>
 
-<div id="android-pwa-prompt" style="display:none; position:fixed; bottom:20px; left:50%; transform:translateX(-50%); width:90%; max-width:400px; background:#fff; padding:20px; border-radius:15px; box-shadow:0 15px 40px rgba(0,0,0,0.4); z-index:99999; border:3px solid #27ae60; text-align:center;">
+<div id="android-pwa-prompt" style="display:none; position:fixed; bottom:20px; left:50%; transform:translateX(-50%); width:90%; max-width:400px;  padding:20px; border-radius:15px; box-shadow:0 15px 40px rgba(0,0,0,0.4); z-index:99999; border:3px solid #27ae60; text-align:center;">
     <h3 style="margin-top:0; color:#1e3c72; margin-bottom:10px;">🤖 Uygulamayı İndirin</h3>
     <p style="font-size:0.9rem; color:#444; margin-bottom:15px; line-height:1.4;">Bildirimleri almak ve tam ekran kullanmak için sağ üstteki <b>Menü</b> butonuna basıp <b>"Ana Ekrana Ekle"</b> diyerek kurulumu tamamlayın.</p>
     <div style="background:#f1f2f6; padding:10px; border-radius:8px; display:inline-block; margin-bottom:15px;">
@@ -187,7 +187,7 @@
                 </div>
             </div>
 
-            <p id="teacher-info-text" style="display:none; font-size:0.8rem; color:#c0392b; font-weight:bold; text-align:center; background:#fff3f3; padding:10px; border-radius:8px; border:1px solid #f5c6cb; margin-top:15px;">⚠️ Öğretmen kayıtları, yönetici onayından sonra aktifleşir.</p>
+            <p id="teacher-info-text" style="display:none; font-size:0.8rem; color:#c0392b; font-weight:bold; text-align:center; padding:10px; border-radius:8px; border:1px solid rgba(255,0,0,0.2); class="content-card" margin-top:15px;">⚠️ Öğretmen kayıtları, yönetici onayından sonra aktifleşir.</p>
             
             <button id="reg-btn" onclick="handleRegister()" class="orange" style="margin-top:15px; padding:15px; font-size:1.1rem;">Kayıt İşlemini Tamamla</button>
             <div style="text-align:center; margin-top:20px;">
@@ -409,7 +409,7 @@
 
             <div style="display:flex; gap:8px; margin-bottom:10px;">
                 <button type="button" id="student-save-cloud-btn" onclick="window.uploadStudentQuestion('cloud')" class="blue" style="flex:1; padding:15px; font-size:0.92rem;">☁️ Buluta Kaydet</button>
-                <button type="button" id="student-save-local-btn" onclick="window.uploadStudentQuestion('local')" class="outline" style="flex:1; padding:15px; font-size:0.92rem; border-color:#3498db; color:#3498db; background:#fff;">💾 Cihaza Kaydet</button>
+                <button type="button" id="student-save-local-btn" onclick="window.uploadStudentQuestion('local')" class="outline" style="flex:1; padding:15px; font-size:0.92rem; border-color:#3498db; color:#3498db; ">💾 Cihaza Kaydet</button>
             </div>
         </div>
     </div>
@@ -442,7 +442,7 @@
                 </div>
                 <div id="rapor-body">
                     <label style="font-size:0.75rem; font-weight:bold; margin-bottom:5px; display:block; color:#fff;">Rapor Alınacak Sınıf:</label>
-                    <select id="report-class-select" style="margin-bottom:8px; font-weight:bold; color:#1e3c72; background:#fff;">
+                    <select id="report-class-select" style="margin-bottom:8px; font-weight:bold; color:#1e3c72; ">
                         <option value="">--- Sınıf Seçin ---</option>
                     </select>
 
@@ -481,7 +481,7 @@
             <div class="settings-profile-section">
                 <h4 style="color:#1e3c72; border-bottom:2px solid #eee; padding-bottom:8px; margin-top:0;">👤 Hesap Bilgileri</h4>
                 <input type="text" id="profile-new-name" placeholder="Kullanıcı Adı / İsim" style="background:#f1f2f6;">
-                <div id="password-update-area" style="background:#fff3f3; padding:10px; border-radius:8px; border:1px solid #f5c6cb; margin-bottom:15px; margin-top:5px;">
+                <div id="password-update-area" style="padding:10px; border-radius:8px; border:1px solid rgba(255,0,0,0.2); class="content-card" margin-bottom:15px; margin-top:5px;">
                     <label style="font-size:0.75rem; font-weight:bold; color:#c0392b; display:block; margin-bottom:5px;">Şifre Güncelle (İsteğe Bağlı)</label>
                     <input type="password" id="profile-old-pass" placeholder="Mevcut (Eski) Şifreniz" style="margin-bottom:5px; font-size:0.85rem;">
                     <input type="password" id="profile-new-pass" placeholder="Yeni Şifre Belirleyin" style="margin-bottom:0; font-size:0.85rem;">
@@ -541,7 +541,7 @@
                             <input type="search" id="derslerim-course-search" placeholder="🔍 Ders ara..." oninput="window.handleDerslerimCourseSearch()" style="margin-bottom:0; border-color:#d4dbe8; background:#f8fbff;">
                             <button type="button" class="outline derslerim-add-btn" onclick="window.openDerslerimAddModal()" aria-label="Yeni ders veya konu ekle">➕</button>
                         </div>
-                        <div id="profile-subjects-area" style="max-height: 250px; overflow-y:auto; background:#fff; padding:8px; border-radius:8px; border:1px solid #ddd;"></div>
+                        <div id="profile-subjects-area" class="content-card" style="max-height: 250px; overflow-y:auto; padding:8px; border-radius:8px; border:1px solid rgba(128,128,128,0.2);"></div>
                     </div>
                 </div>
 
@@ -603,7 +603,7 @@
     </div>
 
     <div id="screen-secure-logout" class="screen">
-        <div class="content-card" style="background:#fff; padding:20px; border-radius:12px; text-align:left; border:1px solid #ddd;">
+        <div class="content-card" style="padding:20px; border-radius:12px; text-align:left; border:1px solid rgba(128,128,128,0.2);">
             <h3 style="margin-top:0; color:#c0392b;">🔐 Güvenli Çıkış</h3>
             <p style="font-size:0.9rem; color:#333; line-height:1.5;">
                 Hesabınızı güvenli şekilde kapatmak için aşağıdaki butonu kullanın.
@@ -713,7 +713,7 @@
             <h3 style="margin:0; color:#8e44ad;">🔔 Hatırlatma Seçenekleri</h3>
             <button type="button" class="outline" style="width:auto; padding:8px 10px;" onclick="window.goBack('screen-settings')">⬅️ Geri</button>
         </div>
-        <div class="content-card" style="background:#fff; border:1px solid #ddd; border-radius:10px; padding:12px; text-align:left;">
+        <div class="content-card" style=" border:1px solid #ddd; border-radius:10px; padding:12px; text-align:left;">
             <label style="font-size:0.8rem; font-weight:bold; color:#1e3c72;">Yeni aralık</label>
             <div style="display:flex; gap:8px; margin-bottom:10px;">
                 <input id="reminder-interval-input" aria-label="Hatırlatma aralığı sayısı" type="number" min="1" step="1" placeholder="Örn: 3">
