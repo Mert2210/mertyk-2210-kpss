@@ -428,6 +428,24 @@ async function triggerStudentReminder(studentName) {
     }, 2000));
 }
 
+
+// --- SECURITY AUTHENTICATION MIDDLEWARE ---
+function isAuthorizedForStudent(socket, studentName) {
+    if (!socket.data || !socket.data.user) return false;
+    const u = socket.data.user;
+    if (u.isAdmin) return true;
+    if (u.role === "teacher" && u.isVerified) return true; // Teachers can view
+    return String(u.name).trim() === String(studentName).trim();
+}
+
+function isAuthorizedForTeacherClass(socket, classCode) {
+    if (!socket.data || !socket.data.user) return false;
+    const u = socket.data.user;
+    if (u.isAdmin) return true;
+    if (u.role === "teacher" && u.isVerified) return true; // Assuming any verified teacher can access for now
+    return false;
+}
+
 io.on("connection", (socket) => {
     socket.emit('updateFilters', getCachedFilters());
 
@@ -717,6 +735,7 @@ io.on("connection", (socket) => {
     });
 
     socket.on("saveStudentResult", async (data) => {
+        if (!data || !isAuthorizedForStudent(socket, data.studentName)) return socket.emit("error", "Yetkisiz erisim (saveStudentResult).");
         if (!data || typeof data !== "object") return;
         const safeName = sanitizeString(data.name, 120);
         const safeClassCode = sanitizeString(data.classCode || "", 20).toUpperCase();
@@ -740,6 +759,7 @@ io.on("connection", (socket) => {
     });
 
     socket.on("getMyStats", async (studentName) => {
+        if (!isAuthorizedForStudent(socket, studentName)) return socket.emit("error", "Yetkisiz erisim (getMyStats).");
         if(db && studentName) {
             try {
                 const snap = await db.collection("kpss_results").where("name", "==", studentName).orderBy("serverTime", "desc").get();
@@ -841,6 +861,7 @@ io.on("connection", (socket) => {
     });
 
     socket.on("getTeacherLibrary", async (classCode) => {
+        if (!isAuthorizedForTeacherClass(socket, classCode)) return socket.emit("error", "Yetkisiz erisim (getTeacherLibrary).");
         if(db && classCode) {
             try {
                 const snap = await db.collection("kpss_sorular").where("classCode", "==", classCode).get();
@@ -877,6 +898,7 @@ io.on("connection", (socket) => {
     });
 
     socket.on("deleteTeacherQuestion", async ({ classCode, questionId, questionText }) => {
+        if (!isAuthorizedForTeacherClass(socket, classCode)) return socket.emit("error", "Yetkisiz erisim (deleteTeacherQuestion).");
         if (!ensureTeacher(socket)) return;
         const safeClassCode = sanitizeString(classCode, 20).toUpperCase();
         const safeQuestionId = sanitizeString(questionId, 120);
@@ -927,6 +949,7 @@ io.on("connection", (socket) => {
     });
 
     socket.on("addStudentQuestion", async (q) => {
+        if (!q || !isAuthorizedForStudent(socket, q.studentName)) return socket.emit("error", "Yetkisiz erisim (addStudentQuestion).");
         if (!ensureAuthenticated(socket)) return;
         if (!db) {
             socket.emit("errorMsg", "Veritabanı bağlantısı yok. Lütfen Cihaza Kaydet seçeneğini kullanın.");
@@ -963,6 +986,7 @@ io.on("connection", (socket) => {
     });
 
     socket.on("getStudentLibrary", async ({ studentName, onlyReviews }) => {
+        if (!isAuthorizedForStudent(socket, studentName)) return socket.emit("error", "Yetkisiz erisim (getStudentLibrary).");
         if(db && studentName) {
             try {
                 let query = db.collection("student_questions").where("studentName", "==", studentName);
@@ -995,6 +1019,7 @@ io.on("connection", (socket) => {
     });
 
     socket.on("deleteStudentQuestion", async ({ questionId, studentName }) => {
+        if (!isAuthorizedForStudent(socket, studentName)) return socket.emit("error", "Yetkisiz erisim (deleteStudentQuestion).");
         if (!ensureAuthenticated(socket)) return;
         if(db && questionId && studentName) {
             try {
