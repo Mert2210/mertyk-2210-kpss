@@ -3464,13 +3464,20 @@ if(socket) {
         const safeMsg = typeof msg === "string" && msg.trim() ? msg : DEFAULT_ERROR_MESSAGE;
         const role = String(APP_STATE.currentUser?.role || '').trim();
         const isPrivilegedUser = role === "teacher" || role === "admin";
-        if (safeMsg.includes("öğretmen yetkisi gerekir") && isPrivilegedUser) {
+        
+        // Ignore teacher privilege warnings silently
+        if (safeMsg.includes("öğretmen yetkisi gerekir")) {
             return;
         }
-        if (safeMsg.includes("öğretmen yetkisi gerekir") && !isPrivilegedUser) {
-            alert("⚠️ Bu işlem için öğretmen yetkisi gerekir.");
+
+        // Ignore invalid class code and clear it from local storage so it's empty
+        if (safeMsg.includes("geçersiz sınıf kodu")) {
+            CLIENT_STORE.removeItem('studentClassCode');
+            const classInput = document.getElementById('class-code-input');
+            if (classInput) classInput.value = "";
             return;
         }
+
         alert(`⚠️ ${safeMsg}`);
     });
     socket.on("userCurriculumData", (payload) => {
