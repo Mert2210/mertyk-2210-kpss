@@ -701,18 +701,7 @@ io.on("connection", (socket) => {
             console.log("Firebase subscribe başarılı:", safeClassCode);
             socket.emit("notificationSubscriptionUpdated", { success: true, classCode: safeClassCode });
             
-            try {
-                await admin.messaging().send({
-                    token: safeToken,
-                    notification: {
-                        title: "✅ Bildirimler Aktif!",
-                        body: "Harika! Bildirim sisteminiz başarıyla kuruldu."
-                    }
-                });
-            } catch (testErr) {
-                console.log("Test bildirimi gönderilemedi (genelde sorun olmaz):", testErr.message);
-            }
-        } catch (error) {
+                    } catch (error) {
             console.error("Bildirim abonelik hatası:", error);
             socket.emit("errorMsg", "Bildirim aboneliği güncellenemedi.");
         }

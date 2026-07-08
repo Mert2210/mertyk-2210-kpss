@@ -2834,11 +2834,13 @@ window.handleNotificationToggleChange = async () => {
 
         await subscribeToClassPushNotifications(getPreferredNotificationClassCode(), { forcePrompt: false });
         if (isGodModeUser()) await subscribeAdminPushNotifications();
+        window.showSoftFeedback("✅ Bildirim sistemi başarıyla açıldı.");
     } else {
         await clearClassPushSubscription(CLIENT_STORE.getItem(NOTIFICATION_SUBSCRIPTION_CLASS_KEY) || getPreferredNotificationClassCode());
         clearStudentPushSubscription();
         if (isGodModeUser()) clearAdminPushSubscription();
         CLIENT_STORE.removeItem(NOTIFICATION_SUBSCRIPTION_CLASS_KEY);
+        window.showSoftFeedback("❌ Bildirimler kapatıldı.");
     }
     updateNotificationToggleUI();
 };
@@ -3597,6 +3599,8 @@ window.processImageUpload = async (e, type = 'question') => {
         if (type === 'question') {
             uploadedImageBase64 = optimizedDataUrl;
             document.getElementById(previewId).src = uploadedImageBase64;
+            const btn = document.getElementById('teacher-file-btn');
+            if (btn) { btn.innerHTML = "✅ Soru Görseli Seçildi"; btn.style.borderColor = "#2ecc71"; btn.style.color = "#2ecc71"; }
         } else {
             uploadedSolutionBase64 = optimizedDataUrl;
             document.getElementById(previewId).src = uploadedSolutionBase64;
