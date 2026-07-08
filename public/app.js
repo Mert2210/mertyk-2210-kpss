@@ -272,10 +272,10 @@ const LEGACY_REMINDER_INTERVALS = Object.freeze([1 / 24, 3 / 24, 12 / 24, 1, 3, 
 const FLOAT_COMPARISON_EPSILON = 0.001;
 const VALID_STUDENT_PHOTO_SOURCES = ['camera', 'gallery', 'file'];
 const IMAGE_OPTIMIZATION_CONFIG = Object.freeze({
-    maxWidth: 1280,
-    minWidth: 720,
+    maxWidth: 900,
+    minWidth: 600,
     // 1GB toplam bulut kota için soru/çözüm görsellerinde ortalama dosya boyutunu düşük tutar.
-    targetBytes: 220 * 1024,
+    targetBytes: 150 * 1024,
     initialQuality: 0.82,
     minQuality: 0.68,
     qualityStep: 0.04,
@@ -3604,6 +3604,8 @@ window.processImageUpload = async (e, type = 'question') => {
         } else {
             uploadedSolutionBase64 = optimizedDataUrl;
             document.getElementById(previewId).src = uploadedSolutionBase64;
+            const btn = document.getElementById('teacher-sol-file-btn');
+            if (btn) { btn.innerHTML = "✅ Çözüm Yüklendi"; btn.style.borderColor = "#2ecc71"; btn.style.color = "#2ecc71"; }
         }
     } catch (err) {
         console.error("Görsel işlenemedi:", err);
@@ -4825,8 +4827,13 @@ if(socket) socket.on("classJoined", (res) => {
     if(res.success) { 
         window.myClassCode = res.code; 
         CLIENT_STORE.setItem("gazi_class_code", res.code); 
+        if (res.className) CLIENT_STORE.setItem('studentClassName', res.className);
         socket.emit("getFilters", window.myClassCode); 
         subscribeToClassPushNotifications(res.code, { forcePrompt: true });
+        
+        const classInfoEl = document.getElementById('student-current-class-info');
+        if (classInfoEl) classInfoEl.innerHTML = `Mevcut Sınıfınız: <b>${res.className || res.code}</b>`;
+        
         alert("✅ Sınıfa katıldın!"); 
         const teacherQPanel = document.getElementById('gelisim-teacher-questions-panel');
         if (teacherQPanel) teacherQPanel.style.display = 'block';
@@ -5469,6 +5476,17 @@ window.onManageClassChange = (classCode) => {
         actionsArea.style.display = 'block';
         codeDisplay.innerText = "KOD: " + classCode;
         renameInput.value = "";
+        
+        const cachedClasses = JSON.parse(CLIENT_STORE.getItem('gazi_teacher_classes')) || {};
+        const cls = cachedClasses[classCode];
+        const ul = document.getElementById('manage-class-students-ul');
+        if (ul && cls) {
+            if (cls.students && cls.students.length > 0) {
+                ul.innerHTML = cls.students.map(s => `<li>${s.name}</li>`).join('');
+            } else {
+                ul.innerHTML = '<li>Henüz öğrenci yok.</li>';
+            }
+        }
     } else {
         actionsArea.style.display = 'none';
     }
@@ -5503,9 +5521,9 @@ window.deleteTeacherClass = () => {
     const code = document.getElementById('manage-class-select').value;
     if (!code) return alert("❌ Lütfen önce sınıf seçin.");
     
-    const deleteQuestions = confirm("⚠️ DİKKAT: Sınıfı silmek üzeresiniz.\n\nBu sınıfa göndermiş olduğunuz tüm soruları da KÖKTEN SİLMEK istiyor musunuz?\n(İptal derseniz sadece sınıf silinir, sorular kütüphanenizde kalır)");
-    
-    if (confirm("🚨 Bu sınıf kalıcı olarak silinecek. Emin misiniz?")) {
+    const isSure = confirm("🚨 Bu sınıf kalıcı olarak silinecek. Emin misiniz?");
+    if (isSure) {
+        const deleteQuestions = confirm("⚠️ Bu sınıfa göndermiş olduğunuz tüm soruları da KÖKTEN SİLMEK istiyor musunuz?\n(İptal derseniz sadece sınıf silinir, sorular kütüphanenizde kalır)");
         if (socket) socket.emit("deleteClass", { code, deleteQuestions });
         document.getElementById('manage-class-actions').style.display = 'none';
         document.getElementById('manage-class-select').value = "";

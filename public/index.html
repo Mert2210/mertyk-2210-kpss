@@ -297,6 +297,21 @@
                             
                             <img id="img-preview" src="" style="width:100%; max-height:200px; object-fit:contain; display:none; margin-bottom:10px; border-radius:8px;">
                             
+                            <details style="margin-bottom:15px; background: #fdfdfd; border-radius: 10px; border: 1px solid #e0e0e0; box-shadow: 0 2px 5px rgba(0,0,0,0.05); text-align:left;">
+                                <summary style="font-size:0.85rem; font-weight:600; color:#2c3e50; padding:12px 15px; cursor:pointer; list-style:none; outline:none; display:flex; justify-content:space-between; align-items:center;">
+                                    <span>📝 Çözüm Ekle (İsteğe Bağlı)</span>
+                                    <span style="color:#3498db; font-size:1.2rem; line-height:1;">+</span>
+                                </summary>
+                                <div style="padding: 0 12px 12px 12px; margin-top:-5px;">
+                                    <div style="display:flex; gap:10px; margin-bottom:10px;">
+                                        <button onclick="document.getElementById('solution-upload-camera').click()" class="blue" style="flex:1; padding:10px; font-size:0.85rem; border-radius:10px;">📸 Çözüm Çek</button>
+                                        <button onclick="document.getElementById('solution-upload-file-picker').click()" class="outline" id="teacher-sol-file-btn" style="flex:1; padding:10px; font-size:0.85rem; border-radius:10px; transition:all 0.3s;">🖼️ Galeriden Seç</button>
+                                    </div>
+                                    <img id="img-preview-solution" src="" style="width:100%; max-height:200px; object-fit:contain; display:none; margin-bottom:10px; border-radius:8px; border: 2px solid #3498db;">
+                                    <textarea id="new-q-sol-text" placeholder="Varsa yazılı çözüm notunuz..." class="ui-input" style="height:50px; resize:none; font-size:0.85rem; margin:0;"></textarea>
+                                </div>
+                            </details>
+                            
                             <div style="display:flex; gap:10px; margin-bottom:15px;">
                                 <input type="text" id="new-q-ders" placeholder="Ders" class="ui-input" style="flex:1; margin:0;">
                                 <input type="text" id="new-q-deneme" placeholder="Konu" class="ui-input" style="flex:1; margin:0;">
