@@ -1790,7 +1790,13 @@ window.renderLibraryLessonsScreen = (focusedSubject = '') => {
     const normalizedFocus = String(focusedSubject || window.currentLibraryLessonsFocusedSubject || '').trim();
     if (selectedCourseLabel) selectedCourseLabel.textContent = buildSelectedCourseLabel(normalizedFocus);
     const savedSubjects = CLIENT_STORE.getJSON('gazi_subjects_v2', []) || [];
-    const selectedSubjects = getSavedLibraryCourseNames(savedSubjects);
+    let selectedSubjects = getSavedLibraryCourseNames(savedSubjects);
+    if (selectedSubjects.length === 0) {
+        const activeExam = getCurrentExamType();
+        const baseSubjects = getCurriculumSubjectsByExamType(activeExam);
+        const customSubjects = getCustomCurriculumSubjectsByExamType(activeExam);
+        selectedSubjects = uniqueSubjects([...baseSubjects, ...customSubjects]);
+    }
     if (selectedSubjects.length === 0) {
         listEl.innerHTML = '<p class="derslerim-empty-text">Henüz kütüphanede ders bulunmuyor.</p>';
         return;
@@ -3884,6 +3890,7 @@ window.uploadStudentQuestion = async (target = 'cloud') => {
 };
 
 window.fetchStudentLibrary = (source = 'cloud', onlyReviews = false) => {
+    window.showSoftFeedback("Sorular yükleniyor...", "info", 1500);
     if (!window.pendingLibraryFilter) window.libraryViewingTopicPath = null;
     if(source === 'cloud') {
         if(!socket) return alert("Sunucu bağlantısı yok."); 
