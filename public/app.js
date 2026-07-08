@@ -3107,8 +3107,7 @@ window.handleGuestLogin = async () => {
     try { 
         const guestName = "Misafir-" + Math.floor(1000 + Math.random() * 9000); 
         const res = await signInAnonymously(auth); 
-        await updateProfile(res.user, { displayName: guestName + "|student" }); 
-        location.reload(); 
+        await updateProfile(res.user, { displayName: guestName + \"|student\" }); 
     } catch(e) { 
         alert("Bağlantı Hatası"); 
     } 
@@ -3266,7 +3265,7 @@ onAuthStateChanged(auth, user => {
         if (isAdmin) subscribeAdminPushNotifications();
 
         if(typeof socket !== 'undefined') {
-            syncSocketUserContext(user, role, realName);
+            syncSocketUserContext(user, isTeacher ? 'teacher' : 'student', realName);
             if (isTeacher) socket.emit("getTeacherClass", user.email);
             socket.emit("getFilters", window.myClassCode || "");
             if (!isTeacher) socket.emit("checkNotebookReviews", realName);
