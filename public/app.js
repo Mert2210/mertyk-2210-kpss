@@ -3107,7 +3107,7 @@ window.handleGuestLogin = async () => {
     try { 
         const guestName = "Misafir-" + Math.floor(1000 + Math.random() * 9000); 
         const res = await signInAnonymously(auth); 
-        await updateProfile(res.user, { displayName: guestName + \"|student\" }); 
+        await updateProfile(res.user, { displayName: guestName + "|student" }); 
     } catch(e) { 
         alert("Bağlantı Hatası"); 
     } 
@@ -5529,3 +5529,4 @@ window.deleteTeacherClass = () => {
         document.getElementById('manage-class-select').value = "";
     }
 };
+
