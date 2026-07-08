@@ -3302,7 +3302,7 @@ onAuthStateChanged(auth, user => {
             const savedClassName = CLIENT_STORE.getItem('studentClassName', '');
             if (savedClassName) {
                 const classInfoEl = document.getElementById('student-current-class-info');
-                if (classInfoEl) classInfoEl.innerHTML = `Mevcut Sınıfınız: <b>${savedClassName}</b>`;
+                if (classInfoEl) classInfoEl.innerHTML = `🎓 ${savedClassName}`;
             }
             
             // Auto-onboarding for missing subjects
@@ -3584,11 +3584,12 @@ if(socket) {
     });
 }
 
-window.processImageUpload = async (e, type = 'question') => {
+window.processImageUpload = async (e, type = 'image') => {
     const file = e.target.files[0]; 
     if(!file) return; 
     
-    const previewId = type === 'question' ? 'img-preview' : 'img-preview-solution';
+    const isQuestion = (type === 'image' || type === 'question');
+    const previewId = isQuestion ? 'img-preview' : 'img-preview-solution';
     document.getElementById(previewId).style.display = 'block'; 
     document.getElementById(previewId).src = "https://i.gifer.com/ZKZg.gif"; 
 
@@ -3596,7 +3597,7 @@ window.processImageUpload = async (e, type = 'question') => {
         const optimizedDataUrl = await optimizeImageFileForUpload(file);
         if (!optimizedDataUrl) throw new Error('Görsel verisi üretilemedi.');
 
-        if (type === 'question') {
+        if (isQuestion) {
             uploadedImageBase64 = optimizedDataUrl;
             document.getElementById(previewId).src = uploadedImageBase64;
             const btn = document.getElementById('teacher-file-btn');
@@ -4832,7 +4833,7 @@ if(socket) socket.on("classJoined", (res) => {
         subscribeToClassPushNotifications(res.code, { forcePrompt: true });
         
         const classInfoEl = document.getElementById('student-current-class-info');
-        if (classInfoEl) classInfoEl.innerHTML = `Mevcut Sınıfınız: <b>${res.className || res.code}</b>`;
+        if (classInfoEl) classInfoEl.innerHTML = `🎓 ${res.className || res.code}`;
         
         alert("✅ Sınıfa katıldın!"); 
         const teacherQPanel = document.getElementById('gelisim-teacher-questions-panel');
