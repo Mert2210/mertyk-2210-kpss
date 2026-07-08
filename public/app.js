@@ -3290,20 +3290,18 @@ onAuthStateChanged(auth, user => {
                 : `<option value="${DEFAULT_CUSTOM_GROUP_NAME}">${DEFAULT_CUSTOM_GROUP_NAME}</option>`; 
         }
 
-        const onboardingDone = CLIENT_STORE.getItem('gazi_onboarding_done', '');
-        if(!isTeacher && !onboardingDone) {
-            const hasSeenIntro = CLIENT_STORE.getItem('gazi_intro_seen', '');
-            if(!hasSeenIntro) { 
-                document.getElementById('intro-overlay').style.display = 'flex'; 
-            } else { 
-                window.openFirstRunOnboarding();
-            }
-        } else { 
-            window.showScreen('screen-main'); 
-        }
+        CLIENT_STORE.setItem('gazi_onboarding_done', 'true');
+        CLIENT_STORE.setItem('gazi_intro_seen', 'true');
+        window.showScreen('screen-main');
 
         if (!isTeacher) {
             promptNotificationsOnFirstLaunch();
+            
+            const savedClassName = CLIENT_STORE.getItem('studentClassName', '');
+            if (savedClassName) {
+                const classInfoEl = document.getElementById('student-current-class-info');
+                if (classInfoEl) classInfoEl.innerHTML = `Mevcut Sınıfınız: <b>${savedClassName}</b>`;
+            }
             
             // Auto-onboarding for missing subjects
             setTimeout(() => {
@@ -3684,8 +3682,9 @@ window.uploadQuestion = async (isForClass = false) => {
     const qKonu = document.getElementById('new-q-deneme').value.trim();
     const qSoru = document.getElementById('new-q-text').value.trim() || "Aşağıdaki görseli inceleyiniz."; 
     const qSiklar = ["A", "B", "C", "D", "E"];
-    const qDogru = parseInt(document.getElementById('new-q-correct').value) || 0; 
-    const qSolText = document.getElementById('new-q-sol-text').value.trim();
+    const qDogru = parseInt(document.getElementById('new-q-correct')?.value) || 0; 
+    const solTextEl = document.getElementById('new-q-sol-text');
+    const qSolText = solTextEl ? solTextEl.value.trim() : "";
     
     if(!qDers || !qKonu) return alert("Lütfen Ders ve Konu alanlarını doldurun!"); 
     if(!window.myClassCode) return alert("⚠️ Lütfen önce bir sınıf seçin veya oluşturun!");
@@ -5454,3 +5453,55 @@ document.addEventListener('visibilitychange', () => {
         updateNotificationToggleUI();
     }
 });
+
+window.onManageClassChange = (classCode) => {
+    const actionsArea = document.getElementById('manage-class-actions');
+    const codeDisplay = document.getElementById('manage-class-code-display');
+    const renameInput = document.getElementById('manage-class-rename-input');
+    
+    if (classCode) {
+        actionsArea.style.display = 'block';
+        codeDisplay.innerText = "KOD: " + classCode;
+        renameInput.value = "";
+    } else {
+        actionsArea.style.display = 'none';
+    }
+};
+
+window.shareTeacherClassCode = () => {
+    const classCode = document.getElementById('manage-class-select').value;
+    if (!classCode) return;
+    
+    const text = `Sınıfıma Katıl!\nUygulamayı indir ve Sınıf Kodunu girerek katıl:\n\nKOD: ${classCode}`;
+    if (navigator.share) {
+        navigator.share({ title: 'Sınıfıma Katıl', text: text })
+            .catch(err => console.log('Paylaşım iptal edildi veya desteklenmiyor.', err));
+    } else {
+        navigator.clipboard.writeText(text).then(() => {
+            alert("📋 Sınıf kodu ve mesaj panoya kopyalandı! Öğrencilerinize gönderebilirsiniz.");
+        });
+    }
+};
+
+window.renameTeacherClass = () => {
+    const oldCode = document.getElementById('manage-class-select').value;
+    const newName = document.getElementById('manage-class-rename-input').value.trim();
+    if (!oldCode) return alert("❌ Lütfen önce sınıf seçin.");
+    if (!newName) return alert("❌ Lütfen yeni sınıf adını girin.");
+    
+    if (socket) socket.emit("renameClass", { oldCode, newName });
+    document.getElementById('manage-class-rename-input').value = "";
+};
+
+window.deleteTeacherClass = () => {
+    const code = document.getElementById('manage-class-select').value;
+    if (!code) return alert("❌ Lütfen önce sınıf seçin.");
+    
+    const deleteQuestions = confirm("⚠️ DİKKAT: Sınıfı silmek üzeresiniz.\n\nBu sınıfa göndermiş olduğunuz tüm soruları da KÖKTEN SİLMEK istiyor musunuz?\n(İptal derseniz sadece sınıf silinir, sorular kütüphanenizde kalır)");
+    
+    if (confirm("🚨 Bu sınıf kalıcı olarak silinecek. Emin misiniz?")) {
+        if (socket) socket.emit("deleteClass", { code, deleteQuestions });
+        document.getElementById('manage-class-actions').style.display = 'none';
+        document.getElementById('manage-class-select').value = "";
+    }
+};

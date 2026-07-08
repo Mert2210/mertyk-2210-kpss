@@ -590,6 +590,45 @@ io.on("connection", (socket) => {
         socket.emit("classCreated", classCode);
     });
 
+    
+    socket.on("renameClass", ({ oldCode, newName }) => {
+        if (!ensureTeacher(socket)) return;
+        const classes = readClasses();
+        const safeOldCode = sanitizeString(oldCode, 20).toUpperCase();
+        const safeNewName = sanitizeString(newName, 50);
+        if (classes[safeOldCode] && classes[safeOldCode].createdBy === currentUser(socket).name) {
+            classes[safeOldCode].name = safeNewName;
+            writeClasses(classes);
+            socket.emit("successMsg", "Sınıf adı başarıyla güncellendi.");
+            const myClasses = {};
+            for (const c in classes) { if (classes[c].createdBy === currentUser(socket).name) myClasses[c] = classes[c]; }
+            socket.emit("teacherClassesData", myClasses);
+        }
+    });
+
+    socket.on("deleteClass", ({ code, deleteQuestions }) => {
+        if (!ensureTeacher(socket)) return;
+        const classes = readClasses();
+        const safeCode = sanitizeString(code, 20).toUpperCase();
+        if (classes[safeCode] && classes[safeCode].createdBy === currentUser(socket).name) {
+            delete classes[safeCode];
+            writeClasses(classes);
+            
+            if (deleteQuestions && db) {
+                db.collection('gazi_questions').where('classCode', '==', safeCode).get().then(snapshot => {
+                    const batch = db.batch();
+                    snapshot.docs.forEach(doc => batch.delete(doc.ref));
+                    batch.commit();
+                }).catch(err => console.error("Soruları silerken hata:", err));
+            }
+
+            socket.emit("successMsg", "Sınıf kalıcı olarak silindi.");
+            const myClasses = {};
+            for (const c in classes) { if (classes[c].createdBy === currentUser(socket).name) myClasses[c] = classes[c]; }
+            socket.emit("teacherClassesData", myClasses);
+        }
+    });
+
     socket.on("createClass", (teacherName) => {
         if (!ensureTeacher(socket)) return;
         const user = currentUser(socket);
