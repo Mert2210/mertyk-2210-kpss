@@ -4359,8 +4359,10 @@ window.deleteSavedTeacherMaterials = (index) => {
 };
 
 window.fetchClassQuestions = () => { 
-    const code = document.getElementById('class-code-input').value.trim().toUpperCase(); 
-    if(!code) return alert("Lütfen önce sınıf kodunu girin!"); 
+    const inputCode = document.getElementById('class-code-input')?.value.trim().toUpperCase();
+    const storeCode = CLIENT_STORE.getItem('studentClassCode', '');
+    const code = inputCode || storeCode;
+    if(!code) return alert("Lütfen önce bir sınıf kodunu girin veya bir sınıfa katılın!"); 
     socket.emit("getClassQuestions", code); 
 };
 

@@ -583,10 +583,9 @@ io.on("connection", (socket) => {
         writeClasses(classes);
         
         // Hoca için listeyi tazele
-        const teacherClasses = Object.keys(classes)
-            .filter(code => classes[code].teacher === safeTeacherEmail)
-            .map(code => ({ code, name: classes[code].name }));
-        socket.emit("teacherClassesData", teacherClasses);
+        const myClasses = {};
+        for (const c in classes) { if (classes[c].teacher === safeTeacherEmail) myClasses[c] = classes[c]; }
+        socket.emit("teacherClassesData", myClasses);
         socket.emit("classCreated", classCode);
     });
 
@@ -646,10 +645,9 @@ io.on("connection", (socket) => {
         writeClasses(classes);
         socket.emit("classCreated", classCode);
         socket.emit("teacherClassFound", classCode);
-        const teacherClasses = Object.keys(classes)
-            .filter(code => classes[code].teacher === safeTeacherEmail)
-            .map(code => ({ code, name: classes[code].name }));
-        socket.emit("teacherClassesData", teacherClasses);
+        const myClasses = {};
+        for (const c in classes) { if (classes[c].teacher === safeTeacherEmail) myClasses[c] = classes[c]; }
+        socket.emit("teacherClassesData", myClasses);
     });
 
     // 🚨 ADIM 2: HOCANIN SINIFLARINI GETİRME 🚨
@@ -659,10 +657,9 @@ io.on("connection", (socket) => {
         const userEmail = sanitizeString(currentUser(socket).email, 200);
         const requestedEmail = sanitizeString(email, 200);
         const targetEmail = userEmail || requestedEmail;
-        const teacherClasses = Object.keys(classes)
-            .filter(code => classes[code].teacher === targetEmail)
-            .map(code => ({ code, name: classes[code].name }));
-        socket.emit("teacherClassesData", teacherClasses);
+        const myClasses = {};
+        for (const c in classes) { if (classes[c].teacher === targetEmail) myClasses[c] = classes[c]; }
+        socket.emit("teacherClassesData", myClasses);
     });
 
     socket.on("joinClass", ({ code, studentName }) => {
