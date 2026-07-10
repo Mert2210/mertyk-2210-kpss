@@ -2586,7 +2586,13 @@ window.openFriendsPanel = () => {
 
 window.toggleSection = (id) => { 
     const el = document.getElementById(id); 
-    if (el) el.classList.toggle('hidden-panel'); 
+    if (el) {
+        if (el.style.display === 'none') {
+            el.style.display = 'block';
+        } else {
+            el.style.display = 'none';
+        }
+    }
 };
 
 window.showSoftFeedback = (message) => {
