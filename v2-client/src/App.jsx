@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import ClassDetail from './pages/ClassDetail';
 import StudentDashboard from './pages/StudentDashboard';
 import QuizRoom from './pages/QuizRoom';
+import StudentLibrary from './pages/StudentLibrary';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
         
         {/* Öğrenci Rotaları */}
         <Route path="/student" element={<StudentDashboard />} />
+        <Route path="/student/library" element={<StudentLibrary />} />
         <Route path="/room/:code" element={<QuizRoom />} />
       </Routes>
     </BrowserRouter>
