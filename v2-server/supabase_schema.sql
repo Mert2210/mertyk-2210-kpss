@@ -72,3 +72,7 @@ create policy "Anyone can read images" on storage.objects for select using (buck
 create policy "Authenticated users can upload images" on storage.objects for insert with check (bucket_id = 'question_images' and auth.role() = 'authenticated');
 -- Sadece yükleyen kendi görselini silebilir
 create policy "Users can delete own images" on storage.objects for delete using (bucket_id = 'question_images' and auth.uid() = owner);
+
+-- 6. Abonelik (Premium) ve Kota Sistemi
+alter table public.profiles add column subscription_plan text default 'free';
+alter table public.profiles add column question_count integer default 0;
