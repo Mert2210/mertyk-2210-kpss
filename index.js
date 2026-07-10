@@ -595,21 +595,34 @@ io.on("connection", (socket) => {
         const classes = readClasses();
         const safeOldCode = sanitizeString(oldCode, 20).toUpperCase();
         const safeNewName = sanitizeString(newName, 50);
-        if (classes[safeOldCode] && classes[safeOldCode].createdBy === currentUser(socket).name) {
+        if (classes[safeOldCode] && classes[safeOldCode].teacher === currentUser(socket).email) {
             classes[safeOldCode].name = safeNewName;
             writeClasses(classes);
             socket.emit("successMsg", "Sınıf adı başarıyla güncellendi.");
             const myClasses = {};
-            for (const c in classes) { if (classes[c].createdBy === currentUser(socket).name) myClasses[c] = classes[c]; }
+            for (const c in classes) { if (classes[c].teacher === currentUser(socket).email) myClasses[c] = classes[c]; }
             socket.emit("teacherClassesData", myClasses);
         }
+    });
+
+    socket.on("getStudentsInClass", (classCode) => {
+        if (!ensureTeacher(socket)) return;
+        const safeCode = sanitizeString(classCode, 20).toUpperCase();
+        const students = [];
+        for (const sid in activeUsers) {
+            const u = activeUsers[sid];
+            if (u && u.role === "student" && u.classCode === safeCode) {
+                students.push(u.name || "İsimsiz Öğrenci");
+            }
+        }
+        socket.emit("studentsInClassData", students);
     });
 
     socket.on("deleteClass", ({ code, deleteQuestions }) => {
         if (!ensureTeacher(socket)) return;
         const classes = readClasses();
         const safeCode = sanitizeString(code, 20).toUpperCase();
-        if (classes[safeCode] && classes[safeCode].createdBy === currentUser(socket).name) {
+        if (classes[safeCode] && classes[safeCode].teacher === currentUser(socket).email) {
             delete classes[safeCode];
             writeClasses(classes);
             
@@ -623,7 +636,7 @@ io.on("connection", (socket) => {
 
             socket.emit("successMsg", "Sınıf kalıcı olarak silindi.");
             const myClasses = {};
-            for (const c in classes) { if (classes[c].createdBy === currentUser(socket).name) myClasses[c] = classes[c]; }
+            for (const c in classes) { if (classes[c].teacher === currentUser(socket).email) myClasses[c] = classes[c]; }
             socket.emit("teacherClassesData", myClasses);
         }
     });

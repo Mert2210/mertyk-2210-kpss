@@ -197,6 +197,7 @@
     </div>
 
     <div id="screen-main" class="screen">
+    <div id="student-class-badge-container" style="text-align: center; margin-bottom: 10px; display: none;"></div>
         <div class="ui-topbar">
             <button onclick="logout()" class="outline ui-btn-compact" style="width:auto;">⬅️ Çıkış</button>
             <button id="pwa-install-btn" onclick="installPWA()" class="green ui-btn-compact" style="display:none; width:auto;">📲 Uygulamayı İndir</button>
@@ -248,7 +249,16 @@
                             <button onclick="window.renameTeacherClass()" class="outline" style="flex:1; margin:0; padding:10px; font-size:0.85rem; border-color:#27ae60; color:#27ae60;">Kalem İsim</button>
                         </div>
                         
-                        <button onclick="window.deleteTeacherClass()" class="outline" style="width:100%; padding:12px; font-size:0.9rem; border-radius:10px; border-color:#e74c3c; color:#e74c3c; font-weight:bold;">🗑️ Sınıfı Tamamen Sil</button>
+                        <button onclick="window.deleteTeacherClass()"
+
+                        <div id="teacher-class-students" style="margin-top: 25px; text-align: left; background:#f9f9f9; padding:15px; border-radius:10px; border:1px solid #ddd;">
+                            <h3 style="font-size: 0.95rem; color: #2c3e50; border-bottom: 2px solid #ecf0f1; padding-bottom: 5px; margin-top:0;">👥 Sınıftaki Öğrenciler (<span id="t-student-count" style="color:#e74c3c;">0</span>)</h3>
+                            <ul id="t-student-list" style="list-style: none; padding: 0; margin: 10px 0; max-height: 150px; overflow-y: auto; font-size:0.9rem; color:#34495e;">
+                                <li>Lütfen bekleyin...</li>
+                            </ul>
+                            <button onclick="window.refreshClassStudents()" class="outline" style="width:100%; padding:8px; font-size:0.8rem; margin-bottom:0;">🔄 Listeyi Yenile</button>
+                        </div>
+ class="outline" style="width:100%; padding:12px; font-size:0.9rem; border-radius:10px; border-color:#e74c3c; color:#e74c3c; font-weight:bold;">🗑️ Sınıfı Tamamen Sil</button>
                     </div>
                 </div>
             </div>

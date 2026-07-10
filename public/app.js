@@ -5537,3 +5537,38 @@ window.deleteTeacherClass = () => {
     }
 };
 
+
+
+// --- INJECTED TEACHER/STUDENT UI LOGIC ---
+if (typeof window !== 'undefined') {
+    window.refreshClassStudents = () => {
+        const code = document.getElementById('manage-class-select')?.value;
+        if (!code) return;
+        if (typeof socket !== 'undefined' && socket) {
+            socket.emit("getStudentsInClass", code);
+            const listContainer = document.getElementById("t-student-list");
+            if (listContainer) listContainer.innerHTML = "<li>Yükleniyor...</li>";
+        }
+    };
+
+    if (typeof socket !== 'undefined' && socket) {
+        socket.on("studentsInClassData", (students) => {
+            const listContainer = document.getElementById("t-student-list");
+            const countContainer = document.getElementById("t-student-count");
+            if (!listContainer || !countContainer) return;
+            countContainer.innerText = students.length;
+            listContainer.innerHTML = students.length === 0 
+                ? "<li>Şu an sınıfta aktif öğrenci yok.</li>"
+                : students.map(s => `<li style="padding:5px 0; border-bottom:1px solid #eee;">👤 ${s}</li>`).join("");
+        });
+        
+        socket.on("roomJoined", (roomCode) => {
+            window.studentCurrentClass = roomCode;
+            const badgeContainer = document.getElementById("student-class-badge-container");
+            if (badgeContainer) {
+                badgeContainer.innerHTML = `<div class="class-badge">🎓 Sınıf Kodunuz: ${roomCode}</div>`;
+                badgeContainer.style.display = 'block';
+            }
+        });
+    }
+}
