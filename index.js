@@ -583,9 +583,9 @@ io.on("connection", (socket) => {
         writeClasses(classes);
         
         // Hoca için listeyi tazele
-        const myClasses = {};
-        for (const c in classes) { if (classes[c].teacher === safeTeacherEmail) myClasses[c] = classes[c]; }
-        socket.emit("teacherClassesData", myClasses);
+        const myClassesArray = [];
+        for (const c in classes) { if (classes[c].teacher === safeTeacherEmail) myClassesArray.push({ code: c, ...classes[c] }); }
+        socket.emit("teacherClassesData", myClassesArray);
         socket.emit("classCreated", classCode);
     });
 
@@ -599,9 +599,9 @@ io.on("connection", (socket) => {
             classes[safeOldCode].name = safeNewName;
             writeClasses(classes);
             socket.emit("successMsg", "Sınıf adı başarıyla güncellendi.");
-            const myClasses = {};
-            for (const c in classes) { if (classes[c].teacher === currentUser(socket).email) myClasses[c] = classes[c]; }
-            socket.emit("teacherClassesData", myClasses);
+            const myClassesArray = [];
+        for (const c in classes) { if (classes[c].teacher === currentUser(socket).email) myClassesArray.push({ code: c, ...classes[c] }); }
+        socket.emit("teacherClassesData", myClassesArray);
         }
     });
 
@@ -635,9 +635,9 @@ io.on("connection", (socket) => {
             }
 
             socket.emit("successMsg", "Sınıf kalıcı olarak silindi.");
-            const myClasses = {};
-            for (const c in classes) { if (classes[c].teacher === currentUser(socket).email) myClasses[c] = classes[c]; }
-            socket.emit("teacherClassesData", myClasses);
+            const myClassesArray = [];
+        for (const c in classes) { if (classes[c].teacher === currentUser(socket).email) myClassesArray.push({ code: c, ...classes[c] }); }
+        socket.emit("teacherClassesData", myClassesArray);
         }
     });
 
@@ -658,9 +658,9 @@ io.on("connection", (socket) => {
         writeClasses(classes);
         socket.emit("classCreated", classCode);
         socket.emit("teacherClassFound", classCode);
-        const myClasses = {};
-        for (const c in classes) { if (classes[c].teacher === safeTeacherEmail) myClasses[c] = classes[c]; }
-        socket.emit("teacherClassesData", myClasses);
+        const myClassesArray = [];
+        for (const c in classes) { if (classes[c].teacher === safeTeacherEmail) myClassesArray.push({ code: c, ...classes[c] }); }
+        socket.emit("teacherClassesData", myClassesArray);
     });
 
     // 🚨 ADIM 2: HOCANIN SINIFLARINI GETİRME 🚨
@@ -670,9 +670,9 @@ io.on("connection", (socket) => {
         const userEmail = sanitizeString(currentUser(socket).email, 200);
         const requestedEmail = sanitizeString(email, 200);
         const targetEmail = userEmail || requestedEmail;
-        const myClasses = {};
-        for (const c in classes) { if (classes[c].teacher === targetEmail) myClasses[c] = classes[c]; }
-        socket.emit("teacherClassesData", myClasses);
+        const myClassesArray = [];
+        for (const c in classes) { if (classes[c].teacher === targetEmail) myClassesArray.push({ code: c, ...classes[c] }); }
+        socket.emit("teacherClassesData", myClassesArray);
     });
 
     socket.on("joinClass", ({ code, studentName }) => {
