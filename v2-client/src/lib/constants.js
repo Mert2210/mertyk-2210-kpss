@@ -20,12 +20,33 @@ export const EGITIM_SEVIYELERI = [
     ]
   },
   {
-    id: "kpss",
-    ad: "KPSS (GY-GK & Eğitim)",
+    id: "kpss_gygk",
+    ad: "KPSS (Genel Yetenek - Genel Kültür)",
     kategoriler: [
+      { id: "turkce_gy", ad: "Türkçe", konular: ["Sözcükte Anlam", "Cümlede Anlam", "Paragrafta Anlam", "Dil Bilgisi", "Sözel Mantık"] },
+      { id: "matematik_gy", ad: "Matematik", konular: ["Sayılar", "Problemler", "Kümeler", "Olasılık", "Sayısal Mantık"] },
       { id: "tarih", ad: "Tarih", konular: ["İslamiyet Öncesi", "Osmanlı", "İnkılap Tarihi"] },
       { id: "cografya", ad: "Coğrafya", konular: ["Fiziki Coğrafya", "Beşeri Coğrafya", "Ekonomik Coğrafya"] },
-      { id: "egitim", ad: "Eğitim Bilimleri", konular: ["Gelişim Psikolojisi", "Öğrenme Psikolojisi", "Rehberlik"] }
+      { id: "vatandaslik", ad: "Vatandaşlık", konular: ["Hukukun Temel Kavramları", "Anayasa Hukuku", "İdare Hukuku", "Güncel Bilgiler"] }
+    ]
+  },
+  {
+    id: "kpss_a",
+    ad: "KPSS A Grubu (Alan Bilgisi)",
+    kategoriler: [
+      { id: "hukuk", ad: "Hukuk", konular: ["Anayasa Hukuku", "İdare Hukuku", "Ceza Hukuku", "Medeni Hukuk", "Borçlar Hukuku", "Ticaret Hukuku", "İcra ve İflas Hukuku"] },
+      { id: "maliye", ad: "Maliye", konular: ["Maliye Teorisi", "Kamu Giderleri", "Kamu Gelirleri", "Devlet Bütçesi", "Vergi Hukuku"] },
+      { id: "iktisat", ad: "İktisat", konular: ["Mikro İktisat", "Makro İktisat", "Türkiye Ekonomisi", "Uluslararası İktisat"] },
+      { id: "muhasebe", ad: "Muhasebe", konular: ["Genel Muhasebe", "Maliyet Muhasebesi", "Şirketler Muhasebesi", "Muhasebe Standartları"] },
+      { id: "isletme", ad: "İşletme", konular: ["Temel Kavramlar", "Yönetim Organizasyon", "Üretim Yönetimi", "Pazarlama"] },
+      { id: "kamu_yonetimi", ad: "Kamu Yönetimi", konular: ["Siyaset Bilimi", "Yönetim Bilimi", "Kentleşme ve Çevre Sorunları"] }
+    ]
+  },
+  {
+    id: "ags",
+    ad: "AGS (Akademi Giriş Sınavı)",
+    kategoriler: [
+      { id: "ags_genel", ad: "Eğitim Akademisi Giriş", konular: ["Mesleki Eğilim", "Kavramsal Beceriler", "Okuduğunu Anlama ve Yorumlama", "Eğitimde Genel Yaklaşımlar"] }
     ]
   },
   {
