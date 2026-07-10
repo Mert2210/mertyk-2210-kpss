@@ -76,3 +76,21 @@ create policy "Users can delete own images" on storage.objects for delete using 
 -- 6. Abonelik (Premium) ve Kota Sistemi
 alter table public.profiles add column subscription_plan text default 'free';
 alter table public.profiles add column question_count integer default 0;
+
+-- 7. SİBER GÜVENLİK: Karakter Kısıtlamaları (Veritabanı Şişirme Engelleme)
+alter table public.classes drop constraint if exists classes_name_check;
+alter table public.classes add constraint classes_name_check check (char_length(name) <= 255);
+
+alter table public.questions drop constraint if exists questions_subject_check;
+alter table public.questions add constraint questions_subject_check check (char_length(subject) <= 255);
+
+-- 8. SİBER GÜVENLİK: Storage Virüs (Malware) Koruması
+-- Sadece JPEG, PNG ve WEBP formatındaki resimlerin yüklenmesine izin ver.
+drop policy if exists "Authenticated users can upload images" on storage.objects;
+create policy "Authenticated users can upload images SECURE" 
+on storage.objects for insert 
+with check (
+  bucket_id = 'question_images' 
+  and auth.role() = 'authenticated'
+  and (storage.extension(name) = 'jpg' or storage.extension(name) = 'jpeg' or storage.extension(name) = 'png' or storage.extension(name) = 'webp')
+);

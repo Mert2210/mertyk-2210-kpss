@@ -1,4 +1,22 @@
-import express from 'express';
+import os
+import json
+
+def write_file(path, content):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, 'w', encoding='utf-8') as f:
+        f.write(content)
+
+# 1. Update v2-server package.json with security packages
+with open('v2-server/package.json', 'r', encoding='utf-8') as f:
+    server_pkg = json.load(f)
+
+server_pkg['dependencies']['helmet'] = '^7.1.0'
+server_pkg['dependencies']['express-rate-limit'] = '^7.2.0'
+
+write_file('v2-server/package.json', json.dumps(server_pkg, indent=2))
+
+# 2. Update server.js with Helmet and Rate Limit
+server_js = """import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
@@ -76,3 +94,30 @@ const PORT = process.env.PORT || 3000;
 httpServer.listen(PORT, () => {
   console.log(`🚀 V2 Ultimate Server running securely on port ${PORT}`);
 });
+"""
+write_file('v2-server/server.js', server_js)
+
+# 3. Update supabase_schema.sql for Storage Security
+schema_append = """
+-- 7. SİBER GÜVENLİK: Karakter Kısıtlamaları (Veritabanı Şişirme Engelleme)
+alter table public.classes drop constraint if exists classes_name_check;
+alter table public.classes add constraint classes_name_check check (char_length(name) <= 255);
+
+alter table public.questions drop constraint if exists questions_subject_check;
+alter table public.questions add constraint questions_subject_check check (char_length(subject) <= 255);
+
+-- 8. SİBER GÜVENLİK: Storage Virüs (Malware) Koruması
+-- Sadece JPEG, PNG ve WEBP formatındaki resimlerin yüklenmesine izin ver.
+drop policy if exists "Authenticated users can upload images" on storage.objects;
+create policy "Authenticated users can upload images SECURE" 
+on storage.objects for insert 
+with check (
+  bucket_id = 'question_images' 
+  and auth.role() = 'authenticated'
+  and (storage.extension(name) = 'jpg' or storage.extension(name) = 'jpeg' or storage.extension(name) = 'png' or storage.extension(name) = 'webp')
+);
+"""
+with open('v2-server/supabase_schema.sql', 'a', encoding='utf-8') as f:
+    f.write(schema_append)
+
+print("Security audit fixes applied.")
