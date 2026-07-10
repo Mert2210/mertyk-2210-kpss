@@ -1,13 +1,27 @@
 import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import Login from './pages/Login';
+
+function Dashboard() {
+  return (
+    <div className="min-h-screen bg-slate-50 p-8">
+      <div className="max-w-4xl mx-auto bg-white p-6 rounded-xl shadow border border-slate-100">
+        <h1 className="text-2xl font-bold text-slate-800">Ana Panele Hoş Geldiniz</h1>
+        <p className="text-slate-600 mt-2">Bu ekran Öğretmen/Öğrenci rolüne göre şekillenecektir.</p>
+      </div>
+    </div>
+  );
+}
 
 function App() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-primary-50">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold text-primary-700 mb-4">Mertyk KPSS V2 Hazırlanıyor...</h1>
-        <p className="text-slate-600">Kurumsal mimari test ediliyor.</p>
-      </div>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
