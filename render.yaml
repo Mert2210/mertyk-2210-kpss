@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: mertyk-kpss-v2
+    env: node
+    plan: free
+    rootDir: v2-server
+    buildCommand: npm run build:client && npm install
+    startCommand: npm start
+    envVars:
+      - key: VITE_SUPABASE_URL
+        sync: false
+      - key: VITE_SUPABASE_ANON_KEY
+        sync: false

@@ -1,0 +1,43 @@
+renderLibraryTopicsScreen(safeSubject);
+    showScreen('screen-library-topics');
+};
+
+window.closeLibraryTopicsScreen = () => {
+    showScreen('screen-library-lessons');
+};
+
+window.renderLibraryTopicsScreen = (subjectName = '') => {
+    const subject = String(subjectName || '').trim();
+    const titleEl = document.getElementById('library-topics-title');
+    const listEl = document.getElementById('library-topics-list');
+    if (!listEl) return;
+    if (titleEl) titleEl.textContent = subject ? `📘 ${subject}` : '📘 Ders';
+    const filterMode = getDerslerimTopicFilterMode();
+    const savedTopicIndex = buildSavedTopicIndexForDerslerim();
+    const topicCountMap = buildTopicQuestionCountMap();
+    const newTopics = getNewQuestionTopics();
+    const allTopics = getTopicsForDerslerimSubject(subject);
+    const savedTopicsForSubject = savedTopicIndex.get(subject);
+    const topicResult = getAllowedTopicsForModalContext(allTopics, savedTopicsForSubject, filterMode, 'view');
+    const topics = Array.isArray(topicResult?.topics) ? topicResult.topics : [];
+    if (topics.length === 0) {
+        listEl.innerHTML = '<p class="derslerim-empty-text">Bu derste konu bulunamadı.</p>';
+        return;
+    }
+    const subjectCounts = topicCountMap.get(subject);
+    listEl.innerHTML = topics.map((topic) => {
+        const encodedSubject = encodeURIComponent(subject);
+        const encodedTopic = encodeURIComponent(topic);
+        const addQuestionLabel = `${subject} - ${topic} konusuna soru ekle`;
+        const topicCount = subjectCounts ? (subjectCounts.get(topic) || 0) : 0;
+        const isNew = newTopics.has(`${subject}${TOPIC_KEY_DELIMITER}${topic}`);
+        const countBadge = topicCount > 0 ? ` <span class="topic-count-badge">(${topicCount})</span>` : '';
+        const newDot = isNew ? `<span class="topic-new-dot" title="Yeni soru eklendi"></span>` : '';
+        return `<div class="library-lessons-topic-row">
+                    <button type="button" class="derslerim-topic-btn" onclick="window.openLibraryTopicFromDerslerimEncoded('${encodedSubject}', '${encodedTopic}')">📄 ${escapeHtml(topic)}${countBadge}${newDot}</button>
+                    <button
+                        type="button"
+                        class="green library-lessons-topic-add-btn"
+                        onclick="window.openSmartAddForTopicEncoded('${encodedSubject}', '${encodedTopic}')"
+                        aria-label="${escapeHtml(addQuestionLabel)}"
+                        title="${escapeHtml(

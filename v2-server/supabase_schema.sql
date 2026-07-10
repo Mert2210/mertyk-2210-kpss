@@ -59,3 +59,16 @@ create policy "Teachers can insert classes" on classes for insert with check (au
 create policy "Users can view own questions" on questions for select using (auth.uid() = user_id);
 create policy "Users can insert own questions" on questions for insert with check (auth.uid() = user_id);
 create policy "Users can update own questions" on questions for update using (auth.uid() = user_id);
+
+-- 5. Storage (Depolama Kovası) Ayarları (Görseller için)
+-- Eğer bucket yoksa oluştur
+insert into storage.buckets (id, name, public) 
+values ('question_images', 'question_images', true)
+on conflict (id) do nothing;
+
+-- Herkes görsel okuyabilir
+create policy "Anyone can read images" on storage.objects for select using (bucket_id = 'question_images');
+-- Sadece giriş yapanlar görsel yükleyebilir
+create policy "Authenticated users can upload images" on storage.objects for insert with check (bucket_id = 'question_images' and auth.role() = 'authenticated');
+-- Sadece yükleyen kendi görselini silebilir
+create policy "Users can delete own images" on storage.objects for delete using (bucket_id = 'question_images' and auth.uid() = owner);

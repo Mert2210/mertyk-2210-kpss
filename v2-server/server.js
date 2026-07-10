@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { initializeSockets } from './sockets/index.js';
+import { initializeCronJobs } from './cron/reminderJob.js';
 
 dotenv.config();
 
@@ -24,23 +25,24 @@ const io = new Server(httpServer, {
 app.use(cors());
 app.use(express.json());
 
-// API Rotaları (Örnek)
+// API Rotaları
 app.get('/api/health', (req, res) => {
   res.json({ status: 'V2 Ultimate Server is running perfectly!' });
 });
 
-// React Ön Yüzü Sunma (Monorepo Entegrasyonu)
-// V2-Client build edildikten sonra 'dist' klasörünü sunar
+// React Ön Yüzü Sunma
 const clientBuildPath = path.join(__dirname, '../v2-client/dist');
 app.use(express.static(clientBuildPath));
 
-// React Router'ın çalışması için her isteği index.html'e yönlendir
 app.get('*', (req, res) => {
   res.sendFile(path.join(clientBuildPath, 'index.html'));
 });
 
-// Socket.io Başlatma
+// Soketleri Başlat
 initializeSockets(io);
+
+// Gece Yarısı Hatırlatma Motorunu Başlat
+initializeCronJobs();
 
 const PORT = process.env.PORT || 3000;
 httpServer.listen(PORT, () => {
