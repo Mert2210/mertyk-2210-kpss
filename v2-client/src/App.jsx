@@ -9,6 +9,7 @@ import QuizRoom from './pages/QuizRoom';
 import StudentLibrary from './pages/StudentLibrary';
 import StudentAddQuestion from './pages/StudentAddQuestion';
 import StudentAnalytics from './pages/StudentAnalytics';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
@@ -16,18 +17,27 @@ function App() {
       <Routes>
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/unauthorized" element={<div className="p-10 text-center text-red-500 font-bold">Yetkiniz Yok! (Güvenlik Duvarı)</div>} />
         
+        {/* YÖNETİCİ (Admin) Paneli */}
+        <Route path="/admin" element={
+          <ProtectedRoute allowedRole="admin">
+            <div className="p-10 font-bold text-2xl">Mertyk KPSS - Kurucu Yönetici Paneli</div>
+          </ProtectedRoute>
+        } />
+
         {/* Öğretmen Rotaları */}
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/class/:id" element={<ClassDetail />} />
-        <Route path="/teacher/add-question" element={<TeacherAddQuestion />} />
+        <Route path="/dashboard" element={<ProtectedRoute allowedRole="teacher"><Dashboard /></ProtectedRoute>} />
+        <Route path="/class/:id" element={<ProtectedRoute allowedRole="teacher"><ClassDetail /></ProtectedRoute>} />
+        <Route path="/teacher/add-question" element={<ProtectedRoute allowedRole="teacher"><TeacherAddQuestion /></ProtectedRoute>} />
         
         {/* Öğrenci Rotaları */}
-        <Route path="/student" element={<StudentDashboard />} />
-        <Route path="/student/library" element={<StudentLibrary />} />
-        <Route path="/student/add-question" element={<StudentAddQuestion />} />
-        <Route path="/student/analytics" element={<StudentAnalytics />} />
-        <Route path="/room/:code" element={<QuizRoom />} />
+        <Route path="/student" element={<ProtectedRoute allowedRole="student"><StudentDashboard /></ProtectedRoute>} />
+        <Route path="/student/library" element={<ProtectedRoute allowedRole="student"><StudentLibrary /></ProtectedRoute>} />
+        <Route path="/student/add-question" element={<ProtectedRoute allowedRole="student"><StudentAddQuestion /></ProtectedRoute>} />
+        <Route path="/student/analytics" element={<ProtectedRoute allowedRole="student"><StudentAnalytics /></ProtectedRoute>} />
+        
+        <Route path="/room/:code" element={<ProtectedRoute><QuizRoom /></ProtectedRoute>} />
       </Routes>
     </BrowserRouter>
   );

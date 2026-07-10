@@ -1,4 +1,11 @@
-import React, { useState } from 'react';
+import os
+
+def write_file(path, content):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, 'w', encoding='utf-8') as f:
+        f.write(content)
+
+login_jsx = """import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LogIn, Key, Mail, Lock, CheckSquare, Square, X } from 'lucide-react';
 import { supabase } from '../lib/supabase';
@@ -136,3 +143,7 @@ export default function Login() {
     </div>
   );
 }
+"""
+write_file('v2-client/src/pages/Login.jsx', login_jsx)
+
+print("KVKK updated in Login.jsx")
