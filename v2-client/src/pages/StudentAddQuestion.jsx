@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Camera, Image as ImageIcon, Save, Calendar, Play } from 'lucide-react';
+import { ArrowLeft, Camera, Image as ImageIcon, Save, Calendar, Play, Crop, Check } from 'lucide-react';
 import { EGITIM_SEVIYELERI } from '../lib/constants';
 
 export default function StudentAddQuestion() {
@@ -11,7 +11,6 @@ export default function StudentAddQuestion() {
   // Form States
   const [seviye, setSeviye] = useState('');
   const [ders, setDers] = useState('');
-  const [konu, setKonu] = useState('');
   const [dogruCevap, setDogruCevap] = useState('');
   const [cozumLinki, setCozumLinki] = useState('');
   
@@ -22,12 +21,16 @@ export default function StudentAddQuestion() {
   const handlePhotoUpload = (e) => {
     if(e.target.files && e.target.files[0]) {
       setPhoto(URL.createObjectURL(e.target.files[0]));
-      setStep(2);
+      setStep(1.5); // Kırpma Adımı
     }
   };
 
+  const handleCropComplete = () => {
+    // Gerçekte burada react-easy-crop vb. ile resim kesilir
+    setStep(2);
+  };
+
   const handleSave = () => {
-    // Burada Supabase'e kayıt yapılacak
     alert('Soru başarıyla kütüphaneye eklendi! Hatırlatma kuruldu.');
     navigate('/student/library');
   };
@@ -39,7 +42,9 @@ export default function StudentAddQuestion() {
           <ArrowLeft className="w-6 h-6" />
         </button>
         <div className="flex-1">
-          <h1 className="font-bold text-slate-800 text-lg">Kumbaraya Soru At</h1>
+          <h1 className="font-bold text-slate-800 text-lg">
+            {step === 1.5 ? 'Soruyu Kırp' : 'Kumbaraya Soru At'}
+          </h1>
         </div>
       </header>
 
@@ -69,10 +74,36 @@ export default function StudentAddQuestion() {
           </div>
         )}
 
+        {step === 1.5 && (
+          <div className="space-y-6 animate-in fade-in zoom-in duration-300">
+            <div className="bg-slate-900 rounded-2xl overflow-hidden relative border-4 border-slate-800 h-[400px] flex items-center justify-center">
+              <img src={photo} alt="Kırpılacak Soru" className="opacity-60 max-h-full object-contain" />
+              {/* Sahte Kırpma Kutusu */}
+              <div className="absolute w-3/4 h-1/2 border-2 border-white shadow-[0_0_0_9999px_rgba(0,0,0,0.5)] z-10">
+                <div className="absolute top-0 left-0 w-4 h-4 border-t-4 border-l-4 border-primary-500 -ml-1 -mt-1"></div>
+                <div className="absolute top-0 right-0 w-4 h-4 border-t-4 border-r-4 border-primary-500 -mr-1 -mt-1"></div>
+                <div className="absolute bottom-0 left-0 w-4 h-4 border-b-4 border-l-4 border-primary-500 -ml-1 -mb-1"></div>
+                <div className="absolute bottom-0 right-0 w-4 h-4 border-b-4 border-r-4 border-primary-500 -mr-1 -mb-1"></div>
+              </div>
+            </div>
+            
+            <p className="text-center text-sm text-slate-500 font-medium">Lütfen sadece kaydetmek istediğiniz soruyu karenin içine alın.</p>
+
+            <button onClick={handleCropComplete}
+              className="w-full py-4 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-xl shadow-md transition-all flex items-center justify-center">
+              <Crop className="w-5 h-5 mr-2" />
+              Kırp ve Devam Et
+            </button>
+          </div>
+        )}
+
         {step === 2 && (
           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
-            <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-              {photo && <img src={photo} alt="Soru" className="w-full max-h-48 object-cover rounded-lg border border-slate-100" />}
+            <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 text-center relative overflow-hidden group">
+              <img src={photo} alt="Soru" className="w-full max-h-48 object-cover rounded-lg border border-slate-100" />
+              <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-xl">
+                 <button onClick={() => setStep(1.5)} className="text-white font-bold flex items-center"><Crop className="w-4 h-4 mr-1"/> Yeniden Kırp</button>
+              </div>
             </div>
 
             <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 space-y-5">

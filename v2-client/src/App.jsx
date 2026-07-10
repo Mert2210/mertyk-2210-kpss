@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import ClassDetail from './pages/ClassDetail';
+import TeacherAddQuestion from './pages/TeacherAddQuestion';
 import StudentDashboard from './pages/StudentDashboard';
 import QuizRoom from './pages/QuizRoom';
 import StudentLibrary from './pages/StudentLibrary';
@@ -18,6 +19,7 @@ function App() {
         {/* Öğretmen Rotaları */}
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/class/:id" element={<ClassDetail />} />
+        <Route path="/teacher/add-question" element={<TeacherAddQuestion />} />
         
         {/* Öğrenci Rotaları */}
         <Route path="/student" element={<StudentDashboard />} />

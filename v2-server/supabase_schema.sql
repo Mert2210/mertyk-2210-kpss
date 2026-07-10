@@ -1,0 +1,61 @@
+-- Mertyk KPSS V2 Veritabanı Şeması
+-- Bu kodları Supabase SQL Editor'e yapıştırıp çalıştırın.
+
+-- 1. Kullanıcı Profilleri Tablosu (Supabase Auth ile entegre)
+CREATE TABLE public.profiles (
+  id uuid references auth.users on delete cascade not null primary key,
+  role text check (role in ('student', 'teacher')) default 'student',
+  full_name text,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+-- 2. Öğretmen Sınıfları Tablosu
+CREATE TABLE public.classes (
+  id uuid default uuid_generate_v4() primary key,
+  teacher_id uuid references public.profiles(id) on delete cascade not null,
+  name text not null,
+  room_code text not null unique,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+-- 3. Soru Kumbarası Tablosu (Öğrenci Yanlışları veya Öğretmen Kütüphanesi)
+CREATE TABLE public.questions (
+  id uuid default uuid_generate_v4() primary key,
+  user_id uuid references public.profiles(id) on delete cascade not null,
+  image_url text not null,
+  education_level text not null,
+  subject text not null,
+  correct_answer text,
+  solution_url text,
+  reminder_date timestamp with time zone,
+  is_solved boolean default false,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+-- 4. Sınıf Öğrencileri Tablosu
+CREATE TABLE public.class_students (
+  class_id uuid references public.classes(id) on delete cascade,
+  student_id uuid references public.profiles(id) on delete cascade,
+  score integer default 0,
+  joined_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  primary key (class_id, student_id)
+);
+
+-- RLS (Row Level Security) Güvenlik Kuralları
+alter table public.profiles enable row level security;
+alter table public.classes enable row level security;
+alter table public.questions enable row level security;
+alter table public.class_students enable row level security;
+
+-- Herkes kendi profilini görebilir ve güncelleyebilir
+create policy "Users can view own profile" on profiles for select using (auth.uid() = id);
+create policy "Users can update own profile" on profiles for update using (auth.uid() = id);
+
+-- Sınıfları herkes görebilir (Oda koduyla girmek için), ama sadece öğretmenler oluşturabilir
+create policy "Anyone can view classes" on classes for select using (true);
+create policy "Teachers can insert classes" on classes for insert with check (auth.uid() = teacher_id);
+
+-- Soruları sadece oluşturan görebilir (Öğrenci kumbarası özeldir)
+create policy "Users can view own questions" on questions for select using (auth.uid() = user_id);
+create policy "Users can insert own questions" on questions for insert with check (auth.uid() = user_id);
+create policy "Users can update own questions" on questions for update using (auth.uid() = user_id);
