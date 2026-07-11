@@ -692,6 +692,21 @@ io.on("connection", (socket) => {
         }
     });
 
+    socket.on("removeClassNotificationToken", async ({ token, classCode }) => {
+        if (!admin.apps.length) return;
+        const safeToken = sanitizeString(token, 4096);
+        const safeClassCode = sanitizeString(classCode || "", 20).toUpperCase();
+        try {
+            if (safeClassCode) {
+                await admin.messaging().unsubscribeFromTopic([safeToken], safeClassCode);
+            }
+            await admin.messaging().unsubscribeFromTopic([safeToken], "gazililer_global");
+            console.log("Firebase unsubscribe başarılı");
+        } catch (e) {
+            console.error("Firebase unsubscribe hatası:", e.message);
+        }
+    });
+
     socket.on("setClassNotificationToken", async ({ token, classCode, previousClassCode }) => {
         if (!admin.apps.length) return;
         console.log("Bildirim token sunucuda alındı:", typeof token === "string" ? token.slice(0, 8) + "..." : token, classCode);

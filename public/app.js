@@ -2848,7 +2848,12 @@ window.handleNotificationToggleChange = async () => {
         if (isGodModeUser()) await subscribeAdminPushNotifications();
         window.showSoftFeedback("✅ Bildirim sistemi başarıyla açıldı.");
     } else {
-        await clearClassPushSubscription(CLIENT_STORE.getItem(NOTIFICATION_SUBSCRIPTION_CLASS_KEY) || getPreferredNotificationClassCode());
+        if (status) status.textContent = "Bildirimler kapalı.";
+        const token = await getCurrentFcmToken();
+        const classCode = getPreferredNotificationClassCode();
+        if (token && socket) {
+            socket.emit("removeClassNotificationToken", { token, classCode });
+        }
         clearStudentPushSubscription();
         if (isGodModeUser()) clearAdminPushSubscription();
         CLIENT_STORE.removeItem(NOTIFICATION_SUBSCRIPTION_CLASS_KEY);
