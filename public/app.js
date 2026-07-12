@@ -2319,12 +2319,13 @@ function checkPWAPrompts() {
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
     const isAndroid = /Android/.test(navigator.userAgent);
     const isStandalone = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
-    const isChromeIOS = navigator.userAgent.includes('CriOS') || navigator.userAgent.includes('FxiOS');
+    const isSafari = /^((?!chrome|android|crios|fxios|opt|edgios|instagram|fbav).)*safari/i.test(navigator.userAgent);
+    const isNonSafariIOS = isIOS && !isSafari;
     
     if (!isStandalone) {
-        if (isIOS && isChromeIOS) {
+        if (isNonSafariIOS) {
             document.getElementById('ios-chrome-prompt').style.display = 'flex';
-        } else if (isIOS && !isChromeIOS) {
+        } else if (isIOS && isSafari) {
             if(!CLIENT_STORE.getItem('gazi_ios_prompt')) { 
                 document.getElementById('ios-pwa-prompt').style.display = 'block'; 
             }
@@ -4291,8 +4292,9 @@ window.openReviewLibrary = () => {
 window.showInstallInstructions = () => {
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
     const isAndroid = /Android/.test(navigator.userAgent);
-    const isChromeIOS = navigator.userAgent.includes('CriOS') || navigator.userAgent.includes('FxiOS');
-    if (isIOS && isChromeIOS) {
+    const isSafari = /^((?!chrome|android|crios|fxios|opt|edgios|instagram|fbav).)*safari/i.test(navigator.userAgent);
+    const isNonSafariIOS = isIOS && !isSafari;
+    if (isNonSafariIOS) {
         document.getElementById('ios-chrome-prompt').style.display = 'flex';
     } else if (isIOS) {
         document.getElementById('ios-pwa-prompt').style.display = 'block';
