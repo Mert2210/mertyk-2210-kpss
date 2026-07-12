@@ -2467,7 +2467,8 @@ window.applyRoleBasedBottomNav = (role = ROLE_STUDENT) => {
     activeNavRole = role === ROLE_TEACHER ? ROLE_TEACHER : ROLE_STUDENT;
     CLIENT_STORE.setItem('gazi_nav_role', activeNavRole);
     document.querySelectorAll('.student-only').forEach((el) => {
-        el.style.display = activeNavRole === ROLE_STUDENT ? 'flex' : 'none';
+        const studentDisplay = el.id === 'gelisim-game-panel' ? 'block' : 'flex';
+        el.style.display = activeNavRole === ROLE_STUDENT ? studentDisplay : 'none';
     });
     document.querySelectorAll('.teacher-only').forEach((el) => {
         el.style.display = activeNavRole === ROLE_TEACHER ? 'flex' : 'none';
@@ -3236,7 +3237,7 @@ onAuthStateChanged(auth, user => {
         if (savedLibraryPanel) savedLibraryPanel.style.display = isTeacher ? "none" : "block";
         if (mainQuickActions) mainQuickActions.style.display = isTeacher ? "none" : "flex";
         if (mainSavedLibraryPanel) mainSavedLibraryPanel.style.display = isTeacher ? "none" : "block";
-        if (gelisimGamePanel) gelisimGamePanel.style.display = isTeacher ? "none" : "flex";
+        if (gelisimGamePanel) gelisimGamePanel.style.display = isTeacher ? "none" : "block";
         if (adminBtn) adminBtn.style.display = isAdmin ? "block" : "none";
         if (adminApproveBtn) adminApproveBtn.style.display = isAdmin ? "block" : "none";
         window.applyRoleBasedBottomNav(isTeacher ? ROLE_TEACHER : ROLE_STUDENT);
@@ -5529,4 +5530,3 @@ window.deleteTeacherClass = () => {
         document.getElementById('manage-class-select').value = "";
     }
 };
-
