@@ -4,7 +4,7 @@ const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
 
-const { PUBLIC_ASSET_ROUTES, resolvePublicFile, registerCoreStaticRoutes } = require("./static-routes");
+const { PUBLIC_ASSET_ROUTES, resolvePublicFile, getCoreStaticFileMap } = require("./static-routes");
 
 function withTempDir(run) {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), "static-routes-test-"));
@@ -38,24 +38,20 @@ test("resolvePublicFile public altında yoksa kök dizine düşer", () => {
     });
 });
 
-test("registerCoreStaticRoutes kök ve varlık route'larını bağlar", () => {
-    const routes = [];
-    const app = {
-        get(route, limiter, handler) {
-            routes.push({ route, limiter, handler });
-        }
-    };
-    const limiter = Symbol("limiter");
-    const baseDir = "/repo";
+test("getCoreStaticFileMap kök ve varlık yollarını route bazında döndürür", () => {
+    withTempDir((dir) => {
+        const publicDir = path.join(dir, "public");
+        fs.mkdirSync(publicDir, { recursive: true });
+        fs.writeFileSync(path.join(publicDir, "index.html"), "public-index");
+        PUBLIC_ASSET_ROUTES.forEach(({ filename }) => {
+        fs.writeFileSync(path.join(publicDir, filename), "asset");
+        });
 
-    registerCoreStaticRoutes({ app, limiter, baseDir });
-
-    assert.equal(routes.length, 1 + PUBLIC_ASSET_ROUTES.length);
-    assert.equal(routes[0].route, "/");
-    assert.equal(routes[0].limiter, limiter);
-    assert.deepEqual(
-        routes.slice(1).map((item) => item.route),
+        const staticFileMap = getCoreStaticFileMap(dir);
+        assert.equal(staticFileMap.root, path.join(publicDir, "index.html"));
+        assert.deepEqual(
+        Array.from(staticFileMap.assetsByRoute.keys()),
         PUBLIC_ASSET_ROUTES.map((item) => item.route)
-    );
+        );
+    });
 });
-

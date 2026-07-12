@@ -18,7 +18,7 @@ const { sanitizeString, isValidImageDataUrl, isTeacherRole, isAdminRole, sanitiz
 const { calculateEarnedPoints, calculateNextReviewDate } = require("./services/game-rules");
 const { optimizeImageDataUrl } = require("./services/image-optimization");
 const { getMetricsSummary } = require("./services/optimization-metrics");
-const { registerCoreStaticRoutes } = require("./services/static-routes");
+const { PUBLIC_ASSET_ROUTES, getCoreStaticFileMap } = require("./services/static-routes");
 
 const app = express();
 app.set('trust proxy', 1);
@@ -81,10 +81,14 @@ if (serviceAccount) {
 }
 const db = admin.apps.length ? admin.firestore() : null;
 
-registerCoreStaticRoutes({
-    app,
-    limiter: staticFileLimiter,
-    baseDir: __dirname
+const staticFiles = getCoreStaticFileMap(__dirname);
+app.get('/', staticFileLimiter, (req, res) => {
+    res.sendFile(staticFiles.root);
+});
+PUBLIC_ASSET_ROUTES.forEach(({ route }) => {
+    app.get(route, staticFileLimiter, (req, res) => {
+        res.sendFile(staticFiles.assetsByRoute.get(route));
+    });
 });
 
 app.get('/app-config', staticFileLimiter, (req, res) => {

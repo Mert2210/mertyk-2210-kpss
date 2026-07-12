@@ -13,20 +13,17 @@ function resolvePublicFile(baseDir, filename) {
     return fs.existsSync(publicPath) ? publicPath : path.join(baseDir, filename);
 }
 
-function registerCoreStaticRoutes({ app, limiter, baseDir }) {
-    app.get("/", limiter, (req, res) => {
-        res.sendFile(resolvePublicFile(baseDir, "index.html"));
-    });
-
-    PUBLIC_ASSET_ROUTES.forEach(({ route, filename }) => {
-        app.get(route, limiter, (req, res) => {
-            res.sendFile(resolvePublicFile(baseDir, filename));
-        });
-    });
+function getCoreStaticFileMap(baseDir) {
+    return {
+        root: resolvePublicFile(baseDir, "index.html"),
+        assetsByRoute: new Map(
+            PUBLIC_ASSET_ROUTES.map(({ route, filename }) => [route, resolvePublicFile(baseDir, filename)])
+        )
+    };
 }
 
 module.exports = {
     PUBLIC_ASSET_ROUTES,
     resolvePublicFile,
-    registerCoreStaticRoutes
+    getCoreStaticFileMap
 };
