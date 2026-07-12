@@ -18,6 +18,7 @@ const { sanitizeString, isValidImageDataUrl, isTeacherRole, isAdminRole, sanitiz
 const { calculateEarnedPoints, calculateNextReviewDate } = require("./services/game-rules");
 const { optimizeImageDataUrl } = require("./services/image-optimization");
 const { getMetricsSummary } = require("./services/optimization-metrics");
+const { PUBLIC_ASSET_ROUTES, getCoreStaticFileMap } = require("./services/static-routes");
 
 const app = express();
 app.set('trust proxy', 1);
@@ -80,26 +81,15 @@ if (serviceAccount) {
 }
 const db = admin.apps.length ? admin.firestore() : null;
 
-/**
- * Verilen dosya adını önce `public/` altında, bulamazsa proje kök dizininde arar.
- * Tekrarlanan `fs.existsSync` + `path.join` kalıplarını tek noktada toplar.
- * @param {string} filename
- * @returns {string} Tam dosya yolu
- */
-function resolvePublicFile(filename) {
-    const publicPath = path.join(__dirname, 'public', filename);
-    return fs.existsSync(publicPath) ? publicPath : path.join(__dirname, filename);
-}
-
+const staticFiles = getCoreStaticFileMap(__dirname);
 app.get('/', staticFileLimiter, (req, res) => {
-    res.sendFile(resolvePublicFile('index.html'));
+    res.sendFile(staticFiles.root);
 });
-
-// UYGULAMA İKON VE MANIFEST YÖNLENDİRMELERİ
-app.get('/icon-192.png', staticFileLimiter, (req, res) => { res.sendFile(resolvePublicFile('icon-192.png')); });
-app.get('/icon-512.png', staticFileLimiter, (req, res) => { res.sendFile(resolvePublicFile('icon-512.png')); });
-app.get('/logo-square.png', staticFileLimiter, (req, res) => { res.sendFile(resolvePublicFile('logo-square.png')); });
-app.get('/manifest.json', staticFileLimiter, (req, res) => { res.sendFile(resolvePublicFile('manifest.json')); });
+PUBLIC_ASSET_ROUTES.forEach(({ route }) => {
+    app.get(route, staticFileLimiter, (req, res) => {
+        res.sendFile(staticFiles.assetsByRoute.get(route));
+    });
+});
 
 app.get('/app-config', staticFileLimiter, (req, res) => {
     res.json({
