@@ -211,8 +211,8 @@
     <div id="student-class-badge-container" style="text-align: center; margin-bottom: 10px; display: none;"></div>
         <div class="ui-topbar">
             <button onclick="logout()" class="outline ui-btn-compact" style="width:auto;">⬅️ Çıkış</button>
-            <button id="pwa-install-btn" onclick="installPWA()" class="green ui-btn-compact" style="display:none; width:auto;">📲 Uygulamayı İndir</button>
-            <button onclick="showInstallInstructions()" class="outline ui-btn-compact" style="width:auto; border-color:#3498db; color:#3498db;">📲 Nasıl İndiririm?</button>
+            <button id="pwa-install-btn" onclick="installPWA()" class="green ui-btn-compact" style="display:none; width:auto; font-weight:bold; font-size:0.9rem; border:2px solid #27ae60; background:linear-gradient(135deg, #2ecc71, #27ae60);">📥 UYGULAMAYI YÜKLE</button>
+            <button onclick="showInstallInstructions()" class="outline ui-btn-compact" style="width:auto; border-color:#3498db; color:#3498db; font-weight:bold; font-size:0.9rem;">📲 Kurulum Rehberi</button>
         </div>
 
         <h2 id="display-user" class="screen-primary-title">Hoş Geldin!</h2>
@@ -227,6 +227,25 @@
 
         <!-- ===== TEACHER DASHBOARD PANEL (shown only for teachers) ===== -->
         <div id="teacher-main-panel" style="display:none;">
+            <!-- Super Admin Özel Araçlar -->
+            <div id="super-admin-tools" style="display:none; background:rgba(46, 204, 113, 0.2); padding:12px; border-radius:10px; margin-bottom:15px; border:1px solid rgba(46, 204, 113, 0.4);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <label style="font-size:0.85rem; font-weight:bold; color:#2ecc71; margin:0;">👑 Süper Admin Araçları</label>
+                </div>
+                <div style="font-size:0.75rem; color:#fff; margin-bottom:10px;">
+                    10.000 soruluk Taranmış PDF'leri yapay zeka ile otomatik tarayıp sisteme ekleyin.
+                </div>
+                <input type="file" id="pdf-upload-input" accept="application/pdf" style="display:none;">
+                <button onclick="document.getElementById('pdf-upload-input').click()" class="green" style="width:100%; font-size:0.85rem; font-weight:bold; border-radius:8px; padding:10px; background:linear-gradient(135deg, #27ae60, #2ecc71);">📄 Taranmış PDF Yükle ve Tara</button>
+                
+                <div id="pdf-progress-container" style="display:none; margin-top:10px;">
+                    <div style="font-size:0.75rem; color:#f1c40f; font-weight:bold; margin-bottom:5px;" id="pdf-progress-text">PDF Yükleniyor...</div>
+                    <div style="width:100%; background:#2c3e50; border-radius:5px; height:8px; overflow:hidden;">
+                        <div id="pdf-progress-bar" style="width:0%; height:100%; background:#f1c40f; transition:width 0.3s;"></div>
+                    </div>
+                </div>
+            </div>
+
             <div class="content-card teacher-dash-card">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                     <h4 style="margin:0; color:#fff; font-size:0.95rem;">🏫 Sınıflarım</h4>
@@ -496,24 +515,7 @@
                 </div>
             </div>
 
-            <!-- Super Admin Özel Araçlar -->
-            <div id="super-admin-tools" style="display:none; background:rgba(46, 204, 113, 0.2); padding:12px; border-radius:10px; margin-bottom:15px; border:1px solid rgba(46, 204, 113, 0.4);">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                    <label style="font-size:0.85rem; font-weight:bold; color:#2ecc71; margin:0;">👑 Süper Admin Araçları</label>
-                </div>
-                <div style="font-size:0.75rem; color:#fff; margin-bottom:10px;">
-                    10.000 soruluk Taranmış PDF'leri yapay zeka ile otomatik tarayıp sisteme ekleyin.
-                </div>
-                <input type="file" id="pdf-upload-input" accept="application/pdf" style="display:none;">
-                <button onclick="document.getElementById('pdf-upload-input').click()" class="green" style="width:100%; font-size:0.85rem; font-weight:bold; border-radius:8px; padding:10px;">📄 Taranmış PDF Yükle ve Tara</button>
-                
-                <div id="pdf-progress-container" style="display:none; margin-top:10px;">
-                    <div style="font-size:0.75rem; color:#f1c40f; font-weight:bold; margin-bottom:5px;" id="pdf-progress-text">PDF Yükleniyor...</div>
-                    <div style="width:100%; background:#2c3e50; border-radius:5px; height:8px; overflow:hidden;">
-                        <div id="pdf-progress-bar" style="width:0%; height:100%; background:#f1c40f; transition:width 0.3s;"></div>
-                    </div>
-                </div>
-            </div>
+
 
             <div style="background:rgba(255,255,255,0.1); padding:12px; border-radius:10px; margin-bottom:15px; border:1px solid rgba(255,255,255,0.2);">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; cursor:pointer;" onclick="toggleSection('rapor-body')">
@@ -1021,6 +1023,17 @@ setTimeout(() => {
     }
 </script>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+<script>
+    // iOS Chrome Uyarı Scripti
+    (function() {
+        var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        var isChrome = navigator.userAgent.match('CriOS');
+        if (isIOS && isChrome) {
+            alert("⚠️ İOS cihazlarda (iPhone) tam ekran kullanmak ve bildirim almak için lütfen Safari tarayıcısına geçin. Apple, Chrome'da bu özellikleri kısıtlamaktadır.");
+        }
+    })();
+</script>
 
 </body>
 </html>
