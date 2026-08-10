@@ -3447,7 +3447,7 @@ let socket;
 try { socket = io(); } catch(e) { console.warn("Socket sunucusu yok."); }
 
 let currentMode = "room", myRoom = "", currentQIndex = 0, qInt = null, totalInt = null, trialQuestions = [], trialAnswers = [];
-let roomSolvedIndices = new Set(), roomTotalQuestions = 0;
+let roomSolvedIndices = new Set(), roomCorrectIndices = new Set(), roomWrongIndices = new Set(), roomTotalQuestions = 0;
 let currentQObject = null, currentListType = "", selectedTimerMode = "question";
 let uploadedImageBase64 = null; let uploadedSolutionBase64 = null; 
 let stdUploadedImageBase64 = null; let stdSolutionBase64 = null; let stdSourceImageBase64 = null;
@@ -5175,7 +5175,7 @@ if(socket) {
         if(d.timerMode === 'general' && d.index === 1) startTotalTimer(d.duration); 
         if(d.timerMode === 'question') startQuestionTimer(d.duration);
         
-        if(d.index === 1) { roomSolvedIndices = new Set(); roomTotalQuestions = d.total; openMap(); }
+        if(d.index === 1) { roomSolvedIndices = new Set(); roomCorrectIndices = new Set(); roomWrongIndices = new Set(); roomTotalQuestions = d.total; openMap(); }
         renderNavigator(d.total, currentQIndex, 'room');
         
         d.siklar.forEach((s, i) => {
@@ -5193,8 +5193,15 @@ if(socket) {
     });
 
     socket.on('answerResult', data => { 
+        if (data.correct) {
+            roomCorrectIndices.add(currentQIndex);
+            roomWrongIndices.delete(currentQIndex);
+        } else {
+            roomWrongIndices.add(currentQIndex);
+            roomCorrectIndices.delete(currentQIndex);
+        }
         if (!roomSolvedIndices.has(currentQIndex)) roomSolvedIndices.add(currentQIndex);
-        renderQuestionMap(roomTotalQuestions, currentQIndex, roomSolvedIndices);
+        renderQuestionMap(roomTotalQuestions, currentQIndex, roomSolvedIndices, roomCorrectIndices, roomWrongIndices);
         
         const btns = document.querySelectorAll('#opts-area .opt-btn');
         if (data.selectedIndex >= 0 && data.selectedIndex < btns.length) {
@@ -5378,17 +5385,21 @@ function openMap() {
     if (arrow) arrow.textContent = '▲';
 }
 
-function renderQuestionMap(totalQuestions, currentIndex, solvedArray) {
+function renderQuestionMap(totalQuestions, currentIndex, solvedArray, correctSet, wrongSet) {
     const div = document.getElementById('question-map-content');
     if (!div) return;
     div.innerHTML = '';
     const solved = solvedArray instanceof Set ? solvedArray : new Set(solvedArray);
+    const correct = correctSet instanceof Set ? correctSet : new Set(correctSet || []);
+    const wrong = wrongSet instanceof Set ? wrongSet : new Set(wrongSet || []);
     for (let i = 0; i < totalQuestions; i++) {
         const b = document.createElement('div');
         b.className = 'q-box';
         b.innerText = i + 1;
         b.title = `Soru ${i + 1}`;
-        if (solved.has(i)) b.classList.add('solved');
+        if (correct.has(i)) b.classList.add('solved');
+        else if (wrong.has(i)) b.classList.add('wrong-answer');
+        else if (solved.has(i)) b.classList.add('solved');
         if (i === currentIndex) b.classList.add('active');
         b.onclick = () => { if (currentMode !== 'trial') return; currentQIndex = i; renderTrialQuestion(); };
         div.appendChild(b);
@@ -5399,7 +5410,18 @@ function renderNavigator(total, curr, mode) {
     const solved = mode === 'trial'
         ? trialAnswers.reduce((acc, v, i) => { if (v !== null) acc.add(i); return acc; }, new Set())
         : roomSolvedIndices;
-    renderQuestionMap(total, curr, solved);
+    if (mode === 'trial') {
+        const correctSet = new Set();
+        const wrongSet = new Set();
+        trialAnswers.forEach((ans, i) => {
+            if (ans === null) return;
+            if (trialQuestions[i] && ans === trialQuestions[i].dogru) correctSet.add(i);
+            else wrongSet.add(i);
+        });
+        renderQuestionMap(total, curr, solved, correctSet, wrongSet);
+    } else {
+        renderQuestionMap(total, curr, solved, roomCorrectIndices, roomWrongIndices);
+    }
 }
 
 // Soru çözme klavye kısayolları (A, B, C, D, E)

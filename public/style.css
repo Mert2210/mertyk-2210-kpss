@@ -1,4 +1,4 @@
-﻿@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 * { box-sizing: border-box; }
 
@@ -902,6 +902,7 @@ input[type="checkbox"] { width: auto !important; margin: 0 10px 0 0 !important; 
 .map-accordion { width: 100%; text-align: center; }
 .q-box { width: 35px; height: 35px; display: flex; justify-content: center; align-items: center; background: #95a5a6; border-radius: 6px; margin: 3px; font-size: 0.85rem; font-weight: bold; color: #fff; cursor: pointer; transition: transform 0.15s; }
 .q-box.solved { background: #27ae60; }
+.q-box.wrong-answer { background: #e74c3c; }
 .q-box.active { background: #2980b9; transform: scale(1.1); }
 #question-map-content { flex-wrap: wrap; gap: 4px; padding: 8px; background: #f0f4f8; overflow-x: hidden; }
 

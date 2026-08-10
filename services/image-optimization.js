@@ -21,10 +21,10 @@ const SUPPORTED_FORMATS = ['jpeg', 'png', 'webp'];
  * Soru/çözüm görselleri için dengeli kalite/boyut oranı hedefler.
  */
 const DEFAULT_OPTIONS = Object.freeze({
-    maxWidth: 1280,
-    quality: 80,
+    maxWidth: 1024,
+    quality: 75,
     format: 'jpeg',
-    targetBytes: 600 * 1024
+    targetBytes: 300 * 1024
 });
 
 /**

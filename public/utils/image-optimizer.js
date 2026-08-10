@@ -14,27 +14,27 @@
 
 /** Soru/çözüm görselleri için varsayılan optimizasyon ayarları */
 export const IMAGE_OPTIMIZER_DEFAULT_CONFIG = Object.freeze({
-    maxWidth: 1280,
-    minWidth: 720,
-    /** Hedef dosya boyutu (byte). Ortalama ~220 KB → bulut kotasını korur. */
-    targetBytes: 220 * 1024,
-    initialQuality: 0.82,
-    minQuality: 0.68,
+    maxWidth: 1024,
+    minWidth: 480,
+    /** Hedef dosya boyutu (byte). ~150 KB → telefon depolama ve yükleme hızı için optimize. */
+    targetBytes: 150 * 1024,
+    initialQuality: 0.75,
+    minQuality: 0.55,
     qualityStep: 0.04,
     scaleStep: 0.9,
-    maxAttempts: 14,
+    maxAttempts: 18,
 });
 
 /** Kaynakça görselleri için (genellikle metin ağırlıklı → daha küçük hedef) */
 export const SOURCE_IMAGE_OPTIMIZER_CONFIG = Object.freeze({
-    maxWidth: 1100,
-    minWidth: 720,
-    targetBytes: 170 * 1024,
-    initialQuality: 0.82,
-    minQuality: 0.68,
+    maxWidth: 900,
+    minWidth: 480,
+    targetBytes: 120 * 1024,
+    initialQuality: 0.75,
+    minQuality: 0.55,
     qualityStep: 0.04,
     scaleStep: 0.9,
-    maxAttempts: 14,
+    maxAttempts: 18,
 });
 
 // ---------------------------------------------------------------------------
