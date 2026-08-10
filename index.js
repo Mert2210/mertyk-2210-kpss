@@ -886,8 +886,8 @@ JSON Formatı:
     "soru": "Soru metni buraya",
     "siklar": ["A şıkkı metni", "B şıkkı", "C şıkkı", "D şıkkı", "E şıkkı"],
     "dogru": 0, // A ise 0, B ise 1, C ise 2...
-    "ders": "Tarih", // Konuyu tahmin et
-    "deneme": "Sistem Üretimi"
+    "ders": "TARİH", // Ana dersi tahmin et (TÜRKÇE, MATEMATİK, TARİH, COĞRAFYA, VATANDAŞLIK vb.)
+    "deneme": "Kurtuluş Savaşı" // Sorunun tam KPSS alt konusunu tahmin et (Örn: Üslü Sayılar, Cümlede Anlam, Osmanlı Dağılma Dönemi vb.)
   }
 ]
 
