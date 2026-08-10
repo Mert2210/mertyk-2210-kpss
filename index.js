@@ -159,6 +159,32 @@ function sorulariYukle() {
 }
 sorulariYukle();
 
+// YENİ: Render sunucusu uyandığında questions.json sıfırlanabildiği için, veritabanından eksik soruları çek
+async function syncFirestore() {
+    if (db) {
+        try {
+            console.log("Firestore'dan yedek sorular çekiliyor...");
+            const snap = await db.collection("kpss_sorular").get();
+            let eklendi = 0;
+            snap.forEach(doc => {
+                const q = doc.data();
+                if (!tumSorular.some(e => e.id === q.id || e.soru === q.soru)) {
+                    tumSorular.push(q);
+                    eklendi++;
+                }
+            });
+            if (eklendi > 0) {
+                console.log(`Veritabanından ${eklendi} soru kurtarıldı!`);
+                writeJsonFile(QUESTIONS_FILE, tumSorular);
+                if (cachedFiltersData) cachedFiltersData = getFiltersData(tumSorular);
+            }
+        } catch (e) {
+            console.error("Kurtarma hatası:", e);
+        }
+    }
+}
+syncFirestore();
+
 const rooms = {};
 
 // ⚡ Bolt Optimization: getFiltersData Caching
