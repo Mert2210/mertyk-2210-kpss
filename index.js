@@ -868,6 +868,72 @@ io.on("connection", (socket) => {
         }
     });
 
+    socket.on("processPdfTextToQuestions", async ({ text, classCode }, callback) => {
+        const userEmail = currentUser(socket).email;
+        if (!userEmail || userEmail.toLowerCase() !== ROOT_ADMIN_EMAIL) {
+            if(callback) callback({ error: "Sadece Süper Admin PDF yükleyebilir." });
+            return;
+        }
+
+        try {
+            const prompt = `Aşağıdaki metin taranmış bir KPSS testinden optik karakter tanıma (OCR) ile çıkarılmıştır.
+Metin içinde birden fazla soru olabilir. Lütfen her soruyu tespit et, şıklarını (A, B, C, D, E) ayır, doğru cevabı mantıken bulmaya çalış ve aşağıdaki JSON DİZİSİ formatında döndür.
+YALNIZCA GEÇERLİ JSON DÖNDÜR, BAŞKA HİÇBİR AÇIKLAMA YAZMA.
+
+JSON Formatı:
+[
+  {
+    "soru": "Soru metni buraya",
+    "siklar": ["A şıkkı metni", "B şıkkı", "C şıkkı", "D şıkkı", "E şıkkı"],
+    "dogru": 0, // A ise 0, B ise 1, C ise 2...
+    "ders": "Tarih", // Konuyu tahmin et
+    "deneme": "Sistem Üretimi"
+  }
+]
+
+Metin:
+${text}`;
+
+            const result = await aiModel.generateContent(prompt);
+            const aiText = result.response.text();
+            
+            // Clean markdown JSON ticks if any
+            let cleanJson = aiText.replace(/```json/g, "").replace(/```/g, "").trim();
+            const questionsArray = JSON.parse(cleanJson);
+            
+            let addedCount = 0;
+            const classes = readClasses();
+            const safeClassCode = sanitizeString(classCode || "GENEL", 20).toUpperCase();
+            
+            for (const q of questionsArray) {
+                const safeQ = {
+                    id: generateUniqueQuestionId(),
+                    soru: sanitizeString(q.soru, 10000),
+                    siklar: q.siklar || ["A","B","C","D","E"],
+                    dogru: typeof q.dogru === 'number' ? q.dogru : 0,
+                    classCode: safeClassCode,
+                    ders: sanitizeString(q.ders || "GENEL", 60).toUpperCase(),
+                    deneme: sanitizeString(q.deneme || "PDF Yüklemesi", 200),
+                    image: null,
+                    solutionText: "",
+                    solutionImage: null
+                };
+                tumSorular.push(safeQ);
+                if (db) { try { await db.collection("kpss_sorular").add({ ...safeQ, createdAt: admin.firestore.FieldValue.serverTimestamp() }); } catch (e) {} }
+                addedCount++;
+            }
+            
+            writeJsonFile(QUESTIONS_FILE, tumSorular);
+            listeleriHerkesinEkranindaGuncelle();
+            
+            if(callback) callback({ success: true, addedCount });
+            
+        } catch (error) {
+            console.error("Gemini PDF İşleme Hatası:", error);
+            if(callback) callback({ error: "Yapay zeka metni işleyemedi: " + error.message });
+        }
+    });
+
     socket.on("addNewQuestion", async (newQ) => {
         if (!ensureTeacher(socket)) return;
         if (!newQ || typeof newQ !== 'object') return socket.emit("errorMsg", "Geçersiz soru verisi.");

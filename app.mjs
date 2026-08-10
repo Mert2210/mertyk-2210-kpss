@@ -9,6 +9,7 @@ import { normalizeTopicFilterMode, getAllowedTopicsForMode, getAllowedTopicsForM
 import { resolveCurrentExamType, getCustomCurriculumGroupsByExamType as getCustomCurriculumGroupsByExamTypeFromMap, getCustomCurriculumSubjectsByExamType as getCustomCurriculumSubjectsByExamTypeFromMap, getCustomCurriculumTopicsByExamTypeAndSubject as getCustomCurriculumTopicsByExamTypeAndSubjectFromMap, getCustomTopicsBySubject as getCustomTopicsBySubjectFromMap, addCustomTopicsForSubject as addCustomTopicsForSubjectInMap, mergeSubjectsForExamType } from "./modules/custom-data.mjs";
 import { buildRelativeResourceUrl, getShareableAppLink, shouldRegisterServiceWorker } from "./modules/app-shell.mjs";
 import { escapeHtml } from "./modules/security.mjs";
+import { initPdfProcessor } from "./modules/pdf-processor.mjs";
 
 const fallbackFirebaseConfig = { 
     apiKey: "AIzaSyDkZI-LxCOaog4kyb4YSquEK6ZpLNH2pqs", 
@@ -3240,6 +3241,8 @@ onAuthStateChanged(auth, user => {
         if (gelisimGamePanel) gelisimGamePanel.style.display = isTeacher ? "none" : "block";
         if (adminBtn) adminBtn.style.display = isAdmin ? "block" : "none";
         if (adminApproveBtn) adminApproveBtn.style.display = isAdmin ? "block" : "none";
+        const superAdminTools = document.getElementById('super-admin-tools');
+        if (superAdminTools) superAdminTools.style.display = isAdmin ? "block" : "none";
         window.applyRoleBasedBottomNav(isTeacher ? ROLE_TEACHER : ROLE_STUDENT);
 
         const settingsEl = document.getElementById('screen-settings');
@@ -3445,6 +3448,9 @@ async function uploadImageDataUrlIfNeeded(dataUrl, folder) {
 
 let socket; 
 try { socket = io(); } catch(e) { console.warn("Socket sunucusu yok."); }
+if (typeof socket !== 'undefined' && socket) {
+    initPdfProcessor(socket);
+}
 
 let currentMode = "room", myRoom = "", currentQIndex = 0, qInt = null, totalInt = null, trialQuestions = [], trialAnswers = [];
 let roomSolvedIndices = new Set(), roomCorrectIndices = new Set(), roomWrongIndices = new Set(), roomTotalQuestions = 0;

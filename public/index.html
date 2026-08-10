@@ -496,6 +496,25 @@
                 </div>
             </div>
 
+            <!-- Super Admin Özel Araçlar -->
+            <div id="super-admin-tools" style="display:none; background:rgba(46, 204, 113, 0.2); padding:12px; border-radius:10px; margin-bottom:15px; border:1px solid rgba(46, 204, 113, 0.4);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <label style="font-size:0.85rem; font-weight:bold; color:#2ecc71; margin:0;">👑 Süper Admin Araçları</label>
+                </div>
+                <div style="font-size:0.75rem; color:#fff; margin-bottom:10px;">
+                    10.000 soruluk Taranmış PDF'leri yapay zeka ile otomatik tarayıp sisteme ekleyin.
+                </div>
+                <input type="file" id="pdf-upload-input" accept="application/pdf" style="display:none;">
+                <button onclick="document.getElementById('pdf-upload-input').click()" class="green" style="width:100%; font-size:0.85rem; font-weight:bold; border-radius:8px; padding:10px;">📄 Taranmış PDF Yükle ve Tara</button>
+                
+                <div id="pdf-progress-container" style="display:none; margin-top:10px;">
+                    <div style="font-size:0.75rem; color:#f1c40f; font-weight:bold; margin-bottom:5px;" id="pdf-progress-text">PDF Yükleniyor...</div>
+                    <div style="width:100%; background:#2c3e50; border-radius:5px; height:8px; overflow:hidden;">
+                        <div id="pdf-progress-bar" style="width:0%; height:100%; background:#f1c40f; transition:width 0.3s;"></div>
+                    </div>
+                </div>
+            </div>
+
             <div style="background:rgba(255,255,255,0.1); padding:12px; border-radius:10px; margin-bottom:15px; border:1px solid rgba(255,255,255,0.2);">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; cursor:pointer;" onclick="toggleSection('rapor-body')">
                     <label style="font-size:0.85rem; font-weight:bold; color:#fff; margin:0; cursor:pointer;">📋 Raporlar &amp; Kütüphane</label>
@@ -994,6 +1013,14 @@ setTimeout(() => {
 </script>
 <script src="socket.io/socket.io.js"></script>
 <script type="module" src="app.js?v=2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+<script>
+    // Initialize PDF.js worker
+    if (window.pdfjsLib) {
+        window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+    }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
 </body>
 </html>
