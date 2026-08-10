@@ -272,10 +272,10 @@ const LEGACY_REMINDER_INTERVALS = Object.freeze([1 / 24, 3 / 24, 12 / 24, 1, 3, 
 const FLOAT_COMPARISON_EPSILON = 0.001;
 const VALID_STUDENT_PHOTO_SOURCES = ['camera', 'gallery', 'file'];
 const IMAGE_OPTIMIZATION_CONFIG = Object.freeze({
-    maxWidth: 1280,
-    minWidth: 720,
+    maxWidth: 900,
+    minWidth: 600,
     // 1GB toplam bulut kota için soru/çözüm görsellerinde ortalama dosya boyutunu düşük tutar.
-    targetBytes: 220 * 1024,
+    targetBytes: 150 * 1024,
     initialQuality: 0.82,
     minQuality: 0.68,
     qualityStep: 0.04,
