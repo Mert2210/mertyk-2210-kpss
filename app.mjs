@@ -3490,16 +3490,17 @@ window.updateFilterText = (type) => {
 if(socket) {
     socket.on('updateFilters', data => {
         const dersContent = document.getElementById('ders-content');
-        if (dersContent && data.dersler) { 
+        if (dersContent && data.dersler) {
+            const dersKeys = Object.keys(data.dersler).sort();
             dersContent.innerHTML = `<div class="checkbox-item"><input type="checkbox" name="ders-secim" value="HEPSI" checked onchange="updateFilterText('ders')"><label>TÜMÜ</label></div>` + 
-            data.dersler.map(x => `<div class="checkbox-item"><input type="checkbox" name="ders-secim" value="${escapeHtml(x)}" onchange="updateFilterText('ders')"><label>${escapeHtml(x)}</label></div>`).join(''); 
+            dersKeys.map(x => `<div class="checkbox-item"><input type="checkbox" name="ders-secim" value="${escapeHtml(x)}" onchange="updateFilterText('ders')"><label>${escapeHtml(x)} <span style="color:#e67e22;font-size:0.75rem;">(${data.dersler[x]} Soru)</span></label></div>`).join(''); 
             updateFilterText('ders'); 
         }
         const denemeContent = document.getElementById('deneme-content');
         if (denemeContent && data.denemeler) { 
-            const denemeKeys = Object.keys(data.denemeler); 
+            const denemeKeys = Object.keys(data.denemeler).sort(); 
             denemeContent.innerHTML = `<div class="checkbox-item"><input type="checkbox" name="deneme-secim" value="HEPSI" checked onchange="updateFilterText('deneme')"><label>TÜMÜ</label></div>` + 
-            denemeKeys.map(x => `<div class="checkbox-item"><input type="checkbox" name="deneme-secim" value="${escapeHtml(x)}" onchange="updateFilterText('deneme')"><label>${escapeHtml(x)}</label></div>`).join(''); 
+            denemeKeys.map(x => `<div class="checkbox-item"><input type="checkbox" name="deneme-secim" value="${escapeHtml(x)}" onchange="updateFilterText('deneme')"><label>${escapeHtml(x)} <span style="color:#e67e22;font-size:0.75rem;">(${data.denemeler[x]} Soru)</span></label></div>`).join(''); 
             updateFilterText('deneme'); 
         }
     });

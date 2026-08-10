@@ -29,7 +29,7 @@ function shuffleOptions(q, maxOptions = 5) {
 // 📊 Impact: ~20% faster execution per call.
 function getFiltersData(questions = []) {
     const denemeler = {};
-    const derslerSet = new Set();
+    const dersler = {};
 
     for (let i = 0; i < questions.length; i++) {
         const q = questions[i];
@@ -39,11 +39,11 @@ function getFiltersData(questions = []) {
         const dersRaw = q.ders || "Genel";
         const ders = dersRaw.trim().toLocaleUpperCase("tr");
         if (ders) {
-            derslerSet.add(ders);
+            dersler[ders] = (dersler[ders] || 0) + 1;
         }
     }
 
-    return { dersler: [...derslerSet].sort(), denemeler };
+    return { dersler, denemeler };
 }
 
 module.exports = {
