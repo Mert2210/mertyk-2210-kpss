@@ -49,7 +49,15 @@ if (!ALLOWED_ORIGIN) {
 // Güvenli CORS yöneticisi: ALLOWED_ORIGIN ayarlanmışsa yalnızca o kökeni kabul et,
 // aksi takdirde (geliştirme ortamı) tüm kökenlere izin ver.
 const corsOriginHandler = ALLOWED_ORIGIN
-    ? (origin, cb) => { cb(null, !origin || origin === ALLOWED_ORIGIN); }
+    ? (origin, cb) => {
+        if (!origin) return cb(null, true);
+        const allowedOrigins = ALLOWED_ORIGIN.split(',').map(o => o.trim());
+        if (allowedOrigins.includes(origin) || origin.endsWith('gazililer.com.tr')) {
+            cb(null, true);
+        } else {
+            cb(null, false);
+        }
+    }
     : (origin, cb) => { cb(null, true); };
 
 app.use(cors({ origin: corsOriginHandler }));
