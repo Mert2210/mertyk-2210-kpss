@@ -17,6 +17,17 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="ui-refresh.css">
 
+    <script>
+        // Fallback stubs to prevent Uncaught ReferenceError if buttons are clicked before app.js is loaded or if it fails to load
+        const showLoadingAlert = () => alert("Uygulama yükleniyor veya ağ hatası oluştu. Lütfen bekleyin veya sayfayı yenileyin.");
+        window.handleLogin = showLoadingAlert;
+        window.setMainRole = showLoadingAlert;
+        window.handleGoogleLogin = showLoadingAlert;
+        window.handleGuestLogin = showLoadingAlert;
+        window.handleResetPassword = showLoadingAlert;
+        window.switchAuth = showLoadingAlert;
+        window.togglePasswordVisibility = showLoadingAlert;
+    </script>
 </head>
 <body>
 
