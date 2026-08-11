@@ -129,7 +129,7 @@ app.get('/admin/metrics', staticFileLimiter, (req, res) => {
 let tumSorular = [];
 let cachedFiltersData = null;
 const QUESTIONS_FILE = path.join(__dirname, 'questions.json');
-const REPORTS_FILE = path.join(__dirname, 'reports.json'); 
+const REPORTS_FILE = path.join(__dirname, 'reports.json');
 const CLASSES_FILE = path.join(__dirname, 'classes.json');
 const CLASS_MISTAKES_FILE = path.join(__dirname, 'class_mistakes.json');
 const REVIEW_QUEUE_FILE = path.join(__dirname, 'review_queue.json');
@@ -139,6 +139,14 @@ const geminiApiKey = process.env.GEMINI_API_KEY || "ANAHTAR_YOK";
 const genAI = new GoogleGenerativeAI(geminiApiKey);
 const aiModel = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
+const AI_IMPORT_ENABLED = process.env.AI_IMPORT_ENABLED === "true";
+const aiImportQueueManager = require('./services/ai-import/queue/manager');
+const aiImportWorker = require('./services/ai-import/queue/worker');
+
+if (AI_IMPORT_ENABLED) {
+    aiImportWorker.start();
+}
+
 function sorulariYukle() {
     if (fs.existsSync(QUESTIONS_FILE)) {
         try {
@@ -147,9 +155,9 @@ function sorulariYukle() {
             rawData = rawData.replace(/\]\s*,\s*\[/g, ",");
             while (rawData.startsWith("[[")) { rawData = rawData.replace("[[", "["); }
             while (rawData.endsWith("]]")) { rawData = rawData.replace("]]", "]"); }
-            try { tumSorular = JSON.parse(rawData); } 
+            try { tumSorular = JSON.parse(rawData); }
             catch (parseErr) {
-                const matches = rawData.match(/\{.*?\}/gs); 
+                const matches = rawData.match(/\{.*?\}/gs);
                 if (matches) tumSorular = JSON.parse("[" + matches.join(",") + "]");
             }
         } catch (err) {
@@ -513,10 +521,10 @@ io.on("connection", (socket) => {
         const safeName = sanitizeString(fallbackName, 120) || "Kullanıcı";
         const safeFallbackRole = String(fallbackRole || "").trim() === "teacher" ? "teacher" : "student";
         const safeFallbackEmail = String(fallbackEmail || "").trim().toLowerCase();
-        
+
         // Eğer Firebase çalışmıyorsa veya kapalıysa, en azından yetkili e-postaların Admin olarak tanınmasını sağla.
         const isAdminFallback = ADMIN_EMAILS.includes(safeFallbackEmail);
-        
+
         let currentRole = safeFallbackRole;
         if (isAdminFallback) {
             currentRole = "admin";
@@ -526,12 +534,12 @@ io.on("connection", (socket) => {
             currentRole = "teacher_pending";
         }
 
-        socket.data.user = { 
-            name: safeName, 
-            role: currentRole, 
-            isVerified: false, 
-            isAdmin: isAdminFallback, 
-            email: safeFallbackEmail 
+        socket.data.user = {
+            name: safeName,
+            role: currentRole,
+            isVerified: false,
+            isAdmin: isAdminFallback,
+            email: safeFallbackEmail
         };
 
         if (!idToken || !admin.apps.length) return;
@@ -605,7 +613,7 @@ io.on("connection", (socket) => {
         const classes = readClasses();
         classes[classCode] = { name: safeClassName, teacher: safeTeacherEmail, students: [], createdAt: new Date().toISOString() };
         writeClasses(classes);
-        
+
         // Hoca için listeyi tazele
         const myClassesArray = [];
         for (const c in classes) { if (classes[c].teacher === safeTeacherEmail) myClassesArray.push({ code: c, ...classes[c] }); }
@@ -613,7 +621,7 @@ io.on("connection", (socket) => {
         socket.emit("classCreated", classCode);
     });
 
-    
+
     socket.on("renameClass", ({ oldCode, newName }) => {
         if (!ensureTeacher(socket)) return;
         const classes = readClasses();
@@ -649,7 +657,7 @@ io.on("connection", (socket) => {
         if (classes[safeCode] && classes[safeCode].teacher === currentUser(socket).email) {
             delete classes[safeCode];
             writeClasses(classes);
-            
+
             if (deleteQuestions && db) {
                 db.collection('gazi_questions').where('classCode', '==', safeCode).get().then(snapshot => {
                     const batch = db.batch();
@@ -752,7 +760,7 @@ io.on("connection", (socket) => {
             await admin.messaging().subscribeToTopic([safeToken], "gazililer_global");
             console.log("Firebase subscribe başarılı:", safeClassCode);
             socket.emit("notificationSubscriptionUpdated", { success: true, classCode: safeClassCode });
-            
+
                     } catch (error) {
             console.error("Bildirim abonelik hatası:", error);
             socket.emit("errorMsg", "Bildirim aboneliği güncellenemedi.");
@@ -960,7 +968,93 @@ ${text}`;
         }
     });
 
-    socket.on("addNewQuestion", async (newQ) => {
+
+    // AI QUESTION IMPORT SYSTEM (Admin/Teacher restricted based on env/requirements)
+    socket.on("aiImportStart", async ({ classCode, fileInfo, pilotCount }) => {
+        if (!ensureTeacher(socket)) return;
+        if (!AI_IMPORT_ENABLED) return socket.emit("errorMsg", "AI Import is currently disabled.");
+
+        try {
+            const userEmail = currentUser(socket).email;
+
+            // 1. Create Job in Supabase
+            const job = await aiImportQueueManager.createJob(userEmail, classCode, fileInfo);
+
+            // 2. Create mock pages based on pilotCount (for testing purposes, assumes each page is a question)
+            const pagesToProcess = parseInt(pilotCount) || 10;
+            await aiImportQueueManager.createPages(job.id, pagesToProcess);
+
+            socket.emit("aiImportStarted", { success: true, jobId: job.id, expectedPages: pagesToProcess });
+
+        } catch (error) {
+            console.error("AI Import Start Error:", error);
+            socket.emit("errorMsg", "Failed to start AI Import: " + error.message);
+        }
+    });
+
+    socket.on("getAiImportStatus", async (jobId) => {
+        if (!ensureTeacher(socket)) return;
+        if (!AI_IMPORT_ENABLED) return;
+
+        try {
+            const status = await aiImportQueueManager.getJobStatus(jobId);
+            if (status) {
+                socket.emit("aiImportStatusData", status);
+            }
+        } catch (error) {
+            console.error("AI Import Status Error:", error);
+        }
+    });
+
+
+    socket.on("aiImportApprove", async ({ pageId, questionId }) => {
+        if (!ensureTeacher(socket)) return;
+        if (!AI_IMPORT_ENABLED) return;
+        try {
+            const { supabase } = require('./services/ai-import/database/supabase');
+            await supabase.from('ai_questions').update({ review_status: 'approved' }).eq('id', questionId);
+            socket.emit("successMsg", "Soru başarıyla onaylandı.");
+        } catch (error) {
+            socket.emit("errorMsg", "Onaylama hatası: " + error.message);
+        }
+    });
+
+    socket.on("aiImportReject", async ({ pageId, questionId }) => {
+        if (!ensureTeacher(socket)) return;
+        if (!AI_IMPORT_ENABLED) return;
+        try {
+            const { supabase } = require('./services/ai-import/database/supabase');
+            await supabase.from('ai_questions').update({ review_status: 'rejected' }).eq('id', questionId);
+            socket.emit("successMsg", "Soru reddedildi.");
+        } catch (error) {
+            socket.emit("errorMsg", "Reddetme hatası: " + error.message);
+        }
+    });
+
+    socket.on("aiImportRegenerate", async ({ pageId, questionId }) => {
+        if (!ensureTeacher(socket)) return;
+        if (!AI_IMPORT_ENABLED) return;
+        // In a full implementation, this would trigger the orchestrator's generator step again.
+        // For this V1, we will mock the response.
+        socket.emit("successMsg", "Yeniden üretim kuyruğa alındı (Mock).");
+    });
+
+    socket.on("aiImportPublish", async (jobId) => {
+        if (!ensureTeacher(socket)) return;
+        if (!AI_IMPORT_ENABLED) return;
+        // In V1, we simulate taking all 'approved' questions for a job and marking them 'published'
+        try {
+            const { supabase } = require('./services/ai-import/database/supabase');
+            await supabase.from('ai_questions').update({ review_status: 'published' }).eq('job_id', jobId).eq('review_status', 'approved');
+            socket.emit("successMsg", "Onaylı sorular yayınlandı.");
+            // Trigger cache invalidate
+            listeleriHerkesinEkranindaGuncelle();
+        } catch (error) {
+            socket.emit("errorMsg", "Yayınlama hatası: " + error.message);
+        }
+    });
+
+socket.on("addNewQuestion", async (newQ) => {
         if (!ensureTeacher(socket)) return;
         if (!newQ || typeof newQ !== 'object') return socket.emit("errorMsg", "Geçersiz soru verisi.");
         if (typeof newQ.soru !== 'string' || typeof newQ.classCode !== 'string') return socket.emit("errorMsg", "Soru metni ve sınıf kodu zorunludur.");
@@ -992,12 +1086,12 @@ ${text}`;
         writeJsonFile(QUESTIONS_FILE, tumSorular);
         if (db) { try { await db.collection("kpss_sorular").add({ ...safeQ, createdAt: admin.firestore.FieldValue.serverTimestamp() }); } catch (e) {} }
         listeleriHerkesinEkranindaGuncelle();
-        
+
         // 🚨 YENİ SORU EKLENDİĞİNDE BİLDİRİM GÖNDER 🚨
         if (safeQ.classCode) {
             sendPushNotification(
-                safeQ.classCode, 
-                "👨‍🏫 Öğretmenin Yeni Bir Soru Ekledi!", 
+                safeQ.classCode,
+                "👨‍🏫 Öğretmenin Yeni Bir Soru Ekledi!",
                 `${safeQ.ders} dersinden çözülmeyi bekleyen yeni bir soru var. Haydi kumbaraya!`
             );
         }
@@ -1030,13 +1124,44 @@ ${text}`;
     });
 
     socket.on("getClassQuestions", async (classCode) => {
+        let aiQuestions = [];
+        if (AI_IMPORT_ENABLED) {
+            try {
+                const { supabase, isSupabaseConfigured } = require('./services/ai-import/database/supabase');
+                if (isSupabaseConfigured()) {
+                    const { data, error } = await supabase
+                        .from('ai_questions')
+                        .select('*')
+                        .eq('class_code', classCode)
+                        .eq('review_status', 'published');
+
+                    if (!error && data) {
+                        aiQuestions = data.map(q => ({
+                            id: q.id,
+                            soru: q.question_text,
+                            siklar: [q.choices.A, q.choices.B, q.choices.C, q.choices.D, q.choices.E],
+                            dogru: ["A", "B", "C", "D", "E"].indexOf(q.correct_answer) || 0,
+                            ders: q.subject || "GENEL",
+                            deneme: q.topic || "",
+                            solutionText: q.solution || "",
+                            image: q.image_url || null
+                        }));
+                    }
+                }
+            } catch(e) {
+                console.error("AI fetch error:", e);
+            }
+        }
+
         if(db && classCode) {
             try {
                 const snap = await db.collection("kpss_sorular").where("classCode", "==", classCode).get();
-                socket.emit("classQuestionsData", snap.docs.map((doc) => normalizeQuestionForClient(doc.data(), doc.id)));
-            } catch(e) { socket.emit("classQuestionsData", []); }
+                const firebaseQs = snap.docs.map((doc) => normalizeQuestionForClient(doc.data(), doc.id));
+                socket.emit("classQuestionsData", [...firebaseQs, ...aiQuestions]);
+            } catch(e) { socket.emit("classQuestionsData", aiQuestions); }
         } else {
-            socket.emit("classQuestionsData", buildClassQuestionList(classCode));
+            const localQs = buildClassQuestionList(classCode);
+            socket.emit("classQuestionsData", [...localQs, ...aiQuestions]);
         }
     });
 
@@ -1304,7 +1429,7 @@ ${text}`;
                             updatedAt: admin.firestore.FieldValue.serverTimestamp()
                         }, { merge: true });
                     }
-                    
+
                     socket.emit("pendingTeachersData", await getPendingTeachersList());
                 }
             } catch(e) {}
@@ -1336,12 +1461,12 @@ ${text}`;
         const username = sanitizeString((typeof data === 'object') ? (data.username || "Öğrenci") : (data || "Öğrenci"), 100) || "Öğrenci";
         const rank = sanitizeString((data && data.rank) || "1. Seviye", 50) || "1. Seviye";
         const roomCode = Math.floor(1000 + Math.random() * 9000).toString();
-        
-        rooms[roomCode] = { 
-            code: roomCode, players: {}, gameStarted: false, currentQuestionIndex: 0, 
+
+        rooms[roomCode] = {
+            code: roomCode, players: {}, gameStarted: false, currentQuestionIndex: 0,
             questions: [], settings: {}, timerId: null, answerCount: 0, questionStartTime: 0
         };
-        
+
         socket.join(roomCode);
         rooms[roomCode].players[socket.id] = { id: socket.id, username, rank, score: 0, hasAnsweredThisRound: false };
         socket.emit("roomCreated", roomCode);
@@ -1363,14 +1488,14 @@ ${text}`;
         fisherYatesShuffle(pool);
         const limit = parseInt(settings.count) || 10;
         const trialQuestions = pool.slice(0, limit).map(q => shuffleOptions(q, settings.optionsCount));
-        
+
         socket.emit("trialStarted", { questions: trialQuestions, timerMode: settings.timerMode, duration: settings.duration });
     });
 
     socket.on("startGame", ({ roomCode, settings }) => {
         const room = rooms[roomCode];
         if (!room) return;
-        
+
         // ⚡ Bolt: Prevent event loop blocking and intermediate allocations
         // 💡 What: Single loop replacement for chained .filter() calls
         // 🎯 Why: Iterating over large `tumSorular` multiple times caused CPU spikes
@@ -1412,22 +1537,22 @@ ${text}`;
                 earnedPoints = calculateEarnedPoints(gecen);
                 player.score += earnedPoints;
             } else if (answerIndex !== -1) { player.score -= 5; }
-            
+
             socket.emit("answerResult", { correct: isCorrect, correctIndex: currentQ.dogru, selectedIndex: answerIndex, points: earnedPoints });
             io.to(roomCode).emit("updatePlayerList", Object.values(room.players));
 
             if (room.answerCount >= Object.keys(room.players).length && room.timerMode === 'question') {
                 clearTimeout(room.timerId);
-                
+
                 if (room.currentQuestionIndex >= room.questions.length - 1) {
                     setTimeout(() => {
                         io.to(roomCode).emit("gameOver", Object.values(room.players));
                         room.gameStarted = false;
                     }, 1000);
                 } else {
-                    setTimeout(() => { 
-                        room.currentQuestionIndex++; 
-                        sendQuestionToRoom(roomCode); 
+                    setTimeout(() => {
+                        room.currentQuestionIndex++;
+                        sendQuestionToRoom(roomCode);
                     }, 1000);
                 }
             }
@@ -1447,7 +1572,7 @@ ${text}`;
 function sendQuestionToRoom(roomCode) {
     const room = rooms[roomCode];
     if (!room || !room.gameStarted) return;
-    
+
     if (room.currentQuestionIndex >= room.questions.length) {
         if(room.globalTimeout) clearTimeout(room.globalTimeout);
         io.to(roomCode).emit("gameOver", Object.values(room.players));
@@ -1465,19 +1590,19 @@ function sendQuestionToRoom(roomCode) {
         index: room.currentQuestionIndex + 1, total: room.questions.length,
         duration: parseInt(room.settings.duration), timerMode: room.timerMode, remainingTime: remaining
     });
-    
+
     if (room.timerMode === 'question' && room.settings.duration > 0) {
         if(room.timerId) clearTimeout(room.timerId);
-        room.timerId = setTimeout(() => { 
-            if (rooms[roomCode] && room.gameStarted) { 
+        room.timerId = setTimeout(() => {
+            if (rooms[roomCode] && room.gameStarted) {
                 if (room.currentQuestionIndex >= room.questions.length - 1) {
                     io.to(roomCode).emit("gameOver", Object.values(room.players));
                     room.gameStarted = false;
                 } else {
-                    room.currentQuestionIndex++; 
-                    sendQuestionToRoom(roomCode); 
+                    room.currentQuestionIndex++;
+                    sendQuestionToRoom(roomCode);
                 }
-            } 
+            }
         }, room.settings.duration * 1000);
     }
 }
@@ -1492,13 +1617,13 @@ setInterval(() => {
     const options = { timeZone: 'Europe/Istanbul', hour: '2-digit', minute: '2-digit', hour12: false };
     const trTimeStr = now.toLocaleTimeString('tr-TR', options);
     const currentDateStr = now.toLocaleDateString('tr-TR', { timeZone: 'Europe/Istanbul' });
-    
+
     // Saat 20:00 (Akşam 8) olduğunda ve bugün henüz gönderilmediyse
     if (trTimeStr === "20:00" && lastDailyPushDate !== currentDateStr) {
         lastDailyPushDate = currentDateStr;
         sendPushNotification(
-            "gazililer_global", 
-            "📚 Hatırlatma Zamanı!", 
+            "gazililer_global",
+            "📚 Hatırlatma Zamanı!",
             "Kumbaranda biriken güncel yanlışların var. Günü geçen yanlışlarını tekrar etme vakti!"
         ).catch(e => console.error("Günlük bildirim hatası:", e));
         console.log("✅ Günlük (20:00) toplu bildirim tetiklendi.");

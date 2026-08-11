@@ -518,6 +518,34 @@
 
 
             <div style="background:rgba(255,255,255,0.1); padding:12px; border-radius:10px; margin-bottom:15px; border:1px solid rgba(255,255,255,0.2);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; cursor:pointer;" onclick="toggleSection('ai-import-body')">
+                    <label style="font-size:0.85rem; font-weight:bold; color:#fff; margin:0; cursor:pointer;">🤖 AI Soru Yükleme (PDF)</label>
+                    <span style="color:#f1c40f; font-size:0.75rem;">🔽</span>
+                </div>
+                <div id="ai-import-body" style="display:none;">
+                    <label style="font-size:0.75rem; font-weight:bold; margin-bottom:5px; display:block; color:#fff;">Sınıf Seçin:</label>
+                    <select id="ai-import-class-select" style="margin-bottom:8px; font-weight:bold; color:#1e3c72; width:100%; padding:8px; border-radius:6px; border:none;">
+                        <option value="">--- Sınıf Seçin ---</option>
+                    </select>
+                    <input type="file" id="ai-import-file" accept="application/pdf" style="margin-bottom:8px; width:100%; color:#fff; font-size:0.8rem;">
+
+                    <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;">
+                        <button onclick="startAiImport(10)" style="flex:1; padding:6px; background:#3498db; color:white; border:none; border-radius:6px; font-size:0.75rem; font-weight:bold; cursor:pointer;">10 Soru Pilot</button>
+                        <button onclick="startAiImport(50)" style="flex:1; padding:6px; background:#9b59b6; color:white; border:none; border-radius:6px; font-size:0.75rem; font-weight:bold; cursor:pointer;">50 Soru Pilot</button>
+                    </div>
+
+                    <div id="ai-import-status" style="font-size:0.75rem; color:#f1c40f; margin-bottom:10px;"></div>
+
+                    <!-- AI Import Review Queue (Simplified for now) -->
+                    <div id="ai-import-review-container" style="display:none; background:rgba(0,0,0,0.3); border-radius:8px; padding:10px; max-height:300px; overflow-y:auto;">
+                        <h5 style="margin:0 0 10px 0; color:#fff;">Gözden Geçirme Bekleyenler</h5>
+                        <div id="ai-import-review-list"></div>
+                        <button id="ai-import-publish-btn" style="width:100%; margin-top:10px; padding:8px; background:#27ae60; color:white; border:none; border-radius:6px; font-weight:bold; cursor:pointer; display:none;">Onaylananları Yayınla</button>
+                    </div>
+                </div>
+            </div>
+
+            <div style="background:rgba(255,255,255,0.1); padding:12px; border-radius:10px; margin-bottom:15px; border:1px solid rgba(255,255,255,0.2);">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; cursor:pointer;" onclick="toggleSection('rapor-body')">
                     <label style="font-size:0.85rem; font-weight:bold; color:#fff; margin:0; cursor:pointer;">📋 Raporlar &amp; Kütüphane</label>
                     <span style="color:#f1c40f; font-size:0.75rem;">🔽</span>
