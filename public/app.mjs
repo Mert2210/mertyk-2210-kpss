@@ -1790,7 +1790,13 @@ window.renderLibraryLessonsScreen = (focusedSubject = '') => {
     const normalizedFocus = String(focusedSubject || window.currentLibraryLessonsFocusedSubject || '').trim();
     if (selectedCourseLabel) selectedCourseLabel.textContent = buildSelectedCourseLabel(normalizedFocus);
     const savedSubjects = CLIENT_STORE.getJSON('gazi_subjects_v2', []) || [];
-    const selectedSubjects = getSavedLibraryCourseNames(savedSubjects);
+    let selectedSubjects = getSavedLibraryCourseNames(savedSubjects);
+    if (selectedSubjects.length === 0) {
+        const activeExam = getCurrentExamType();
+        const baseSubjects = getCurriculumSubjectsByExamType(activeExam);
+        const customSubjects = getCustomCurriculumSubjectsByExamType(activeExam);
+        selectedSubjects = uniqueSubjects([...baseSubjects, ...customSubjects]);
+    }
     if (selectedSubjects.length === 0) {
         listEl.innerHTML = '<p class="derslerim-empty-text">Henüz kütüphanede ders bulunmuyor.</p>';
         return;
@@ -2653,28 +2659,35 @@ function updateNotificationToggleUI() {
     const toggle = document.getElementById('profile-notification-toggle');
     const status = document.getElementById('profile-notification-status');
     const enabled = areNotificationsEnabled();
-    if (toggle) toggle.checked = enabled;
-    if (!status) return;
-    if (!enabled) {
-        status.textContent = "Bildirimler kapalı.";
-        return;
+    const permission = typeof Notification !== "undefined" ? Notification.permission : "default";
+
+    if (toggle) {
+        toggle.checked = enabled && permission !== "denied";
+        if (permission === "denied") {
+            toggle.checked = false;
+            toggle.disabled = true; // Telefon ayarlarindan kapatildiysa butonu dondur
+            toggle.style.opacity = '0.5';
+        } else {
+            toggle.disabled = false;
+            toggle.style.opacity = '1';
+        }
     }
+    if (!status) return;
+
     if (typeof Notification === "undefined") {
         status.textContent = "Bu cihazda bildirim desteği yok.";
+        status.style.display = "block";
         return;
     }
-    const permission = Notification.permission;
-    switch (permission) {
-        case "granted":
-            status.textContent = "Bildirimler açık.";
-            return;
-        case "denied":
-            status.textContent = "Tarayıcı bildirimi engelliyor. Tarayıcı ayarından açabilirsiniz.";
-            return;
-        case "default":
-            status.textContent = "Bildirim izni bekleniyor. Açmak için anahtara dokunun.";
-            return;
+
+    if (permission === "denied") {
+        status.textContent = "Tarayıcı bildirimleri engelliyor (Cihaz ayarlarından izin verin).";
+        status.style.color = "#e74c3c";
+        status.style.display = "block";
+        return;
     }
+
+    status.style.display = "none";
 }
 
 async function getCurrentFcmToken() {
@@ -2833,11 +2846,18 @@ window.handleNotificationToggleChange = async () => {
 
         await subscribeToClassPushNotifications(getPreferredNotificationClassCode(), { forcePrompt: false });
         if (isGodModeUser()) await subscribeAdminPushNotifications();
+        window.showSoftFeedback("✅ Bildirim sistemi başarıyla açıldı.");
     } else {
-        await clearClassPushSubscription(CLIENT_STORE.getItem(NOTIFICATION_SUBSCRIPTION_CLASS_KEY) || getPreferredNotificationClassCode());
+        if (status) status.textContent = "Bildirimler kapalı.";
+        const token = await getCurrentFcmToken();
+        const classCode = getPreferredNotificationClassCode();
+        if (token && socket) {
+            socket.emit("removeClassNotificationToken", { token, classCode });
+        }
         clearStudentPushSubscription();
         if (isGodModeUser()) clearAdminPushSubscription();
         CLIENT_STORE.removeItem(NOTIFICATION_SUBSCRIPTION_CLASS_KEY);
+        window.showSoftFeedback("❌ Bildirimler kapatıldı.");
     }
     updateNotificationToggleUI();
 };
@@ -3105,7 +3125,6 @@ window.handleGuestLogin = async () => {
         const guestName = "Misafir-" + Math.floor(1000 + Math.random() * 9000); 
         const res = await signInAnonymously(auth); 
         await updateProfile(res.user, { displayName: guestName + "|student" }); 
-        location.reload(); 
     } catch(e) { 
         alert("Bağlantı Hatası"); 
     } 
@@ -3227,7 +3246,9 @@ onAuthStateChanged(auth, user => {
         
         if (instPanel) instPanel.style.display = isTeacher ? "block" : "none";
         if (teacherMainPanel) teacherMainPanel.style.display = isTeacher ? "block" : "none";
-        if (studentArea) studentArea.style.display = isTeacher ? "none" : "block"; 
+        if (studentArea) studentArea.style.display = isTeacher ? "none" : "block";
+        const studentTabs = document.getElementById("student-tabs-container");
+        if (studentTabs) studentTabs.style.display = isTeacher ? "none" : "block";
         if (studentLibPanel) studentLibPanel.style.display = isTeacher ? "none" : "block";
         if (savedLibraryPanel) savedLibraryPanel.style.display = isTeacher ? "none" : "block";
         if (mainQuickActions) mainQuickActions.style.display = isTeacher ? "none" : "flex";
@@ -3261,7 +3282,7 @@ onAuthStateChanged(auth, user => {
         if (isAdmin) subscribeAdminPushNotifications();
 
         if(typeof socket !== 'undefined') {
-            syncSocketUserContext(user, role, realName);
+            syncSocketUserContext(user, isTeacher ? 'teacher' : 'student', realName);
             if (isTeacher) socket.emit("getTeacherClass", user.email);
             socket.emit("getFilters", window.myClassCode || "");
             if (!isTeacher) socket.emit("checkNotebookReviews", realName);
@@ -3287,20 +3308,27 @@ onAuthStateChanged(auth, user => {
                 : `<option value="${DEFAULT_CUSTOM_GROUP_NAME}">${DEFAULT_CUSTOM_GROUP_NAME}</option>`; 
         }
 
-        const onboardingDone = CLIENT_STORE.getItem('gazi_onboarding_done', '');
-        if(!isTeacher && !onboardingDone) {
-            const hasSeenIntro = CLIENT_STORE.getItem('gazi_intro_seen', '');
-            if(!hasSeenIntro) { 
-                document.getElementById('intro-overlay').style.display = 'flex'; 
-            } else { 
-                window.openFirstRunOnboarding();
-            }
-        } else { 
-            window.showScreen('screen-main'); 
-        }
+        CLIENT_STORE.setItem('gazi_onboarding_done', 'true');
+        CLIENT_STORE.setItem('gazi_intro_seen', 'true');
+        window.showScreen('screen-main');
 
         if (!isTeacher) {
             promptNotificationsOnFirstLaunch();
+
+            const savedClassName = CLIENT_STORE.getItem('studentClassName', '');
+            if (savedClassName) {
+                const classInfoEl = document.getElementById('student-current-class-info');
+                if (classInfoEl) classInfoEl.innerHTML = `🎓 ${savedClassName}`;
+            }
+
+            // Auto-onboarding for missing subjects
+            setTimeout(() => {
+                const isDone = CLIENT_STORE.getItem("gazi_onboarding_done") === 'true';
+                if (!isDone) {
+                    window.openSubjectSelectionPanel();
+                    alert("👋 Uygulamaya hoş geldin! Kütüphaneni oluşturabilmemiz için lütfen önce sorumlu olduğun dersleri seç.");
+                }
+            }, 1000);
         }
 
         if (!isTeacher) {
@@ -3323,6 +3351,25 @@ onAuthStateChanged(auth, user => {
         window.showScreen('screen-auth'); 
     }
 });
+
+window.shareApp = async () => {
+    const url = getShareableAppLink(window.location);
+    if (navigator.share) {
+        try {
+            await navigator.share({
+                title: 'Gazi KPSS Genel Kültür Soru Havuzu',
+                text: 'Yeni nesil eğitim uygulamasına katıl, sınıf kodunla soruları çöz!',
+                url: url
+            });
+        } catch(e) {
+            console.log("Paylaşım iptal edildi veya desteklenmiyor.");
+        }
+    } else {
+        navigator.clipboard.writeText(url).then(() => {
+            alert("🔗 Link kopyalandı! İstediğiniz kişiye gönderebilirsiniz.");
+        });
+    }
+};
 
 window.logout = () => signOut(auth).then(() => location.reload());
 
@@ -3470,13 +3517,20 @@ if(socket) {
         const safeMsg = typeof msg === "string" && msg.trim() ? msg : DEFAULT_ERROR_MESSAGE;
         const role = String(APP_STATE.currentUser?.role || '').trim();
         const isPrivilegedUser = role === "teacher" || role === "admin";
-        if (safeMsg.includes("öğretmen yetkisi gerekir") && isPrivilegedUser) {
+
+        // Ignore teacher privilege warnings silently
+        if (safeMsg.toLowerCase().includes("yetki") || safeMsg.toLowerCase().includes("yetkisi")) {
             return;
         }
-        if (safeMsg.includes("öğretmen yetkisi gerekir") && !isPrivilegedUser) {
-            alert("⚠️ Bu işlem için öğretmen yetkisi gerekir.");
+
+        // Ignore invalid class code and clear it from local storage so it's empty
+        if (safeMsg.includes("geçersiz sınıf kodu")) {
+            CLIENT_STORE.removeItem('studentClassCode');
+            const classInput = document.getElementById('class-code-input');
+            if (classInput) classInput.value = "";
             return;
         }
+
         alert(`⚠️ ${safeMsg}`);
     });
     socket.on("userCurriculumData", (payload) => {
@@ -3508,6 +3562,9 @@ if(socket) {
         const totalQs = tCorrect + tWrong + tBlank; 
         const successRate = totalQs > 0 ? Math.round((tCorrect / totalQs) * 100) : 0;
         
+                const correctDeg = totalQs > 0 ? (tCorrect / totalQs) * 360 : 0;
+        const wrongDeg = totalQs > 0 ? (tWrong / totalQs) * 360 : 0;
+
         document.getElementById('stats-summary').innerHTML = `
             <div style="background:#27ae60; padding:15px; border-radius:10px;">
                 <div style="font-size:2rem; font-weight:bold;">%${successRate}</div>
@@ -3517,8 +3574,14 @@ if(socket) {
                 <div style="font-size:2rem; font-weight:bold;">${totalExams}</div>
                 <div style="font-size:0.8rem;">Çözülen Deneme</div>
             </div>
-            <div style="background:#e67e22; padding:10px; border-radius:10px; grid-column: span 2;">
-                <div style="font-size:1.1rem; font-weight:bold;">Toplam: ${tCorrect} Doğru | ${tWrong} Yanlış</div>
+            <div class="content-card" style="grid-column: span 2; padding:20px; display:flex; align-items:center; gap:20px; border:1px solid rgba(128,128,128,0.2); border-radius:12px;">
+                <div style="width:80px; height:80px; border-radius:50%; background: conic-gradient(#2ecc71 0deg ${correctDeg}deg, #e74c3c ${correctDeg}deg ${correctDeg + wrongDeg}deg, #95a5a6 ${correctDeg + wrongDeg}deg 360deg); flex-shrink:0; box-shadow:inset 0 0 10px rgba(0,0,0,0.1);"></div>
+                <div style="text-align:left;">
+                    <div style="font-weight:bold; font-size:1.1rem; color:#2c3e50; margin-bottom:5px;">Genel Dağılım</div>
+                    <div style="font-size:0.85rem; color:#2ecc71; margin-bottom:2px;">🟢 Doğru: <b>${tCorrect}</b></div>
+                    <div style="font-size:0.85rem; color:#e74c3c; margin-bottom:2px;">🔴 Yanlış: <b>${tWrong}</b></div>
+                    <div style="font-size:0.85rem; color:#95a5a6;">⚪ Boş: <b>${tBlank}</b></div>
+                </div>
             </div>`;
         
         const histDiv = document.getElementById('stats-history');
@@ -3537,11 +3600,12 @@ if(socket) {
     });
 }
 
-window.processImageUpload = async (e, type = 'question') => {
+window.processImageUpload = async (e, type = 'image') => {
     const file = e.target.files[0]; 
     if(!file) return; 
     
-    const previewId = type === 'question' ? 'img-preview' : 'img-preview-solution';
+    const isQuestion = (type === 'image' || type === 'question');
+    const previewId = isQuestion ? 'img-preview' : 'img-preview-solution';
     document.getElementById(previewId).style.display = 'block'; 
     document.getElementById(previewId).src = "https://i.gifer.com/ZKZg.gif"; 
 
@@ -3549,12 +3613,16 @@ window.processImageUpload = async (e, type = 'question') => {
         const optimizedDataUrl = await optimizeImageFileForUpload(file);
         if (!optimizedDataUrl) throw new Error('Görsel verisi üretilemedi.');
 
-        if (type === 'question') {
+        if (isQuestion) {
             uploadedImageBase64 = optimizedDataUrl;
             document.getElementById(previewId).src = uploadedImageBase64;
+            const btn = document.getElementById('teacher-file-btn');
+            if (btn) { btn.innerHTML = "✅ Soru Görseli Seçildi"; btn.style.borderColor = "#2ecc71"; btn.style.color = "#2ecc71"; }
         } else {
             uploadedSolutionBase64 = optimizedDataUrl;
             document.getElementById(previewId).src = uploadedSolutionBase64;
+            const btn = document.getElementById('teacher-sol-file-btn');
+            if (btn) { btn.innerHTML = "✅ Çözüm Yüklendi"; btn.style.borderColor = "#2ecc71"; btn.style.color = "#2ecc71"; }
         }
     } catch (err) {
         console.error("Görsel işlenemedi:", err);
@@ -3630,15 +3698,16 @@ window.processStudentImageUpload = async (e, type = 'image') => {
     }
 };
 
-window.uploadQuestion = async () => {
+window.uploadQuestion = async (isForClass = false) => {
     if(!socket) return alert("Sunucuya bağlanılamadı!");
     
     const qDers = document.getElementById('new-q-ders').value.trim(); 
     const qKonu = document.getElementById('new-q-deneme').value.trim();
     const qSoru = document.getElementById('new-q-text').value.trim() || "Aşağıdaki görseli inceleyiniz."; 
     const qSiklar = ["A", "B", "C", "D", "E"];
-    const qDogru = parseInt(document.getElementById('new-q-correct').value) || 0; 
-    const qSolText = document.getElementById('new-q-sol-text').value.trim();
+    const qDogru = parseInt(document.getElementById('new-q-correct')?.value) || 0;
+    const solTextEl = document.getElementById('new-q-sol-text');
+    const qSolText = solTextEl ? solTextEl.value.trim() : "";
     
     if(!qDers || !qKonu) return alert("Lütfen Ders ve Konu alanlarını doldurun!"); 
     if(!window.myClassCode) return alert("⚠️ Lütfen önce bir sınıf seçin veya oluşturun!");
@@ -3690,7 +3759,11 @@ window.uploadQuestion = async () => {
     document.getElementById('img-preview-solution').style.display = "none"; 
     uploadedSolutionBase64 = null;
     
-    alert(`✅ Soru (ve varsa çözümü) kütüphanenize eklendi!`);
+        if (isForClass) {
+        alert(`✅ Soru (ve varsa çözümü) ${window.myClassCode} sınıfına başarıyla gönderildi!`);
+    } else {
+        alert(`✅ Soru (ve varsa çözümü) kütüphanenize eklendi!`);
+    }
 };
 
 // 🚨 YENİ GÜNCELLENMİŞ ÖĞRENCİ SORU YÜKLEME KODU (HAFIZALI) 🚨
@@ -3828,6 +3901,7 @@ window.uploadStudentQuestion = async (target = 'cloud') => {
 };
 
 window.fetchStudentLibrary = (source = 'cloud', onlyReviews = false) => {
+    window.showSoftFeedback("Sorular yükleniyor...", "info", 1500);
     if (!window.pendingLibraryFilter) window.libraryViewingTopicPath = null;
     if(source === 'cloud') {
         if(!socket) return alert("Sunucu bağlantısı yok."); 
@@ -3904,10 +3978,10 @@ function renderStudentLibraryListOnly(data) {
     } else {
         const titleIsLocal = document.getElementById('list-title').innerText.includes("Cihaz");
         div.innerHTML = data.map((q, i) => {
-            const isLocalQuestion = q._source ? q._source === 'local' : titleIsLocal;
+                        const isLocalQuestion = q._source ? q._source === 'local' : titleIsLocal;
             const cloudBadge = !isLocalQuestion
-                ? `<span class="cloud-badge" title="Bu soru buluta kaydetilmiştir, internet bağlantısı gerektirir">☁️ ℹ️</span>`
-                : '';
+                ? `<span class="cloud-badge" title="Bulut Kaydı" style="background:rgba(52, 152, 219, 0.15); color:#3498db; padding:4px 8px; border-radius:12px; font-size:0.75rem; font-weight:bold;">☁️ Bulut</span>`
+                : `<span class="local-badge" title="Cihaz Kaydı" style="background:rgba(46, 204, 113, 0.15); color:#2ecc71; padding:4px 8px; border-radius:12px; font-size:0.75rem; font-weight:bold;">📱 Cihaz</span>`;
             const kitapText = typeof q.kitap === 'string' ? q.kitap.trim() : '';
             const showKitap = !!kitapText && kitapText.toLowerCase() !== LEGACY_EMPTY_BOOK_TEXT;
             return `
@@ -4122,6 +4196,9 @@ window.renderTrialQuestionList = () => {
         const questionText = String(q?.soru || q?.not || "Görseli inceleyiniz.");
         return `
             <article class="trial-list-card">
+                ${q?._source === 'local'
+                    ? `<span class="local-badge" title="Cihaz Kaydı" style="background:rgba(46, 204, 113, 0.15); color:#2ecc71; padding:4px 8px; border-radius:12px; font-size:0.75rem; font-weight:bold; display:inline-block; margin-bottom:8px; width:fit-content;">📱 Cihaz</span>`
+                    : `<span class="cloud-badge" title="Bulut Kaydı" style="background:rgba(52, 152, 219, 0.15); color:#3498db; padding:4px 8px; border-radius:12px; font-size:0.75rem; font-weight:bold; display:inline-block; margin-bottom:8px; width:fit-content;">☁️ Bulut</span>`}
                 <h4 class="trial-list-title">${i + 1}. ${escapeHtml(questionText)}</h4>
                 ${q?.image ? `<img src="${safeImageSrc(q.image)}" class="trial-list-image" alt="Soru görseli">` : ''}
                 <div class="trial-list-options">
@@ -4306,8 +4383,10 @@ window.deleteSavedTeacherMaterials = (index) => {
 };
 
 window.fetchClassQuestions = () => { 
-    const code = document.getElementById('class-code-input').value.trim().toUpperCase(); 
-    if(!code) return alert("Lütfen önce sınıf kodunu girin!"); 
+    const inputCode = document.getElementById('class-code-input')?.value.trim().toUpperCase();
+    const storeCode = CLIENT_STORE.getItem('studentClassCode', '');
+    const code = inputCode || storeCode;
+    if(!code) return alert("Lütfen önce bir sınıf kodunu girin veya bir sınıfa katılın!");
     socket.emit("getClassQuestions", code); 
 };
 
@@ -4353,9 +4432,29 @@ if(socket) {
         const solvedNames = reports.map(r => r.name); 
         const notSolved = roster.filter(name => !solvedNames.includes(name));
         
-        let html = `<h4 style="color:#27ae60; margin-top:0;">✅ Çözenler</h4>`;
-        if(reports.length === 0) html += "<p style='font-size:0.85rem;'>Henüz çözen öğrenci yok.</p>";
-        else html += reports.map(r => `<div class="list-item" style="border-left:4px solid #27ae60;"><b>${escapeHtml(r.name)}</b> <span style="float:right; color:#27ae60; font-weight:bold;">${escapeHtml(r.score)} Puan</span></div>`).join('');
+                let html = `<h4 style="color:#27ae60; margin-top:0;">✅ Çözenler</h4>`;
+        if(reports.length === 0) {
+            html += "<p style='font-size:0.85rem;'>Henüz çözen öğrenci yok.</p>";
+        } else {
+            html += '<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:10px; margin-bottom:20px;">';
+            html += reports.map(r => `
+                <div class="content-card" style="padding:15px; border-radius:12px; border-top:4px solid #27ae60; text-align:center; box-shadow:0 4px 10px rgba(0,0,0,0.05);">
+                    <div style="font-size:1.5rem; font-weight:bold; color:#27ae60; margin-bottom:5px;">${escapeHtml(r.score)}</div>
+                    <div style="font-size:0.85rem; font-weight:bold; color:#2c3e50;">${escapeHtml(r.name)}</div>
+                    <div style="font-size:0.75rem; color:#7f8c8d; margin-top:4px;">Puan</div>
+                </div>
+            `).join('');
+            html += '</div>';
+        }
+
+        html += `<h4 style="color:#c0392b; margin-top:20px;">❌ Çözmeyenler</h4>`;
+        if(notSolved.length === 0) {
+            html += "<p style='font-size:0.85rem;'>Sınıf listesi boş veya tüm sınıf görevini tamamlamış!</p>";
+        } else {
+            html += '<div style="display:flex; flex-wrap:wrap; gap:8px;">';
+            html += notSolved.map(name => `<div style="background:rgba(231, 76, 60, 0.1); color:#c0392b; padding:8px 12px; border-radius:8px; font-size:0.85rem; font-weight:bold;">${escapeHtml(name)}</div>`).join('');
+            html += '</div>';
+        }
         
         html += `<h4 style="color:#c0392b; margin-top:20px;">💤 Çözmeyenler</h4>`;
         if(notSolved.length === 0) html += "<p style='font-size:0.85rem;'>Sınıf listesi boş veya tüm sınıf görevini tamamlamış!</p>";
@@ -4596,7 +4695,7 @@ window.uploadQuestionToNamedClass = () => {
     const selectedClass = document.getElementById('target-class-select').value; 
     if(!selectedClass) return alert("Lütfen önce soruyu göndereceğiniz sınıfı seçin!"); 
     window.myClassCode = selectedClass; 
-    window.uploadQuestion(); 
+    window.uploadQuestion(true);
 };
 
 window.onTeacherDashClassChange = (classCode) => {
@@ -4746,8 +4845,13 @@ if(socket) socket.on("classJoined", (res) => {
     if(res.success) { 
         window.myClassCode = res.code; 
         CLIENT_STORE.setItem("gazi_class_code", res.code); 
+        if (res.className) CLIENT_STORE.setItem('studentClassName', res.className);
         socket.emit("getFilters", window.myClassCode); 
         subscribeToClassPushNotifications(res.code, { forcePrompt: true });
+
+        const classInfoEl = document.getElementById('student-current-class-info');
+        if (classInfoEl) classInfoEl.innerHTML = `🎓 ${res.className || res.code}`;
+
         alert("✅ Sınıfa katıldın!"); 
         const teacherQPanel = document.getElementById('gelisim-teacher-questions-panel');
         if (teacherQPanel) teacherQPanel.style.display = 'block';
@@ -4882,16 +4986,30 @@ window.downloadPDF = async () => {
     html += '<style>body { font-family: sans-serif; padding: 20px; } .q-container { border-bottom: 2px solid #ccc; padding-bottom: 20px; margin-bottom: 20px; page-break-inside: avoid; } img { max-width: 100%; max-height: 400px; margin-top: 10px; display: block; border-radius: 8px; }</style>';
     html += '</head><body><h2>Gazililer Hata Defteri</h2><hr>';
     
-    list.forEach((q, i) => {
-        const answer = (q.siklar && q.siklar[q.dogru]) ? q.siklar[q.dogru] : (q.dogru || 'Bilinmiyor');
-        html += '<div class="q-container">';
-        html += '<p><b>Soru ' + (i+1) + ':</b> ' + (q.soru ? q.soru : '') + '</p>';
-        if (q.image) html += '<img src="' + q.image + '">';
-        html += '<p style="color:green;"><b>Cevap:</b> ' + answer + '</p>';
-        if (q.solutionText) html += '<p style="color:blue;"><b>Çözüm Notu:</b> ' + q.solutionText + '</p>';
-        if (q.solutionImage) html += '<p style="color:blue;"><b>Çözüm Görseli:</b></p><img src="' + q.solutionImage + '">';
+        for (let i = 0; i < list.length; i += 4) {
+        html += '<div class="page">';
+        for (let j = 0; j < 4; j++) {
+            const index = i + j;
+            if (index < list.length) {
+                const q = list[index];
+                const answer = (q.siklar && q.siklar[q.dogru]) ? q.siklar[q.dogru] : (q.dogru || 'Bilinmiyor');
+                html += '<div class="q-container">';
+                html += '<div class="q-header">Soru ' + (index+1) + '</div>';
+                if (q.soru) html += '<p style="font-size:13px; margin:0 0 8px 0; color:#34495e;">' + q.soru + '</p>';
+                if (q.image) html += '<img class="q-img" src="' + q.image + '">';
+                html += '<div class="q-meta">';
+                html += '<div style="color:#27ae60; font-weight:bold; margin-bottom:4px;">Cevap: ' + answer + '</div>';
+                if (q.solutionText) html += '<div style="color:#2980b9; font-size:11px;">Not: ' + q.solutionText + '</div>';
+                if (q.solutionImage) html += '<img class="q-img" style="max-height:80px; margin-top:4px;" src="' + q.solutionImage + '">';
+                html += '</div>';
+                html += '</div>';
+            } else {
+                html += '<div class="q-container" style="border:none; background:transparent;"></div>';
+            }
+        }
         html += '</div>';
-    });
+    }
+    //
     
     html += '<script>';
     html += 'window.onload = function() { setTimeout(function() { window.print(); window.close(); }, 1000); }';
@@ -5322,6 +5440,113 @@ document.addEventListener('keydown', (e) => {
 });
 
 
+
+
+
+window.switchDashboardTab = function(tabName) {
+    document.querySelectorAll('.modern-tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.modern-tab-content').forEach(content => content.classList.remove('active'));
+
+    document.getElementById('tab-btn-' + tabName).classList.add('active');
+    document.getElementById('tab-' + tabName).classList.add('active');
+};
+
+window.createNewNamedClassFromInstructor = () => {
+    const className = document.getElementById('new-class-name-instructor').value.trim();
+    if(!className) return alert("L�tfen bir s�n�f ad� girin!");
+    const auth = window.getAuth ? window.getAuth() : null;
+    const email = (auth && auth.currentUser) ? auth.currentUser.email : APP_STATE.currentUser.email;
+    if(typeof socket !== 'undefined' && socket) socket.emit("createNamedClass", { teacherEmail: email, className });
+    document.getElementById('new-class-name-instructor').value = "";
+};
+
+
+
+window.filterLibraryTopics = (query) => {
+    const safeQuery = String(query || '').toLowerCase().trim();
+    const listEl = document.getElementById('library-topics-list');
+    if (!listEl) return;
+    const buttons = listEl.querySelectorAll('button.derslerim-topic-btn');
+    buttons.forEach(btn => {
+        const text = btn.textContent.toLowerCase();
+        if (safeQuery === '' || text.includes(safeQuery)) {
+            btn.style.display = 'block';
+        } else {
+            btn.style.display = 'none';
+        }
+    });
+};
+
+
+// Uygulamaya geri donuldugunde bildirim izinlerini telefonla senkronize et
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+        updateNotificationToggleUI();
+    }
+});
+
+window.onManageClassChange = (classCode) => {
+    const actionsArea = document.getElementById('manage-class-actions');
+    const codeDisplay = document.getElementById('manage-class-code-display');
+    const renameInput = document.getElementById('manage-class-rename-input');
+
+    if (classCode) {
+        actionsArea.style.display = 'block';
+        codeDisplay.innerText = "KOD: " + classCode;
+        renameInput.value = "";
+
+        const cachedClasses = JSON.parse(CLIENT_STORE.getItem('gazi_teacher_classes')) || {};
+        const cls = cachedClasses[classCode];
+        const ul = document.getElementById('manage-class-students-ul');
+        if (ul && cls) {
+            if (cls.students && cls.students.length > 0) {
+                ul.innerHTML = cls.students.map(s => `<li>${s.name}</li>`).join('');
+            } else {
+                ul.innerHTML = '<li>Henüz öğrenci yok.</li>';
+            }
+        }
+    } else {
+        actionsArea.style.display = 'none';
+    }
+};
+
+window.shareTeacherClassCode = () => {
+    const classCode = document.getElementById('manage-class-select').value;
+    if (!classCode) return;
+
+    const text = `Sınıfıma Katıl!\nUygulamayı indir ve Sınıf Kodunu girerek katıl:\n\nKOD: ${classCode}`;
+    if (navigator.share) {
+        navigator.share({ title: 'Sınıfıma Katıl', text: text })
+            .catch(err => console.log('Paylaşım iptal edildi veya desteklenmiyor.', err));
+    } else {
+        navigator.clipboard.writeText(text).then(() => {
+            alert("📋 Sınıf kodu ve mesaj panoya kopyalandı! Öğrencilerinize gönderebilirsiniz.");
+        });
+    }
+};
+
+window.renameTeacherClass = () => {
+    const oldCode = document.getElementById('manage-class-select').value;
+    const newName = document.getElementById('manage-class-rename-input').value.trim();
+    if (!oldCode) return alert("❌ Lütfen önce sınıf seçin.");
+    if (!newName) return alert("❌ Lütfen yeni sınıf adını girin.");
+
+    if (socket) socket.emit("renameClass", { oldCode, newName });
+    document.getElementById('manage-class-rename-input').value = "";
+};
+
+window.deleteTeacherClass = () => {
+    const code = document.getElementById('manage-class-select').value;
+    if (!code) return alert("❌ Lütfen önce sınıf seçin.");
+
+    const isSure = confirm("🚨 Bu sınıf kalıcı olarak silinecek. Emin misiniz?");
+    if (isSure) {
+        const deleteQuestions = confirm("⚠️ Bu sınıfa göndermiş olduğunuz tüm soruları da KÖKTEN SİLMEK istiyor musunuz?\n(İptal derseniz sadece sınıf silinir, sorular kütüphanenizde kalır)");
+        if (socket) socket.emit("deleteClass", { code, deleteQuestions });
+        document.getElementById('manage-class-actions').style.display = 'none';
+        document.getElementById('manage-class-select').value = "";
+    }
+};
 
 
 
