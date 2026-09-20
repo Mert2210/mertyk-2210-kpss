@@ -39,11 +39,11 @@ function getFiltersData(questions = []) {
         const dersRaw = q.ders || "Genel";
         const ders = dersRaw.trim().toLocaleUpperCase("tr");
         if (ders) {
-            dersler[ders] = (dersler[ders] || 0) + 1;
+            dersler[ders] = true;
         }
     }
 
-    return { dersler, denemeler };
+    return { dersler: Object.keys(dersler).sort((a, b) => a.localeCompare(b, "tr")), denemeler };
 }
 
 module.exports = {
