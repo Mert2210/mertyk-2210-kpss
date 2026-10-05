@@ -16,6 +16,12 @@ const { fisherYatesShuffle, shuffleOptions, getFiltersData } = require("./utils/
 const { readJsonFile, writeJsonFile, batchWriteJsonFiles } = require("./services/json-store");
 const { sanitizeString, isValidImageDataUrl, isTeacherRole, isAdminRole, sanitizeQuestionReport } = require("./services/security-utils");
 const { calculateEarnedPoints, calculateNextReviewDate } = require("./services/game-rules");
+const {
+    toPublicCompetitiveQuestion,
+    validateCompetitiveSubmission,
+    scoreCompetitiveAnswer,
+    getSubmissionErrorMessage
+} = require("./services/competitive-game");
 const { optimizeImageDataUrl } = require("./services/image-optimization");
 const { getMetricsSummary } = require("./services/optimization-metrics");
 const { PUBLIC_ASSET_ROUTES, getCoreStaticFileMap } = require("./services/static-routes");
@@ -1370,6 +1376,7 @@ ${text}`;
     socket.on("startGame", ({ roomCode, settings }) => {
         const room = rooms[roomCode];
         if (!room) return;
+        if (!room.players[socket.id]) return socket.emit("errorMsg", "Bu odada sınav başlatma yetkiniz yok.");
         
         // ⚡ Bolt: Prevent event loop blocking and intermediate allocations
         // 💡 What: Single loop replacement for chained .filter() calls
@@ -1395,41 +1402,55 @@ ${text}`;
         sendQuestionToRoom(roomCode);
     });
 
-    socket.on("submitAnswer", ({ roomCode, answerIndex }) => {
+    socket.on("submitAnswer", (payload) => {
+        const roomCode = sanitizeString(payload?.roomCode, 20);
         const room = rooms[roomCode];
-        if (!room || !room.gameStarted) return;
-        const currentQ = room.questions[room.currentQuestionIndex];
-        const player = room.players[socket.id];
+        const submission = validateCompetitiveSubmission({
+            room,
+            socketId: socket.id,
+            payload,
+            now: Date.now()
+        });
 
-        if (player && !player.hasAnsweredThisRound) {
-            player.hasAnsweredThisRound = true;
-            room.answerCount++;
-            let isCorrect = (answerIndex !== -1 && answerIndex == currentQ.dogru);
-            let earnedPoints = 0;
+        if (!submission.ok) {
+            socket.emit("errorMsg", getSubmissionErrorMessage(submission.code));
+            return;
+        }
 
-            if (isCorrect) {
-                const gecen = (Date.now() - room.questionStartTime) / 1000;
-                earnedPoints = calculateEarnedPoints(gecen);
-                player.score += earnedPoints;
-            } else if (answerIndex !== -1) { player.score -= 5; }
+        const { player, question, answerIndex } = submission;
+        player.hasAnsweredThisRound = true;
+        room.answerCount++;
+
+        const elapsedSeconds = (Date.now() - room.questionStartTime) / 1000;
+        const answerScore = scoreCompetitiveAnswer({
+            question,
+            answerIndex,
+            elapsedSeconds,
+            calculateEarnedPoints
+        });
+        player.score += answerScore.scoreDelta;
+
+        socket.emit("answerResult", {
+            correct: answerScore.correct,
+            selectedIndex: answerIndex,
+            points: answerScore.points,
+            scoreDelta: answerScore.scoreDelta
+        });
+        io.to(roomCode).emit("updatePlayerList", Object.values(room.players));
+
+        if (room.answerCount >= Object.keys(room.players).length && room.timerMode === 'question') {
+            clearTimeout(room.timerId);
             
-            socket.emit("answerResult", { correct: isCorrect, correctIndex: currentQ.dogru, selectedIndex: answerIndex, points: earnedPoints });
-            io.to(roomCode).emit("updatePlayerList", Object.values(room.players));
-
-            if (room.answerCount >= Object.keys(room.players).length && room.timerMode === 'question') {
-                clearTimeout(room.timerId);
-                
-                if (room.currentQuestionIndex >= room.questions.length - 1) {
-                    setTimeout(() => {
-                        io.to(roomCode).emit("gameOver", Object.values(room.players));
-                        room.gameStarted = false;
-                    }, 1000);
-                } else {
-                    setTimeout(() => { 
-                        room.currentQuestionIndex++; 
-                        sendQuestionToRoom(roomCode); 
-                    }, 1000);
-                }
+            if (room.currentQuestionIndex >= room.questions.length - 1) {
+                setTimeout(() => {
+                    io.to(roomCode).emit("gameOver", Object.values(room.players));
+                    room.gameStarted = false;
+                }, 1000);
+            } else {
+                setTimeout(() => { 
+                    room.currentQuestionIndex++; 
+                    sendQuestionToRoom(roomCode); 
+                }, 1000);
             }
         }
     });
@@ -1461,7 +1482,7 @@ function sendQuestionToRoom(roomCode) {
     let remaining = room.timerMode === 'general' ? Math.max(0, Math.floor((room.endTime - Date.now()) / 1000)) : 0;
 
     io.to(roomCode).emit("newQuestion", {
-        soru: q.soru, siklar: q.siklar, ders: q.ders, image: q.image,
+        ...toPublicCompetitiveQuestion(q),
         index: room.currentQuestionIndex + 1, total: room.questions.length,
         duration: parseInt(room.settings.duration), timerMode: room.timerMode, remainingTime: remaining
     });
