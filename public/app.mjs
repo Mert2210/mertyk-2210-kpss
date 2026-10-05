@@ -5084,7 +5084,7 @@ if(socket) {
             b.onclick = () => { 
                 document.querySelectorAll('.opt-btn').forEach(x => x.classList.remove('selected')); 
                 b.classList.add('selected'); 
-                socket.emit('submitAnswer', {roomCode: myRoom, answerIndex: i}); 
+                socket.emit('submitAnswer', {roomCode: myRoom, answerIndex: i, questionIndex: currentQIndex + 1}); 
                 clearInterval(qInt); 
             };
             document.getElementById('opts-area').appendChild(b);
@@ -5237,7 +5237,7 @@ function startQuestionTimer(s) {
         document.getElementById('time-q').innerText = t + "s"; 
         if(t<=0) { 
             clearInterval(qInt); 
-            if(socket) socket.emit('submitAnswer', {roomCode: myRoom, answerIndex: -1}); 
+            if(socket) socket.emit('submitAnswer', {roomCode: myRoom, answerIndex: -1, questionIndex: currentQIndex + 1}); 
         }
     }, 1000); 
 }
