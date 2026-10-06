@@ -6,7 +6,12 @@ services:
     rootDir: v2-server
     buildCommand: npm run build:client && npm install
     startCommand: npm start
+    healthCheckPath: /api/health
     envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_KEY
+        sync: false
       - key: VITE_SUPABASE_URL
         sync: false
       - key: VITE_SUPABASE_ANON_KEY

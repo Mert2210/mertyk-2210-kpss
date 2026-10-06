@@ -9,7 +9,7 @@ export default function StudentLibrary() {
   const [wrongAnswers, setWrongAnswers] = useState([
     {
       id: 1,
-      questionText: 'Milli Mücadele döneminde "Ordular ilk hedefiniz Akdeniz'dir!" emri nerede verilmiştir?',
+      questionText: 'Milli Mücadele döneminde "Ordular ilk hedefiniz Akdeniz\'dir!" emri nerede verilmiştir?',
       studentAnswer: 'Sakarya Meydan Muharebesi',
       correctAnswer: 'Büyük Taarruz',
       date: '10 Temmuz 2026',
