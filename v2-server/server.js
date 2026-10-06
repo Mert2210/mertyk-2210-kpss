@@ -9,11 +9,14 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { initializeSockets } from './sockets/index.js';
 import { initializeCronJobs } from './cron/reminderJob.js';
+import { buildHealthPayload, getStartupDiagnostics } from './config.js';
 
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const startedAt = Date.now();
+const diagnostics = getStartupDiagnostics(process.env);
 
 const app = express();
 const httpServer = createServer(app);
@@ -55,7 +58,7 @@ app.use(express.json({ limit: '1mb' })); // 🛡️ SİBER GÜVENLİK: Dev paylo
 
 // API Rotaları
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'V2 Ultimate Server is SECURE and running perfectly!' });
+  res.status(200).json(buildHealthPayload({ diagnostics, startedAt }));
 });
 
 // React Ön Yüzü Sunma
@@ -72,7 +75,12 @@ initializeSockets(io);
 // Gece Yarısı Hatırlatma Motorunu Başlat
 initializeCronJobs();
 
-const PORT = process.env.PORT || 3000;
-httpServer.listen(PORT, () => {
-  console.log(`🚀 V2 Ultimate Server running securely on port ${PORT}`);
+diagnostics.warnings.forEach((warning) => {
+  const level = diagnostics.isProduction && warning.includes('incomplete') ? console.error : console.warn;
+  level(`⚠️ [startup] ${warning}`);
+});
+
+httpServer.listen(diagnostics.port, () => {
+  console.log(`🚀 V2 Ultimate Server running securely on port ${diagnostics.port} (env=${diagnostics.nodeEnv})`);
+  console.log(`ℹ️ [startup] Supabase configured: ${diagnostics.supabase.hasConfig ? 'yes' : 'no'}`);
 });

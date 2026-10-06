@@ -1,14 +1,18 @@
 import cron from 'node-cron';
 import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
+import { resolveSupabaseConfig } from '../config.js';
 dotenv.config();
 
-const supabase = createClient(
-  process.env.VITE_SUPABASE_URL || 'https://placeholder.supabase.co',
-  process.env.VITE_SUPABASE_ANON_KEY || 'placeholder'
-);
-
 export const initializeCronJobs = () => {
+  const supabaseConfig = resolveSupabaseConfig(process.env);
+  if (!supabaseConfig.hasConfig) {
+    console.warn('⚠️ [CRON] Supabase yapılandırması eksik. Cron görevi başlatılmadı.');
+    return;
+  }
+
+  const supabase = createClient(supabaseConfig.url, supabaseConfig.key);
+
   // Her gece 00:00'da çalışacak
   cron.schedule('0 0 * * *', async () => {
     console.log('⏳ [CRON] Akıllı Tekrar Motoru (Spaced Repetition) çalıştırılıyor...');
